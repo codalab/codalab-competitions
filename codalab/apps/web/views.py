@@ -489,8 +489,8 @@ class CompetitionDetailView(DetailView):
         # Get the month from submitted_at
         try:
             truncate_date = connection.ops.date_trunc_sql('day', 'submitted_at')
-            score_def = SubmissionScoreDef.objects.get(competition=self.get_object(), ordering=1)
-            qs = SubmissionScore.objects.filter(result__phase__competition=self.get_object(), scoredef__ordering=1)
+            score_def = SubmissionScoreDef.objects.get(competition=competition, ordering=1)
+            qs = SubmissionScore.objects.filter(result__phase__competition=competition, scoredef__ordering=1)
             qs = qs.extra({'day': truncate_date}).values('day')
             if score_def.sorting == 'asc':
                 best_value = Max('value')
@@ -505,13 +505,15 @@ class CompetitionDetailView(DetailView):
                 'sorting': score_def.sorting,
             }
         except:
-            return HttpResponse(status=404)
+            print("Failed to retrieve graph data")
+            context['error'] = traceback.format_exc()
         try:
             my_leaders = []
             my_leaders = self.get_object().get_top_three()
             context['topthreeleaders'] = my_leaders
         except:
-            return HttpResponse(status=404)
+            print("Failed to retrieve top 3 leaders.")
+            context['error'] = traceback.format_exc()
         # End top 3 leaderboard
 
         if settings.USE_AWS:
