@@ -507,10 +507,9 @@ class CompetitionDetailView(DetailView):
             my_leaders = []
             my_leaders = self.get_object().get_top_three()
             context['top_three_leaders'] = my_leaders
-        except DoesNotExist:
+        except ObjectDoesNotExist:
             context['top_three_leaders'] = None
             context['graph'] = None
-
 
         if settings.USE_AWS:
             context['submission_upload_form'] = forms.SubmissionS3UploadForm
