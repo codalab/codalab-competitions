@@ -504,17 +504,13 @@ class CompetitionDetailView(DetailView):
                 'counts': [s['count'] for s in qs],
                 'sorting': score_def.sorting,
             }
-        except:
-            print("Failed to retrieve graph data")
-            context['error'] = traceback.format_exc()
-        try:
             my_leaders = []
             my_leaders = self.get_object().get_top_three()
             context['topthreeleaders'] = my_leaders
-        except:
-            print("Failed to retrieve top 3 leaders.")
-            context['error'] = traceback.format_exc()
-        # End top 3 leaderboard
+        except DoesNotExist:
+            context['topthreeleaders'] = None
+            context['graph'] = None
+
 
         if settings.USE_AWS:
             context['submission_upload_form'] = forms.SubmissionS3UploadForm
