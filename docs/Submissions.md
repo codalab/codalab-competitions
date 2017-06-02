@@ -1,14 +1,14 @@
-<h1>Competition Submissions</h1>
+# Competition Submissions
 
 #### How to create new submissions to competitions
 
-<h2>Step 1</h2>
+## Step 1
 
 #### This step is really important!
 
 Remove any queues you have in the competition you are trying to make a new submission for. You can do this by clicking Edit on a competition page, scrolling down to the worker queues field and resetting this field to its default state.  Finally, click save.
 
-<h2>Step 2</h2>
+## Step 2
 
 #### Ensure the proper permissions are set
 
@@ -24,7 +24,7 @@ Remove any queues you have in the competition you are trying to make a new submi
 
 `sudo chmod 777 /tmp/codalab`
 
-<h2>Step 3</h2>
+## Step 3
 
 #### Create and start worker_compute
 
@@ -32,7 +32,7 @@ Remove any queues you have in the competition you are trying to make a new submi
 
 `docker-compose start worker_compute`
 
-<h2>Troubleshooting</h1>
+## Troubleshooting
 
 `IOError: [Errno 13] Permission denied: ‘/var/log/compute_worker.log’`
 
