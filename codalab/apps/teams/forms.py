@@ -41,8 +41,7 @@ class TeamEditForm(forms.ModelForm):
     name = forms.CharField(max_length=64, required=False)
     description = forms.Textarea()
     allow_requests = forms.BooleanField(required=False)
-#    image = forms.ImageField(required=False)
-    image = forms.ImageField(required=False,widget=CustomImageField)
+    image = forms.ImageField(required=False, widget=CustomImageField)
 
     class Meta:
         model = Team
