@@ -772,11 +772,9 @@ def send_mass_email(competition_pk, body=None, subject=None, from_email=None, to
 
 @task(queue='site-worker')
 def do_phase_migrations():
-    #logger = phase_migrations.get_logger()
-    logger.info("Doing something")
-    print("we at least saw this.")
-    # competitions = Competition.objects.filter(is_migrating=False)
-    #
-    # for c in competitions:
-    #     c.check_future_phase_sumbmissions()
-    #     return "Did something?"
+    logger.info("Task: Do phase migrations running.")
+    competitions = Competition.objects.filter(is_migrating=False)
+
+    for c in competitions:
+        logger.info("Checking future phase submissions for " + str(c))
+        c.check_future_phase_sumbmissions()

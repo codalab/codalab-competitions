@@ -420,7 +420,7 @@ class Base(Settings):
     CELERYBEAT_SCHEDULE = {
         'phase_migrations': {
             'task': 'apps.web.tasks.do_phase_migrations',
-            'schedule': timedelta(seconds=15),
+            'schedule': timedelta(seconds=300),
         },
     }
     CELERY_TIMEZONE = 'UTC'
