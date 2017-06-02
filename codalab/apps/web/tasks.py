@@ -55,8 +55,7 @@ import time
 from codalab.azure_storage import make_blob_sas_url
 from codalabtools.compute.worker import get_run_func
 
-logger = logging.getLogger(__name__)
-
+logger = get_task_logger(__name__)
 
 # Echo
 def echo_task(job_id, args):
@@ -769,3 +768,28 @@ def send_mass_email(competition_pk, body=None, subject=None, from_email=None, to
     mail_tuples = ((subject, text, html, from_email, [e]) for e in to_emails)
 
     _send_mass_html_mail(mail_tuples)
+
+#@task()
+#def hello_world_test():
+    #print("Hello World")
+    #return "Hello World"
+
+#app = Celery('site-worker')
+#app.config_from_object('site-worker')
+
+from celery.utils.log import get_task_logger
+from celery import Celery
+from datetime import timedelta
+
+#logger = get_task_logger(__name__)
+
+@task()
+def phase_migrations():
+    #logger = phase_migrations.get_logger()
+    #logger.info("Doing something")
+    print("we at least saw this.")
+    competitions = models.Competition.objects.filter(is_migrating=False)
+
+    for c in competitions:
+        c.check_future_phase_sumbmissions()
+        return "Did something?"

@@ -1,5 +1,7 @@
 import re
 import uuid
+
+from datetime import timedelta
 from textwrap import dedent
 
 from configurations import importer
@@ -415,6 +417,17 @@ class Base(Settings):
     # Run as *not* root
     CELERYD_USER = "workeruser"
     CELERYD_GROUP = "workeruser"
+
+    #CELERY_IMPORTS = ('apps.web.tasks', )
+
+    CELERYBEAT_SCHEDULE = {
+        'phase_migrations': {
+            'task': 'apps.web.tasks.phase_migrations',
+            'schedule': timedelta(seconds=15),
+        },
+    }
+
+    CELERY_TIMEZONE = 'UTC'
 
 
     # =========================================================================
