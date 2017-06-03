@@ -104,11 +104,6 @@ class CompetitionHiddenPhaseMigration(TestCase):
 
         self.client = Client()
 
-    def test_scheduler_url_call_competition_phase_migration(self):
-        with mock.patch('apps.web.models.Competition.check_future_phase_sumbmissions') as check_future_migrations_mock:
-            resp = self.client.get('/competitions/check_phase_migrations')
-
-        self.assertTrue(check_future_migrations_mock.called)
 
     def test_phase_to_phase_migrations_only_when_auto_migration_flag_is_true(self):
         '''

@@ -57,7 +57,6 @@ from codalabtools.compute.worker import get_run_func
 
 logger = logging.getLogger(__name__)
 
-
 # Echo
 def echo_task(job_id, args):
     """
@@ -769,3 +768,13 @@ def send_mass_email(competition_pk, body=None, subject=None, from_email=None, to
     mail_tuples = ((subject, text, html, from_email, [e]) for e in to_emails)
 
     _send_mass_html_mail(mail_tuples)
+
+
+@task(queue='site-worker')
+def do_phase_migrations():
+    logger.info("Task: Do phase migrations running.")
+    competitions = Competition.objects.filter(is_migrating=False)
+
+    for c in competitions:
+        logger.info("Checking future phase submissions for " + str(c))
+        c.check_future_phase_sumbmissions()

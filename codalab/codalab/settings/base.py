@@ -1,5 +1,7 @@
 import re
 import uuid
+
+from datetime import timedelta
 from textwrap import dedent
 
 from configurations import importer
@@ -415,13 +417,20 @@ class Base(Settings):
     # Run as *not* root
     CELERYD_USER = "workeruser"
     CELERYD_GROUP = "workeruser"
+    CELERYBEAT_SCHEDULE = {
+        'phase_migrations': {
+            'task': 'apps.web.tasks.do_phase_migrations',
+            'schedule': timedelta(seconds=300),
+        },
+    }
+    CELERY_TIMEZONE = 'UTC'
 
 
     # =========================================================================
     # Single Competition Mode
     # =========================================================================
-    # Single competition mode? Uncomment this and specify a
-    # competition pk to focus on
+    # Single competition mode features can be enabled on the customization page
+    # or via ENV vars here.
     SINGLE_COMPETITION_VIEW_PK = os.environ.get('SINGLE_COMPETITION_VIEW_PK')
     CUSTOM_HEADER_LOGO = os.environ.get('CUSTOM_HEADER_LOGO')
 

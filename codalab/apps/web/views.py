@@ -814,17 +814,6 @@ class CompetitionPublicSubmissionByPhases(TemplateView):
         return context
 
 
-class CompetitionCheckMigrations(View):
-    """View to check future migrations."""
-    def get(self, request, *args, **kwargs):
-        competitions = models.Competition.objects.filter(is_migrating=False)
-
-        for c in competitions:
-            c.check_future_phase_sumbmissions()
-
-        return HttpResponse()
-
-
 class CompetitionResultsDownload(View):
     """View to download the results of a competition."""
 
