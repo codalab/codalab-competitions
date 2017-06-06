@@ -1,12 +1,10 @@
 # Competition Submissions
 
-How to create new submissions to competitions
-=============================================
+<h4>How to create new submissions to competitions</h4>
 
-Step 1
-======
+<h2>Step 1</h2>
 
-#### This step is really important!
+<h4>This step is really important!</h4>
 
 Remove any queues you have in the competition you are trying to make a new submission for. You can do this by clicking Edit on a competition page, scrolling down to the worker queues field and resetting this field to its default state.  Finally, click save.
 
