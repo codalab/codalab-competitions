@@ -1,8 +1,10 @@
 # Competition Submissions
 
-#### How to create new submissions to competitions
+How to create new submissions to competitions
+=============================================
 
-## Step 1
+Step 1
+======
 
 #### This step is really important!
 
