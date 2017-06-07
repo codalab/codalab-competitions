@@ -145,7 +145,7 @@
     {% block nosubheader %}
         {% block subheader %}
             <div class="page-header">
-                <div class="container">
+                <div class="container-fluid">
                     <h1>{% block page_title %}{% endblock page_title %}</h1>
                 </div>
             </div>
@@ -156,7 +156,7 @@
     {% endblock hero_subheader %}
 
     {% block content_wrapper %}
-        <div class="{% if stretch_100_percent_width %}container-fluid{% else %}container{% endif %}" style="padding-bottom: 40px;">
+        <div class="container-fluid" style="padding-bottom: 40px;">
             {% block content %}
             {% endblock content %}
         </div>
