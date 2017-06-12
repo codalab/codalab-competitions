@@ -20,22 +20,6 @@
                 {
                     type: 'bar',
                     label: 'Total Daily Submissions',
-                    {#                    backgroundColor: [#}
-                    {#                        'rgba(255, 99, 132, 0.2)',#}
-                    {#                        'rgba(54, 162, 235, 0.2)',#}
-                    {#                        'rgba(255, 206, 86, 0.2)',#}
-                    {#                        'rgba(75, 192, 192, 0.2)',#}
-                    {#                        'rgba(153, 102, 255, 0.2)',#}
-                    {#                        'rgba(255, 159, 64, 0.2)',#}
-                    {#                        'rgba(255, 99, 132, 0.2)',#}
-                    {#                        'rgba(54, 162, 235, 0.2)',#}
-                    {#                        'rgba(255, 206, 86, 0.2)',#}
-                    {#                        'rgba(75, 192, 192, 0.2)',#}
-                    {#                        'rgba(153, 102, 255, 0.2)',#}
-                    {#                        'rgba(255, 159, 64, 0.2)',#}
-                    {#                        'rgba(255, 99, 132, 0.2)'#}
-                    {##}
-                    {#                    ],#}
                     yAxisID: 'count',
                     data: [{% for count in graph.counts %}{{ count }}, {% endfor %}]
                 }
@@ -43,12 +27,6 @@
         },
         options: {
             scales: {
-                {#                xAxes: [{#}
-                {#                    ticks: {#}
-                {#                        type: 'linear',#}
-                {#                        position: 'bottom'#}
-                {#                    }#}
-                {#                }],#}
                 yAxes: [{
                     id: "count",
                     position: "left",
@@ -72,7 +50,7 @@
                     ticks: {
                         beginAtZero: true,
                         suggestedMin: -0.1,
-                        suggestedMax: 1,
+                        suggestedMax: 1.2,
                         // Reverse the score axis if we're doing descending (1 is better than 0)
                         reverse: "{{ graph.sorting }}" !== "asc"
                     }
