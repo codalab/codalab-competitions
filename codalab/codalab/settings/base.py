@@ -522,11 +522,11 @@ class Base(Settings):
                 DATABASES = {
                     'default': {
                         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-				        'NAME': os.environ.get('DB_PG_NAME', 'postgres'),
-				        'USER': os.environ.get('DB_PG_USER', 'postgres'),
-				        'PASSWORD': os.environ.get('DB_PG_PASSWORD', ''),
-				        'HOST': os.environ.get('DB_PG_HOST', 'postgres'),
-				        'PORT': os.environ.get('DB_PG_PORT', '5432'),
+                        'NAME': os.environ.get('DB_NAME', 'codalab_website'),
+                        'USER': os.environ.get('DB_USER', 'postgres'),
+                        'PASSWORD': os.environ.get('DB_PASSWORD', ''),
+                        'HOST': os.environ.get('DB_HOST', 'postgres'),
+                        'PORT': os.environ.get('DB_PORT', '5432'),
                     }
                 }
             elif db_engine == 'sqlite3':

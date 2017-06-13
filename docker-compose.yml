@@ -40,11 +40,15 @@ services:
 
   postgres:
     image: postgres:9.6.3
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
     volumes:
       - ./docker:/app/docker
       - ./docker/psql:/etc/psql/conf.d
       - ${LOGGING_DIR}/psql:/var/log/psql
-      - ${DB_PG_DATA_PATH}:/var/lib/psql
+      - ${DB_DATA_PATH}:/var/lib/postgres
     env_file: .env
     container_name: postgres
 
