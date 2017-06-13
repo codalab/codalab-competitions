@@ -38,6 +38,16 @@ services:
     env_file: .env
     container_name: mysql
 
+  postgres:
+    image: postgres:9.6.3
+    volumes:
+      - ./docker:/app/docker
+      - ./docker/psql:/etc/psql/conf.d
+      - ${LOGGING_DIR}/psql:/var/log/psql
+      - ${DB_PG_DATA_PATH}:/var/lib/psql
+    env_file: .env
+    container_name: postgres
+
 
   # --------------------------------------------------------------------------
   # Message queue
