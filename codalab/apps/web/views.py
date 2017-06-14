@@ -489,8 +489,8 @@ class CompetitionDetailView(DetailView):
         # Get the month from submitted_at
         try:
             truncate_date = connection.ops.date_trunc_sql('day', 'submitted_at')
-            score_def = SubmissionScoreDef.objects.get(competition=competition, ordering=1)
-            qs = SubmissionScore.objects.filter(result__phase__competition=competition, scoredef__ordering=1)
+            score_def = SubmissionScoreDef.objects.filter(competition=competition).order_by('ordering').first()
+            qs = SubmissionScore.objects.filter(result__phase__competition=competition, scoredef=score_def)
             qs = qs.extra({'day': truncate_date}).values('day')
             if score_def.sorting == 'asc':
                 best_value = Max('value')
@@ -660,24 +660,6 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                     submission_info_list.append(submission_info)
                 context['submission_info_list'] = submission_info_list
                 context['phase'] = phase
-
-                # Get the month from submitted_at
-                truncate_date = connection.ops.date_trunc_sql('day', 'submitted_at')
-                score_def = SubmissionScoreDef.objects.get(competition=competition, ordering=1)
-                qs = SubmissionScore.objects.filter(result__phase__competition=competition, scoredef__ordering=1)
-                qs = qs.extra({'day': truncate_date}).values('day')
-                if score_def.sorting == 'asc':
-                    best_value = Max('value')
-                else:
-                    best_value = Min('value')
-                qs = qs.annotate(high_score=best_value, count=Count('pk'))
-                context['graph'] = {
-                    'days': [s['day'].strftime('%d %B %Y')  # ex 24 May 2017
-                               for s in qs],
-                    'high_scores': [s['high_score'] for s in qs],
-                    'counts': [s['count'] for s in qs],
-                    'sorting': score_def.sorting,
-                }
 
         try:
             last_submission = models.CompetitionSubmission.objects.filter(
