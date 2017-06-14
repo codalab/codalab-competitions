@@ -66,3 +66,5 @@ git+https://github.com/FlavioAlexander/azure-sdk-for-python.git@legacy
 # Required when PostgreSQL is used
 psycopg2==2.7.1
 
+pytest==3.0.6
+pytest-django==2.9.1

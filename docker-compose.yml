@@ -141,11 +141,13 @@ services:
     build:
       context: .
       dockerfile: docker/worker_compute/Dockerfile
+    privileged: true
     volumes:
       - ./codalab:/app/codalab
       - ./docker:/app/docker
       - ${LOGGING_DIR}/worker_compute:/var/log/
       - ${SUBMISSION_TEMP_DIR}:${SUBMISSION_TEMP_DIR}
+      - /var/run/docker.sock:/var/run/docker.sock
     environment:
       # Unset database for this, use memory
       - DB_ENGINE=memory

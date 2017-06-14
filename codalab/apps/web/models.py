@@ -502,7 +502,6 @@ class Competition(models.Model):
         """
         Returns top three in leaderboard
         """
-
         current_phase = None
         next_phase = None
         phases = self.phases.all()

@@ -418,24 +418,35 @@ def get_run_func():
                                     .replace("$tmp", join(run_dir, 'temp')) \
                                     .replace("/", os.path.sep) \
                                     .replace("\\", os.path.sep)
-                logger.info("Invoking program: %s", prog_cmd)
+                prog_cmd = prog_cmd.split(' ')
+                docker_cmd = [
+                    'docker',
+                    'run',
+                    # Set the right volume
+                    '-v', '{0}:{0}'.format(run_dir),
+                    # Set the right image
+                    'continuumio/anaconda:4.3.0',
+                ]
+                prog_cmd = docker_cmd + prog_cmd
+                logger.info("Invoking program: %s", " ".join(prog_cmd))
 
                 startTime = time.time()
                 timed_out = False
 
-                # if 'Darwin' not in platform.platform():
-                #     prog_cmd = prog_cmd.replace("python", join(run_dir, "/home/azureuser/anaconda/bin/python"))
-                #     # Run as separate user
-                #     evaluator_process = Popen(
-                #         prog_cmd.split(' '),
-                #         preexec_fn=demote(),  # this pre-execution function drops into a lower user
-                #         stdout=stdout,
-                #         stderr=stderr,
-                #         env=os.environ
-                #     )
-                # else:
+                # Old style of execution
+                #
+                # prog_cmd = prog_cmd.replace("python", join(run_dir, "/home/azureuser/anaconda/bin/python"))
+                # # Run as separate user
+                # evaluator_process = Popen(
+                #     prog_cmd.split(' '),
+                #     preexec_fn=demote(),  # this pre-execution function drops into a lower user
+                #     stdout=stdout,
+                #     stderr=stderr,
+                #     env=os.environ
+                # )
+
                 evaluator_process = Popen(
-                    prog_cmd.split(' '),
+                    prog_cmd,
                     stdout=stdout,
                     stderr=stderr,
                     env=os.environ
