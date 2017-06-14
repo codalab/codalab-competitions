@@ -490,23 +490,24 @@ class CompetitionDetailView(DetailView):
         try:
             truncate_date = connection.ops.date_trunc_sql('day', 'submitted_at')
             score_def = SubmissionScoreDef.objects.filter(competition=competition).order_by('ordering').first()
-            qs = SubmissionScore.objects.filter(result__phase__competition=competition, scoredef=score_def)
-            qs = qs.extra({'day': truncate_date}).values('day')
-            if score_def.sorting == 'asc':
-                best_value = Max('value')
-            else:
-                best_value = Min('value')
-            qs = qs.annotate(high_score=best_value, count=Count('pk'))
-            context['graph'] = {
-                'days': [s['day'].strftime('%d %B %Y')  # ex 24 May 2017
-                       for s in qs],
-                'high_scores': [s['high_score'] for s in qs],
-                'counts': [s['count'] for s in qs],
-                'sorting': score_def.sorting,
-            }
-            my_leaders = []
-            my_leaders = self.get_object().get_top_three()
-            context['top_three_leaders'] = my_leaders
+            if score_def:
+                qs = SubmissionScore.objects.filter(result__phase__competition=competition, scoredef=score_def)
+                qs = qs.extra({'day': truncate_date}).values('day')
+                if score_def.sorting == 'asc':
+                    best_value = Max('value')
+                else:
+                    best_value = Min('value')
+                qs = qs.annotate(high_score=best_value, count=Count('pk'))
+                context['graph'] = {
+                    'days': [s['day'].strftime('%d %B %Y')  # ex 24 May 2017
+                           for s in qs],
+                    'high_scores': [s['high_score'] for s in qs],
+                    'counts': [s['count'] for s in qs],
+                    'sorting': score_def.sorting,
+                }
+                my_leaders = []
+                my_leaders = self.get_object().get_top_three()
+                context['top_three_leaders'] = my_leaders
         except ObjectDoesNotExist:
             context['top_three_leaders'] = None
             context['graph'] = None
