@@ -1110,6 +1110,7 @@ class CompetitionSubmission(models.Model):
     participant = models.ForeignKey(CompetitionParticipant, related_name='submissions')
     phase = models.ForeignKey(CompetitionPhase, related_name='submissions')
     secret = models.CharField(max_length=128, default='', blank=True)
+    docker_image = models.CharField(max_length=128, default='', blank=True)
     file = models.FileField(upload_to=_uuidify('submission_file_name'), storage=BundleStorage, null=True, blank=True)
     s3_file = S3DirectField(dest='submissions', null=True, blank=True)
     file_url_base = models.CharField(max_length=2000, blank=True)

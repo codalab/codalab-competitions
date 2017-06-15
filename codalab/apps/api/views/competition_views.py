@@ -571,6 +571,7 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
             obj.file.name = blob_name
 
         obj.description = escape(self.request.QUERY_PARAMS.get('description', ""))
+        obj.docker_image = escape(self.request.QUERY_PARAMS.get('docker_image', ""))
         obj.team_name = escape(self.request.QUERY_PARAMS.get('team_name', ""))
         obj.organization_or_affiliation = escape(self.request.QUERY_PARAMS.get('organization_or_affiliation', ""))
         obj.method_name = escape(self.request.QUERY_PARAMS.get('method_name', ""))
