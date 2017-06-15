@@ -46,7 +46,6 @@ services:
       - POSTGRES_PASSWORD=${DB_PASSWORD}
     volumes:
       - ./docker:/app/docker
-      - ./docker/psql:/etc/psql/conf.d
       - ${LOGGING_DIR}/psql:/var/log/psql
       - ${DB_DATA_PATH}:/var/lib/postgres
     env_file: .env
