@@ -568,15 +568,6 @@ class Base(Settings):
                     }
                 }
 
-    DATABASES['postgres'] = {
-    	'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': os.environ.get('DB_PG_NAME', 'postgres'),
-        'USER': os.environ.get('DB_PG_USER', 'postgres'),
-        'PASSWORD': os.environ.get('DB_PG_PASSWORD', ''),
-        'HOST': os.environ.get('DB_PG_HOST', 'postgres'),
-        'PORT': os.environ.get('DB_PG_PORT', '5432'),
-    }
-
     # =========================================================================
     # Misc
     # =========================================================================
