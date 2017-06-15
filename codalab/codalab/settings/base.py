@@ -571,6 +571,8 @@ class Base(Settings):
     # =========================================================================
     # Misc
     # =========================================================================
+    DEFAULT_WORKER_DOCKER_IMAGE = "ckcollab/codalab-legacy"
+
     GRAPH_MODELS = {
         'all_applications': True,
         'group_models': True,

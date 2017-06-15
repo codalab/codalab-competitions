@@ -289,7 +289,7 @@ def get_run_func():
         """
         logger.info("Entering run task; task_id=%s, task_args=%s", task_id, task_args)
         # run_id = task_args['bundle_id']
-        docker_image = task_args.get('docker_image', '')
+        docker_image = task_args['docker_image']
         bundle_url = task_args['bundle_url']
         stdout_url = task_args['stdout_url']
         stderr_url = task_args['stderr_url']
@@ -426,7 +426,7 @@ def get_run_func():
                     # Set the right volume
                     '-v', '{0}:{0}'.format(run_dir),
                     # Set the right image
-                    docker_image  # if docker_image else 'continuumio/anaconda:4.3.0',
+                    docker_image
                 ]
                 prog_cmd = docker_cmd + prog_cmd
                 logger.info("Invoking program: %s", " ".join(prog_cmd))

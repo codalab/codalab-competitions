@@ -211,7 +211,7 @@ def _prepare_compute_worker_run(job_id, submission, is_prediction):
         "task_type": "run",
         "task_args": {
             "submission_id": submission.pk,
-            "docker_image": submission.docker_image,
+            "docker_image": submission.docker_image or settings.DEFAULT_WORKER_DOCKER_IMAGE,
             "bundle_url": _make_url_sassy(bundle_url),
             "stdout_url": _make_url_sassy(stdout, permission='w'),
             "stderr_url": _make_url_sassy(stderr, permission='w'),
