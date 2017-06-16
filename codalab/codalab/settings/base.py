@@ -522,10 +522,10 @@ class Base(Settings):
                 DATABASES = {
                     'default': {
                         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-                        'NAME': os.environ.get('DB_NAME'),
-                        'USER': os.environ.get('DB_USER', 'root'),
-                        'PASSWORD': os.environ.get('DB_PASSWORD'),
-                        'HOST': os.environ.get('DB_HOST', 'postgresql'),
+                        'NAME': os.environ.get('DB_NAME', 'codalab_website'),
+                        'USER': os.environ.get('DB_USER', 'postgres'),
+                        'PASSWORD': os.environ.get('DB_PASSWORD', ''),
+                        'HOST': os.environ.get('DB_HOST', 'postgres'),
                         'PORT': os.environ.get('DB_PORT', '5432'),
                     }
                 }
