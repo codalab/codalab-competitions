@@ -144,6 +144,24 @@
 {% endif %}
 
 <script>
+
+    var docker_image_key = window.location.href + '_docker_image'
+
+    $(document).ready(function () {
+        $(window).unload(saveSettings);
+        loadSettings();
+    });
+
+    function loadSettings() {
+        //$('#submission_docker_image').val(localStorage.docker_image_key);
+        $('#submission_docker_image').val(localStorage.getItem(docker_image_key))
+    }
+
+    function saveSettings() {
+        //localStorage.docker_image_key = $('#submission_docker_image').val();
+        localStorage.setItem(docker_image_key, $('#submission_docker_image').val())
+    }
+
     $("#s3-file-upload").click(function(e) {
         // reset form
         $(".s3direct .file-input").val('')
