@@ -723,11 +723,13 @@ class CompetitionResultsPage(TemplateView):
                     sub = models.CompetitionSubmission.objects.get(pk=scoredata['id'])
                     scoredata['date'] = sub.submitted_at
                     scoredata['count'] = sub.phase.submissions.filter(participant=sub.participant).count()
+                    if sub.team:
+                        scoredata['team_name'] = sub.team.name
 
             user = self.request.user
 
             # Will allow creator and admin to see Leaderboard in advanced
-            if ((user == phase.competition.creator) or (user in phase.competition.admins.all())):
+            if user == phase.competition.creator or user in phase.competition.admins.all():
                 context['block_leaderboard_view'] = False
 
             return context
