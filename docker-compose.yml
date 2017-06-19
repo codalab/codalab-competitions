@@ -47,7 +47,7 @@ services:
     volumes:
       - ./docker:/app/docker
       - ${LOGGING_DIR}/psql:/var/log/psql
-      - ${DB_DATA_PATH}:/var/lib/postgres
+      - ${DB_DATA_PATH}:/var/lib/postgresql/data
     env_file: .env
     container_name: postgres
 
