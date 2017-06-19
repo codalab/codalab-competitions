@@ -144,35 +144,34 @@
 {% endif %}
 
 <script>
-
+    //**************************************************************//
+    //**                 docker image local storage               **//
+    //**************************************************************//
     var docker_image_key = window.location.href + '_docker_image'
-
     $(document).ready(function () {
-        $(window).unload(saveSettings);
-        loadSettings();
-    });
-
-    function loadSettings() {
-        //$('#submission_docker_image').val(localStorage.docker_image_key);
+        $(window).unload(save_settings)
+        load_settings()
+    })
+    function load_settings() {
         $('#submission_docker_image').val(localStorage.getItem(docker_image_key))
     }
-
-    function saveSettings() {
-        //localStorage.docker_image_key = $('#submission_docker_image').val();
+    function save_settings() {
         localStorage.setItem(docker_image_key, $('#submission_docker_image').val())
     }
-
+    //**************************************************************//
+    //**                 S3 Filestorage functions                 **//
+    //**************************************************************//
     $("#s3-file-upload").click(function(e) {
         // reset form
         $(".s3direct .file-input").val('')
         $('.s3direct a.file-link').attr('href', '')
 
         $(".s3direct .file-input").click()
-    });
+    })
 
     $(".s3direct .file-input").change(function(){
         if($(".s3direct .file-input").val() == '') {
-            return;
+            return
         }
 
         var test_if_done = function () {
