@@ -148,10 +148,10 @@
     //**                 docker image local storage               **//
     //**************************************************************//
     var docker_image_key = window.location.href + '_docker_image'
-    $(document).ready(function () {
-        $(window).unload(save_settings)
+    $(document).ready(function() {
         load_settings()
     })
+    $('#s3-file-upload, #fileUploadButton').click(save_settings)) //Azure and S3
     function load_settings() {
         $('#submission_docker_image').val(localStorage.getItem(docker_image_key))
     }
