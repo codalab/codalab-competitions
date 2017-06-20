@@ -211,6 +211,7 @@ def _prepare_compute_worker_run(job_id, submission, is_prediction):
         "task_type": "run",
         "task_args": {
             "submission_id": submission.pk,
+            "docker_image": submission.docker_image or settings.DEFAULT_WORKER_DOCKER_IMAGE,
             "bundle_url": _make_url_sassy(bundle_url),
             "stdout_url": _make_url_sassy(stdout, permission='w'),
             "stderr_url": _make_url_sassy(stderr, permission='w'),
@@ -222,6 +223,8 @@ def _prepare_compute_worker_run(job_id, submission, is_prediction):
             "predict": is_prediction,
         }
     }
+
+    logger.info("Passing task args to compute worker: %s", data["task_args"])
 
     default_time_limit = submission.phase.execution_time_limit
     if default_time_limit <= 0:

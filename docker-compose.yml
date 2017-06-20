@@ -47,7 +47,7 @@ services:
     volumes:
       - ./docker:/app/docker
       - ${LOGGING_DIR}/psql:/var/log/psql
-      - ${DB_DATA_PATH}:/var/lib/postgres
+      - ${DB_DATA_PATH}:/var/lib/postgresql/data
     env_file: .env
     container_name: postgres
 
@@ -154,11 +154,13 @@ services:
     build:
       context: .
       dockerfile: docker/worker_compute/Dockerfile
+    privileged: true
     volumes:
       - ./codalab:/app/codalab
       - ./docker:/app/docker
       - ${LOGGING_DIR}/worker_compute:/var/log/
       - ${SUBMISSION_TEMP_DIR}:${SUBMISSION_TEMP_DIR}
+      - /var/run/docker.sock:/var/run/docker.sock
     environment:
       # Unset database for this, use memory
       - DB_ENGINE=memory
