@@ -281,6 +281,7 @@ var Competition;
     Competition.submitUploadedSubmissionDetails = function(file, trackingId) {
         var competitionId = $("#competitionId").val()
         $('#details').html('Creating new submission...');
+        var docker_image = $('#submission_docker_image').val() || '';
         var description = $('#submission_description_textarea').val() || '';
         var method_name = $('#submission_method_name').val() || '';
         var method_description = $('#submission_method_description').val() || '';
@@ -294,6 +295,7 @@ var Competition;
         $('#submission_description_textarea').val('');
         $.ajax({
             url: '/api/competition/' + competitionId + '/submission?description=' + encodeURIComponent(description) +
+                                                                  '&docker_image=' + encodeURIComponent(docker_image) +
                                                                   '&method_name=' + encodeURIComponent(method_name) +
                                                                   '&method_description=' + encodeURIComponent(method_description) +
                                                                   '&project_url=' + encodeURIComponent(project_url) +
