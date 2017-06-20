@@ -71,7 +71,7 @@ services:
       - ./docker:/app/docker
       - ./certs:/app/certs
       - ${LOGGING_DIR}/rabbitmq:/var/log/rabbitmq
-      - ./var/data/rabbitmq/:/var/lib/rabbitmq
+      - ./var/data/rabbitmq/:/var/lib/rabbitmq/mnesia
     ports:
       - ${RABBITMQ_PORT}:${RABBITMQ_PORT}
       - ${RABBITMQ_MANAGEMENT_PORT}:${RABBITMQ_MANAGEMENT_PORT}
