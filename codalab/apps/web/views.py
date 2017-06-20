@@ -1,4 +1,5 @@
 import csv
+import urllib
 from datetime import datetime, timedelta
 import json
 import os
@@ -1628,7 +1629,12 @@ def download_leaderboard_results(request, competition_pk, phase_pk):
             submission = entry.result
             username_or_team_name = submission.participant.user.username if not submission.participant.user.team_name else "Team %s " % submission.participant.user.team_name
             file_name = "%s - %s submission.zip" % (username_or_team_name, submission.submission_number)
-            zip_file.writestr(file_name, submission.file.read())
+
+            if settings.USE_AWS:
+                url = _make_url_sassy(submission.s3_file)
+                zip_file.writestr(file_name, urllib.urlopen(url).read())
+            else:
+                zip_file.writestr(file_name, submission.file.read())
 
             output_file_name = "%s - %s output.zip" % (username_or_team_name, submission.submission_number)
             zip_file.writestr(output_file_name, submission.output_file.read())
