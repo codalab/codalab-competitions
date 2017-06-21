@@ -1439,17 +1439,7 @@ def download_dataset(request, dataset_key):
             resp['Content-Disposition'] = 'attachment; filename=%s.zip' % dataset.name
             return resp
         else:
-            mime = MimeTypes()
-            file_type = mime.guess_type(dataset.data_file.file.name)
-            response = StreamingHttpResponse(
-                FileWrapper(dataset.data_file.file, blksize=8192 * 100),
-                status=200,
-                content_type=file_type
-            )
-            response['Content-Length'] = dataset.data_file.file.size
-            if file_type != 'text/plain':
-                response['Content-Disposition'] = 'attachment; filename="{0}"'.format(dataset.data_file.file.name)
-            return response
+            return HttpResponseRedirect(_make_url_sassy(dataset.data_file.file.name))
     except:
         exc_type, exc_value, exc_traceback = sys.exc_info()
         print "*** print_tb:"
