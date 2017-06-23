@@ -291,7 +291,6 @@ var Competition;
         var team_name = $('#submission_team_name').val() || '';
         var organization_or_affiliation = $('#submission_organization_or_affiliation').val() || '';
         var phase_id = $('#submission_phase_id').val();
-
         $('#submission_description_textarea').val('');
         $.ajax({
             url: '/api/competition/' + competitionId + '/submission?description=' + encodeURIComponent(description) +
@@ -320,12 +319,13 @@ var Competition;
             $('#fileUploadButton').removeClass('disabled');
             //$('#fileUploadButton').text("Submit Results...");
             $('#user_results #' + response.id + ' .glyphicon-plus').click();
-        }).fail(function(jqXHR) {
+        }).error(function(jqXHR) {
             var msg = 'An unexpected error occurred.';
             if (jqXHR.status == 403) {
                 msg = jqXHR.responseJSON.detail;
             }
-            $('#details').html(msg);
+            alert(msg);
+            //$('#details').html(msg);
             //$('#fileUploadButton').text("Submit Results...");
             $('#fileUploadButton').removeClass('disabled');
         });
