@@ -1409,6 +1409,35 @@ class SubmissionDelete(LoginRequiredMixin, DeleteView):
 
         return obj
 
+def download_modified_competition_bundle(request, competition_pk):
+    """
+        Downloads modifed competition zip file.
+
+        :param competition_pk: Competition primary key.
+
+        .. note::
+
+            User needs to be creator of admin of competition.
+
+        """
+    try:
+        competition = models.Competition.objects.get(pk=competition_pk)
+
+        if competition.creator != request.user and request.user not in competition.admins.all():
+            return HttpResponse(status=403)
+
+        temp_zip = None
+        temp_yaml = None
+        temp_html_pages = None
+        temp_program_files = None
+        temp_dataset_files = None
+
+        #response = HttpResponse(competition.original_yaml_file, content_type="text/yaml")
+        #response['Content-Disposition'] = 'attachment; filename="competition_%s.yaml"' % competition_pk
+        #return response
+    except ObjectDoesNotExist:
+        return HttpResponse(status=404)
+
 
 def download_dataset(request, dataset_key):
     """
