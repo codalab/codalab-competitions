@@ -775,9 +775,10 @@ def send_mass_email(competition_pk, body=None, subject=None, from_email=None, to
 
 @task(queue='site-worker')
 def do_phase_migrations():
-    logger.info("Task: Do phase migrations running.")
     competitions = Competition.objects.filter(is_migrating=False)
-
+    count_competitions = 0
     for c in competitions:
-        logger.info("Checking future phase submissions for " + str(c))
+        count_competitions += 1
         c.check_future_phase_sumbmissions()
+    logger.info("Checking " + str(count_competitions) + " competitions for phase migrations.")
+
