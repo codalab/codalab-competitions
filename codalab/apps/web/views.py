@@ -1402,13 +1402,13 @@ class SubmissionDelete(LoginRequiredMixin, DeleteView):
     def get_object(self, queryset=None):
         obj = super(SubmissionDelete, self).get_object(queryset)
 
+        is_admin = self.request.user in obj.phase.competition.admins.all()
         self.success_url = reverse("competitions:view", kwargs={"pk": obj.phase.competition.pk})
 
-        if obj.participant.user != self.request.user and obj.phase.competition.creator != self.request.user:
+        if obj.participant.user != self.request.user and obj.phase.competition.creator != self.request.user and not is_admin:
             raise Http404()
 
         return obj
-
 
 def download_dataset(request, dataset_key):
     """
