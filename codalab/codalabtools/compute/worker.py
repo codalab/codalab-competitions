@@ -13,6 +13,7 @@ import pwd
 import grp
 import signal
 import math
+import re
 import shutil
 import socket
 import sys
@@ -297,6 +298,12 @@ def get_run_func():
         detailed_results_url = task_args['detailed_results_url']
         private_output_url = task_args['private_output_url']
 
+        """
+        DOCKER IMAGE SANITATION
+        """
+        sant_docker_image = '"{}"'.format(docker_image.strip().split(' ')[0])
+        sant_docker_image = re.sub('[^0-9a-zA-Z/.:]+', '', sant_docker_image)
+
         execution_time_limit = task_args['execution_time_limit']
         # container = task_args['container_name']
         is_predict_step = task_args.get("predict", False)
@@ -428,7 +435,7 @@ def get_run_func():
                     # Set the right volume
                     '-v', '{0}:{0}'.format(run_dir),
                     # Set the right image
-                    docker_image,
+                    sant_docker_image,
                 ]
                 prog_cmd = docker_cmd + prog_cmd
                 logger.info("Invoking program: %s", " ".join(prog_cmd))
