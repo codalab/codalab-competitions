@@ -302,7 +302,7 @@ def get_run_func():
         DOCKER IMAGE SANITATION
         """
         sant_docker_image = '"{}"'.format(docker_image.strip().split(' ')[0])
-        sant_docker_image = re.sub('[^0-9a-zA-Z/.:]+', '', sant_docker_image)
+        sant_docker_image = re.sub('[^0-9a-zA-Z/.:-]+', '', sant_docker_image)
 
         execution_time_limit = task_args['execution_time_limit']
         # container = task_args['container_name']
