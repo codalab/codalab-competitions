@@ -301,6 +301,7 @@ def get_run_func():
         """
         DOCKER IMAGE SANITATION
         """
+
         # Remove all excess whitespaces on edges, split on spaces and grab the first word.
         sanitized_docker_image = '"{}"'.format(docker_image.strip().split(' ')[0])
         # Regex acts as a whitelist here. Only alphanumerics and the following symbols are allowed: / . : -.
