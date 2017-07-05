@@ -301,8 +301,11 @@ def get_run_func():
         """
         DOCKER IMAGE SANITATION
         """
-        sant_docker_image = '"{}"'.format(docker_image.strip().split(' ')[0])
-        sant_docker_image = re.sub('[^0-9a-zA-Z/.:]+', '', sant_docker_image)
+        # Remove all excess whitespaces on edges, split on spaces and grab the first word.
+        sanitized_docker_image = '"{}"'.format(docker_image.strip().split(' ')[0])
+        # Regex acts as a whitelist here. Only alphanumerics and the following symbols are allowed: / . : -.
+        # If any not allowed are found, replaced with second argument to sub.
+        sanitized_docker_image = re.sub('[^0-9a-zA-Z/.:-]+', '', sanitized_docker_image)
 
         execution_time_limit = task_args['execution_time_limit']
         # container = task_args['container_name']
@@ -435,7 +438,7 @@ def get_run_func():
                     # Set the right volume
                     '-v', '{0}:{0}'.format(run_dir),
                     # Set the right image
-                    sant_docker_image,
+                    sanitized_docker_image,
                 ]
                 prog_cmd = docker_cmd + prog_cmd
                 logger.info("Invoking program: %s", " ".join(prog_cmd))
