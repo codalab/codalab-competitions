@@ -303,6 +303,7 @@ def get_run_func():
         """
 
         # Remove all excess whitespaces on edges, split on spaces and grab the first word.
+        # Wraps in double quotes so bash cannot interpret as an exec
         sanitized_docker_image = '"{}"'.format(docker_image.strip().split(' ')[0])
         # Regex acts as a whitelist here. Only alphanumerics and the following symbols are allowed: / . : -.
         # If any not allowed are found, replaced with second argument to sub.
