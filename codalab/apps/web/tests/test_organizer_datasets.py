@@ -26,18 +26,6 @@ class OrganizerDataSetTestCase(TestCase):
         )
 
 
-# class OrganizerDataSetDownloadTests(OrganizerDataSetTestCase):
-#
-#     def test_organizer_dataset_download_returns_302_redirect_response(self):
-#         resp = self.client.get(reverse("datasets_download", kwargs={"dataset_key": self.dataset.key}), follow=False)
-#         self.assertEquals(resp.status_code, 302)
-#
-#     def test_organizer_dataset_download_contains_proper_data(self):
-#         resp = self.client.get(reverse("datasets_download", kwargs={"dataset_key": self.dataset.key}), follow=False)
-#         self.assertEquals(resp.status_code, 302)
-#         self.assertEquals(resp['Location'], _make_url_sassy(self.dataset.data_file.file.name))
-
-
 class OrganizerDataSetCreateTestsCase(OrganizerDataSetTestCase):
 
     def test_dataset_creation_returns_302_when_not_logged_in(self):
