@@ -32,10 +32,11 @@ If for some reason you need to rebuild the image run:
 To run tests:
 
 
-`python manage.py test`
+```docker exec django py.test```
 
+To run tests as you change the code with a watcher:
 
-```python manage.py test```
+```docker exec django ptw -- --testmon```
 
 
 ## Latest changes:

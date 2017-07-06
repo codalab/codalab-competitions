@@ -69,3 +69,5 @@ psycopg2==2.7.1
 # Adding test libraries here for simplicity sake
 pytest==3.0.6
 pytest-django==2.9.1
+pytest-testmon==0.9.6
+pytest-watch==4.1.0
