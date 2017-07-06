@@ -4,9 +4,6 @@ machine:
   environment:
     DJANGO_SETTINGS_MODULE: codalab.settings
     DJANGO_CONFIGURATION: Dev
-    DEFAULT_FILE_STORAGE: codalab.azure_storage.AzureStorage
-    AZURE_ACCOUNT_NAME: test
-    AZURE_ACCOUNT_KEY: test
 
 dependencies:
   pre:
