@@ -30,7 +30,7 @@
             <label class="control-label">Click the Submit button to upload a new submission.</label>
 
             <div class="form-group">
-                <input class="form-control" id="submission_docker_image" placeholder="Optional docker image name, eg codalab/default">
+                <input maxLength="128" class="form-control" id="submission_docker_image" placeholder="Optional docker image name, eg codalab/default">
             </div>
 
             {% if not phase.competition.enable_per_submission_metadata %}

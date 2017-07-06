@@ -22,17 +22,3 @@ class DockerImageSanitationTests(TestCase):
         self._sanitize("continuumio/anaconda:4.3.0", "continuumio/anaconda:4.3.0")
         self._sanitize(" " * 100, "")
         self._sanitize(" " * 1000, "")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
