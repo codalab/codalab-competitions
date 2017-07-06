@@ -358,8 +358,8 @@ class Base(Settings):
         AWS_QUERYSTRING_AUTH = False  # Was set to string, convert to bool
 
     # Azure
-    AZURE_ACCOUNT_NAME = os.environ.get('AZURE_ACCOUNT_NAME', 'test')
-    AZURE_ACCOUNT_KEY = os.environ.get('AZURE_ACCOUNT_KEY', 'test')
+    AZURE_ACCOUNT_NAME = os.environ.get('AZURE_ACCOUNT_NAME')
+    AZURE_ACCOUNT_KEY = os.environ.get('AZURE_ACCOUNT_KEY')
     AZURE_CONTAINER = os.environ.get('AZURE_CONTAINER', 'public')
     BUNDLE_AZURE_ACCOUNT_NAME = os.environ.get('BUNDLE_AZURE_ACCOUNT_NAME', AZURE_ACCOUNT_NAME)
     BUNDLE_AZURE_ACCOUNT_KEY = os.environ.get('BUNDLE_AZURE_ACCOUNT_KEY', AZURE_ACCOUNT_KEY)
