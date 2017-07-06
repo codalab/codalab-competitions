@@ -34,7 +34,7 @@ from celery.app import app_or_default
 sys.path.append(dirname(dirname(dirname(abspath(__file__)))))
 
 from codalabtools import BaseConfig
-
+from apps.web.utils import docker_image_clean
 
 logger = logging.getLogger('codalabtools')
 
@@ -298,12 +298,7 @@ def get_run_func():
         detailed_results_url = task_args['detailed_results_url']
         private_output_url = task_args['private_output_url']
 
-        # Remove all excess whitespaces on edges, split on spaces and grab the first word.
-        # Wraps in double quotes so bash cannot interpret as an exec
-        sanitized_docker_image = '"{}"'.format(docker_image.strip().split(' ')[0])
-        # Regex acts as a whitelist here. Only alphanumerics and the following symbols are allowed: / . : -.
-        # If any not allowed are found, replaced with second argument to sub.
-        sanitized_docker_image = re.sub('[^0-9a-zA-Z/.:-]+', '', sanitized_docker_image)
+        sanitized_docker_image = docker_image_clean(docker_image)
 
         execution_time_limit = task_args['execution_time_limit']
         # container = task_args['container_name']
