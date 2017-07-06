@@ -145,6 +145,18 @@
 
 <script>
     //**************************************************************//
+    //**                 docker image max length                  **//
+    //**************************************************************//
+    $('#submission_docker_image').keyup(function () {
+           var maxLength = 128;
+           var text = $(this).val();
+           var textLength = text.length;
+           if (textLength = maxLength) {
+               $(this).val(text.substring(0, (maxLength)));
+               alert("Sorry, only " + maxLength + " characters are allowed");
+           }
+       });
+    //**************************************************************//
     //**                 docker image local storage               **//
     //**************************************************************//
     var docker_image_key = window.location.href + '_docker_image'
