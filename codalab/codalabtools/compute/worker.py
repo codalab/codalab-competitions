@@ -298,10 +298,6 @@ def get_run_func():
         detailed_results_url = task_args['detailed_results_url']
         private_output_url = task_args['private_output_url']
 
-        """
-        DOCKER IMAGE SANITATION
-        """
-
         # Remove all excess whitespaces on edges, split on spaces and grab the first word.
         # Wraps in double quotes so bash cannot interpret as an exec
         sanitized_docker_image = '"{}"'.format(docker_image.strip().split(' ')[0])
