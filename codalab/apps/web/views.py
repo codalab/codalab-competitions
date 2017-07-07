@@ -1409,34 +1409,125 @@ class SubmissionDelete(LoginRequiredMixin, DeleteView):
 
         return obj
 
+
+# The following sections for modified yamls/bundles is quite messy at the moment. I need to reorganize
+# All of this and make it way cleaner. Then move it so it's executed as a celery task, etc.
+def download_modified_competition_yaml(competition_pk):
+    """
+        Downloads modified YAML
+        :param competition_pk:
+        :return yaml dump
+    """
+    competition = models.Competition.objects.get(pk=competition_pk)
+    yaml_data = dict()
+    yaml_data['title'] = competition.title
+    yaml_data['description'] = competition.description.replace("/n", "").replace("\"", "").strip() # Something is weird
+    yaml_data['image'] = 'logo.png' # This is the name used when the logo is written to the zip
+    yaml_data['has_registration'] = competition.has_registration
+    yaml_data['html'] = dict()  # This will be a bit tricky.... Will be a dictionary with more dictionaries
+    # yaml_data['phases'] = {}
+
+    # Admin list as a string, kinda wonky ( Seems that codalab expects a string username, not a user object(?)
+    comp_su_list = ""
+    for su in competition.admins.all():
+        comp_su_list = comp_su_list + su.username + ","
+    yaml_data['admin_names'] = comp_su_list
+
+    # Competition end_date, since sometimes null we check.
+    if competition.end_date is not None:
+        yaml_data['end_date'] = competition.end_date
+
+    # Competition HTML pages...
+    for p in competition.pagecontent.pages.all():
+        if p.codename == 'terms_and_conditions' or p.codename == 'get_data':
+            if p.codename == 'terms_and_conditions':
+                # overwrite this for consistency
+                p.codename = 'terms'
+            if p.codename == 'get_data':
+                # overwrite for consistency
+                p.codename = 'data'
+        yaml_data['html'][p.codename] = p.codename + '.html'
+    return yaml.dump(yaml_data, default_flow_style=False)
+
+
 def download_modified_competition_bundle(request, competition_pk):
     """
-        Downloads modifed competition zip file.
+    Downloads a modifed competition bundle.
 
-        :param competition_pk: Competition primary key.
+    :param competition_pk: Competition's primary key.
 
-        .. note::
+    .. note::
 
-            User needs to be creator of admin of competition.
+        User needs to be creator of admin of competition.
+    """
+    if not request.user.is_staff:
+        return HttpResponse(status=403)
 
-        """
     try:
         competition = models.Competition.objects.get(pk=competition_pk)
-
-        if competition.creator != request.user and request.user not in competition.admins.all():
-            return HttpResponse(status=403)
-
-        temp_zip = None
-        temp_yaml = None
-        temp_html_pages = None
-        temp_program_files = None
-        temp_dataset_files = None
-
-        #response = HttpResponse(competition.original_yaml_file, content_type="text/yaml")
-        #response['Content-Disposition'] = 'attachment; filename="competition_%s.yaml"' % competition_pk
-        #return response
     except ObjectDoesNotExist:
-        return HttpResponse(status=404)
+        raise Http404()
+
+    try:
+        zip_buffer = StringIO.StringIO()
+        zip_file = zipfile.ZipFile(zip_buffer, "w")
+        yaml_data = yaml.load(download_modified_competition_yaml(competition.pk))
+
+        # Grab logo
+        zip_file.writestr(yaml_data["image"], competition.image.file.read())
+        # Commented out until I get these figured in the YAML
+        # Grab html pages
+        # for p in competition.pagecontent.pages.all():
+        # if p.codename in yaml_data["html"].keys() or p.codename == 'terms_and_conditions' or p.codename == 'get_data':
+        #         if p.codename == 'terms_and_conditions':
+        #             # overwrite this for consistency
+        #             p.codename = 'terms'
+        #         if p.codename == 'get_data':
+        #             # overwrite for consistency
+        #             p.codename = 'data'
+        #         zip_file.writestr(yaml_data["html"][p.codename], p.html.encode("utf-8"))
+
+        # Grab input data, reference data, scoring program
+        # file_name_cache = []
+
+        # for phase in competition.phases.all():
+        #     for phase_index, phase_yaml in yaml_data["phases"].items():
+        #         if phase_yaml["phasenumber"] == phase.phasenumber:
+        #             if phase.reference_data and phase.reference_data.file.name not in file_name_cache:
+        #                 yaml_data["phases"][phase_index]["reference_data"] = phase.reference_data.file.name
+        #                 file_name_cache += phase.reference_data.file.name
+        #                 zip_file.writestr(phase.reference_data.file.name, phase.reference_data.file.read())
+        #
+        #             if phase.input_data and phase.input_data.file.name not in file_name_cache:
+        #                 yaml_data["phases"][phase_index]["input_data"] = phase.input_data.file.name
+        #                 file_name_cache += phase.input_data.file.name
+        #                 zip_file.writestr(phase.input_data.file.name, phase.input_data.file.read())
+        #
+        #             if phase.scoring_program and phase.scoring_program.file.name not in file_name_cache:
+        #                 yaml_data["phases"][phase_index]["scoring_program"] = phase.scoring_program.file.name
+        #                 file_name_cache += phase.scoring_program.file.name
+        #                 zip_file.writestr(phase.scoring_program.file.name, phase.scoring_program.file.read())
+
+        zip_file.writestr("competition.yaml", yaml.dump(yaml_data))
+
+        zip_file.close()
+
+        resp = HttpResponse(zip_buffer.getvalue(), mimetype = "application/x-zip-compressed")
+        resp['Content-Disposition'] = 'attachment; filename=%s-%s.zip' % (competition.title, competition.pk)
+        return resp
+    except:
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        print "*** print_tb:"
+        traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
+        print "*** print_exception:"
+        traceback.print_exception(exc_type, exc_value, exc_traceback,
+                                  limit=2, file=sys.stdout)
+        print "*** print_exc:"
+        traceback.print_exc()
+        print "*** format_exc, first and last line:"
+        # formatted_lines = traceback.format_exc().splitlines()
+        msg = "There was an error retrieving the file. Please try again later or report the issue."
+        return HttpResponse(msg, status=400, content_type='text/plain')
 
 
 def download_dataset(request, dataset_key):
