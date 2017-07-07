@@ -30,7 +30,7 @@
             <label class="control-label">Click the Submit button to upload a new submission.</label>
 
             <div class="form-group">
-                <input class="form-control" id="submission_docker_image" placeholder="Optional docker image name, eg codalab/default">
+                <input maxLength="128" class="form-control" id="submission_docker_image" placeholder="Optional docker image name, eg codalab/default">
             </div>
 
             {% if not phase.competition.enable_per_submission_metadata %}
@@ -144,6 +144,18 @@
 {% endif %}
 
 <script>
+    //**************************************************************//
+    //**                 docker image max length                  **//
+    //**************************************************************//
+    $('#submission_docker_image').keyup(function () {
+           var maxLength = 128;
+           var text = $(this).val();
+           var textLength = text.length;
+           if (textLength = maxLength) {
+               $(this).val(text.substring(0, (maxLength)));
+               alert("Sorry, only " + maxLength + " characters are allowed");
+           }
+       });
     //**************************************************************//
     //**                 docker image local storage               **//
     //**************************************************************//
