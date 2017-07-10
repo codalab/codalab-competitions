@@ -792,13 +792,9 @@ def do_phase_migrations():
         logger.info("Checking future phase submissions for " + str(c))
         c.check_future_phase_sumbmissions()
 
+
 @task(queue='site-worker')
 def make_modified_bundle(competition_pk):
-    """
-            Downloads modified YAML
-            :param competition_pk:
-            :return yaml dump
-        """
 
     from collections import OrderedDict
     _mapping_tag = yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG

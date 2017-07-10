@@ -44,7 +44,6 @@ from apps.authenz.models import ClUser
 from apps.web.utils import PublicStorage, BundleStorage
 from apps.teams.models import Team, get_user_team
 
-
 User = settings.AUTH_USER_MODEL
 logger = logging.getLogger(__name__)
 
@@ -2025,6 +2024,7 @@ def add_submission_to_leaderboard(submission):
     lbe, created = PhaseLeaderBoardEntry.objects.get_or_create(board=lb, result=submission)
     return lbe, created
 
+
 def get_current_phase(competition):
     all_phases = competition.phases.all()
     phase_iterator = iter(all_phases)
@@ -2047,6 +2047,10 @@ class CompetitionDump(models.Model):
         blank=True,
         null=True,
     )
+
+    def sassy_url(self):
+        from apps.web.tasks import _make_url_sassy
+        return _make_url_sassy(self.data_file.name)
 
     def filename(self):
         return os.path.basename(self.data_file.name)

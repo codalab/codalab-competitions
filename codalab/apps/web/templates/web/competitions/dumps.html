@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+{#    <a href="{% url 'competitions:make_bundle' competition_pk=competition.pk %}" class="btn btn-primary">Make dump</a>#}
+    <button id="make_dump" class="btn btn-primary">Make dump</button>
+    <table class="table table-responsive">
+        {% if dumps %}
+            <div class="panel">
+                <tr>
+                    {% for dump in dumps %}
+                        <div class="panel-body">
+                            <th><a href="{{ dump.sassy_url }}">{{ dump.filename }}</th>
+                        </div>
+                    {% endfor %}
+                </tr>
+            </div>
+        {% endif %}
+    </table>
+    <script>
+        $(document).ready(function() {
+            $("#make_dump").click(function() {
+                var url = "{% url 'competitions:make_bundle' competition_pk=competition.pk %}"
+                $.post(url)
+                    .success(function() {
+                        alert("Bundle is being created, please check back.")
+                    })
+                    .error(function() {
+                        alert("There was a problem generating the dump. Please make sure you're connected to the Internet, if the problem persists please contact an admin.")
+                    })
+            })
+        })
+    </script>
+{% endblock %}
