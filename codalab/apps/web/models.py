@@ -2034,3 +2034,19 @@ def get_current_phase(competition):
             active_phase = phase
             break
     return active_phase
+
+
+class CompetitionDump(models.Model):
+    competition = models.ForeignKey(Competition, related_name='dumps')
+    timestamp = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=64, default="Starting")
+    data_file = models.FileField(
+        upload_to=_uuidify('competition_dump'),
+        storage=BundleStorage,
+        verbose_name="Data file",
+        blank=True,
+        null=True,
+    )
+
+    def filename(self):
+        return os.path.basename(self.data_file.name)

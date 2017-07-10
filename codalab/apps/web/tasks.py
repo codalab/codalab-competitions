@@ -6,11 +6,17 @@ import io
 import json
 import logging
 import StringIO
+import traceback
+import yaml
 import zipfile
 
 from urllib import pathname2url
+from yaml.representer import SafeRepresenter
 from zipfile import ZipFile
 
+import sys
+
+from datetime import datetime
 from boto.s3.connection import S3Connection
 from celery import task
 from celery.app import app_or_default
@@ -54,6 +60,10 @@ import time
 # import cProfile
 from codalab.azure_storage import make_blob_sas_url
 from codalabtools.compute.worker import get_run_func
+
+from apps.web import models
+
+from apps.web.models import CompetitionDump
 
 logger = logging.getLogger(__name__)
 
@@ -781,3 +791,108 @@ def do_phase_migrations():
     for c in competitions:
         logger.info("Checking future phase submissions for " + str(c))
         c.check_future_phase_sumbmissions()
+
+@task(queue='site-worker')
+def make_modified_bundle(competition_pk):
+    """
+            Downloads modified YAML
+            :param competition_pk:
+            :return yaml dump
+        """
+
+    from collections import OrderedDict
+    _mapping_tag = yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG
+
+    def dict_representer(dumper, data):
+        return dumper.represent_dict(data.iteritems())
+
+    def dict_constructor(loader, node):
+        return OrderedDict(loader.construct_pairs(node))
+
+    yaml.add_representer(unicode, SafeRepresenter.represent_unicode)
+    yaml.add_representer(OrderedDict, dict_representer)
+    yaml.add_constructor(_mapping_tag, dict_constructor)
+
+    competition = models.Competition.objects.get(pk=competition_pk)
+    yaml_data = OrderedDict()
+    yaml_data['title'] = competition.title
+    yaml_data['description'] = competition.description.replace("/n", "").replace("\"", "").strip()  # Something is weird
+    yaml_data['image'] = 'logo.png'  # This is the name used when the logo is written to the zip
+    yaml_data['has_registration'] = competition.has_registration
+    yaml_data['html'] = dict()  # This will be a bit tricky.... Will be a dictionary with more dictionaries
+    yaml_data['phases'] = {}
+
+    # Admin list as a string, kinda wonky ( Seems that codalab expects a string username, not a user object(?)
+    comp_su_list = ""
+    for su in competition.admins.all():
+        comp_su_list = comp_su_list + su.username + ","
+    yaml_data['admin_names'] = comp_su_list
+
+    # Competition end_date, since sometimes null we check.
+    if competition.end_date is not None:
+        yaml_data['end_date'] = competition.end_date
+
+    # Competition HTML pages...
+    for p in competition.pagecontent.pages.all():
+        yaml_data['html'][p.codename] = p.codename + '.html'
+
+    for index, phase in enumerate(competition.phases.all()):
+        phase_dict = dict()
+        phase_dict['phasenumber'] = phase.phasenumber
+        phase_dict['label'] = phase.label
+        phase_dict['start_date'] = phase.start_date
+        phase_dict['max_submissions'] = phase.max_submissions
+        phase_dict['scoring_program'] = "scoring_program_{}.zip".format(phase.phasenumber)
+        phase_dict['reference_data'] = "reference_data_{}.zip".format(phase.phasenumber)
+        phase_dict['color'] = phase.color
+        # phase_dict['execution_time'] = phase.execution_time
+        phase_dict['max_submissions_per_day'] = phase.max_submissions_per_day
+
+        for index, data_set in enumerate(phase.datasets.all()):
+            dataset_dict = dict()
+            dataset_dict['name'] = data_set.name
+            dataset_dict['url'] = data_set.datafile.source_url
+            dataset_dict['description'] = data_set.description
+
+            phase_dict['datasets'][index] = dataset_dict
+
+        yaml_data['phases'][index] = phase_dict
+
+    comp_yaml_my_dump = yaml.dump(yaml_data, default_flow_style=False, allow_unicode=True, encoding="utf-8")
+
+    try:
+        zip_buffer = StringIO.StringIO()
+        zip_name = "competition_{0}_{1}.zip".format(competition.pk, datetime.now())
+        zip_file = zipfile.ZipFile(zip_buffer, "w")
+        yaml_data = yaml.load(comp_yaml_my_dump)
+
+        # Grab logo
+        zip_file.writestr(yaml_data["image"], competition.image.file.read())
+        zip_file.writestr("competition.yaml", yaml.dump(yaml_data))
+        zip_file.close()
+
+        logger.info("Stored Zip buffer yaml dump")
+
+        try:
+
+            temp_comp_dump = CompetitionDump.objects.create(competition=competition)
+            # temp_comp_dump.data_file = zip_file
+            # submission.coopetition_file.save('coopetition.zip', ContentFile(coopetition_zip_buffer.getvalue()))
+
+            temp_comp_dump.data_file.save(zip_name, ContentFile(zip_buffer.getvalue()))
+            logger.info("Saved bundle to CompetitionDump")
+            temp_comp_dump.status = "Finished"
+            logger.info("Set status to finished")
+        except IOError:
+            logger.info("There was an error making a CompetitionDump")
+
+    except:
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        logger.info("*** print_tb:")
+        traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
+        logger.info("*** print_exception:")
+        traceback.print_exception(exc_type, exc_value, exc_traceback,
+                                  limit=2, file=sys.stdout)
+        logger.info("*** print_exc:")
+        traceback.print_exc()
+        logger.info("*** format_exc, first and last line:")

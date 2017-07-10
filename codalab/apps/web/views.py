@@ -9,6 +9,8 @@ import traceback
 import yaml
 import zipfile
 
+from yaml.representer import SafeRepresenter
+
 from django.db import connection
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -47,7 +49,8 @@ from apps.common.competition_utils import get_most_popular_competitions, get_fea
 from apps.web.forms import CompetitionS3UploadForm, SubmissionS3UploadForm
 from apps.web.models import SubmissionScore, SubmissionScoreDef
 
-from tasks import evaluate_submission, re_run_all_submissions_in_phase, create_competition, _make_url_sassy
+from tasks import evaluate_submission, re_run_all_submissions_in_phase, create_competition, _make_url_sassy, \
+    make_modified_bundle
 from apps.teams.models import TeamMembership, get_user_team, get_competition_teams, get_competition_pending_teams, get_competition_deleted_teams, get_last_team_submissions, get_user_requests, get_team_pending_membership
 
 from extra_views import UpdateWithInlinesView, InlineFormSet, NamedFormsetsMixin
@@ -1412,47 +1415,77 @@ class SubmissionDelete(LoginRequiredMixin, DeleteView):
 
 # The following sections for modified yamls/bundles is quite messy at the moment. I need to reorganize
 # All of this and make it way cleaner. Then move it so it's executed as a celery task, etc.
-def download_modified_competition_yaml(competition_pk):
-    """
-        Downloads modified YAML
-        :param competition_pk:
-        :return yaml dump
-    """
-    competition = models.Competition.objects.get(pk=competition_pk)
-    yaml_data = dict()
-    yaml_data['title'] = competition.title
-    yaml_data['description'] = competition.description.replace("/n", "").replace("\"", "").strip() # Something is weird
-    yaml_data['image'] = 'logo.png' # This is the name used when the logo is written to the zip
-    yaml_data['has_registration'] = competition.has_registration
-    yaml_data['html'] = dict()  # This will be a bit tricky.... Will be a dictionary with more dictionaries
+# def download_modified_competition_yaml(competition_pk):
+    # """
+    #     Downloads modified YAML
+    #     :param competition_pk:
+    #     :return yaml dump
+    # """
+    #
+    # from collections import OrderedDict
+    # _mapping_tag = yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG
+    #
+    # def dict_representer(dumper, data):
+    #     return dumper.represent_dict(data.iteritems())
+    #
+    # def dict_constructor(loader, node):
+    #     return OrderedDict(loader.construct_pairs(node))
+    #
+    # yaml.add_representer(unicode, SafeRepresenter.represent_unicode)
+    # yaml.add_representer(OrderedDict, dict_representer)
+    # yaml.add_constructor(_mapping_tag, dict_constructor)
+    #
+    # competition = models.Competition.objects.get(pk=competition_pk)
+    # yaml_data = OrderedDict()
+    # yaml_data['title'] = competition.title
+    # yaml_data['description'] = competition.description.replace("/n", "").replace("\"", "").strip() # Something is weird
+    # yaml_data['image'] = 'logo.png' # This is the name used when the logo is written to the zip
+    # yaml_data['has_registration'] = competition.has_registration
+    # yaml_data['html'] = dict()  # This will be a bit tricky.... Will be a dictionary with more dictionaries
     # yaml_data['phases'] = {}
+    #
+    # # Admin list as a string, kinda wonky ( Seems that codalab expects a string username, not a user object(?)
+    # comp_su_list = ""
+    # for su in competition.admins.all():
+    #     comp_su_list = comp_su_list + su.username + ","
+    # yaml_data['admin_names'] = comp_su_list
+    #
+    # # Competition end_date, since sometimes null we check.
+    # if competition.end_date is not None:
+    #     yaml_data['end_date'] = competition.end_date
+    #
+    # # Competition HTML pages...
+    # for p in competition.pagecontent.pages.all():
+    #     yaml_data['html'][p.codename] = p.codename + '.html'
+    #
+    # for index, phase in enumerate(competition.phases.all()):
+    #     phase_dict = dict()
+    #     phase_dict['phasenumber'] = phase.phasenumber
+    #     phase_dict['label'] = phase.label
+    #     phase_dict['start_date'] = phase.start_date
+    #     phase_dict['max_submissions'] = phase.max_submissions
+    #     phase_dict['scoring_program'] = "scoring_program_{}.zip".format(phase.phasenumber)
+    #     phase_dict['reference_data'] = "reference_data_{}.zip".format(phase.phasenumber)
+    #     phase_dict['color'] = phase.color
+    #     #phase_dict['execution_time'] = phase.execution_time
+    #     phase_dict['max_submissions_per_day'] = phase.max_submissions_per_day
+    #
+    #     for index, data_set in enumerate(phase.datasets.all()):
+    #         dataset_dict = dict()
+    #         dataset_dict['name'] = data_set.name
+    #         dataset_dict['url'] = data_set.datafile.source_url
+    #         dataset_dict['description'] = data_set.description
+    #
+    #         phase_dict['datasets'][index] = dataset_dict
+    #
+    #     yaml_data['phases'][index] = phase_dict
+    #
+    # return yaml.dump(yaml_data, default_flow_style=False, allow_unicode=True, encoding="utf-8")
 
-    # Admin list as a string, kinda wonky ( Seems that codalab expects a string username, not a user object(?)
-    comp_su_list = ""
-    for su in competition.admins.all():
-        comp_su_list = comp_su_list + su.username + ","
-    yaml_data['admin_names'] = comp_su_list
 
-    # Competition end_date, since sometimes null we check.
-    if competition.end_date is not None:
-        yaml_data['end_date'] = competition.end_date
-
-    # Competition HTML pages...
-    for p in competition.pagecontent.pages.all():
-        if p.codename == 'terms_and_conditions' or p.codename == 'get_data':
-            if p.codename == 'terms_and_conditions':
-                # overwrite this for consistency
-                p.codename = 'terms'
-            if p.codename == 'get_data':
-                # overwrite for consistency
-                p.codename = 'data'
-        yaml_data['html'][p.codename] = p.codename + '.html'
-    return yaml.dump(yaml_data, default_flow_style=False)
-
-
-def download_modified_competition_bundle(request, competition_pk):
+def download_modified_competition_bundle(request, competition_dump_pk):
     """
-    Downloads a modifed competition bundle.
+    Downloads a CompetitionDumpObject data_file
 
     :param competition_pk: Competition's primary key.
 
@@ -1460,74 +1493,39 @@ def download_modified_competition_bundle(request, competition_pk):
 
         User needs to be creator of admin of competition.
     """
-    if not request.user.is_staff:
-        return HttpResponse(status=403)
 
     try:
         competition = models.Competition.objects.get(pk=competition_pk)
     except ObjectDoesNotExist:
+        print("Failed to retrieve competition")
+
+    if request.user.id != competition.creator_id and request.user not in competition.admins.all():
         raise Http404()
 
     try:
-        zip_buffer = StringIO.StringIO()
-        zip_file = zipfile.ZipFile(zip_buffer, "w")
-        yaml_data = yaml.load(download_modified_competition_yaml(competition.pk))
+        comp_dump = models.CompetitionDump.objects.get(competition=competition)
 
-        # Grab logo
-        zip_file.writestr(yaml_data["image"], competition.image.file.read())
-        # Commented out until I get these figured in the YAML
-        # Grab html pages
-        # for p in competition.pagecontent.pages.all():
-        # if p.codename in yaml_data["html"].keys() or p.codename == 'terms_and_conditions' or p.codename == 'get_data':
-        #         if p.codename == 'terms_and_conditions':
-        #             # overwrite this for consistency
-        #             p.codename = 'terms'
-        #         if p.codename == 'get_data':
-        #             # overwrite for consistency
-        #             p.codename = 'data'
-        #         zip_file.writestr(yaml_data["html"][p.codename], p.html.encode("utf-8"))
+        # Grab our data file
+        comp_dump_file = comp_dump.data_file
 
-        # Grab input data, reference data, scoring program
-        # file_name_cache = []
+        if comp_dump.status == "Finished":
+            try:
+                # Zip file stuffs
+                # zip_buffer = StringIO.StringIO()
+                # zip_file = zipfile.ZipFile(comp_dump_file, "r")
 
-        # for phase in competition.phases.all():
-        #     for phase_index, phase_yaml in yaml_data["phases"].items():
-        #         if phase_yaml["phasenumber"] == phase.phasenumber:
-        #             if phase.reference_data and phase.reference_data.file.name not in file_name_cache:
-        #                 yaml_data["phases"][phase_index]["reference_data"] = phase.reference_data.file.name
-        #                 file_name_cache += phase.reference_data.file.name
-        #                 zip_file.writestr(phase.reference_data.file.name, phase.reference_data.file.read())
-        #
-        #             if phase.input_data and phase.input_data.file.name not in file_name_cache:
-        #                 yaml_data["phases"][phase_index]["input_data"] = phase.input_data.file.name
-        #                 file_name_cache += phase.input_data.file.name
-        #                 zip_file.writestr(phase.input_data.file.name, phase.input_data.file.read())
-        #
-        #             if phase.scoring_program and phase.scoring_program.file.name not in file_name_cache:
-        #                 yaml_data["phases"][phase_index]["scoring_program"] = phase.scoring_program.file.name
-        #                 file_name_cache += phase.scoring_program.file.name
-        #                 zip_file.writestr(phase.scoring_program.file.name, phase.scoring_program.file.read())
+                # I guess we can try just grabbing the url and returning that file.
+                return HttpResponseRedirect(
+                    _make_url_sassy(comp_dump_file.name)
+                )
+            except IOError:
+                print("Could not stream/read Zip")
 
-        zip_file.writestr("competition.yaml", yaml.dump(yaml_data))
+        else:
+            print("Competition Dump is not ready.")
 
-        zip_file.close()
-
-        resp = HttpResponse(zip_buffer.getvalue(), mimetype = "application/x-zip-compressed")
-        resp['Content-Disposition'] = 'attachment; filename=%s-%s.zip' % (competition.title, competition.pk)
-        return resp
-    except:
-        exc_type, exc_value, exc_traceback = sys.exc_info()
-        print "*** print_tb:"
-        traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
-        print "*** print_exception:"
-        traceback.print_exception(exc_type, exc_value, exc_traceback,
-                                  limit=2, file=sys.stdout)
-        print "*** print_exc:"
-        traceback.print_exc()
-        print "*** format_exc, first and last line:"
-        # formatted_lines = traceback.format_exc().splitlines()
-        msg = "There was an error retrieving the file. Please try again later or report the issue."
-        return HttpResponse(msg, status=400, content_type='text/plain')
+    except ObjectDoesNotExist:
+        print("Problem retrieving object.")
 
 
 def download_dataset(request, dataset_key):
@@ -1962,3 +1960,21 @@ def submission_migrate(request, pk):
         except models.CompetitionSubmission.DoesNotExist:
             raise Http404()
     raise Http404()
+
+
+@login_required
+def competition_dumps_view(request, competition_pk):
+    '''
+    View current bundle dumps for the competition
+    :param request:
+    :param pk:
+    :return:
+    '''
+
+    try:
+        competition = models.Competition.objects.get(pk=competition_pk)
+        dumps = competition.dumps.all()
+    except ObjectDoesNotExist:
+        raise Http404()
+
+    return render(request, "web/competitions/dumps.html", {"dumps": dumps, "competition": competition})
