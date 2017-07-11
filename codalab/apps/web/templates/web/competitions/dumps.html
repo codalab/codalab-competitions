@@ -1,21 +1,33 @@
 {% extends "base.html" %}
 
 {% block content %}
-{#    <a href="{% url 'competitions:make_bundle' competition_pk=competition.pk %}" class="btn btn-primary">Make dump</a>#}
-    <button id="make_dump" class="btn btn-primary">Make dump</button>
-    <table class="table table-responsive">
-        {% if dumps %}
-            <div class="panel">
-                <tr>
-                    {% for dump in dumps %}
-                        <div class="panel-body">
-                            <th><a href="{{ dump.sassy_url }}">{{ dump.filename }}</th>
-                        </div>
-                    {% endfor %}
-                </tr>
-            </div>
-        {% endif %}
-    </table>
+    <div class="panel">
+        <div class="panel-body">
+            <button id="make_dump" class="btn btn-primary">Make dump</button>
+            {% if dumps %}
+                <table width="80%" style="display: inline-block" class="table table-responsive">
+                    <thead>
+                        <tr>
+                            {% for dump in dumps %}
+                                <td>{{ dump.filename }}</td>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            {% for dump in dumps %}
+                                <div class="panel-body">
+                                    <th><a href="{{ dump.sassy_url }}">Download</th>
+                                </div>
+                            {% endfor %}
+                        </tr>
+                    </tbody>
+                </table>
+            {% else %}
+                <i>No dumps found for the current competition.</i>
+            {% endif %}
+        </div>
+    </div>
     <script>
         $(document).ready(function() {
             $("#make_dump").click(function() {
