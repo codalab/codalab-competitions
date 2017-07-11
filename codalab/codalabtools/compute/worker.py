@@ -55,6 +55,16 @@ def _find_only_folder_with_metadata(path):
                 return folder
 
 
+def docker_prune():
+    """Runs a prune on docker if our images take up more than what's defined in settings."""
+    docker_image_size = os.popen("docker system df | awk -v x=4 'FNR == 2 {print $x}'").read().strip()
+    docker_image_size_mes = docker_image_size[-2:]
+    docker_image_size = docker_image_size[:-2]
+
+    if docker_image_size > settings.DOCKER_MAX_SIZE_GB and docker_image_size_mes == "GB":
+        logger.info("Pruning")
+        os.system("docker system prune --force")
+
 # class WorkerConfig(BaseConfig):
 #     """
 #     Defines configuration properties (mostly credentials) for a worker process.
@@ -325,6 +335,8 @@ def get_run_func():
             "end_swap_memory_usage": None,
             "end_cpu_usage": None,
         }
+
+        docker_prune()
 
         try:
             # Cleanup dir in case any processes didn't clean up properly
