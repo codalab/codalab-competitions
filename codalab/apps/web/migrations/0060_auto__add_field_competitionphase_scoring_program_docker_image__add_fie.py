@@ -18,6 +18,11 @@ class Migration(SchemaMigration):
                       self.gf('django.db.models.fields.CharField')(default='', max_length=128, blank=True),
                       keep_default=False)
 
+        # Adding field 'CompetitionPhase.disable_custom_docker_image'
+        db.add_column(u'web_competitionphase', 'disable_custom_docker_image',
+                      self.gf('django.db.models.fields.BooleanField')(default=False),
+                      keep_default=False)
+
 
     def backwards(self, orm):
         # Deleting field 'CompetitionPhase.scoring_program_docker_image'
@@ -25,6 +30,9 @@ class Migration(SchemaMigration):
 
         # Deleting field 'CompetitionPhase.default_docker_image'
         db.delete_column(u'web_competitionphase', 'default_docker_image')
+
+        # Deleting field 'CompetitionPhase.disable_custom_docker_image'
+        db.delete_column(u'web_competitionphase', 'disable_custom_docker_image')
 
 
     models = {
@@ -192,6 +200,7 @@ class Migration(SchemaMigration):
             'datasets': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "'phase'", 'blank': 'True', 'to': u"orm['web.Dataset']"}),
             'default_docker_image': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '128', 'blank': 'True'}),
             'description': ('django.db.models.fields.CharField', [], {'max_length': '1000', 'null': 'True', 'blank': 'True'}),
+            'disable_custom_docker_image': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'execution_time_limit': ('django.db.models.fields.PositiveIntegerField', [], {'default': '300'}),
             'force_best_submission_to_leaderboard': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),

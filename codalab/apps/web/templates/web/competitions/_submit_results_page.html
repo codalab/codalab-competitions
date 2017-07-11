@@ -29,7 +29,7 @@
         <div class="form-group">
             <label class="control-label">Click the Submit button to upload a new submission.</label>
 
-            {% if not phase.is_scoring_only %}
+            {% if not phase.is_scoring_only and not phase.disable_custom_docker_image %}
                 <div class="form-group">
                     <input class="form-control" id="submission_docker_image" placeholder="Optional docker image name, eg codalab/default">
                 </div>
