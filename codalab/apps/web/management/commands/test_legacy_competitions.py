@@ -26,10 +26,12 @@ class Command(BaseCommand):
             completed_submissions = CompetitionSubmission.objects.filter(
                 pk__in=submission_dump.keys(),
                 status__codename__in=('finished', 'failed')
-            ).select_related('status')
+            ).select_related('status', 'phase', 'phase__competition')
             for s in completed_submissions:
-                submission_dump[str(s.pk)]["status"] = s.status.codename
-
+                submission_dump[str(s.pk)]= {
+                    "status": s.status.codename,
+                    "competition": s.phase.competition.pk
+                }
             open("test_submissions.json", "w+").write(json.dumps(submission_dump))
         else:
             submission_dump = {}
