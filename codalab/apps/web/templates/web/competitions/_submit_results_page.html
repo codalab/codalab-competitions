@@ -29,9 +29,11 @@
         <div class="form-group">
             <label class="control-label">Click the Submit button to upload a new submission.</label>
 
-            <div class="form-group">
-                <input class="form-control" id="submission_docker_image" placeholder="Optional docker image name, eg codalab/default">
-            </div>
+            {% if not phase.is_scoring_only %}
+                <div class="form-group">
+                    <input class="form-control" id="submission_docker_image" placeholder="Optional docker image name, eg codalab/default">
+                </div>
+            {% endif %}
 
             {% if not phase.competition.enable_per_submission_metadata %}
                 <textarea id="submission_description_textarea" class="form-control" placeholder="Optionally add more information about this submission"></textarea>
@@ -43,10 +45,8 @@
                 <br><b>Publication URL: </b><input id="submission_publication_url" class="form-control" placeholder="Publication URL" value="{{ last_submission_publication_url|default_if_none:""|escape }}">
                 <br><b>Bibtex: </b><textarea id="submission_bibtex" class="form-control" placeholder="Bibtex">{{ last_submission_bibtex|default_if_none:""|escape }}</textarea>
                 <br><b>Organization/affiliation: </b><input id="submission_organization_or_affiliation" class="form-control" placeholder="Organization or Affiliation" value="{{ last_submission_organization_or_affiliation|default_if_none:""|escape }}">
-
             {% endif %}
         </div>
-
 
         {% if USE_AWS %}
             <form id="s3_upload_form" action="" method="post">
