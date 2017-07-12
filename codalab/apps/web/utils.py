@@ -1,3 +1,5 @@
+import re
+
 from django.conf import settings
 from django.core.files.storage import get_storage_class
 
@@ -20,3 +22,13 @@ else:
     # No storage provided, like in a test, let's just do something basic
     BundleStorage = StorageClass()
     PublicStorage = StorageClass()
+
+
+def docker_image_clean(image_name):
+    # Remove all excess whitespaces on edges, split on spaces and grab the first word.
+    # Wraps in double quotes so bash cannot interpret as an exec
+    image_name = '"{}"'.format(image_name.strip().split(' ')[0])
+    # Regex acts as a whitelist here. Only alphanumerics and the following symbols are allowed: / . : -.
+    # If any not allowed are found, replaced with second argument to sub.
+    image_name = re.sub('[^0-9a-zA-Z/.:-]+', '', image_name)
+    return image_name

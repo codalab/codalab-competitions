@@ -13,6 +13,7 @@ import pwd
 import grp
 import signal
 import math
+import re
 import shutil
 import socket
 import sys
@@ -33,7 +34,7 @@ from celery.app import app_or_default
 sys.path.append(dirname(dirname(dirname(abspath(__file__)))))
 
 from codalabtools import BaseConfig
-
+from apps.web.utils import docker_image_clean
 
 logger = logging.getLogger('codalabtools')
 
@@ -297,6 +298,8 @@ def get_run_func():
         detailed_results_url = task_args['detailed_results_url']
         private_output_url = task_args['private_output_url']
 
+        sanitized_docker_image = docker_image_clean(docker_image)
+
         execution_time_limit = task_args['execution_time_limit']
         # container = task_args['container_name']
         is_predict_step = task_args.get("predict", False)
@@ -428,7 +431,7 @@ def get_run_func():
                     # Set the right volume
                     '-v', '{0}:{0}'.format(run_dir),
                     # Set the right image
-                    docker_image,
+                    sanitized_docker_image,
                 ]
                 prog_cmd = docker_cmd + prog_cmd
                 logger.info("Invoking program: %s", " ".join(prog_cmd))
