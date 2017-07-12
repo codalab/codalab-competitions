@@ -10,12 +10,8 @@ WORKDIR /app/codalab
 
 ENV PYTHONPATH $PYTHONPATH:/app:/app/codalab:/app/apps
 
-# Install docker
-RUN curl -sSL https://get.docker.com/ | sh
-
-# create unprivileged user
-#RUN adduser --disabled-password --gecos '' workeruser
-#RUN usermod -aG docker workeruser
+# Install docker, specific version
+RUN curl -sSL https://get.docker.com/ | sed 's/docker-ce/docker-ce=17.06.0~ce-0~debian/' | sh
 
 #USER workeruser
 CMD celery -A codalab worker -l info -Q compute-worker -n compute-worker -Ofast -Ofair --concurrency=1
