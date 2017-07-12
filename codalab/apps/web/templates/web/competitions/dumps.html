@@ -1,24 +1,34 @@
 {% extends "base.html" %}
+{% block page_title %}Competition Dumps{% endblock %}
+{% block head_title %}Competition Dumps{% endblock %}
 
 {% block content %}
+    <a href="{% url "competitions:view" pk=competition.pk %}" >Go Back to Competition Homepage</a>
     <div class="panel">
         <div class="panel-body">
-            <button id="make_dump" class="btn btn-primary">Make dump</button>
+            <button id="make_dump" class="btn btn-primary">Create Competition Dump</button>
             {% if dumps %}
-                <table width="80%" style="display: inline-block" class="table table-responsive">
-                    <thead>
-                        <tr>
-                            {% for dump in dumps %}
-                                <td>{{ dump.filename }}</td>
-                            {% endfor %}
-                        </tr>
-                    </thead>
+                <h1>Dumps for: {{ competition.title }}</h1>
+                <table width="80%" style="border: solid rgba(0,0,0,0.31) 2px; border-radius: 20px;" class="table table-responsive">
+                <thead>
+                    <td width="100px"><h5><b>Download link</b></h5></td>
+                    <td width="100px"><h5><b>Status</b></h5></td>
+                    <td width="400px"><h5><b>Publish Date</b></h5></td>
+                </thead>
                     <tbody>
-                        <tr>
+                        <tr style="padding: 20px; margin: 20px;">
                             {% for dump in dumps %}
-                                <div class="panel-body">
-                                    <th><a href="{{ dump.sassy_url }}">Download</th>
-                                </div>
+                                {% if forloop.counter0|divisibleby:1 %}<tr>{% endif %}
+                                <td>
+                                    <a href="{{ dump.sassy_url }}">Download</a>
+                                </td>
+                                <td>
+                                    <b>{{ dump.status }}</b>
+                                </td>
+                                <td>
+                                    <i>{{ dump.timestamp }}</i>
+                                </td>
+                                {% if forloop.counter|divisibleby:1 %}</tr>{% endif %}
                             {% endfor %}
                         </tr>
                     </tbody>
@@ -34,7 +44,7 @@
                 var url = "{% url 'competitions:make_bundle' competition_pk=competition.pk %}"
                 $.post(url)
                     .success(function() {
-                        alert("Bundle is being created, please check back.")
+                        alert("Bundle is being created, please refresh the page to view new dumps.")
                     })
                     .error(function() {
                         alert("There was a problem generating the dump. Please make sure you're connected to the Internet, if the problem persists please contact an admin.")

@@ -832,6 +832,8 @@ def make_modified_bundle(competition_pk):
     for p in competition.pagecontent.pages.all():
         yaml_data['html'][p.codename] = p.codename + '.html'
 
+    logger.info("Adding phases")
+    # Competition Phases
     for index, phase in enumerate(competition.phases.all()):
         phase_dict = dict()
         phase_dict['phasenumber'] = phase.phasenumber
@@ -844,51 +846,49 @@ def make_modified_bundle(competition_pk):
         # phase_dict['execution_time'] = phase.execution_time
         phase_dict['max_submissions_per_day'] = phase.max_submissions_per_day
 
-        for index, data_set in enumerate(phase.datasets.all()):
-            dataset_dict = dict()
-            dataset_dict['name'] = data_set.name
-            dataset_dict['url'] = data_set.datafile.source_url
-            dataset_dict['description'] = data_set.description
-
-            phase_dict['datasets'][index] = dataset_dict
+        try:
+            datasets = phase.datasets.all()
+            if datasets:
+                phase_dict['datasets'] = dict()
+                logger.info("Adding datasets.")
+                # Dataset for phasses
+                for data_set_index, data_set in enumerate(datasets):
+                    phase_dict['datasets'][data_set_index] = {
+                        'name': data_set.datafile.name,
+                        'url': data_set.datafile.source_url,
+                        'description': data_set.description
+                    }
+                    logger.info(data_set.name)
+                    logger.info(dir(data_set))
+        except:
+            logger.info(traceback.format_exc())
 
         yaml_data['phases'][index] = phase_dict
 
     comp_yaml_my_dump = yaml.dump(yaml_data, default_flow_style=False, allow_unicode=True, encoding="utf-8")
 
+    zip_buffer = StringIO.StringIO()
+    zip_name = "competition_{0}_{1}.zip".format(competition.pk, datetime.now())
+    zip_file = zipfile.ZipFile(zip_buffer, "w")
+    yaml_data = yaml.load(comp_yaml_my_dump)
+
+    # Grab logo
+    zip_file.writestr(yaml_data["image"], competition.image.file.read())
+    zip_file.writestr("competition.yaml", yaml.dump(yaml_data))
+    zip_file.close()
+
+    logger.info("Stored Zip buffer yaml dump")
+
     try:
-        zip_buffer = StringIO.StringIO()
-        zip_name = "competition_{0}_{1}.zip".format(competition.pk, datetime.now())
-        zip_file = zipfile.ZipFile(zip_buffer, "w")
-        yaml_data = yaml.load(comp_yaml_my_dump)
+        logger.info("Creating comp dump")
+        temp_comp_dump = CompetitionDump.objects.create(competition=competition)
+        # temp_comp_dump.data_file = zip_file
+        # submission.coopetition_file.save('coopetition.zip', ContentFile(coopetition_zip_buffer.getvalue()))
 
-        # Grab logo
-        zip_file.writestr(yaml_data["image"], competition.image.file.read())
-        zip_file.writestr("competition.yaml", yaml.dump(yaml_data))
-        zip_file.close()
-
-        logger.info("Stored Zip buffer yaml dump")
-
-        try:
-
-            temp_comp_dump = CompetitionDump.objects.create(competition=competition)
-            # temp_comp_dump.data_file = zip_file
-            # submission.coopetition_file.save('coopetition.zip', ContentFile(coopetition_zip_buffer.getvalue()))
-
-            temp_comp_dump.data_file.save(zip_name, ContentFile(zip_buffer.getvalue()))
-            logger.info("Saved bundle to CompetitionDump")
-            temp_comp_dump.status = "Finished"
-            logger.info("Set status to finished")
-        except IOError:
-            logger.info("There was an error making a CompetitionDump")
-
-    except:
-        exc_type, exc_value, exc_traceback = sys.exc_info()
-        logger.info("*** print_tb:")
-        traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
-        logger.info("*** print_exception:")
-        traceback.print_exception(exc_type, exc_value, exc_traceback,
-                                  limit=2, file=sys.stdout)
-        logger.info("*** print_exc:")
-        traceback.print_exc()
-        logger.info("*** format_exc, first and last line:")
+        temp_comp_dump.data_file.save(zip_name, ContentFile(zip_buffer.getvalue()))
+        logger.info("Saved bundle to CompetitionDump")
+        temp_comp_dump.status = "Finished"
+        temp_comp_dump.save()
+        logger.info("Set status to finished")
+    except IOError:
+        logger.info("There was an error making a CompetitionDump")

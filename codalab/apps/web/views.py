@@ -1859,7 +1859,7 @@ def competition_dumps_view(request, competition_pk):
     try:
         competition = models.Competition.objects.get(pk=competition_pk)
         dumps = competition.dumps.all()
-        print(dumps)
+        #print(dumps)
     except ObjectDoesNotExist:
         raise Http404()
 
