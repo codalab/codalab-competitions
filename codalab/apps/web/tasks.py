@@ -207,7 +207,7 @@ def _prepare_compute_worker_run(job_id, submission, is_prediction):
         stdout = submission.stdout_file.name
         stderr = submission.stderr_file.name
         output = submission.output_file.name
-        docker_image = submission.scoring_program_docker_image or settings.DEFAULT_WORKER_DOCKER_IMAGE
+        docker_image = submission.phase.scoring_program_docker_image or settings.DEFAULT_WORKER_DOCKER_IMAGE
 
     data = {
         "id": job_id,
