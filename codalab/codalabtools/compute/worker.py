@@ -31,6 +31,8 @@ from zipfile import ZipFile
 from celery.app import app_or_default
 
 # Add codalabtools to the module search path
+from codalab import settings
+
 sys.path.append(dirname(dirname(dirname(abspath(__file__)))))
 
 from codalabtools import BaseConfig

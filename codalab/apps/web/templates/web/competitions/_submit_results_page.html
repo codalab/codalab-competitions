@@ -151,7 +151,7 @@
            var maxLength = 128;
            var text = $(this).val();
            var textLength = text.length;
-           if (textLength = maxLength) {
+           if (textLength >= maxLength) {
                $(this).val(text.substring(0, (maxLength)));
                alert("Sorry, only " + maxLength + " characters are allowed");
            }
