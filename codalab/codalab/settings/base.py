@@ -569,10 +569,14 @@ class Base(Settings):
                 }
 
     # =========================================================================
+    # Docker
+    # =========================================================================
+    DOCKER_DEFAULT_WORKER_IMAGE = "ckcollab/codalab-legacy"
+    DOCKER_MAX_SIZE_GB = 10.0
+    
+    # =========================================================================
     # Misc
     # =========================================================================
-    DEFAULT_WORKER_DOCKER_IMAGE = "ckcollab/codalab-legacy"
-
     GRAPH_MODELS = {
         'all_applications': True,
         'group_models': True,

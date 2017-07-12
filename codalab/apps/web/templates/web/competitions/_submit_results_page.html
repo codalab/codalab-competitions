@@ -148,12 +148,12 @@
     //**                 docker image max length                  **//
     //**************************************************************//
     $('#submission_docker_image').keyup(function () {
-           var maxLength = 128;
+           var max_length = 128;
            var text = $(this).val();
-           var textLength = text.length;
-           if (textLength = maxLength) {
-               $(this).val(text.substring(0, (maxLength)));
-               alert("Sorry, only " + maxLength + " characters are allowed");
+           var text_length = text.length;
+           if (text_length >= max_length) {
+               $(this).val(text.substring(0, (max_length)));
+               alert("Sorry, only " + max_length + " characters are allowed");
            }
        });
     //**************************************************************//
