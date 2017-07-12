@@ -57,13 +57,18 @@ def _find_only_folder_with_metadata(path):
                 return folder
 
 
+def docker_get_size():
+    return os.popen("docker system df | awk -v x=4 'FNR == 2 {print $x}'").read().strip()
+
+
 def docker_prune():
     """Runs a prune on docker if our images take up more than what's defined in settings."""
-    docker_image_size = os.popen("docker system df | awk -v x=4 'FNR == 2 {print $x}'").read().strip()
-    docker_image_size_mes = docker_image_size[-2:]
-    docker_image_size = docker_image_size[:-2]
+    # May also use docker system df --format "{{.Size}}"
+    image_size = docker_get_size()
+    image_size_measurement = image_size[-2:]
+    image_size = float(image_size[:-2])
 
-    if docker_image_size > settings.DOCKER_MAX_SIZE_GB and docker_image_size_mes == "GB":
+    if image_size > settings.DOCKER_MAX_SIZE_GB and image_size_measurement == "GB":
         logger.info("Pruning")
         os.system("docker system prune --force")
 
