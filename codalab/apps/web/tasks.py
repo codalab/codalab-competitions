@@ -830,10 +830,24 @@ def make_modified_bundle(competition_pk):
 
     # Competition HTML pages...
     for p in competition.pagecontent.pages.all():
+        if p.codename in yaml_data["html"].keys() or p.codename == 'terms_and_conditions' or p.codename == 'get_data':
+            if p.codename == 'terms_and_conditions':
+                # overwrite this for consistency
+                p.codename = 'terms'
+            if p.codename == 'get_data':
+                # overwrite for consistency
+                p.codename = 'data'
         yaml_data['html'][p.codename] = p.codename + '.html'
 
     logger.info("Adding phases")
     # Competition Phases
+
+    file_name_cache = []
+
+    zip_buffer = StringIO.StringIO()
+    zip_name = "competition_{0}_{1}.zip".format(competition.pk, datetime.now())
+    zip_file = zipfile.ZipFile(zip_buffer, "w")
+
     for index, phase in enumerate(competition.phases.all()):
         phase_dict = dict()
         phase_dict['phasenumber'] = phase.phasenumber
@@ -845,6 +859,11 @@ def make_modified_bundle(competition_pk):
         phase_dict['color'] = phase.color
         # phase_dict['execution_time'] = phase.execution_time
         phase_dict['max_submissions_per_day'] = phase.max_submissions_per_day
+        try:
+            zip_file.writestr("reference_data_{}.zip".format(phase.phasenumber), phase.reference_data.file.read())
+            zip_file.writestr("scoring_program_{}.zip".format(phase.phasenumber), phase.scoring_program.file.read())
+        except:
+            logger.info(traceback.format_exc())
 
         try:
             datasets = phase.datasets.all()
@@ -867,9 +886,6 @@ def make_modified_bundle(competition_pk):
 
     comp_yaml_my_dump = yaml.dump(yaml_data, default_flow_style=False, allow_unicode=True, encoding="utf-8")
 
-    zip_buffer = StringIO.StringIO()
-    zip_name = "competition_{0}_{1}.zip".format(competition.pk, datetime.now())
-    zip_file = zipfile.ZipFile(zip_buffer, "w")
     yaml_data = yaml.load(comp_yaml_my_dump)
 
     # Grab logo
