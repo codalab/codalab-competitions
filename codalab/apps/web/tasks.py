@@ -828,25 +828,33 @@ def make_modified_bundle(competition_pk):
     if competition.end_date is not None:
         yaml_data['end_date'] = competition.end_date
 
-    # Competition HTML pages...
-    for p in competition.pagecontent.pages.all():
-        if p.codename in yaml_data["html"].keys() or p.codename == 'terms_and_conditions' or p.codename == 'get_data':
-            if p.codename == 'terms_and_conditions':
-                # overwrite this for consistency
-                p.codename = 'terms'
-            if p.codename == 'get_data':
-                # overwrite for consistency
-                p.codename = 'data'
-        yaml_data['html'][p.codename] = p.codename + '.html'
-
-    logger.info("Adding phases")
-    # Competition Phases
-
-    file_name_cache = []
-
     zip_buffer = StringIO.StringIO()
     zip_name = "competition_{0}_{1}.zip".format(competition.pk, datetime.now())
     zip_file = zipfile.ZipFile(zip_buffer, "w")
+
+    # Competition HTML pages...
+    for p in competition.pagecontent.pages.all():
+        if p.codename in yaml_data["html"].keys() or p.codename == 'terms_and_conditions' or p.codename == 'get_data' or p.codename == 'submit_results' or p.codename == 'results':
+            if p.codename == 'terms_and_conditions':
+                # overwrite this for consistency
+                p.codename = 'terms'
+                yaml_data['html'][p.codename] = p.codename + '.html'
+                zip_file.writestr(yaml_data["html"][p.codename], p.html.encode("utf-8"))
+            if p.codename == 'get_data':
+                # overwrite for consistency
+                p.codename = 'data'
+                yaml_data['html'][p.codename] = p.codename + '.html'
+                zip_file.writestr(yaml_data["html"][p.codename], p.html.encode("utf-8"))
+            if p.codename == 'submit_results':
+                pass
+            if p.codename == 'results':
+                pass
+        else:
+            yaml_data['html'][p.codename] = p.codename + '.html'
+            zip_file.writestr(yaml_data["html"][p.codename], p.html.encode("utf-8"))
+
+    logger.info("Adding phases")
+    # Competition Phases
 
     for index, phase in enumerate(competition.phases.all()):
         phase_dict = dict()
