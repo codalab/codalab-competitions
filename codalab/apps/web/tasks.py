@@ -818,13 +818,12 @@ def make_modified_bundle(competition_pk):
 
         yaml_data = OrderedDict()
         yaml_data['title'] = competition.title
-        yaml_data['description'] = competition.description.replace("/n", "").replace("\"", "").strip()  # Something is weird
-        yaml_data['image'] = 'logo.png'  # This is the name used when the logo is written to the zip
+        yaml_data['description'] = competition.description.replace("/n", "").replace("\"", "").strip()
+        yaml_data['image'] = 'logo.png'
         yaml_data['has_registration'] = competition.has_registration
-        yaml_data['html'] = dict()  # This will be a bit tricky.... Will be a dictionary with more dictionaries
+        yaml_data['html'] = dict()
         yaml_data['phases'] = {}
 
-        # Admin list as a string, kinda wonky ( Seems that codalab expects a string username, not a user object(?)
         comp_su_list = ""
         temp_comp_dump.status = "Adding admins"
         temp_comp_dump.save()
@@ -833,19 +832,15 @@ def make_modified_bundle(competition_pk):
             logger.info("Adding admin")
             comp_su_list = comp_su_list + su.username + ","
         yaml_data['admin_names'] = comp_su_list
-
         # Competition end_date, since sometimes null we check.
         temp_comp_dump.status = "Adding end-date"
         temp_comp_dump.save()
         logger.info("Adding end-date")
         if competition.end_date is not None:
             yaml_data['end_date'] = competition.end_date
-
         zip_buffer = StringIO.StringIO()
-        # zip_name = "{0}_{1}.zip".format(competition.pk, datetime.today())
         zip_name = "dump{0}.zip".format(competition.pk)
         zip_file = zipfile.ZipFile(zip_buffer, "w")
-
         # Competition HTML pages...
         for p in competition.pagecontent.pages.all():
             temp_comp_dump.status = "Adding {}.html".format(p.codename)
@@ -865,8 +860,6 @@ def make_modified_bundle(competition_pk):
                 # Do not include submit_results.
                 if p.codename == 'submit_results':
                     pass
-                # if p.codename == 'results':
-                    # pass
             else:
                 yaml_data['html'][p.codename] = p.codename + '.html'
                 zip_file.writestr(yaml_data["html"][p.codename], p.html.encode("utf-8"))
@@ -883,7 +876,6 @@ def make_modified_bundle(competition_pk):
             phase_dict['scoring_program'] = "scoring_program_{}.zip".format(phase.phasenumber)
             phase_dict['reference_data'] = "reference_data_{}.zip".format(phase.phasenumber)
             phase_dict['color'] = phase.color
-            # phase_dict['execution_time'] = phase.execution_time
             phase_dict['max_submissions_per_day'] = phase.max_submissions_per_day
             # Write the programs/data to zip
             zip_file.writestr("reference_data_{}.zip".format(phase.phasenumber), phase.reference_data.file.read())
