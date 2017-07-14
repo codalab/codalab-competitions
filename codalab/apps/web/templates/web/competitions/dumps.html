@@ -20,7 +20,13 @@
                             {% for dump in dumps %}
                                 {% if forloop.counter0|divisibleby:1 %}<tr>{% endif %}
                                 <td>
-                                    <a href="{{ dump.sassy_url }}">Download</a>
+                                    {% if dump.status == "Finished" %}
+                                        <a href="{{ dump.sassy_url }}">Download</a>
+                                    {% elif dump.status != "Failed" %}
+                                        <i>Working</i>
+                                    {% else %}
+                                        <b>Failed</b>
+                                    {% endif %}
                                 </td>
                                 <td>
                                     <b>{{ dump.status }}</b>

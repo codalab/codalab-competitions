@@ -805,114 +805,126 @@ def make_modified_bundle(competition_pk):
     def dict_constructor(loader, node):
         return OrderedDict(loader.construct_pairs(node))
 
-    yaml.add_representer(unicode, SafeRepresenter.represent_unicode)
-    yaml.add_representer(OrderedDict, dict_representer)
-    yaml.add_constructor(_mapping_tag, dict_constructor)
+    # Following line supresses the broadexception warning. We catch and do a traceback for now from logs.
+    # noinspection PyBroadException
+    try:
+        yaml.add_representer(unicode, SafeRepresenter.represent_unicode)
+        yaml.add_representer(OrderedDict, dict_representer)
+        yaml.add_constructor(_mapping_tag, dict_constructor)
 
-    competition = models.Competition.objects.get(pk=competition_pk)
-    yaml_data = OrderedDict()
-    yaml_data['title'] = competition.title
-    yaml_data['description'] = competition.description.replace("/n", "").replace("\"", "").strip()  # Something is weird
-    yaml_data['image'] = 'logo.png'  # This is the name used when the logo is written to the zip
-    yaml_data['has_registration'] = competition.has_registration
-    yaml_data['html'] = dict()  # This will be a bit tricky.... Will be a dictionary with more dictionaries
-    yaml_data['phases'] = {}
+        competition = models.Competition.objects.get(pk=competition_pk)
+        logger.info("Creating Competion dump")
+        temp_comp_dump = CompetitionDump.objects.create(competition=competition)
 
-    # Admin list as a string, kinda wonky ( Seems that codalab expects a string username, not a user object(?)
-    comp_su_list = ""
-    for su in competition.admins.all():
-        comp_su_list = comp_su_list + su.username + ","
-    yaml_data['admin_names'] = comp_su_list
+        yaml_data = OrderedDict()
+        yaml_data['title'] = competition.title
+        yaml_data['description'] = competition.description.replace("/n", "").replace("\"", "").strip()  # Something is weird
+        yaml_data['image'] = 'logo.png'  # This is the name used when the logo is written to the zip
+        yaml_data['has_registration'] = competition.has_registration
+        yaml_data['html'] = dict()  # This will be a bit tricky.... Will be a dictionary with more dictionaries
+        yaml_data['phases'] = {}
 
-    # Competition end_date, since sometimes null we check.
-    if competition.end_date is not None:
-        yaml_data['end_date'] = competition.end_date
+        # Admin list as a string, kinda wonky ( Seems that codalab expects a string username, not a user object(?)
+        comp_su_list = ""
+        temp_comp_dump.status = "Adding admins"
+        temp_comp_dump.save()
 
-    zip_buffer = StringIO.StringIO()
-    zip_name = "competition_{0}_{1}.zip".format(competition.pk, datetime.now())
-    zip_file = zipfile.ZipFile(zip_buffer, "w")
+        for su in competition.admins.all():
+            logger.info("Adding admin")
+            comp_su_list = comp_su_list + su.username + ","
+        yaml_data['admin_names'] = comp_su_list
 
-    # Competition HTML pages...
-    for p in competition.pagecontent.pages.all():
-        if p.codename in yaml_data["html"].keys() or p.codename == 'terms_and_conditions' or p.codename == 'get_data' or p.codename == 'submit_results' or p.codename == 'results':
-            if p.codename == 'terms_and_conditions':
-                # overwrite this for consistency
-                p.codename = 'terms'
+        # Competition end_date, since sometimes null we check.
+        temp_comp_dump.status = "Adding end-date"
+        temp_comp_dump.save()
+        logger.info("Adding end-date")
+        if competition.end_date is not None:
+            yaml_data['end_date'] = competition.end_date
+
+        zip_buffer = StringIO.StringIO()
+        # zip_name = "{0}_{1}.zip".format(competition.pk, datetime.today())
+        zip_name = "dump{0}.zip".format(competition.pk)
+        zip_file = zipfile.ZipFile(zip_buffer, "w")
+
+        # Competition HTML pages...
+        for p in competition.pagecontent.pages.all():
+            temp_comp_dump.status = "Adding {}.html".format(p.codename)
+            temp_comp_dump.save()
+            logger.info("Adding HTML")
+            if p.codename in yaml_data["html"].keys() or p.codename == 'terms_and_conditions' or p.codename == 'get_data' or p.codename == 'submit_results':
+                if p.codename == 'terms_and_conditions':
+                    # overwrite this for consistency
+                    p.codename = 'terms'
+                    yaml_data['html'][p.codename] = p.codename + '.html'
+                    zip_file.writestr(yaml_data["html"][p.codename], p.html.encode("utf-8"))
+                if p.codename == 'get_data':
+                    # overwrite for consistency
+                    p.codename = 'data'
+                    yaml_data['html'][p.codename] = p.codename + '.html'
+                    zip_file.writestr(yaml_data["html"][p.codename], p.html.encode("utf-8"))
+                # Do not include submit_results.
+                if p.codename == 'submit_results':
+                    pass
+                # if p.codename == 'results':
+                    # pass
+            else:
                 yaml_data['html'][p.codename] = p.codename + '.html'
                 zip_file.writestr(yaml_data["html"][p.codename], p.html.encode("utf-8"))
-            if p.codename == 'get_data':
-                # overwrite for consistency
-                p.codename = 'data'
-                yaml_data['html'][p.codename] = p.codename + '.html'
-                zip_file.writestr(yaml_data["html"][p.codename], p.html.encode("utf-8"))
-            if p.codename == 'submit_results':
-                pass
-            if p.codename == 'results':
-                pass
-        else:
-            yaml_data['html'][p.codename] = p.codename + '.html'
-            zip_file.writestr(yaml_data["html"][p.codename], p.html.encode("utf-8"))
-
-    logger.info("Adding phases")
-    # Competition Phases
-
-    for index, phase in enumerate(competition.phases.all()):
-        phase_dict = dict()
-        phase_dict['phasenumber'] = phase.phasenumber
-        phase_dict['label'] = phase.label
-        phase_dict['start_date'] = phase.start_date
-        phase_dict['max_submissions'] = phase.max_submissions
-        phase_dict['scoring_program'] = "scoring_program_{}.zip".format(phase.phasenumber)
-        phase_dict['reference_data'] = "reference_data_{}.zip".format(phase.phasenumber)
-        phase_dict['color'] = phase.color
-        # phase_dict['execution_time'] = phase.execution_time
-        phase_dict['max_submissions_per_day'] = phase.max_submissions_per_day
-        try:
+        # Phases
+        for index, phase in enumerate(competition.phases.all()):
+            temp_comp_dump.status = "Adding phase {0}".format(phase.phasenumber)
+            temp_comp_dump.save()
+            logger.info("Adding phase")
+            phase_dict = dict()
+            phase_dict['phasenumber'] = phase.phasenumber
+            phase_dict['label'] = phase.label
+            phase_dict['start_date'] = phase.start_date
+            phase_dict['max_submissions'] = phase.max_submissions
+            phase_dict['scoring_program'] = "scoring_program_{}.zip".format(phase.phasenumber)
+            phase_dict['reference_data'] = "reference_data_{}.zip".format(phase.phasenumber)
+            phase_dict['color'] = phase.color
+            # phase_dict['execution_time'] = phase.execution_time
+            phase_dict['max_submissions_per_day'] = phase.max_submissions_per_day
+            # Write the programs/data to zip
             zip_file.writestr("reference_data_{}.zip".format(phase.phasenumber), phase.reference_data.file.read())
             zip_file.writestr("scoring_program_{}.zip".format(phase.phasenumber), phase.scoring_program.file.read())
-        except:
-            logger.info(traceback.format_exc())
-
-        try:
+            # Datasets
             datasets = phase.datasets.all()
             if datasets:
                 phase_dict['datasets'] = dict()
-                logger.info("Adding datasets.")
-                # Dataset for phasses
+                temp_comp_dump.status = "Adding datasets"
+                temp_comp_dump.save()
+                logger.info("Adding dataset")
                 for data_set_index, data_set in enumerate(datasets):
                     phase_dict['datasets'][data_set_index] = {
                         'name': data_set.datafile.name,
                         'url': data_set.datafile.source_url,
                         'description': data_set.description
                     }
-                    logger.info(data_set.name)
-                    logger.info(dir(data_set))
-        except:
-            logger.info(traceback.format_exc())
-
-        yaml_data['phases'][index] = phase_dict
-
-    comp_yaml_my_dump = yaml.dump(yaml_data, default_flow_style=False, allow_unicode=True, encoding="utf-8")
-
-    yaml_data = yaml.load(comp_yaml_my_dump)
-
-    # Grab logo
-    zip_file.writestr(yaml_data["image"], competition.image.file.read())
-    zip_file.writestr("competition.yaml", yaml.dump(yaml_data))
-    zip_file.close()
-
-    logger.info("Stored Zip buffer yaml dump")
-
-    try:
-        logger.info("Creating comp dump")
-        temp_comp_dump = CompetitionDump.objects.create(competition=competition)
-        # temp_comp_dump.data_file = zip_file
-        # submission.coopetition_file.save('coopetition.zip', ContentFile(coopetition_zip_buffer.getvalue()))
-
-        temp_comp_dump.data_file.save(zip_name, ContentFile(zip_buffer.getvalue()))
-        logger.info("Saved bundle to CompetitionDump")
+            # Save the phase_dict
+            yaml_data['phases'][index] = phase_dict
+        # Finishing up
+        temp_comp_dump.status = "Finalizing"
+        temp_comp_dump.save()
+        logger.info("Finalizing")
+        # This looks redundant, but safe
+        comp_yaml_my_dump = yaml.dump(yaml_data, default_flow_style=False, allow_unicode=True, encoding="utf-8")
+        yaml_data = yaml.load(comp_yaml_my_dump)
+        # Grab logo
+        zip_file.writestr(yaml_data["image"], competition.image.file.read())
+        zip_file.writestr("competition.yaml", yaml.dump(yaml_data))
+        zip_file.close()
+        logger.info("Stored Zip buffer yaml dump, and image")
+        logger.info("Attempting to save ZIP")
+        temp_comp_data = ContentFile(zip_buffer.getvalue())
+        logger.info("Attempting to save new object.")
+        temp_comp_dump.data_file.save(zip_name, temp_comp_data)
+        logger.info("Saved zip file to Competition dump")
         temp_comp_dump.status = "Finished"
         temp_comp_dump.save()
         logger.info("Set status to finished")
-    except IOError:
-        logger.info("There was an error making a CompetitionDump")
+    except:
+        logger.info("There was an error making a Competition dump")
+        logger.info(traceback.format_exc())
+        temp_comp_dump.status = "Failed"
+        temp_comp_dump.save()
