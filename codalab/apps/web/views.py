@@ -1849,17 +1849,17 @@ def submission_migrate(request, pk):
 
 @login_required
 def competition_dumps_view(request, competition_pk):
-    '''
+    """
     View current bundle dumps for the competition
     :param request:
-    :param pk:
+    :param competition_pk:
     :return:
-    '''
-
+   """
     try:
         competition = models.Competition.objects.get(pk=competition_pk)
+        if request.user.id != competition.creator_id and request.user not in competition.admins.all():
+            raise Http404()
         dumps = competition.dumps.all()
-        #print(dumps)
     except ObjectDoesNotExist:
         raise Http404()
 
@@ -1870,10 +1870,10 @@ def competition_dumps_view(request, competition_pk):
 def start_make_bundle_task(request, competition_pk):
     """
     Starts the task to make a competition bundle
-    :return:
+    :return HttpResponse:
     """
-    make_modified_bundle.apply_async((competition_pk,))
-    # re_run_all_submissions_in_phase.apply_async((phase_pk,))
+    competition = models.Competition.objects.get(pk=competition_pk)
+    if request.user.id != competition.creator_id and request.user not in competition.admins.all():
+        raise Http404()
+    make_modified_bundle.apply_async((competition.pk,))
     return HttpResponse()
-
-# Check permissions for all modified bundle download stuffs

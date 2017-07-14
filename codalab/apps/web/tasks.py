@@ -917,8 +917,22 @@ def make_modified_bundle(competition_pk):
         logger.info("Stored Zip buffer yaml dump, and image")
         logger.info("Attempting to save ZIP")
         temp_comp_data = ContentFile(zip_buffer.getvalue())
-        logger.info("Attempting to save new object.")
-        temp_comp_dump.data_file.save(zip_name, temp_comp_data)
+        save_success = False
+        while not save_success:
+            counter = 0
+            logger.info("Attempting to save new object.")
+            try:
+                temp_comp_dump.data_file.save(zip_name, temp_comp_data)
+                save_success = True
+            except SoftTimeLimitExceeded:
+                logger.info("Failed to save object, retrying.")
+                counter += 1
+                continue
+            if counter == 5:
+                temp_comp_dump.status = "Failed"
+                temp_comp_dump.save()
+                logger.info("Failed to save object after 5 tries. Stopping.")
+                save_success = True
         logger.info("Saved zip file to Competition dump")
         temp_comp_dump.status = "Finished"
         temp_comp_dump.save()
