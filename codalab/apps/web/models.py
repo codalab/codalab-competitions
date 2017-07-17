@@ -778,6 +778,17 @@ class CompetitionPhase(models.Model):
     default_docker_image = models.CharField(max_length=128, default='', blank=True)
     disable_custom_docker_image = models.BooleanField(default=False)
 
+    starting_kit = models.FileField( upload_to=_uuidify('starting_kit'),
+                                     storage=BundleStorage,
+                                     verbose_name="Starting Kit",
+                                     blank=True,
+                                     null=True,
+                                     )
+
+    def get_starting_kit(self):
+        from apps.web.tasks import _make_url_sassy
+        return _make_url_sassy(self.starting_kit.name)
+
     class Meta:
         ordering = ['phasenumber']
 
