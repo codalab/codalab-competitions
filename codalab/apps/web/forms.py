@@ -88,6 +88,8 @@ class CompetitionPhaseForm(forms.ModelForm):
             'scoring_program_organizer_dataset',
             'phase_never_ends',
             'force_best_submission_to_leaderboard',
+            'datasets',
+            'starting_kit',
             'scoring_program_docker_image',
             'default_docker_image',
             'disable_custom_docker_image',

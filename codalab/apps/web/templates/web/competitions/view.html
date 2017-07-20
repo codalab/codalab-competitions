@@ -27,7 +27,9 @@
 {% if is_admin_or_owner %}
     <h3>Admin features</h3>
     <a href="{% url "competitions:create_starting_kit" pk=competition.pk %}" class="btn btn-primary">Create starting kit</a>
-    <a href="{% url "competitions:get_starting_kit" pk=competition.pk %}" class="btn btn-primary">Download starting kit</a>
+    {% if active_phase and active_phase.starting_kit %}
+        {{ active_phase.get_starting_kit }}
+    {% endif %}
     <a href="{% url "competitions:edit" pk=competition.pk %}" class="btn btn-primary">Edit</a>
     <a href="{% url 'my_competition_participants' competition_id=competition.pk %}" class="btn btn-primary">
         Participants
