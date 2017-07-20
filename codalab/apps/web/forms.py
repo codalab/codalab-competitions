@@ -17,6 +17,7 @@ from apps.web.models import SubmissionScoreSet
 
 User = get_user_model()
 
+
 class CompetitionForm(forms.ModelForm):
     class Meta:
         model = models.Competition
@@ -43,8 +44,8 @@ class CompetitionForm(forms.ModelForm):
             'enable_teams',
             'require_team_approval',
         )
-        widgets = { 'description' : TinyMCE(attrs={'rows' : 20, 'class' : 'competition-editor-description'},
-                                            mce_attrs={"theme" : "advanced", "cleanup_on_startup" : True, "theme_advanced_toolbar_location" : "top", "gecko_spellcheck" : True})}
+        widgets = {'description': TinyMCE(attrs={'rows' : 20, 'class' : 'competition-editor-description'},
+                                          mce_attrs={"theme": "advanced", "cleanup_on_startup": True, "theme_advanced_toolbar_location": "top", "gecko_spellcheck": True})}
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user')
@@ -88,7 +89,6 @@ class CompetitionPhaseForm(forms.ModelForm):
             'scoring_program_organizer_dataset',
             'phase_never_ends',
             'force_best_submission_to_leaderboard',
-            'datasets',
             'starting_kit',
             'scoring_program_docker_image',
             'default_docker_image',
@@ -181,9 +181,11 @@ class LeaderboardForm(forms.ModelForm):
 
     #     return instance
 
+
 class CompetitionDatasetForm(forms.ModelForm):
     class Meta:
         model = models.Dataset
+
 
 class CompetitionParticipantForm(forms.ModelForm):
     class Meta:

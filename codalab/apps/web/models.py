@@ -619,6 +619,8 @@ def phase_scoring_program_file(phase, filename="program.zip"):
 def phase_reference_data_file(phase, filename="reference.zip"):
     return os.path.join(phase_data_prefix(phase), filename)
 
+def phase_starting_kit_data_file(phase, filename="starting_kit.zip"):
+    return os.path.join(phase_data_prefix(phase), filename)
 
 def phase_input_data_file(phase, filename="input.zip"):
     return os.path.join(phase_data_prefix(phase), filename)
@@ -1683,6 +1685,31 @@ class CompetitionDefBundle(models.Model):
                         phase.reference_data_organizer_dataset = data_set
                     except OrganizerDataSet.DoesNotExist:
                         assert False, "OrganizerDataSet (%s) could not be found" % phase_spec["reference_data"]
+
+                        ## Begin unpack starting_kit
+            if hasattr(phase, 'starting_kit') and phase.starting_kit:
+                if phase_spec["starting_kit"].endswith(".zip"):
+                    phase.starting_kit.save(phase_starting_kit_data_file(phase), File(io.BytesIO(zf.read(phase_spec['starting_kit']))))
+
+                    file_name = os.path.splitext(os.path.basename(phase_spec['starting_kit']))[0]
+                    if phase_spec['starting_kit'] not in data_set_cache:
+                        logger.debug('Adding organizer dataset to cache: %s' % phase_spec['starting_kit'])
+                        data_set_cache[phase_spec['starting_kit']] = OrganizerDataSet.objects.create(
+                            name="%s_%s_%s" % (file_name, phase.phasenumber, comp.pk),
+                            type="Starting Kit",
+                            data_file=phase.starting_kit.file.name,
+                            uploaded_by=self.owner
+                        )
+                    phase.starting_kit_data_organizer_dataset = data_set_cache[phase_spec['starting_kit']]
+                else:
+                    logger.debug("CompetitionDefBundle::unpack getting dataset for starting_kit with key %s", phase_spec["starting_kit"])
+                    try:
+                        data_set = OrganizerDataSet.objects.get(key=phase_spec["starting_kit"])
+                        phase.starting_kit = data_set.data_file.file.name
+                        phase.starting_kit_data_organizer_dataset = data_set
+                    except OrganizerDataSet.DoesNotExist:
+                        assert False, "OrganizerDataSet (%s) could not be found" % phase_spec["starting_kit"]
+                        ## End unpack starting kit
 
             if 'input_data' in phase_spec:
                 if phase_spec["input_data"].endswith(".zip"):
