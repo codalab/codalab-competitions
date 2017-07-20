@@ -54,14 +54,14 @@ class CompetitionForm(forms.ModelForm):
 
         # Get public queues
         if self.instance.queue:
-		qs = Queue.objects.filter(
-		    Q(is_public=True) | Q(owner=user) | Q(organizers__in=[user]) | Q(pk=self.instance.queue.pk)
-		)
+            qs = Queue.objects.filter(
+                Q(is_public=True) | Q(owner=user) | Q(organizers__in=[user]) | Q(pk=self.instance.queue.pk)
+            )
         else:
-		# else, don't use pk
-		qs = Queue.objects.filter(
-		    Q(is_public=True) | Q(owner=user) | Q(organizers__in=[user])
-		)
+            # else, don't use pk
+            qs = Queue.objects.filter(
+                Q(is_public=True) | Q(owner=user) | Q(organizers__in=[user])
+            )
 
         # And ones you own
         qs = qs.filter()

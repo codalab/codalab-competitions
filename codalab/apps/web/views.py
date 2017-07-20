@@ -45,7 +45,7 @@ from apps.coopetitions.models import Like, Dislike
 from apps.forums.models import Forum
 from apps.common.competition_utils import get_most_popular_competitions, get_featured_competitions
 from apps.web.forms import CompetitionS3UploadForm, SubmissionS3UploadForm
-from apps.web.models import SubmissionScore, SubmissionScoreDef
+from apps.web.models import SubmissionScore, SubmissionScoreDef, get_current_phase
 
 from tasks import evaluate_submission, re_run_all_submissions_in_phase, create_competition, _make_url_sassy
 from apps.teams.models import TeamMembership, get_user_team, get_competition_teams, get_competition_pending_teams, get_competition_deleted_teams, get_last_team_submissions, get_user_requests, get_team_pending_membership
@@ -486,26 +486,7 @@ class CompetitionDetailView(DetailView):
         context['site'] = Site.objects.get_current()
         context['current_server_time'] = datetime.now()
 
-        #Current phase for starting kit
-        current_phase = None
-        next_phase = None
-        phases = competition.phases.all()
-        if len(phases) == 0:
-            return
-
-        last_phase = phases.reverse()[0]
-
-        for index, phase in enumerate(phases):
-            # Checking for active phase
-            if phase.is_active:
-                current_phase = phase
-                # Checking if active phase is less than last phase
-                if current_phase.phasenumber < last_phase.phasenumber:
-                    # Getting next phase
-                    next_phase = phases[index + 1]
-                break
-
-        context['active_phase'] = current_phase
+        context['active_phase'] = get_current_phase(competition)
 
         # Top 3 Leaderboard
         # Get the month from submitted_at
