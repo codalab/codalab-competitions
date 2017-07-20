@@ -23,7 +23,6 @@
 {% if request.user.is_staff %}
     <a href="{% url "competitions:download" competition_pk=competition.pk %}" class="btn btn-primary">DOWNLOAD COMPETITION BUNDLE!</a>
 {% endif %}
-
 {% if is_admin_or_owner %}
     <h3>Admin features</h3>
     {% if active_phase and active_phase.starting_kit %}
@@ -39,7 +38,6 @@
     <a href="{% url 'my_competition_submissions' competition_id=competition.pk %}" class="btn btn-primary">Submissions</a>
     <hr>
 {% endif %}
-
 <div class="competition-view">
     <div class="row">
         <div class="col-sm-2">
