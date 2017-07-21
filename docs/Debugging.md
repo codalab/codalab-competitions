@@ -73,8 +73,8 @@ a bash terminal inside the database docker container. IE: `docker exec -it postg
 
 `dropdb <db_name>`
 
- Removes the database with `<db_name>`.
+ Removes the database with `<db_name>`
 
 `createdb <db_name>`
 
- Creates a database with `<db_name>`.
+ Creates a database with `<db_name>`
