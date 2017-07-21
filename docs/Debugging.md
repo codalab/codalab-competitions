@@ -70,9 +70,11 @@ models in our database. Usually called like such: `python manage.py migrate <app
 `python manage.py schemamigration`: Like above, do not use this unless required. Creates a migration to be used with
 the migrate command. Usually called like such: `python manage.py schemamigration <app> <object> <flags>`
 
-|    Command   | Description   | Recommended Args |
-| ------------ | ------------- | ------------ |
-| Test | Desc | --flag |
+|    Command        | Description             | Recommended `<parms>` & `--flags`  | Usage                             |
+| ----------------- | ----------------------- | ---------------------------------- | --------------------------------- |
+| `createsuperuser` | Creates a new super user| N/A                                | `manage.py createsuperuser`       |
+| `migrate`         | Performs a migration    | `<app>`, `<migration_number>`      | `manage.py migrate web 0059`      |
+| `schemamigration` | Creates a migration     | `<app>`, `<object>`, `--auto`      | `manage.py schemamigration ... `  |
 
 ## Database
 
