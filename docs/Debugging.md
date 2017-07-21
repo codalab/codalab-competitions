@@ -62,15 +62,9 @@ The testing printout should revert back to `django` container bash prompt. From 
 These commands are all run through a docker-container by having bash execute `python`. To get into a container with a
 bash prompt use `docker exec -it <container-name> bash`
 
-`python manage.py createsuperuser`: Interactive python terminal to create a superuser on the codalab instance.
+To execute the command use `python manage.py <command>` with any appropriate flags or arguments.
 
-`python manage.py migrate`: Do not use this unless it is part of a testing procedure. Migrate is for updating the
-models in our database. Usually called like such: `python manage.py migrate <app> <migration_number>`
-
-`python manage.py schemamigration`: Like above, do not use this unless required. Creates a migration to be used with
-the migrate command. Usually called like such: `python manage.py schemamigration <app> <object> <flags>`
-
-|    Command        | Description             | Recommended `<parms>` & `--flags`  | Usage                             |
+|    Command        | Description             | `<parms>` & `--flags`              | Usage                             |
 | ----------------- | ----------------------- | ---------------------------------- | --------------------------------- |
 | `createsuperuser` | Creates a new super user| N/A                                | `manage.py createsuperuser`       |
 | `migrate`         | Performs a migration    | `<app>`, `<migration_number>`      | `manage.py migrate web 0059`      |
