@@ -1,4 +1,4 @@
-# Debugging:
+# Debugging
 These are several useful commands you may find useful for debugging.
 ## Docker Commands
 ### Logging
@@ -51,8 +51,8 @@ The testing printout should revert back to the `django` container bash prompt. F
 
 ## Python Commands
 
-These commands are all run through a docker-container by having bash execute `python`. To get into a container with a
-bash prompt use `docker exec -it <container-name> bash`
+These commands are all run through the django container by having bash execute `python`. To get into the django container
+with a bash prompt use `docker exec -it django bash`.
 
 To execute the command use `python manage.py <command>` with any appropriate flags or arguments.
 
