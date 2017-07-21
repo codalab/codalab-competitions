@@ -57,7 +57,8 @@ The testing printout should revert back to `django` container bash prompt. From 
 
 ## Python Commands
 
-*Todo: add custom manage.py commands*\s\s
+*Todo: add custom manage.py commands*
+
 These commands are all run through a docker-container by having bash execute `python`. To get into a container with a
 bash prompt use `docker exec -it <container-name> bash`
 
