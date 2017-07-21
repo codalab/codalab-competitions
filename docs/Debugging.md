@@ -1,6 +1,6 @@
 # Debugging
 
-These are several useful commands you may find useful for debugging.
+These are several useful commands you may find helpful for debugging.
 ## Docker Commands
 ### Logging
 To view all currently running containers with docker run ```docker ps```.
