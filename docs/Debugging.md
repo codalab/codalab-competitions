@@ -63,8 +63,8 @@ To execute the command use `python manage.py <command>` with any appropriate fla
 | `createsuperuser`        | Creates a new super user| N/A                                | `createsuperuser`                 |
 | `migrate`                | Performs a migration    | `<app>`, `<migration_number>`      | `migrate web 0059`                |
 | `schemamigration`        | Creates a migration     | `<app>`, `<object>`, `--auto`      | `schemamigration web object`      |
-| `create_competition_zip` | Creates a comp bundle   | `-p` num phases, `-l` phase length in mins, `-d` don't delete temp files, `-a` auto migrate       | `create_competition_zip -p 2 -l 5 -d -a` |
-| `create_competition`     | Creates a competition   | `--title` title, `--description` description, `--logo` logo file for comp, `--force_user_create` create user if non-existant, `--creator` creator email, `--numphases` number of phases, `--phasedates` Comma-seprated list of the startdates (YYYY-MM-DD,YYYY-MM-DD) | `create_competition --title "Hello-world ..` |
+| `create_competition_zip` | Creates a comp bundle   | `-p` or `--numphases` num phases, `-l` or `--phaselength` phase length in mins, `-d` or `--delete` don't delete temp files, `-a` or `--automigrate` auto migrate       | `create_competition_zip -p 2 -l 5 -d -a` |
+| `create_competition`     | Creates a competition   | `--title` title, `--description` description, `--logo` logo file for comp, `--force_user_create` create user if non-existant, `--creator` creator email, `--numphases` number of phases, `--phasedates` Comma-seprated list of the startdates (YYYY-MM-DD, YYYY-MM-DD) | `create_competition ..` |
 | `create_solution`        | Creates a submission    | `d` don't delete temp files, `-w` Wrong. Makes a submission that fails.| `create_solution -d -w`|
 | `create_codalab_user`    | Creates a user          | N/A                                | `create_codalab_user`             |
 
