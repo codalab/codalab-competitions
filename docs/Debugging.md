@@ -75,6 +75,5 @@ a bash terminal inside the database docker container. IE: ```docker exec -it pos
 drop <db_name>
 Removes the database with <db_name>
 create <db_name>
-
 Creates a database with <db_name>
 ```
