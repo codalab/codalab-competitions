@@ -15,11 +15,11 @@ List of containers, description, and log use.
 
 | Container        | Description    | Use                                                                         |
 |------------------|----------------|-----------------------------------------------------------------------------|
-| `django`         | Web Service    | View data between back-end and front-end, and various containers.           |
+| `django`         | Web Service    | Main container. View many debug prints from various processes.              |
 | `postgres`       | Database       | Useful to debug database issues                                             |
 | `worker_compute` | Compute Worker | Useful to debug object creation. ( Submissions, Competition creation, etc ) |
-| `worker_site`    | Site worker    | Task manager log                                                            |
-| `nginx`          | Nginx service  | HTTP Service logging                                                        |
+| `worker_site`    | Site worker    | Task manager logs                                                           |
+| `nginx`          | Nginx service  | HTTP Service logs                                                           |
 | `flower`         | Flower Service | View flower logs                                                            |
 | `rabbit`         | Rabbit Service | View rabbit logs                                                            |
 
@@ -47,7 +47,7 @@ This will put you in an `interactive ( -it )` bash shell within the container.
 
 Next run `py.test` to perform all tests, or if you know the name of the test you'd like to run,
 `py.test -k <test-name>`.
-The testing printout should revert back to `django` container bash prompt. From here type `exit` to exit the container.
+The testing printout should revert back to the `django` container bash prompt. From here type `exit` to exit the container.
 
 ## Python Commands
 
