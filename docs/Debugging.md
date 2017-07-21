@@ -70,6 +70,10 @@ models in our database. Usually called like such: `python manage.py migrate <app
 `python manage.py schemamigration`: Like above, do not use this unless required. Creates a migration to be used with
 the migrate command. Usually called like such: `python manage.py schemamigration <app> <object> <flags>`
 
+|    Command   | Description   | Recommended Args |
+| ------------ | ------------- | ------------ |
+| Test | Desc | --flag |
+
 ## Database
 
 Sometimes it is necessary to destroy, and re-create the database. In those cases use the following commands from
