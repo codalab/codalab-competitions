@@ -6,6 +6,7 @@ These are several useful commands you may find helpful for debugging.
 
 ---
 ### Logging
+
 To view all currently running containers with docker run ```docker ps```.
 This will return you a list of containers and info about them.
 
