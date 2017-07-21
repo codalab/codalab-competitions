@@ -17,7 +17,7 @@ List of containers, description, and log use.
 |------------------|----------------|-----------------------------------------------------------------------------|
 | `django`         | Web Service    | Main container. View many debug prints from various processes.              |
 | `postgres`       | Database       | Useful to debug database issues                                             |
-| `worker_compute` | Compute Worker | Useful to debug object creation. ( Submissions, Competition creation, etc ) |
+| `worker_compute` | Compute Worker | Useful to debug object creation, etc.                                       |
 | `worker_site`    | Site worker    | Task manager logs                                                           |
 | `nginx`          | Nginx service  | HTTP Service logs                                                           |
 | `flower`         | Flower Service | View flower logs                                                            |
@@ -50,8 +50,6 @@ Next run `py.test` to perform all tests, or if you know the name of the test you
 The testing printout should revert back to the `django` container bash prompt. From here type `exit` to exit the container.
 
 ## Python Commands
-
-*Todo: add custom manage.py commands*
 
 These commands are all run through a docker-container by having bash execute `python`. To get into a container with a
 bash prompt use `docker exec -it <container-name> bash`
