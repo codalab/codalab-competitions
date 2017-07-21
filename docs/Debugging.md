@@ -2,6 +2,7 @@
 
 These are several useful commands you may find helpful for debugging.
 ## Docker Commands
+---
 ### Logging
 To view all currently running containers with docker run ```docker ps```.
 This will return you a list of containers and info about them.
@@ -11,6 +12,7 @@ the container you wish to view. IE: ```docker logs -f django``` to view django l
 
 To view all logs outputs from the project currently ( *Good for debugging several containers* ) use
 ```docker-compsoe logs -f```. This will stream all logs from all active containers.
+---
 
 List of containers, description, and log use.
 
@@ -26,6 +28,7 @@ List of containers, description, and log use.
 
 To stop streaming logs, press `control+c`.
 
+---
 ### Other Commands
 
 Other docker commands that you may find useful:
@@ -41,6 +44,7 @@ Use ```docker-compose <command>```. You may also use ```docker-compose <command>
 ``docker exec -it <container-name> <program-name>``: Run an interactive terminal inside the container,
 with the specified program. IE: ```docker exec -it django bash``` for a bash terminal inside the `django` container.
 
+---
 ## Local Testing
 
 To perform py tests locally, go inside of the `django` docker container with ``docker exec -it django bash``.
@@ -50,10 +54,12 @@ Next run `py.test` to perform all tests, or if you know the name of the test you
 ```py.test -k <test-name>```.
 The testing printout should revert back to the `django` container bash prompt. From here type `exit` to exit the container.
 
+---
 ## Python Commands
 
 These commands are all run through the django container by having bash execute `python`. To get into the django container
 with a bash prompt use ```docker exec -it django bash```.
+---
 
 To execute the command use ```python manage.py <command>``` with any appropriate flags or arguments.
 
@@ -67,6 +73,7 @@ To execute the command use ```python manage.py <command>``` with any appropriate
 | `create_solution`        | Creates a submission    | `d` don't delete temp files, `-w` Wrong. Makes a submission that fails.| `create_solution -d -w`|
 | `create_codalab_user`    | Creates a user          | `password`                         | `create_codalab_user "bongo"`     |
 
+---
 ## Database
 
 Sometimes it is necessary to destroy, and re-create the database. In those cases use the following commands from
