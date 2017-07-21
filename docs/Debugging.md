@@ -71,6 +71,7 @@ To execute the command use ```python manage.py <command>``` with any appropriate
 
 Sometimes it is necessary to destroy, and re-create the database. In those cases use the following commands from
 a bash terminal inside the database docker container. IE: ```docker exec -it postgres bash```
+---
 
 ```drop <db_name>```
 
