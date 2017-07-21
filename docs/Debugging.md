@@ -13,15 +13,15 @@ To view all logs outputs from the project currently ( *Good for debugging severa
 
 List of containers, description, and log use.
 
-| Container      | Description    | Use                                                                         |
-|----------------|----------------|-----------------------------------------------------------------------------|
-| django         | Web Service    | View data between back-end and front-end, and various containers.           |
-| postgres       | Database       | Useful to debug database issues                                             |
-| worker_compute | Compute Worker | Useful to debug object creation. ( Submissions, Competition creation, etc ) |
-| worker_site    | Site worker    | Task manager log                                                            |
-| nginx          | Nginx service  | HTTP Service logging                                                        |
-| flower         | Flower Service | View flower logs                                                            |
-| rabbit         | Rabbit Service | View rabbit logs                                                            |
+| Container        | Description    | Use                                                                         |
+|------------------|----------------|-----------------------------------------------------------------------------|
+| `django`         | Web Service    | View data between back-end and front-end, and various containers.           |
+| `postgres`       | Database       | Useful to debug database issues                                             |
+| `worker_compute` | Compute Worker | Useful to debug object creation. ( Submissions, Competition creation, etc ) |
+| `worker_site`    | Site worker    | Task manager log                                                            |
+| `nginx`          | Nginx service  | HTTP Service logging                                                        |
+| `flower`         | Flower Service | View flower logs                                                            |
+| `rabbit`         | Rabbit Service | View rabbit logs                                                            |
 
 To stop streaming logs, press `control+c`.
 
@@ -29,14 +29,13 @@ To stop streaming logs, press `control+c`.
 
 Other docker commands that you may find useful:
 
-`docker-compose up -d`: Starts all in-active containers and their linked counter-parts. `-d` flag specifies
-detached mode.
+Use `docker-compose <command>`. You may also use `docker-compose <command> <container> <args/flags>`
 
-`docker-compose stop` and `docker-compose start`: Stops and starts all docker containers respectively. Can target
-individual containers by specifying them.
-
-`docker-compose restart`: Restarts all docker-containers. Useful for updating code changes. Can also specify a
-specific container.
+| Command | Description                                                  | Suggested Usage        |
+|---------|--------------------------------------------------------------|------------------------|
+| `up`    | Brings everything into an 'up' state. `-d` is for detatched. | `docker-compose up -d` |
+| `start` | Starts all containers not running                            | `docker-compose start` |
+| `stop`  | Stops all active containers                                  | `docker-compose stop`  |
 
 `docker exec -it <container-name> <program-name>`: Run an interactive terminal inside the container,
 with the specified program. IE: `docker exec -it django bash` for a bash terminal inside the `django` container.
@@ -61,9 +60,9 @@ To execute the command use `python manage.py <command>` with any appropriate fla
 
 |    Command        | Description             | `<parms>` & `--flags`              | Usage                             |
 | ----------------- | ----------------------- | ---------------------------------- | --------------------------------- |
-| `createsuperuser` | Creates a new super user| N/A                                | `manage.py createsuperuser`       |
-| `migrate`         | Performs a migration    | `<app>`, `<migration_number>`      | `manage.py migrate web 0059`      |
-| `schemamigration` | Creates a migration     | `<app>`, `<object>`, `--auto`      | `manage.py schemamigration ... `  |
+| `createsuperuser` | Creates a new super user| N/A                                | `createsuperuser`                 |
+| `migrate`         | Performs a migration    | `<app>`, `<migration_number>`      | `migrate web 0059`                |
+| `schemamigration` | Creates a migration     | `<app>`, `<object>`, `--auto`      | `schemamigration web object`      |
 
 ## Database
 
