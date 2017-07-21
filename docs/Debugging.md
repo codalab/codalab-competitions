@@ -11,12 +11,12 @@ the container you wish to view. IE: `docker logs -f django` to view django logs.
 To view all logs outputs from the project currently ( *Good for debugging several containers* ) use
 `docker-compsoe logs -f`. This will stream all logs from all active containers.
 
-List of specifics and container description:
+List of containers, description, and log use.
 
 | Container      | Description    | Use                                                                         |
 |----------------|----------------|-----------------------------------------------------------------------------|
-| Django         | Web Service    | View data between back-end and front-end, and various containers.           |
-| Postgres       | Database       | Useful to debug database issues                                             |
+| django         | Web Service    | View data between back-end and front-end, and various containers.           |
+| postgres       | Database       | Useful to debug database issues                                             |
 | worker_compute | Compute Worker | Useful to debug object creation. ( Submissions, Competition creation, etc ) |
 | worker_site    | Site worker    | Task manager log                                                            |
 | nginx          | Nginx service  | HTTP Service logging                                                        |
