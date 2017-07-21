@@ -13,20 +13,15 @@ To view all logs outputs from the project currently ( *Good for debugging severa
 
 List of specifics and container description:
 
-`docker logs -f django`: Django container logs. Shows all web/main site logs.
-
-`docker logs -f postgres`: Postgres container logs. Shows all database logs.
-
-`docker logs -f worker_compute`: Worker compute logs. Shows debug info for submissions, competition creation,
-competition dumps, etc.
-
-`docker logs -f worker_site`: Worker site logs. Distributes tasks to worker_compute.
-
-`docker logs -f flower`: Flower logs
-
-`docker logs -f rabbit`: Rabbit logs
-
-`docker logs -f nginx`: Nginx logs.
+| Container      | Description    | Use                                                                         |
+|----------------|----------------|-----------------------------------------------------------------------------|
+| Django         | Web Service    | View data between back-end and front-end, and various containers.           |
+| Postgres       | Database       | Useful to debug database issues                                             |
+| worker_compute | Compute Worker | Useful to debug object creation. ( Submissions, Competition creation, etc ) |
+| worker_site    | Site worker    | Task manager log                                                            |
+| nginx          | Nginx service  | HTTP Service logging                                                        |
+| flower         | Flower Service | View flower logs                                                            |
+| rabbit         | Rabbit Service | View rabbit logs                                                            |
 
 To stop streaming logs, press `control+c`.
 
