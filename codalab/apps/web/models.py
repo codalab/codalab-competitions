@@ -780,12 +780,14 @@ class CompetitionPhase(models.Model):
     default_docker_image = models.CharField(max_length=128, default='', blank=True)
     disable_custom_docker_image = models.BooleanField(default=False)
 
-    starting_kit = models.FileField( upload_to=_uuidify('starting_kit'),
-                                     storage=BundleStorage,
-                                     verbose_name="Starting Kit",
-                                     blank=True,
-                                     null=True,
-                                     )
+    starting_kit = models.FileField(upload_to=_uuidify('starting_kit'),
+                                    storage=BundleStorage,
+                                    verbose_name="Starting Kit",
+                                    blank=True,
+                                    null=True,
+                                    )
+
+    starting_kit_organizer_dataset = models.ForeignKey('OrganizerDataSet', null=True, blank=True, related_name="starting_kit_organizer_dataset", verbose_name="Starting Kit", on_delete=models.SET_NULL)
 
     def get_starting_kit(self):
         from apps.web.tasks import _make_url_sassy
@@ -1036,7 +1038,7 @@ class CompetitionPhase(models.Model):
                                 values[sdef.id] = computed_values
                                 ranks[sdef.id] = self.rank_values(submission_ids, computed_values, sort_ascending=sdef.sorting=='asc')
 
-            #format values
+            # format values
             for result in results:
                 scores = result['scores']
                 for sdef in result['scoredefs']:
@@ -1686,7 +1688,7 @@ class CompetitionDefBundle(models.Model):
                     except OrganizerDataSet.DoesNotExist:
                         assert False, "OrganizerDataSet (%s) could not be found" % phase_spec["reference_data"]
 
-                        ## Begin unpack starting_kit
+            # Begin unpack starting_kit
             if hasattr(phase, 'starting_kit') and phase.starting_kit:
                 if phase_spec["starting_kit"].endswith(".zip"):
                     phase.starting_kit.save(phase_starting_kit_data_file(phase), File(io.BytesIO(zf.read(phase_spec['starting_kit']))))
@@ -1700,16 +1702,16 @@ class CompetitionDefBundle(models.Model):
                             data_file=phase.starting_kit.file.name,
                             uploaded_by=self.owner
                         )
-                    phase.starting_kit_data_organizer_dataset = data_set_cache[phase_spec['starting_kit']]
+                    phase.starting_kit_organizer_dataset = data_set_cache[phase_spec['starting_kit']]
                 else:
                     logger.debug("CompetitionDefBundle::unpack getting dataset for starting_kit with key %s", phase_spec["starting_kit"])
                     try:
                         data_set = OrganizerDataSet.objects.get(key=phase_spec["starting_kit"])
                         phase.starting_kit = data_set.data_file.file.name
-                        phase.starting_kit_data_organizer_dataset = data_set
+                        phase.starting_kit_organizer_dataset = data_set
                     except OrganizerDataSet.DoesNotExist:
                         assert False, "OrganizerDataSet (%s) could not be found" % phase_spec["starting_kit"]
-                        ## End unpack starting kit
+                        # End unpack starting kit
 
             if 'input_data' in phase_spec:
                 if phase_spec["input_data"].endswith(".zip"):
@@ -2066,6 +2068,7 @@ def add_submission_to_leaderboard(submission):
         entry.delete()
     lbe, created = PhaseLeaderBoardEntry.objects.get_or_create(board=lb, result=submission)
     return lbe, created
+
 
 def get_current_phase(competition):
     all_phases = competition.phases.all()
