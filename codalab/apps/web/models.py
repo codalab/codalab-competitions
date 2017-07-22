@@ -1978,6 +1978,7 @@ class OrganizerDataSet(models.Model):
         ("Reference Data", "Reference Data"),
         ("Scoring Program", "Scoring Program"),
         ("Input Data", "Input Data"),
+        ("Starting Kit", "Starting Kit"),
         ("None", "None")
     )
     name = models.CharField(max_length=255)
