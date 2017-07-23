@@ -100,7 +100,7 @@ class CompetitionPhaseForm(forms.ModelForm):
                 choices=(('default', 'Default'), ('hide_results', 'Hide Results'))
             ),
             'DELETE' : forms.HiddenInput,
-            #'phasenumber': forms.HiddenInput
+            # 'phasenumber': forms.HiddenInput
         }
 
     def clean_reference_data_organizer_dataset(self):
@@ -210,9 +210,9 @@ class OrganizerDataSetModelForm(forms.ModelForm):
     def clean_data_file(self):
         data = self.cleaned_data.get('data_file')
 
-        #if data and self.data.get("sub_data_files"):
+        # if data and self.data.get("sub_data_files"):
         #    raise forms.ValidationError("Cannot submit both single data file and multiple sub files!")
-        #elif not data and not self.data.get("sub_data_files"):
+        # elif not data and not self.data.get("sub_data_files"):
         if not data and not self.data.get("sub_data_files"):
             raise forms.ValidationError("This field is required.")
 

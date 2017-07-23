@@ -787,7 +787,13 @@ class CompetitionPhase(models.Model):
                                     null=True,
                                     )
 
-    starting_kit_organizer_dataset = models.ForeignKey('OrganizerDataSet', null=True, blank=True, related_name="starting_kit_organizer_dataset", verbose_name="Starting Kit", on_delete=models.SET_NULL)
+    starting_kit_organizer_dataset = models.ForeignKey('OrganizerDataSet',
+                                                       null=True,
+                                                       blank=True,
+                                                       related_name="starting_kit_organizer_dataset",
+                                                       verbose_name="Starting Kit",
+                                                       on_delete=models.SET_NULL
+                                                       )
 
     def get_starting_kit(self):
         from apps.web.tasks import _make_url_sassy
