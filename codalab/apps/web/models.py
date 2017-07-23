@@ -1717,7 +1717,7 @@ class CompetitionDefBundle(models.Model):
                 if phase_spec["input_data"].endswith(".zip"):
                     phase.input_data.save(phase_input_data_file(phase), File(io.BytesIO(zf.read(phase_spec['input_data']))))
 
-                    file_name = os.path.spslitext(os.path.basename(phase_spec['input_data']))[0]
+                    file_name = os.path.splitext(os.path.basename(phase_spec['input_data']))[0]
                     if phase_spec['input_data'] not in data_set_cache:
                         logger.debug('Adding organizer dataset to cache: %s' % phase_spec['input_data'])
                         data_set_cache[phase_spec['input_data']] = OrganizerDataSet.objects.create(
