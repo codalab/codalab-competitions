@@ -11,17 +11,41 @@ class Migration(SchemaMigration):
         # Adding model 'CompetitionDump'
         db.create_table(u'web_competitiondump', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('competition', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['web.Competition'])),
+            ('competition', self.gf('django.db.models.fields.related.ForeignKey')(related_name='dumps', to=orm['web.Competition'])),
             ('timestamp', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
             ('status', self.gf('django.db.models.fields.CharField')(default='Starting', max_length=64)),
             ('data_file', self.gf('django.db.models.fields.files.FileField')(max_length=100, null=True, blank=True)),
         ))
         db.send_create_signal(u'web', ['CompetitionDump'])
 
+        # Deleting field 'CompetitionPhase.default_docker_image'
+        db.delete_column(u'web_competitionphase', 'default_docker_image')
+
+        # Deleting field 'CompetitionPhase.disable_custom_docker_image'
+        db.delete_column(u'web_competitionphase', 'disable_custom_docker_image')
+
+        # Deleting field 'CompetitionPhase.scoring_program_docker_image'
+        db.delete_column(u'web_competitionphase', 'scoring_program_docker_image')
+
 
     def backwards(self, orm):
         # Deleting model 'CompetitionDump'
         db.delete_table(u'web_competitiondump')
+
+        # Adding field 'CompetitionPhase.default_docker_image'
+        db.add_column(u'web_competitionphase', 'default_docker_image',
+                      self.gf('django.db.models.fields.CharField')(default='', max_length=128, blank=True),
+                      keep_default=False)
+
+        # Adding field 'CompetitionPhase.disable_custom_docker_image'
+        db.add_column(u'web_competitionphase', 'disable_custom_docker_image',
+                      self.gf('django.db.models.fields.BooleanField')(default=False),
+                      keep_default=False)
+
+        # Adding field 'CompetitionPhase.scoring_program_docker_image'
+        db.add_column(u'web_competitionphase', 'scoring_program_docker_image',
+                      self.gf('django.db.models.fields.CharField')(default='', max_length=128, blank=True),
+                      keep_default=False)
 
 
     models = {
@@ -175,7 +199,7 @@ class Migration(SchemaMigration):
         },
         u'web.competitiondump': {
             'Meta': {'object_name': 'CompetitionDump'},
-            'competition': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['web.Competition']"}),
+            'competition': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'dumps'", 'to': u"orm['web.Competition']"}),
             'data_file': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'status': ('django.db.models.fields.CharField', [], {'default': "'Starting'", 'max_length': '64'}),
