@@ -53,7 +53,8 @@ from apps.web.models import (add_submission_to_leaderboard,
                              predict_submission_stderr_filename,
                              SubmissionScore,
                              SubmissionScoreDef,
-                             CompetitionSubmissionMetadata, BundleStorage)
+                             CompetitionSubmissionMetadata, BundleStorage, SubmissionResultGroup,
+                             SubmissionScoreDefGroup)
 from apps.coopetitions.models import DownloadRecord
 
 import time
@@ -895,6 +896,31 @@ def make_modified_bundle(competition_pk):
                     }
             # Save the phase_dict
             yaml_data['phases'][index] = phase_dict
+        # Leaderboard
+        # main Leaderboard dict
+        yaml_data["leaderboard"] = dict()
+        # leaderboards dict
+        logger.info("Adding leaderboard.")
+        leaderboards_dict = dict()
+        for index, submission_result_group in enumerate(SubmissionResultGroup.objects.filter(competition=competition)):
+            logger.info("Submission result group work")
+            leaderboards_dict[submission_result_group.label] = dict() # Results dict ??? # This many need to be just group
+            leaderboards_dict[submission_result_group.label]['label'] = submission_result_group.label
+            leaderboards_dict[submission_result_group.label]['rank'] = int(index + 1)
+            # Columns dictionary
+            columns_dictionary = dict()
+            # for index_score_def, submission_score_def in enumerate(SubmissionScoreDef.objects.filter(competition=competition)):
+            for index_score_def, submission_score_def_group in enumerate(SubmissionScoreDefGroup.objects.filter(group=submission_result_group)):
+                logger.info("Submission Score Def work")
+                columns_dictionary[submission_score_def_group.scoredef.key] = dict()
+                columns_dictionary[submission_score_def_group.scoredef.key]['leaderboard'] = "*{}".format(submission_result_group.label)
+                columns_dictionary[submission_score_def_group.scoredef.key]['label'] = submission_score_def_group.scoredef.label
+                columns_dictionary[submission_score_def_group.scoredef.key]['rank'] = int(index + 1)
+                columns_dictionary[submission_score_def_group.scoredef.key]['sort'] = submission_score_def_group.scoredef.sorting
+        logger.info("YAML finalizing")
+        yaml_data["leaderboard"]['leaderboards'] = leaderboards_dict
+        yaml_data["leaderboard"]['columns'] = columns_dictionary
+        logger.info("Done with leaderboard")
         # Finishing up
         temp_comp_dump.status = "Finalizing"
         temp_comp_dump.save()
@@ -905,21 +931,18 @@ def make_modified_bundle(competition_pk):
         # Grab logo
         zip_file.writestr(yaml_data["image"], competition.image.file.read())
         zip_file.writestr("competition.yaml", yaml.dump(yaml_data))
-        # zip_file.close()
+        ret = zip_file.testzip()
+        zip_file.close()
         logger.info("Stored Zip buffer yaml dump, and image")
         logger.info("Attempting to save ZIP")
         temp_comp_data = ContentFile(zip_buffer.getvalue())
         save_success = False
         while not save_success:
             counter = 0
-            ret = zip_file.testzip()
             logger.info("Attempting to save new object.")
             try:
-                if ret is not None:
-                    logger.info("Zip corrupt.")
-                else:
-                    temp_comp_dump.data_file.save(zip_name, temp_comp_data)
-                    save_success = True
+                temp_comp_dump.data_file.save(zip_name, temp_comp_data)
+                save_success = True
             except SoftTimeLimitExceeded:
                 logger.info("Failed to save object, retrying.")
                 counter += 1
@@ -929,7 +952,7 @@ def make_modified_bundle(competition_pk):
                 temp_comp_dump.save()
                 logger.info("Failed to save object after 5 tries. Stopping.")
                 save_success = True
-        zip_file.close()
+        # zip_file.close()
         logger.info("Saved zip file to Competition dump")
         temp_comp_dump.status = "Finished"
         temp_comp_dump.save()
