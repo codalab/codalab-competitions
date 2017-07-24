@@ -905,17 +905,21 @@ def make_modified_bundle(competition_pk):
         # Grab logo
         zip_file.writestr(yaml_data["image"], competition.image.file.read())
         zip_file.writestr("competition.yaml", yaml.dump(yaml_data))
-        zip_file.close()
+        # zip_file.close()
         logger.info("Stored Zip buffer yaml dump, and image")
         logger.info("Attempting to save ZIP")
         temp_comp_data = ContentFile(zip_buffer.getvalue())
         save_success = False
         while not save_success:
             counter = 0
+            ret = zip_file.testzip()
             logger.info("Attempting to save new object.")
             try:
-                temp_comp_dump.data_file.save(zip_name, temp_comp_data)
-                save_success = True
+                if ret is not None:
+                    logger.info("Zip corrupt.")
+                else:
+                    temp_comp_dump.data_file.save(zip_name, temp_comp_data)
+                    save_success = True
             except SoftTimeLimitExceeded:
                 logger.info("Failed to save object, retrying.")
                 counter += 1
@@ -925,6 +929,7 @@ def make_modified_bundle(competition_pk):
                 temp_comp_dump.save()
                 logger.info("Failed to save object after 5 tries. Stopping.")
                 save_success = True
+        zip_file.close()
         logger.info("Saved zip file to Competition dump")
         temp_comp_dump.status = "Finished"
         temp_comp_dump.save()

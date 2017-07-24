@@ -22,10 +22,6 @@
                                 <td>
                                     {% if dump.status == "Finished" %}
                                         <a href="{{ dump.sassy_url }}">Download</a>
-                                    {% elif dump.status != "Failed" %}
-                                        <i>Working</i>
-                                    {% else %}
-                                        <u><b>Failed</b></u>
                                     {% endif %}
                                 </td>
                                 <td>
