@@ -23,7 +23,6 @@
 {% if request.user.is_staff %}
     <a href="{% url "competitions:download" competition_pk=competition.pk %}" class="btn btn-primary">DOWNLOAD COMPETITION BUNDLE!</a>
 {% endif %}
-
 {% if is_admin_or_owner %}
     <h3>Admin features</h3>
     <a href="{% url "competitions:edit" pk=competition.pk %}" class="btn btn-primary">Edit</a>
@@ -36,7 +35,6 @@
     <a href="{% url 'my_competition_submissions' competition_id=competition.pk %}" class="btn btn-primary">Submissions</a>
     <hr>
 {% endif %}
-
 <div class="competition-view">
     <div class="row">
         <div class="col-sm-2">
@@ -78,6 +76,9 @@
                                 <h4><span class="glyphicon glyphicon-play"></span> Current</h4>
                                 <span class="phase-label label phase-label-{% if active_phase.color %}{{ active_phase.color }}{% else %}default{% endif %}">{{active_phase.label}}</span>
                                 <div class="date">{{active_phase.start_date|utc}} UTC</div>
+                                {% if active_phase and active_phase.starting_kit %}
+                                    <a href="{{ active_phase.get_starting_kit }}" class="btn btn-primary">Download Starting Kit</a>
+                                {% endif %}
                             </div>
                         </div>
                     {% endif %}

@@ -17,6 +17,7 @@ from apps.web.models import SubmissionScoreSet
 
 User = get_user_model()
 
+
 class CompetitionForm(forms.ModelForm):
     class Meta:
         model = models.Competition
@@ -43,8 +44,8 @@ class CompetitionForm(forms.ModelForm):
             'enable_teams',
             'require_team_approval',
         )
-        widgets = { 'description' : TinyMCE(attrs={'rows' : 20, 'class' : 'competition-editor-description'},
-                                            mce_attrs={"theme" : "advanced", "cleanup_on_startup" : True, "theme_advanced_toolbar_location" : "top", "gecko_spellcheck" : True})}
+        widgets = {'description': TinyMCE(attrs={'rows' : 20, 'class' : 'competition-editor-description'},
+                                          mce_attrs={"theme": "advanced", "cleanup_on_startup": True, "theme_advanced_toolbar_location": "top", "gecko_spellcheck": True})}
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user')
@@ -53,14 +54,14 @@ class CompetitionForm(forms.ModelForm):
 
         # Get public queues
         if self.instance.queue:
-		qs = Queue.objects.filter(
-		    Q(is_public=True) | Q(owner=user) | Q(organizers__in=[user]) | Q(pk=self.instance.queue.pk)
-		)
+            qs = Queue.objects.filter(
+                Q(is_public=True) | Q(owner=user) | Q(organizers__in=[user]) | Q(pk=self.instance.queue.pk)
+            )
         else:
-		# else, don't use pk
-		qs = Queue.objects.filter(
-		    Q(is_public=True) | Q(owner=user) | Q(organizers__in=[user])
-		)
+            # else, don't use pk
+            qs = Queue.objects.filter(
+                Q(is_public=True) | Q(owner=user) | Q(organizers__in=[user])
+            )
 
         # And ones you own
         qs = qs.filter()
@@ -88,6 +89,7 @@ class CompetitionPhaseForm(forms.ModelForm):
             'scoring_program_organizer_dataset',
             'phase_never_ends',
             'force_best_submission_to_leaderboard',
+            'starting_kit',
             'scoring_program_docker_image',
             'default_docker_image',
             'disable_custom_docker_image',
@@ -98,7 +100,7 @@ class CompetitionPhaseForm(forms.ModelForm):
                 choices=(('default', 'Default'), ('hide_results', 'Hide Results'))
             ),
             'DELETE' : forms.HiddenInput,
-            #'phasenumber': forms.HiddenInput
+            # 'phasenumber': forms.HiddenInput
         }
 
     def clean_reference_data_organizer_dataset(self):
@@ -179,9 +181,11 @@ class LeaderboardForm(forms.ModelForm):
 
     #     return instance
 
+
 class CompetitionDatasetForm(forms.ModelForm):
     class Meta:
         model = models.Dataset
+
 
 class CompetitionParticipantForm(forms.ModelForm):
     class Meta:
@@ -206,9 +210,9 @@ class OrganizerDataSetModelForm(forms.ModelForm):
     def clean_data_file(self):
         data = self.cleaned_data.get('data_file')
 
-        #if data and self.data.get("sub_data_files"):
+        # if data and self.data.get("sub_data_files"):
         #    raise forms.ValidationError("Cannot submit both single data file and multiple sub files!")
-        #elif not data and not self.data.get("sub_data_files"):
+        # elif not data and not self.data.get("sub_data_files"):
         if not data and not self.data.get("sub_data_files"):
             raise forms.ValidationError("This field is required.")
 

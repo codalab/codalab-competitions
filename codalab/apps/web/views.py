@@ -45,7 +45,7 @@ from apps.coopetitions.models import Like, Dislike
 from apps.forums.models import Forum
 from apps.common.competition_utils import get_most_popular_competitions, get_featured_competitions
 from apps.web.forms import CompetitionS3UploadForm, SubmissionS3UploadForm
-from apps.web.models import SubmissionScore, SubmissionScoreDef
+from apps.web.models import SubmissionScore, SubmissionScoreDef, get_current_phase
 
 from tasks import evaluate_submission, re_run_all_submissions_in_phase, create_competition, _make_url_sassy
 from apps.teams.models import TeamMembership, get_user_team, get_competition_teams, get_competition_pending_teams, get_competition_deleted_teams, get_last_team_submissions, get_user_requests, get_team_pending_membership
@@ -485,6 +485,8 @@ class CompetitionDetailView(DetailView):
         context['tabs'] = side_tabs
         context['site'] = Site.objects.get_current()
         context['current_server_time'] = datetime.now()
+
+        context['active_phase'] = get_current_phase(competition)
 
         # Top 3 Leaderboard
         # Get the month from submitted_at
