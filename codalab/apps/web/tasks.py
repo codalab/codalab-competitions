@@ -905,19 +905,21 @@ def make_modified_bundle(competition_pk):
         leaderboards_dict = dict()
         for index, submission_result_group in enumerate(SubmissionResultGroup.objects.filter(competition=competition)):
             logger.info("Submission result group work")
-            leaderboards_dict[submission_result_group.label] = dict() # Results dict ??? # This many need to be just group
-            leaderboards_dict[submission_result_group.label]['label'] = submission_result_group.label
-            leaderboards_dict[submission_result_group.label]['rank'] = int(index + 1)
+            result_group_key = submission_result_group.key
+            leaderboards_dict[result_group_key] = dict()
+            leaderboards_dict[result_group_key]['label'] = submission_result_group.label
+            leaderboards_dict[result_group_key]['rank'] = submission_result_group.ordering
             # Columns dictionary
             columns_dictionary = dict()
             # for index_score_def, submission_score_def in enumerate(SubmissionScoreDef.objects.filter(competition=competition)):
             for index_score_def, submission_score_def_group in enumerate(SubmissionScoreDefGroup.objects.filter(group=submission_result_group)):
                 logger.info("Submission Score Def work")
-                columns_dictionary[submission_score_def_group.scoredef.key] = dict()
-                columns_dictionary[submission_score_def_group.scoredef.key]['leaderboard'] = "*{}".format(submission_result_group.label)
-                columns_dictionary[submission_score_def_group.scoredef.key]['label'] = submission_score_def_group.scoredef.label
-                columns_dictionary[submission_score_def_group.scoredef.key]['rank'] = int(index + 1)
-                columns_dictionary[submission_score_def_group.scoredef.key]['sort'] = submission_score_def_group.scoredef.sorting
+                score_def_key = submission_score_def_group.scoredef.key
+                columns_dictionary[score_def_key] = dict()
+                columns_dictionary[score_def_key]['leaderboard'] = leaderboards_dict[submission_result_group.label]
+                columns_dictionary[score_def_key]['label'] = submission_score_def_group.scoredef.label
+                columns_dictionary[score_def_key]['rank'] = submission_score_def_group.scoredef.ordering
+                columns_dictionary[score_def_key]['sort'] = submission_score_def_group.scoredef.sorting
         logger.info("YAML finalizing")
         yaml_data["leaderboard"]['leaderboards'] = leaderboards_dict
         yaml_data["leaderboard"]['columns'] = columns_dictionary
