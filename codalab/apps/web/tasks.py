@@ -98,7 +98,7 @@ def echo(text):
     return Job.objects.create_and_dispatch_job('echo', {'message': text})
 
 
-@task(queue='site-worker')
+@task(queue='site-worker', soft_time_limit=60 * 60 * 24)
 def create_competition(job_id, comp_def_id):
     """
     A task to create a competition from a bundle with the competition's definition.
@@ -794,7 +794,7 @@ def do_phase_migrations():
         c.check_future_phase_sumbmissions()
 
 
-@task(queue='site-worker')
+@task(queue='site-worker', soft_time_limit=60 * 60 * 24)
 def make_modified_bundle(competition_pk):
 
     from collections import OrderedDict
