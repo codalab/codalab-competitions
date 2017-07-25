@@ -773,6 +773,10 @@ class CompetitionPhase(models.Model):
     scoring_program_organizer_dataset = models.ForeignKey('OrganizerDataSet', null=True, blank=True, related_name="scoring_program_organizer_dataset", verbose_name="Scoring Program", on_delete=models.SET_NULL)
     phase_never_ends = models.BooleanField(default=False)
 
+    scoring_program_docker_image = models.CharField(max_length=128, default='', blank=True)
+    default_docker_image = models.CharField(max_length=128, default='', blank=True)
+    disable_custom_docker_image = models.BooleanField(default=False)
+
     class Meta:
         ordering = ['phasenumber']
 

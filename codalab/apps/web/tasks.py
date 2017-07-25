@@ -210,19 +210,22 @@ def _prepare_compute_worker_run(job_id, submission, is_prediction):
         stdout = submission.prediction_stdout_file.name
         stderr = submission.prediction_stderr_file.name
         output = submission.prediction_output_file.name
+        docker_image = submission.docker_image or submission.phase.default_docker_image or \
+                       settings.DEFAULT_WORKER_DOCKER_IMAGE
     else:
         # Scoring, if we're not predicting
         bundle_url = submission.runfile.name
         stdout = submission.stdout_file.name
         stderr = submission.stderr_file.name
         output = submission.output_file.name
+        docker_image = submission.phase.scoring_program_docker_image or settings.DEFAULT_WORKER_DOCKER_IMAGE
 
     data = {
         "id": job_id,
         "task_type": "run",
         "task_args": {
             "submission_id": submission.pk,
-            "docker_image": submission.docker_image or settings.DEFAULT_WORKER_DOCKER_IMAGE,
+            "docker_image": docker_image,
             "bundle_url": _make_url_sassy(bundle_url),
             "stdout_url": _make_url_sassy(stdout, permission='w'),
             "stderr_url": _make_url_sassy(stderr, permission='w'),
@@ -786,12 +789,10 @@ def send_mass_email(competition_pk, body=None, subject=None, from_email=None, to
 
 @task(queue='site-worker')
 def do_phase_migrations():
-    logger.info("Task: Do phase migrations running.")
     competitions = Competition.objects.filter(is_migrating=False)
-
     for c in competitions:
-        logger.info("Checking future phase submissions for " + str(c))
         c.check_future_phase_sumbmissions()
+        logger.info("Checking {} competitions for phase migrations.".format(len(competitions)))
 
 
 @task(queue='site-worker', soft_time_limit=60 * 60 * 24)

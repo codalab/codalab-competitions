@@ -8,6 +8,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.auth import get_user_model
 
 from apps.web import models
+from apps.web.tasks import _make_url_sassy
 
 User = get_user_model()
 
@@ -23,18 +24,6 @@ class OrganizerDataSetTestCase(TestCase):
             data_file=SimpleUploadedFile("something.txt", "contents of file"),
             uploaded_by=self.user
         )
-
-
-class OrganizerDataSetDownloadTests(OrganizerDataSetTestCase):
-
-    def test_organizer_dataset_download_returns_200_response(self):
-        resp = self.client.get(reverse("datasets_download", kwargs={"dataset_key": self.dataset.key}))
-        self.assertEquals(resp.status_code, 200)
-
-    def test_organizer_dataset_download_contains_proper_data(self):
-        resp = self.client.get(reverse("datasets_download", kwargs={"dataset_key": self.dataset.key}))
-        self.assertEquals(resp.streaming_content.next(), "contents of file")
-        self.assertEquals(int(resp._headers["content-length"][1]), len("contents of file"))
 
 
 class OrganizerDataSetCreateTestsCase(OrganizerDataSetTestCase):

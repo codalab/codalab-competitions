@@ -13,6 +13,7 @@ import pwd
 import grp
 import signal
 import math
+import re
 import shutil
 import socket
 import sys
@@ -30,10 +31,12 @@ from zipfile import ZipFile
 from celery.app import app_or_default
 
 # Add codalabtools to the module search path
+from codalab import settings
+
 sys.path.append(dirname(dirname(dirname(abspath(__file__)))))
 
 from codalabtools import BaseConfig
-
+from apps.web.utils import docker_image_clean
 
 logger = logging.getLogger('codalabtools')
 
@@ -53,6 +56,21 @@ def _find_only_folder_with_metadata(path):
             if 'metadata' in os.listdir(folder):
                 return folder
 
+
+def docker_get_size():
+    return os.popen("docker system df | awk -v x=4 'FNR == 2 {print $x}'").read().strip()
+
+
+def docker_prune():
+    """Runs a prune on docker if our images take up more than what's defined in settings."""
+    # May also use docker system df --format "{{.Size}}"
+    image_size = docker_get_size()
+    image_size_measurement = image_size[-2:]
+    image_size = float(image_size[:-2])
+
+    if image_size > settings.DOCKER_MAX_SIZE_GB and image_size_measurement == "GB":
+        logger.info("Pruning")
+        os.system("docker system prune --force")
 
 # class WorkerConfig(BaseConfig):
 #     """
@@ -297,6 +315,8 @@ def get_run_func():
         detailed_results_url = task_args['detailed_results_url']
         private_output_url = task_args['private_output_url']
 
+        sanitized_docker_image = docker_image_clean(docker_image)
+
         execution_time_limit = task_args['execution_time_limit']
         # container = task_args['container_name']
         is_predict_step = task_args.get("predict", False)
@@ -322,6 +342,8 @@ def get_run_func():
             "end_swap_memory_usage": None,
             "end_cpu_usage": None,
         }
+
+        docker_prune()
 
         try:
             # Cleanup dir in case any processes didn't clean up properly
@@ -428,7 +450,7 @@ def get_run_func():
                     # Set the right volume
                     '-v', '{0}:{0}'.format(run_dir),
                     # Set the right image
-                    docker_image,
+                    sanitized_docker_image,
                 ]
                 prog_cmd = docker_cmd + prog_cmd
                 logger.info("Invoking program: %s", " ".join(prog_cmd))
