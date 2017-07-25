@@ -904,7 +904,7 @@ def make_modified_bundle(competition_pk):
         logger.info("Adding leaderboard.")
         leaderboards_dict = dict()
         for index, submission_result_group in enumerate(SubmissionResultGroup.objects.filter(competition=competition)):
-            logger.info("Submission result group work")
+            logger.info("Adding a submission result group.")
             result_group_key = submission_result_group.key
             leaderboards_dict[result_group_key] = dict()
             leaderboards_dict[result_group_key]['label'] = submission_result_group.label
@@ -913,7 +913,7 @@ def make_modified_bundle(competition_pk):
             columns_dictionary = dict()
             # for index_score_def, submission_score_def in enumerate(SubmissionScoreDef.objects.filter(competition=competition)):
             for index_score_def, submission_score_def_group in enumerate(SubmissionScoreDefGroup.objects.filter(group=submission_result_group)):
-                logger.info("Submission Score Def work")
+                logger.info("Adding a submission score def group.")
                 score_def_key = submission_score_def_group.scoredef.key
                 columns_dictionary[score_def_key] = dict()
                 columns_dictionary[score_def_key]['leaderboard'] = leaderboards_dict[submission_result_group.label]
