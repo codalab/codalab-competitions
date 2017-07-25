@@ -817,7 +817,6 @@ def make_modified_bundle(competition_pk):
         competition = models.Competition.objects.get(pk=competition_pk)
         logger.info("Creating Competion dump")
         temp_comp_dump = CompetitionDump.objects.create(competition=competition)
-
         yaml_data = OrderedDict()
         yaml_data['title'] = competition.title
         yaml_data['description'] = competition.description.replace("/n", "").replace("\"", "").strip()
@@ -825,11 +824,10 @@ def make_modified_bundle(competition_pk):
         yaml_data['has_registration'] = competition.has_registration
         yaml_data['html'] = dict()
         yaml_data['phases'] = {}
-
         comp_su_list = ""
+        # Status is always set in this way
         temp_comp_dump.status = "Adding admins"
         temp_comp_dump.save()
-
         for su in competition.admins.all():
             logger.info("Adding admin")
             comp_su_list = comp_su_list + su.username + ","
