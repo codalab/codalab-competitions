@@ -309,6 +309,10 @@ class Competition(models.Model):
         if type(self.end_date) is datetime.datetime:
             return True if self.end_date is None else self.end_date > now()
 
+    @property
+    def has_starting_kit(self):
+        return self.phases.filter(starting_kit__isnull=False).exists()
+
     def check_future_phase_sumbmissions(self):
         '''
         Checks for if we need to migrate current phase submissions to next phase.'''
@@ -1601,9 +1605,26 @@ class CompetitionDefBundle(models.Model):
                 )
 
         participate_category = ContentCategory.objects.get(name="Participate")
-        Page.objects.create(category=participate_category, container=pc,  codename="get_data", competition=comp,
-                                   label="Get Data", rank=0, html=zf.read(comp_spec['html']['data']))
-        Page.objects.create(category=participate_category, container=pc,  codename="submit_results", label="Submit / View Results", rank=1, html="")
+        Page.objects.create(category=participate_category,
+                            container=pc,
+                            codename="get_data",
+                            competition=comp,
+                            label="Get Data",
+                            rank=0,
+                            html=zf.read(comp_spec['html']['data']))
+        Page.objects.create(category=participate_category,
+                            container=pc,
+                            codename="get_starting_kit",
+                            competition=comp,
+                            label="Get Starting Kit",
+                            rank=2,
+                            html="")
+        Page.objects.create(category=participate_category,
+                            container=pc,
+                            codename="submit_results",
+                            label="Submit / View Results",
+                            rank=1,
+                            html="")
         logger.debug("CompetitionDefBundle::unpack created competition pages (pk=%s)", self.pk)
 
         data_set_cache = {}

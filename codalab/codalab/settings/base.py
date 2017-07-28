@@ -572,6 +572,7 @@ class Base(Settings):
     # Docker
     # =========================================================================
     DOCKER_DEFAULT_WORKER_IMAGE = "ckcollab/codalab-legacy"
+    DEFAULT_WORKER_DOCKER_IMAGE = "ckcollab/codalab-legacy"
     DOCKER_MAX_SIZE_GB = 10.0
     
     # =========================================================================
