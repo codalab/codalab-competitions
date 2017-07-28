@@ -87,7 +87,7 @@ def echo(text):
     return Job.objects.create_and_dispatch_job('echo', {'message': text})
 
 
-@task(queue='site-worker')
+@task(queue='site-worker', soft_time_limit=60 * 60 * 24)
 def create_competition(job_id, comp_def_id):
     """
     A task to create a competition from a bundle with the competition's definition.
@@ -229,17 +229,17 @@ def _prepare_compute_worker_run(job_id, submission, is_prediction):
 
     logger.info("Passing task args to compute worker: %s", data["task_args"])
 
-    default_time_limit = submission.phase.execution_time_limit
-    if default_time_limit <= 0:
-        default_time_limit = 60 * 10  # 10 minutes timeout
+    time_limit = submission.phase.execution_time_limit
+    if time_limit <= 0:
+        time_limit = 60 * 10  # 10 minutes timeout by default
 
     if submission.phase.competition.queue:
         app = app_or_default()
         with app.connection() as new_connection:
             new_connection.virtual_host = submission.phase.competition.queue.vhost
-            compute_worker_run.apply_async((data,), soft_time_limit=default_time_limit, connection=new_connection)
+            compute_worker_run.apply_async((data,), soft_time_limit=time_limit, connection=new_connection)
     else:
-        compute_worker_run.apply_async((data,), soft_time_limit=default_time_limit)
+        compute_worker_run.apply_async((data,), soft_time_limit=time_limit)
 
 
 @task(queue='compute-worker')
@@ -681,7 +681,7 @@ def update_submission(job_id, args, secret):
     run_job_task(job_id, update_it, handle_update_exception)
 
 
-@task(queue='site-worker')
+@task(queue='site-worker', soft_time_limit=60 * 60 * 1)
 def re_run_all_submissions_in_phase(phase_pk):
     phase = CompetitionPhase.objects.get(id=phase_pk)
 
