@@ -200,13 +200,10 @@ class ParticipantStatus(models.Model):
 
 def _uuidify(directory):
     """Helper to generate UUID's in file names while maintaining their extension"""
-    # Since we're hitting SQL length limits, going to try to trim down UUID.
     def wrapped_uuidify(obj, filename):
         name, extension = os.path.splitext(filename)
-        temp_uuid = str(uuid.uuid4())
-        temp_uuid = temp_uuid[0:(len(temp_uuid)/2)]
-        # return os.path.join(directory, '{}-{}{}'.format(name, uuid.uuid4(), extension))
-        return os.path.join(directory, temp_uuid, "{0}{1}".format(name[0:35], extension))
+        # Trims UUID down to 6 chars,
+        return os.path.join(directory, str(obj.pk), str(uuid.uuid4())[0:5], "{0}{1}".format(name[0:35], extension))
     return wrapped_uuidify
 
 
