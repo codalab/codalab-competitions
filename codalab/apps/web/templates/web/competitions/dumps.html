@@ -9,14 +9,14 @@
             <button id="make_dump" class="btn btn-primary">Create Competition Dump</button>
             {% if dumps %}
                 <h1>Dumps for: {{ competition.title }}</h1>
-                <table width="80%" style="border: solid rgba(0,0,0,0.31) 1px;" class="table table-responsive">
+                <table id="dump-table" class="table table-responsive">
                 <thead>
                     <td width="100px"><h5><b>Download link</b></h5></td>
                     <td width="100px"><h5><b>Status</b></h5></td>
                     <td width="400px"><h5><b>Publish Date</b></h5></td>
                 </thead>
                     <tbody>
-                        <tr style="padding: 20px; margin: 20px;">
+                        <tr id="dump-table-data">
                             {% for dump in dumps %}
                                 {% if forloop.counter0|divisibleby:1 %}<tr>{% endif %}
                                 <td>
@@ -36,6 +36,7 @@
                     </tbody>
                 </table>
             {% else %}
+                <br>
                 <i>No dumps found for the current competition.</i>
             {% endif %}
         </div>
@@ -46,7 +47,8 @@
                 var url = "{% url 'competitions:make_bundle' competition_pk=competition.pk %}"
                 $.post(url)
                     .success(function() {
-                        alert("Bundle is being created, please refresh the page to view new dumps.")
+                        //alert("Bundle is being created, please refresh the page to view new dumps.")
+                        location.reload(true)
                     })
                     .error(function() {
                         alert("There was a problem generating the dump. Please make sure you're connected to the Internet, if the problem persists please contact an admin.")
