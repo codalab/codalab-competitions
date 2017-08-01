@@ -826,14 +826,12 @@ def make_modified_bundle(competition_pk):
         yaml_data['html'] = dict()
         yaml_data['phases'] = {}
         comp_su_list = ""
-        # Status is always set in this way
         temp_comp_dump.status = "Adding admins"
         temp_comp_dump.save()
         for su in competition.admins.all():
             logger.info("Adding admin")
             comp_su_list = comp_su_list + su.username + ","
         yaml_data['admin_names'] = comp_su_list
-        # Competition end_date, since sometimes null we check.
         temp_comp_dump.status = "Adding end-date"
         temp_comp_dump.save()
         logger.info("Adding end-date")
@@ -841,9 +839,7 @@ def make_modified_bundle(competition_pk):
             yaml_data['end_date'] = competition.end_date
         zip_buffer = StringIO.StringIO()
         zip_name = "{0}.zip".format(competition.title)
-        #zip_name = slugify(zip_name_non_sluggify)
         zip_file = zipfile.ZipFile(zip_buffer, "w")
-        # Competition HTML pages...
         for p in competition.pagecontent.pages.all():
             temp_comp_dump.status = "Adding {}.html".format(p.codename)
             temp_comp_dump.save()
@@ -865,7 +861,6 @@ def make_modified_bundle(competition_pk):
             else:
                 yaml_data['html'][p.codename] = p.codename + '.html'
                 zip_file.writestr(yaml_data["html"][p.codename], p.html.encode("utf-8"))
-        # Phases
         file_cache = {}
         for index, phase in enumerate(competition.phases.all()):
             temp_comp_dump.status = "Adding phase {0}".format(phase.phasenumber)
@@ -889,7 +884,6 @@ def make_modified_bundle(competition_pk):
                             file_name = "{}_{}.zip".format(data_type, phase.phasenumber)
                             phase_dict[data_type] = file_name
                             file_cache[data_field.file.name] = {
-                                # 'phasenumber': phase.phasenumber
                                 'name': file_name
                             }
                             zip_file.writestr(file_name, data_field.read())
@@ -898,7 +892,6 @@ def make_modified_bundle(competition_pk):
                             phase_dict[data_type] = file_name
             except ValueError:
                 logger.info("Failed to retrieve the file.")
-            # Datasets
             datasets = phase.datasets.all()
             if datasets:
                 phase_dict['datasets'] = dict()
@@ -911,46 +904,48 @@ def make_modified_bundle(competition_pk):
                         'url': data_set.datafile.source_url,
                         'description': data_set.description
                     }
-            # Save the phase_dict
             yaml_data['phases'][index] = phase_dict
-        # Leaderboard
-        # main Leaderboard dict
         yaml_data["leaderboard"] = dict()
-        # leaderboards dict
         logger.info("Adding leaderboard.")
         leaderboards_dict = dict()
         for index, submission_result_group in enumerate(SubmissionResultGroup.objects.filter(competition=competition)):
             logger.info("Adding a submission result group.")
-            result_group_key = submission_result_group.key
-            leaderboards_dict[result_group_key] = dict()
-            leaderboards_dict[result_group_key]['label'] = submission_result_group.label
-            leaderboards_dict[result_group_key]['rank'] = submission_result_group.ordering
-            # Columns dictionary
+            result_group = submission_result_group
+            result_group_key = result_group.key
+            # leaderboards_dict[result_group_key] = dict()
+            # leaderboards_dict[result_group_key]['label'] = result_group.label
+            # leaderboards_dict[result_group_key]['rank'] = result_group.ordering
             columns_dictionary = dict()
-            # for index_score_def, submission_score_def in enumerate(SubmissionScoreDef.objects.filter(competition=competition)):
+            leaderboards_dict[result_group_key] = {
+                'label': submission_result_group.label,
+                'rank': submission_result_group.ordering,
+            }
             for index_score_def, submission_score_def_group in enumerate(SubmissionScoreDefGroup.objects.filter(group=submission_result_group)):
                 logger.info("Adding a submission score def group.")
-                score_def_key = submission_score_def_group.scoredef.key
-                columns_dictionary[score_def_key] = dict()
-                columns_dictionary[score_def_key]['leaderboard'] = leaderboards_dict[submission_result_group.label]
-                columns_dictionary[score_def_key]['label'] = submission_score_def_group.scoredef.label
-                columns_dictionary[score_def_key]['rank'] = submission_score_def_group.scoredef.ordering
-                columns_dictionary[score_def_key]['sort'] = submission_score_def_group.scoredef.sorting
+                score_def = submission_score_def_group.scoredef
+                score_def_key = score_def.key
+                # columns_dictionary[score_def_key] = dict()
+                # columns_dictionary[score_def_key]['leaderboard'] = leaderboards_dict[submission_result_group.label]
+                # columns_dictionary[score_def_key]['label'] = submission_score_def_group.scoredef.label
+                # columns_dictionary[score_def_key]['rank'] = submission_score_def_group.scoredef.ordering
+                # columns_dictionary[score_def_key]['sort'] = submission_score_def_group.scoredef.sorting
+                columns_dictionary[score_def_key] = {
+                    'leaderboard': leaderboards_dict[submission_result_group.label],
+                    'label': score_def.label,
+                    'rank': score_def.ordering,
+                    'sort': score_def.sorting,
+                }
         logger.info("YAML finalizing")
         yaml_data["leaderboard"]['leaderboards'] = leaderboards_dict
         yaml_data["leaderboard"]['columns'] = columns_dictionary
         logger.info("Done with leaderboard")
-        # Finishing up
         temp_comp_dump.status = "Finalizing"
         temp_comp_dump.save()
         logger.info("Finalizing")
-        # This looks redundant, but safe
         comp_yaml_my_dump = yaml.dump(yaml_data, default_flow_style=False, allow_unicode=True, encoding="utf-8")
         yaml_data = yaml.load(comp_yaml_my_dump)
-        # Grab logo
         zip_file.writestr(yaml_data["image"], competition.image.file.read())
         zip_file.writestr("competition.yaml", yaml.dump(yaml_data))
-        ret = zip_file.testzip()
         zip_file.close()
         logger.info("Stored Zip buffer yaml dump, and image")
         logger.info("Attempting to save ZIP")
@@ -971,7 +966,6 @@ def make_modified_bundle(competition_pk):
                 temp_comp_dump.save()
                 logger.info("Failed to save object after 5 tries. Stopping.")
                 save_success = True
-        # zip_file.close()
         logger.info("Saved zip file to Competition dump")
         temp_comp_dump.status = "Finished"
         temp_comp_dump.save()

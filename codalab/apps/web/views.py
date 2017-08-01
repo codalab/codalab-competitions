@@ -1838,12 +1838,6 @@ def submission_migrate(request, pk):
 
 @login_required
 def competition_dumps_view(request, competition_pk):
-    """
-    View current bundle dumps for the competition
-    :param request:
-    :param competition_pk:
-    :return:
-   """
     try:
         competition = models.Competition.objects.get(pk=competition_pk)
         if request.user.id != competition.creator_id and request.user not in competition.admins.all():
@@ -1857,10 +1851,6 @@ def competition_dumps_view(request, competition_pk):
 
 @login_required
 def start_make_bundle_task(request, competition_pk):
-    """
-    Starts the task to make a competition bundle
-    :return HttpResponse:
-    """
     competition = models.Competition.objects.get(pk=competition_pk)
     if request.user.id != competition.creator_id and request.user not in competition.admins.all():
         raise Http404()
