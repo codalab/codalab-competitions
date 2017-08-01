@@ -2,7 +2,7 @@
 
 <h1>Starting Kits</h1>
 {% if competition.has_starting_kit %}
-    <table class="table table-responsive starting_kit_table">
+    <table style="border: 1px solid rgba(0,0,0,0.3)" class="table table-responsive">
         <thead>
         <th>
             Download
@@ -18,7 +18,7 @@
                     <td>
                         <a href="{{ phase.get_starting_kit }}" class="btn btn-primary phase-btn-{{ phase.color }}">{{phase.label}}</a>
                     </td>
-                    <td class="starting_kit_td">
+                    <td style="padding-top: 12px;">
                         #{{ phase.phasenumber }} {{ phase.label }}
                     </td>
                 </tr>
