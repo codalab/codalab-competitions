@@ -2,39 +2,28 @@
 
 <h1>Starting Kits</h1>
 {% if competition.has_starting_kit %}
-{#    <table class="table table-responsive">#}
-{#        {% for phase in competition.phases.all %}#}
-{#            {% if phase and phase.starting_kit %}#}
-{#                <tr>#}
-{#                    <td><a href="{{ phase.get_starting_kit }}" class="btn btn-primary phase-btn-{{ phase.color }}">{{ phase.label }}</a></td>#}
-{#                </tr>#}
-{##}
-{#            {% endif %}#}
-{#        {% endfor %}#}
-{#    </table>#}
-
-            <table class="table table-responsive" style="border: 1px solid rgba(0, 0, 0, 0.1);">
-                <thead>
-                <th>
-                    Download
-                </th>
-                <th>
-                    Phase
-                </th>
-                </thead>
-                <tbody>
-                {% for phase in competition.phases.all %}
-                    {% if phase and phase.starting_kit %}
-                        <tr>
-                            <td>
-                                <a href="{{ phase.get_starting_kit }}" class="btn btn-primary phase-btn-{{ phase.color }}">{{phase.label}}</a>
-                            </td>
-                            <td style="padding-top: 12px;">#{{ phase.phasenumber }} {{ phase.label }}</td>
-                        </tr>
-                    {% endif %}
-                {% endfor %}
-                </tbody>
-            </table>
+    <table class="table table-responsive" style="border: 1px solid rgba(0, 0, 0, 0.1);">
+        <thead>
+        <th>
+            Download
+        </th>
+        <th>
+            Phase
+        </th>
+        </thead>
+        <tbody>
+        {% for phase in competition.phases.all %}
+            {% if phase and phase.starting_kit %}
+                <tr>
+                    <td>
+                        <a href="{{ phase.get_starting_kit }}" class="btn btn-primary phase-btn-{{ phase.color }}">{{phase.label}}</a>
+                    </td>
+                    <td style="padding-top: 12px;">#{{ phase.phasenumber }} {{ phase.label }}</td>
+                </tr>
+            {% endif %}
+        {% endfor %}
+        </tbody>
+    </table>
 {% else %}
     <i>No starting kits have been added for this competition yet.</i>
 {% endif %}
