@@ -47,7 +47,6 @@
                 var url = "{% url 'competitions:make_bundle' competition_pk=competition.pk %}"
                 $.post(url)
                     .success(function() {
-                        //alert("Bundle is being created, please refresh the page to view new dumps.")
                         location.reload(true)
                     })
                     .error(function() {
