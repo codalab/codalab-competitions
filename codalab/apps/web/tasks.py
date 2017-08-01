@@ -908,14 +908,11 @@ def make_modified_bundle(competition_pk):
         yaml_data["leaderboard"] = dict()
         logger.info("Adding leaderboard.")
         leaderboards_dict = dict()
+        columns_dictionary = dict()
         for index, submission_result_group in enumerate(SubmissionResultGroup.objects.filter(competition=competition)):
             logger.info("Adding a submission result group.")
             result_group = submission_result_group
             result_group_key = result_group.key
-            # leaderboards_dict[result_group_key] = dict()
-            # leaderboards_dict[result_group_key]['label'] = result_group.label
-            # leaderboards_dict[result_group_key]['rank'] = result_group.ordering
-            columns_dictionary = dict()
             leaderboards_dict[result_group_key] = {
                 'label': submission_result_group.label,
                 'rank': submission_result_group.ordering,
@@ -924,11 +921,6 @@ def make_modified_bundle(competition_pk):
                 logger.info("Adding a submission score def group.")
                 score_def = submission_score_def_group.scoredef
                 score_def_key = score_def.key
-                # columns_dictionary[score_def_key] = dict()
-                # columns_dictionary[score_def_key]['leaderboard'] = leaderboards_dict[submission_result_group.label]
-                # columns_dictionary[score_def_key]['label'] = submission_score_def_group.scoredef.label
-                # columns_dictionary[score_def_key]['rank'] = submission_score_def_group.scoredef.ordering
-                # columns_dictionary[score_def_key]['sort'] = submission_score_def_group.scoredef.sorting
                 columns_dictionary[score_def_key] = {
                     'leaderboard': leaderboards_dict[submission_result_group.label],
                     'label': score_def.label,
