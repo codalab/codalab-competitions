@@ -11,6 +11,7 @@ import yaml
 import zipfile
 
 from urllib import pathname2url
+
 from yaml.representer import SafeRepresenter
 from zipfile import ZipFile
 
@@ -839,7 +840,8 @@ def make_modified_bundle(competition_pk):
         if competition.end_date is not None:
             yaml_data['end_date'] = competition.end_date
         zip_buffer = StringIO.StringIO()
-        zip_name = "dump{0}.zip".format(competition.pk)
+        zip_name = "{0}.zip".format(competition.title)
+        #zip_name = slugify(zip_name_non_sluggify)
         zip_file = zipfile.ZipFile(zip_buffer, "w")
         # Competition HTML pages...
         for p in competition.pagecontent.pages.all():
@@ -864,6 +866,7 @@ def make_modified_bundle(competition_pk):
                 yaml_data['html'][p.codename] = p.codename + '.html'
                 zip_file.writestr(yaml_data["html"][p.codename], p.html.encode("utf-8"))
         # Phases
+        file_cache = {}
         for index, phase in enumerate(competition.phases.all()):
             temp_comp_dump.status = "Adding phase {0}".format(phase.phasenumber)
             temp_comp_dump.save()
@@ -873,13 +876,28 @@ def make_modified_bundle(competition_pk):
             phase_dict['label'] = phase.label
             phase_dict['start_date'] = phase.start_date
             phase_dict['max_submissions'] = phase.max_submissions
-            phase_dict['scoring_program'] = "scoring_program_{}.zip".format(phase.phasenumber)
-            phase_dict['reference_data'] = "reference_data_{}.zip".format(phase.phasenumber)
             phase_dict['color'] = phase.color
             phase_dict['max_submissions_per_day'] = phase.max_submissions_per_day
             # Write the programs/data to zip
-            zip_file.writestr("reference_data_{}.zip".format(phase.phasenumber), phase.reference_data.file.read())
-            zip_file.writestr("scoring_program_{}.zip".format(phase.phasenumber), phase.scoring_program.file.read())
+            data_types = ('reference_data', 'scoring_program', 'input_data')
+            try:
+                for data_type in data_types:
+                    if hasattr(phase, data_type):
+                        data_field = getattr(phase, data_type)
+                        if data_field.file.name not in file_cache.keys():
+                            logger.info("Datafield is {}".format(data_field))
+                            file_name = "{}_{}.zip".format(data_type, phase.phasenumber)
+                            phase_dict[data_type] = file_name
+                            file_cache[data_field.file.name] = {
+                                # 'phasenumber': phase.phasenumber
+                                'name': file_name
+                            }
+                            zip_file.writestr(file_name, data_field.read())
+                        else:
+                            file_name = file_cache[data_field.file.name]['name']
+                            phase_dict[data_type] = file_name
+            except ValueError:
+                logger.info("Failed to retrieve the file.")
             # Datasets
             datasets = phase.datasets.all()
             if datasets:
