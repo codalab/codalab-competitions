@@ -22,6 +22,7 @@ urlpatterns = patterns(
     url(r'^message_participants/(?P<competition_id>\d+)', views.competition_message_participants, name="competition_message_participants"),
     url(r'^submission_delete/(?P<pk>\d+)', views.SubmissionDelete.as_view(), name="submission_delete"),
     url(r'^download_yaml/(?P<competition_pk>\d+)', views.download_competition_yaml, name="download_yaml"),
+    url(r'^make_modified_bundle/(?P<competition_pk>\d+)', views.start_make_bundle_task, name="make_bundle"),
     url(r'^download/(?P<competition_pk>\d+)', views.download_competition_bundle, name="download"),
     url(r'^download_leaderboard_results/(?P<competition_pk>\d+)/(?P<phase_pk>\d+)', views.download_leaderboard_results, name="download_leaderboard_results"),
     url(r'^update_description/(?P<submission_pk>\d+)', views.submission_update_description, name="submission_update_description"),
@@ -32,4 +33,7 @@ urlpatterns = patterns(
     url(r'^submission_migrate/(?P<pk>\d+)', views.submission_migrate, name="submission_migrate"),
     url(r'^public_submissions/(?P<pk>\d+)$', views.CompetitionPublicSubmission.as_view(), name='public_submissions'),
     url(r'^(?P<pk>\d+)/public_submissions/(?P<phase>\d+)$', views.CompetitionPublicSubmissionByPhases.as_view(), name='public_submissions_phase'),
+    url(r'^(?P<competition_pk>\d+)/dumps/$', views.competition_dumps_view,
+        name='dumps'),
+
 )

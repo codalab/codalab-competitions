@@ -6,11 +6,18 @@ import io
 import json
 import logging
 import StringIO
+import traceback
+import yaml
 import zipfile
 
 from urllib import pathname2url
+
+from yaml.representer import SafeRepresenter
 from zipfile import ZipFile
 
+import sys
+
+from datetime import datetime
 from boto.s3.connection import S3Connection
 from celery import task
 from celery.app import app_or_default
@@ -47,13 +54,18 @@ from apps.web.models import (add_submission_to_leaderboard,
                              predict_submission_stderr_filename,
                              SubmissionScore,
                              SubmissionScoreDef,
-                             CompetitionSubmissionMetadata, BundleStorage)
+                             CompetitionSubmissionMetadata, BundleStorage, SubmissionResultGroup,
+                             SubmissionScoreDefGroup)
 from apps.coopetitions.models import DownloadRecord
 
 import time
 # import cProfile
 from codalab.azure_storage import make_blob_sas_url
 from codalabtools.compute.worker import get_run_func
+
+from apps.web import models
+
+from apps.web.models import CompetitionDump
 
 logger = logging.getLogger(__name__)
 
@@ -781,5 +793,177 @@ def do_phase_migrations():
     competitions = Competition.objects.filter(is_migrating=False)
     for c in competitions:
         c.check_future_phase_sumbmissions()
-    logger.info("Checking {} competitions for phase migrations.".format(len(competitions)))
+        logger.info("Checking {} competitions for phase migrations.".format(len(competitions)))
 
+
+@task(queue='site-worker', soft_time_limit=60 * 60 * 24)
+def make_modified_bundle(competition_pk):
+
+    from collections import OrderedDict
+    _mapping_tag = yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG
+
+    def dict_representer(dumper, data):
+        return dumper.represent_dict(data.iteritems())
+
+    def dict_constructor(loader, node):
+        return OrderedDict(loader.construct_pairs(node))
+
+    # Following line supresses the broadexception warning. We catch and do a traceback for now from logs.
+    # noinspection PyBroadException
+    try:
+        yaml.add_representer(unicode, SafeRepresenter.represent_unicode)
+        yaml.add_representer(OrderedDict, dict_representer)
+        yaml.add_constructor(_mapping_tag, dict_constructor)
+
+        competition = models.Competition.objects.get(pk=competition_pk)
+        logger.info("Creating Competion dump")
+        temp_comp_dump = CompetitionDump.objects.create(competition=competition)
+        yaml_data = OrderedDict()
+        yaml_data['title'] = competition.title
+        yaml_data['description'] = competition.description.replace("/n", "").replace("\"", "").strip()
+        yaml_data['image'] = 'logo.png'
+        yaml_data['has_registration'] = competition.has_registration
+        yaml_data['html'] = dict()
+        yaml_data['phases'] = {}
+        comp_su_list = ""
+        temp_comp_dump.status = "Adding admins"
+        temp_comp_dump.save()
+        for su in competition.admins.all():
+            logger.info("Adding admin")
+            comp_su_list = comp_su_list + su.username + ","
+        yaml_data['admin_names'] = comp_su_list
+        temp_comp_dump.status = "Adding end-date"
+        temp_comp_dump.save()
+        logger.info("Adding end-date")
+        if competition.end_date is not None:
+            yaml_data['end_date'] = competition.end_date
+        zip_buffer = StringIO.StringIO()
+        zip_name = "{0}.zip".format(competition.title)
+        zip_file = zipfile.ZipFile(zip_buffer, "w")
+        for p in competition.pagecontent.pages.all():
+            temp_comp_dump.status = "Adding {}.html".format(p.codename)
+            temp_comp_dump.save()
+            logger.info("Adding HTML")
+            if p.codename in yaml_data["html"].keys() or p.codename == 'terms_and_conditions' or p.codename == 'get_data' or p.codename == 'submit_results':
+                if p.codename == 'terms_and_conditions':
+                    # overwrite this for consistency
+                    p.codename = 'terms'
+                    yaml_data['html'][p.codename] = p.codename + '.html'
+                    zip_file.writestr(yaml_data["html"][p.codename], p.html.encode("utf-8"))
+                if p.codename == 'get_data':
+                    # overwrite for consistency
+                    p.codename = 'data'
+                    yaml_data['html'][p.codename] = p.codename + '.html'
+                    zip_file.writestr(yaml_data["html"][p.codename], p.html.encode("utf-8"))
+                # Do not include submit_results.
+                if p.codename == 'submit_results':
+                    pass
+            else:
+                yaml_data['html'][p.codename] = p.codename + '.html'
+                zip_file.writestr(yaml_data["html"][p.codename], p.html.encode("utf-8"))
+        file_cache = {}
+        for index, phase in enumerate(competition.phases.all()):
+            temp_comp_dump.status = "Adding phase {0}".format(phase.phasenumber)
+            temp_comp_dump.save()
+            logger.info("Adding phase")
+            phase_dict = dict()
+            phase_dict['phasenumber'] = phase.phasenumber
+            phase_dict['label'] = phase.label
+            phase_dict['start_date'] = phase.start_date
+            phase_dict['max_submissions'] = phase.max_submissions
+            phase_dict['color'] = phase.color
+            phase_dict['max_submissions_per_day'] = phase.max_submissions_per_day
+            # Write the programs/data to zip
+            data_types = ('reference_data', 'scoring_program', 'input_data')
+            try:
+                for data_type in data_types:
+                    if hasattr(phase, data_type):
+                        data_field = getattr(phase, data_type)
+                        if data_field.file.name not in file_cache.keys():
+                            logger.info("Datafield is {}".format(data_field))
+                            file_name = "{}_{}.zip".format(data_type, phase.phasenumber)
+                            phase_dict[data_type] = file_name
+                            file_cache[data_field.file.name] = {
+                                'name': file_name
+                            }
+                            zip_file.writestr(file_name, data_field.read())
+                        else:
+                            file_name = file_cache[data_field.file.name]['name']
+                            phase_dict[data_type] = file_name
+            except ValueError:
+                logger.info("Failed to retrieve the file.")
+            datasets = phase.datasets.all()
+            if datasets:
+                phase_dict['datasets'] = dict()
+                temp_comp_dump.status = "Adding datasets"
+                temp_comp_dump.save()
+                logger.info("Adding dataset")
+                for data_set_index, data_set in enumerate(datasets):
+                    phase_dict['datasets'][data_set_index] = {
+                        'name': data_set.datafile.name,
+                        'url': data_set.datafile.source_url,
+                        'description': data_set.description
+                    }
+            yaml_data['phases'][index] = phase_dict
+        yaml_data["leaderboard"] = dict()
+        logger.info("Adding leaderboard.")
+        leaderboards_dict = dict()
+        columns_dictionary = dict()
+        for index, submission_result_group in enumerate(SubmissionResultGroup.objects.filter(competition=competition)):
+            logger.info("Adding a submission result group.")
+            result_group = submission_result_group
+            result_group_key = result_group.key
+            leaderboards_dict[result_group_key] = {
+                'label': submission_result_group.label,
+                'rank': submission_result_group.ordering,
+            }
+            for index_score_def, submission_score_def_group in enumerate(SubmissionScoreDefGroup.objects.filter(group=submission_result_group)):
+                logger.info("Adding a submission score def group.")
+                score_def = submission_score_def_group.scoredef
+                score_def_key = score_def.key
+                columns_dictionary[score_def_key] = {
+                    'leaderboard': leaderboards_dict[submission_result_group.label],
+                    'label': score_def.label,
+                    'rank': score_def.ordering,
+                    'sort': score_def.sorting,
+                }
+        logger.info("YAML finalizing")
+        yaml_data["leaderboard"]['leaderboards'] = leaderboards_dict
+        yaml_data["leaderboard"]['columns'] = columns_dictionary
+        logger.info("Done with leaderboard")
+        temp_comp_dump.status = "Finalizing"
+        temp_comp_dump.save()
+        logger.info("Finalizing")
+        comp_yaml_my_dump = yaml.dump(yaml_data, default_flow_style=False, allow_unicode=True, encoding="utf-8")
+        yaml_data = yaml.load(comp_yaml_my_dump)
+        zip_file.writestr(yaml_data["image"], competition.image.file.read())
+        zip_file.writestr("competition.yaml", yaml.dump(yaml_data))
+        zip_file.close()
+        logger.info("Stored Zip buffer yaml dump, and image")
+        logger.info("Attempting to save ZIP")
+        temp_comp_data = ContentFile(zip_buffer.getvalue())
+        save_success = False
+        while not save_success:
+            counter = 0
+            logger.info("Attempting to save new object.")
+            try:
+                temp_comp_dump.data_file.save(zip_name, temp_comp_data)
+                save_success = True
+            except SoftTimeLimitExceeded:
+                logger.info("Failed to save object, retrying.")
+                counter += 1
+                continue
+            if counter == 5:
+                temp_comp_dump.status = "Failed"
+                temp_comp_dump.save()
+                logger.info("Failed to save object after 5 tries. Stopping.")
+                save_success = True
+        logger.info("Saved zip file to Competition dump")
+        temp_comp_dump.status = "Finished"
+        temp_comp_dump.save()
+        logger.info("Set status to finished")
+    except:
+        logger.info("There was an error making a Competition dump")
+        logger.info(traceback.format_exc())
+        temp_comp_dump.status = "Failed"
+        temp_comp_dump.save()
