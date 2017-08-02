@@ -12,7 +12,10 @@
                 <div class="tab-pane{% if forloop.first %} active{% endif %}" id="{{tab.codename|slugify}}-{{content.codename|slugify}}">
                     {% if content.codename == "submit_results" %}
                         {% include "web/competitions/_submit_results.html" with competition=competition user=user %}
+                    {% elif content.codename == "get_starting_kit" %}
+                        {% include "web/competitions/_get_starting_kit.html" with competition=competition user=user %}
                     {% else %}
+                        <h1>Get data</h1>
                         {{content.html|safe}}
                         {% if content.codename == "get_data" and competition.show_datasets_from_yaml %}
                             <!-- Include data for each phase if appropriate -->
