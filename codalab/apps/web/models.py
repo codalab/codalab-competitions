@@ -581,6 +581,10 @@ class Page(models.Model):
                 raise Exception("Item is required and must be visible")
         return super(Page, self).save(*args, **kwargs)
 
+    @property
+    def processed_html(self):
+        return self.html.replace("Welcome!", "whatever/{}/assets".format(self.competition.pk))
+
 
 # Dataset model
 class Dataset(models.Model):
