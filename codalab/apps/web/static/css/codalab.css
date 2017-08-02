@@ -7826,13 +7826,3 @@ h1 small, h2 small, h3 small {
 .indent {
   padding-left: 20px;
 }
-
-#dump-table {
-    width: 80%;
-    border: solid rgba(0,0,0,0.31) 1px;
-}
-
-#dump-table-data {
-    padding: 20px;
-    margin: 20px;
-}

@@ -202,8 +202,9 @@ def _uuidify(directory):
     """Helper to generate UUID's in file names while maintaining their extension"""
     def wrapped_uuidify(obj, filename):
         name, extension = os.path.splitext(filename)
-        # Trims UUID down to 6 chars,
-        return os.path.join(directory, str(obj.pk), str(uuid.uuid4())[0:5], "{0}{1}".format(name[0:35], extension))
+        truncated_uuid = str(uuid.uuid4())[0:5]
+        truncated_name = name[0:35]
+        return os.path.join(directory, str(obj.pk), truncated_uuid, "{0}{1}".format(truncated_name, extension))
     return wrapped_uuidify
 
 
