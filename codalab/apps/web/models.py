@@ -583,8 +583,9 @@ class Page(models.Model):
 
     @property
     def processed_html(self):
-        return self.html.replace("Welcome!", "whatever/{}/assets".format(self.competition.pk))
-
+        proc_html = self.html.replace("{{ ASSET_BASE_URL }}", "competition_assets/{}".format(self.competition.pk))
+        proc_html = proc_html.replace("{{ASSET_BASE_URL}}", "competition_assets/{}".format(self.competition.pk))
+        return proc_html
 
 # Dataset model
 class Dataset(models.Model):
