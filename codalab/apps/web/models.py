@@ -46,7 +46,6 @@ from apps.authenz.models import ClUser
 from apps.web.utils import PublicStorage, BundleStorage
 from apps.teams.models import Team, get_user_team
 
-
 User = settings.AUTH_USER_MODEL
 logger = logging.getLogger(__name__)
 
@@ -205,7 +204,9 @@ def _uuidify(directory):
     """Helper to generate UUID's in file names while maintaining their extension"""
     def wrapped_uuidify(obj, filename):
         name, extension = os.path.splitext(filename)
-        return os.path.join(directory, '{}-{}{}'.format(name, uuid.uuid4(), extension))
+        truncated_uuid = str(uuid.uuid4())[0:5]
+        truncated_name = name[0:35]
+        return os.path.join(directory, str(obj.pk), truncated_uuid, "{0}{1}".format(truncated_name, extension))
     return wrapped_uuidify
 
 
@@ -310,6 +311,10 @@ class Competition(models.Model):
             return True if self.end_date is None else self.end_date > now().date()
         if type(self.end_date) is datetime.datetime:
             return True if self.end_date is None else self.end_date > now()
+
+    @property
+    def has_starting_kit(self):
+        return self.phases.filter(starting_kit__isnull=False).exists()
 
     def check_future_phase_sumbmissions(self):
         '''
@@ -1609,9 +1614,32 @@ class CompetitionDefBundle(models.Model):
                 )
 
         participate_category = ContentCategory.objects.get(name="Participate")
-        Page.objects.create(category=participate_category, container=pc,  codename="get_data", competition=comp,
-                                   label="Get Data", rank=0, html=zf.read(comp_spec['html']['data']))
-        Page.objects.create(category=participate_category, container=pc,  codename="submit_results", label="Submit / View Results", rank=1, html="")
+        Page.objects.create(
+            category=participate_category,
+            container=pc,
+            codename="get_data",
+            competition=comp,
+            label="Get Data",
+            rank=0,
+            html=zf.read(comp_spec['html']['data'])
+        )
+        Page.objects.create(
+            category=participate_category,
+            container=pc,
+            codename="get_starting_kit",
+            competition=comp,
+            label="Get Starting Kit",
+            rank=2,
+            html=""
+        )
+        Page.objects.create(
+            category=participate_category,
+            container=pc,
+            codename="submit_results",
+            label="Submit / View Results",
+            rank=1,
+            html=""
+        )
         logger.debug("CompetitionDefBundle::unpack created competition pages (pk=%s)", self.pk)
 
         data_set_cache = {}
@@ -2105,3 +2133,23 @@ def get_current_phase(competition):
             active_phase = phase
             break
     return active_phase
+
+
+class CompetitionDump(models.Model):
+    competition = models.ForeignKey(Competition, related_name='dumps')
+    timestamp = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=64, default="Starting")
+    data_file = models.FileField(
+        upload_to=_uuidify('competition_dump'),
+        storage=BundleStorage,
+        verbose_name="Data file",
+        blank=True,
+        null=True,
+    )
+
+    def sassy_url(self):
+        from apps.web.tasks import _make_url_sassy
+        return _make_url_sassy(self.data_file.name)
+
+    def filename(self):
+        return os.path.basename(self.data_file.name)

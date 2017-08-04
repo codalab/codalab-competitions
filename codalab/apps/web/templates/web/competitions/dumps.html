@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block page_title %}Competition Dumps{% endblock %}
+{% block head_title %}Competition Dumps{% endblock %}
+
+{% block content %}
+    <a href="{% url "competitions:view" pk=competition.pk %}" >Go Back to Competition Homepage</a>
+    <div class="panel">
+        <div class="panel-body">
+            <button id="make_dump" class="btn btn-primary">Create Competition Dump</button>
+            {% if dumps %}
+                <h1>Dumps for: {{ competition.title }}</h1>
+                <table id="dump-table" class="table table-responsive">
+                <thead>
+                    <td width="100px"><h5><b>Download link</b></h5></td>
+                    <td width="100px"><h5><b>Status</b></h5></td>
+                    <td width="400px"><h5><b>Publish Date</b></h5></td>
+                </thead>
+                    <tbody>
+                        <tr id="dump-table-data">
+                            {% for dump in dumps %}
+                                {% if forloop.counter0|divisibleby:1 %}<tr>{% endif %}
+                                <td>
+                                    {% if dump.status == "Finished" %}
+                                        <a href="{{ dump.sassy_url }}">Download</a>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <b>{{ dump.status }}</b>
+                                </td>
+                                <td>
+                                    <i>{{ dump.timestamp }}</i>
+                                </td>
+                                {% if forloop.counter|divisibleby:1 %}</tr>{% endif %}
+                            {% endfor %}
+                        </tr>
+                    </tbody>
+                </table>
+            {% else %}
+                <br>
+                <i>No dumps found for the current competition.</i>
+            {% endif %}
+        </div>
+    </div>
+    <script>
+        $(document).ready(function() {
+            $("#make_dump").click(function() {
+                var url = "{% url 'competitions:make_bundle' competition_pk=competition.pk %}"
+                $.post(url)
+                    .success(function() {
+                        location.reload(true)
+                    })
+                    .error(function() {
+                        alert("There was a problem generating the dump. Please make sure you're connected to the Internet, if the problem persists please contact an admin.")
+                    })
+            })
+        })
+    </script>
+{% endblock %}

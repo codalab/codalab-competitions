@@ -9,6 +9,8 @@ import traceback
 import yaml
 import zipfile
 
+from yaml.representer import SafeRepresenter
+
 from django.db import connection
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -47,7 +49,8 @@ from apps.common.competition_utils import get_most_popular_competitions, get_fea
 from apps.web.forms import CompetitionS3UploadForm, SubmissionS3UploadForm
 from apps.web.models import SubmissionScore, SubmissionScoreDef, get_current_phase
 
-from tasks import evaluate_submission, re_run_all_submissions_in_phase, create_competition, _make_url_sassy
+from tasks import evaluate_submission, re_run_all_submissions_in_phase, create_competition, _make_url_sassy, \
+    make_modified_bundle
 from apps.teams.models import TeamMembership, get_user_team, get_competition_teams, get_competition_pending_teams, get_competition_deleted_teams, get_last_team_submissions, get_user_requests, get_team_pending_membership
 
 from extra_views import UpdateWithInlinesView, InlineFormSet, NamedFormsetsMixin
@@ -1833,3 +1836,25 @@ def submission_migrate(request, pk):
         except models.CompetitionSubmission.DoesNotExist:
             raise Http404()
     raise Http404()
+
+
+@login_required
+def competition_dumps_view(request, competition_pk):
+    try:
+        competition = models.Competition.objects.get(pk=competition_pk)
+        if request.user.id != competition.creator_id and request.user not in competition.admins.all():
+            raise Http404()
+        dumps = competition.dumps.all()
+    except ObjectDoesNotExist:
+        raise Http404()
+
+    return render(request, "web/competitions/dumps.html", {"dumps": dumps, "competition": competition})
+
+
+@login_required
+def start_make_bundle_task(request, competition_pk):
+    competition = models.Competition.objects.get(pk=competition_pk)
+    if request.user.id != competition.creator_id and request.user not in competition.admins.all():
+        raise Http404()
+    make_modified_bundle.apply_async((competition.pk,))
+    return HttpResponse()
