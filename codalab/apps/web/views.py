@@ -812,7 +812,8 @@ class CompetitionResultsDownload(View):
         competition = models.Competition.objects.get(pk=self.kwargs['id'])
         phase = competition.phases.get(pk=self.kwargs['phase'])
         response = HttpResponse(competition.get_results_csv(phase.pk, request=request), status=200, content_type="text/csv")
-        response["Content-Disposition"] = "attachment; filename=%s results.csv" % phase.competition.title
+        my_response = ("attachment; filename=%s results.csv" % phase.competition.title).encode('ascii', 'ignore').strip()
+        response["Content-Disposition"] = my_response
         return response
 
 
