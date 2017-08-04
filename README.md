@@ -15,6 +15,7 @@ To see Codalab Competition's in action, visit [www.competitions.codalab.org](htt
 The CodaLab community forum is hosted on Google Groups.
 - [CodaLabDev Google Groups Forum](https://groups.google.com/forum/#!forum/codalabdev)
 
+=======
 
 ## Compute worker
 

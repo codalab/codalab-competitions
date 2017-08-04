@@ -55,10 +55,49 @@
                         <th>Date joined</th>
                         <td>{{ user.date_joined }}</td>
                     </tr>
+                    {% if form.extended_profile %}
+                        <tr>
+                            <th>Image</th>
+                            <td>{{ form.image }}</td>
+                        </tr>
+                    {% endif %}
                 </tbody>
             </table>
         </div>
     </div>
+
+    {% if form.extended_profile %}
+        <h3><b>Extended profile</b></h3>
+        <div class="row">
+            <div class="col-sm-12">
+                <table class="table table-striped affiliation">
+                    <tbody>
+                        <tr>
+                            <th>{{ form.organization_or_affiliation.label }}</th>
+                            <td>{{ form.organization_or_affiliation }}</td>
+                        </tr>
+                        <tr>
+                            <th>{{ form.webpage.label }}</th>
+                            <td>{{ form.webpage }}</td>
+                        </tr>
+                        <tr>
+                            <th>{{ form.linkedin.label }}</th>
+                            <td>{{ form.linkedin }}</td>
+                        </tr>
+                        <tr>
+                            <th>{{ form.ORCID.label }}</th>
+                            <td>{{ form.ORCID }}</td>
+                        </tr>
+                        <tr>
+                            <th>{{ form.biography.label }}</th>
+                            <td>{{ form.biography }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    {% endif %}
 
     <h3><b>Competition settings</b></h3>
 
