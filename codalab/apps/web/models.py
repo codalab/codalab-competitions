@@ -7,6 +7,7 @@ import logging
 import operator
 import os
 import StringIO
+import re
 import urllib
 import uuid
 import yaml
@@ -20,6 +21,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.core.exceptions import PermissionDenied
 from django.core.files import File
+from django.core.files.base import ContentFile
 from django.core.files.storage import get_storage_class
 from django.core.urlresolvers import reverse
 from django.db import IntegrityError
@@ -585,6 +587,12 @@ class Page(models.Model):
                 raise Exception("Item is required and must be visible")
         return super(Page, self).save(*args, **kwargs)
 
+    @property
+    def processed_html(self):
+        url = PublicStorage.url("")
+        asset_base_url = "{0}competition_assets/{1}".format(url, self.competition.pk)
+        proc_html = re.sub(r'{{[ ]*ASSET_BASE_URL[ ]*}}', asset_base_url, self.html)
+        return proc_html
 
 # Dataset model
 class Dataset(models.Model):
@@ -1906,6 +1914,15 @@ class CompetitionDefBundle(models.Model):
                     # Associate the score definition with its leaderboard
                     sdg = SubmissionScoreDefGroup.objects.create(scoredef=sd, group=leaderboards[vals['leaderboard']['label']])
                 logger.debug("CompetitionDefBundle::unpack created scores (pk=%s)", self.pk)
+
+        # Find any static files and save them to storage, ignoring actual assets directory itself
+        assets = list(filter(lambda x: x.startswith('assets/') and x != "assets/", zf.namelist()))
+        asset_path = "competition_assets/{}/{}"
+        for asset in assets:
+            public_path = asset_path.format(comp.pk, os.path.basename(asset))
+            data = ContentFile(zf.open(asset).read())
+            PublicStorage.save(public_path, data)
+            logger.info("Created asset @ {}".format(public_path))
 
         # Add owner as participant so they can view the competition
         approved = ParticipantStatus.objects.get(codename=ParticipantStatus.APPROVED)
