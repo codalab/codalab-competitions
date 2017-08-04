@@ -7,6 +7,7 @@ import logging
 import operator
 import os
 import StringIO
+import re
 import urllib
 import uuid
 import yaml
@@ -583,15 +584,9 @@ class Page(models.Model):
 
     @property
     def processed_html(self):
-        url = PublicStorage.url("") # This ends with a /
-        proc_html = self.html.replace(
-            "{{ ASSET_BASE_URL }}",
-            "{0}competition_assets/{1}".format(url, self.competition.pk)
-        )
-        proc_html = proc_html.replace(
-            "{{ASSET_BASE_URL}}",
-            "{0}competition_assets/{1}".format(url, self.competition.pk)
-        )
+        url = PublicStorage.url("")
+        asset_base_url = "{0}competition_assets/{1}".format(url, self.competition.pk)
+        proc_html = re.sub(r'{{[ ]*ASSET_BASE_URL[ ]*}}', asset_base_url, self.html)
         return proc_html
 
 # Dataset model
