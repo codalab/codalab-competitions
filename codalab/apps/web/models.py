@@ -800,7 +800,6 @@ class CompetitionPhase(models.Model):
         blank=True,
         null=True,
     )
-
     starting_kit_organizer_dataset = models.ForeignKey(
         'OrganizerDataSet',
         null=True,
@@ -809,6 +808,21 @@ class CompetitionPhase(models.Model):
         verbose_name="Starting Kit",
         on_delete=models.SET_NULL
     )
+
+    ingestion_program = models.FileField(
+        upload_to=_uuidify('ingestion_program'),
+        storage=BundleStorage,
+        blank=True,
+        null=True,
+    )
+    ingestion_program_docker_image = models.CharField(max_length=128, default='', blank=True)
+    # ingestion_program_organizer_dataset = models.ForeignKey(
+    #     'OrganizerDataSet',
+    #     null=True,
+    #     blank=True,
+    #     related_name="ingestion_program_organizer_dataset",
+    #     on_delete=models.SET_NULL
+    # )
 
     def get_starting_kit(self):
         from apps.web.tasks import _make_url_sassy

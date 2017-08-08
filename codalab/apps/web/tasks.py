@@ -171,6 +171,15 @@ def predict(submission, job_id):
     else:
         raise ValueError("Program is missing.")
 
+    if submission.phase.ingestion_program:
+        # For the ingestion program we have to include the actual ingestion program...
+        lines.append("ingestion_program: %s" % _make_url_sassy(submission.phase.ingestion_program))
+
+        # ..as well as the reference data for this phase.
+        ref_value = submission.phase.reference_data.name
+        if len(ref_value) > 0:
+            lines.append("hidden_ref: %s" % _make_url_sassy(ref_value))
+
     # Create stdout.txt & stderr.txt, set the file names
     username = submission.participant.user.username
     stdout_filler = ["Standard output for submission #{0} by {1}.".format(submission.submission_number, username), ""]
@@ -212,14 +221,14 @@ def _prepare_compute_worker_run(job_id, submission, is_prediction):
         stderr = submission.prediction_stderr_file.name
         output = submission.prediction_output_file.name
         docker_image = submission.docker_image or submission.phase.default_docker_image or \
-                       settings.DEFAULT_WORKER_DOCKER_IMAGE
+                       settings.DOCKER_DEFAULT_WORKER_IMAGE
     else:
         # Scoring, if we're not predicting
         bundle_url = submission.runfile.name
         stdout = submission.stdout_file.name
         stderr = submission.stderr_file.name
         output = submission.output_file.name
-        docker_image = submission.phase.scoring_program_docker_image or settings.DEFAULT_WORKER_DOCKER_IMAGE
+        docker_image = submission.phase.scoring_program_docker_image or settings.DOCKER_DEFAULT_WORKER_IMAGE
 
     data = {
         "id": job_id,
@@ -227,10 +236,13 @@ def _prepare_compute_worker_run(job_id, submission, is_prediction):
         "task_args": {
             "submission_id": submission.pk,
             "docker_image": docker_image,
+            "ingestion_program_docker_image": submission.phase.ingestion_program_docker_image or settings.DOCKER_DEFAULT_WORKER_IMAGE,
             "bundle_url": _make_url_sassy(bundle_url),
             "stdout_url": _make_url_sassy(stdout, permission='w'),
             "stderr_url": _make_url_sassy(stderr, permission='w'),
             "output_url": _make_url_sassy(output, permission='w'),
+            "ingestion_program_stderr_url": _make_url_sassy(stderr, permission='w'),
+            "ingestion_program_output_url": _make_url_sassy(output, permission='w'),
             "detailed_results_url": _make_url_sassy(submission.detailed_results_file.name, permission='w'),
             "private_output_url": _make_url_sassy(submission.private_output_file.name, permission='w'),
             "secret": submission.secret,
@@ -246,6 +258,7 @@ def _prepare_compute_worker_run(job_id, submission, is_prediction):
         time_limit = 60 * 10  # 10 minutes timeout by default
 
     if submission.phase.competition.queue:
+        # Send to special queue?
         app = app_or_default()
         with app.connection() as new_connection:
             new_connection.virtual_host = submission.phase.competition.queue.vhost
@@ -791,9 +804,9 @@ def send_mass_email(competition_pk, body=None, subject=None, from_email=None, to
 @task(queue='site-worker')
 def do_phase_migrations():
     competitions = Competition.objects.filter(is_migrating=False)
+    logger.info("Checking {} competitions for phase migrations.".format(len(competitions)))
     for c in competitions:
         c.check_future_phase_sumbmissions()
-        logger.info("Checking {} competitions for phase migrations.".format(len(competitions)))
 
 
 @task(queue='site-worker', soft_time_limit=60 * 60 * 24)

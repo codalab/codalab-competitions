@@ -24,7 +24,7 @@ import traceback
 import requests
 import yaml
 
-from os.path import dirname, abspath, join
+from os.path import dirname, abspath, join, exists
 from subprocess import Popen, call
 from zipfile import ZipFile
 
@@ -39,6 +39,8 @@ from codalabtools import BaseConfig
 from apps.web.utils import docker_image_clean
 
 logger = logging.getLogger('codalabtools')
+# Stop duplicate log entries in Celery
+logger.propagate = False
 
 
 def _find_only_folder_with_metadata(path):
@@ -307,23 +309,31 @@ def get_run_func():
         """
         logger.info("Entering run task; task_id=%s, task_args=%s", task_id, task_args)
         # run_id = task_args['bundle_id']
-        docker_image = task_args['docker_image']
+        docker_image = docker_image_clean(task_args['docker_image'])
         bundle_url = task_args['bundle_url']
+        ingestion_program_docker_image = docker_image_clean(task_args['ingestion_program_docker_image'])
         stdout_url = task_args['stdout_url']
         stderr_url = task_args['stderr_url']
+        ingestion_program_stderr_url = task_args['ingestion_program_stderr_url']
+        ingestion_program_output_url = task_args['ingestion_program_output_url']
         output_url = task_args['output_url']
         detailed_results_url = task_args['detailed_results_url']
         private_output_url = task_args['private_output_url']
 
-        sanitized_docker_image = docker_image_clean(docker_image)
-
         execution_time_limit = task_args['execution_time_limit']
         # container = task_args['container_name']
         is_predict_step = task_args.get("predict", False)
+        is_scoring_step = not is_predict_step
         secret = task_args['secret']
         root_dir = None
         current_dir = os.getcwd()
         temp_dir = os.environ.get('SUBMISSION_TEMP_DIR', '/tmp/codalab')
+
+        if is_predict_step:
+            logger.info("Task is prediction.")
+        else:
+            logger.info("Task is scoring.")
+
         # try:
         #     running_processes = subprocess.check_output(["fuser", temp_dir])
         # except:
@@ -378,8 +388,8 @@ def get_run_func():
             logger.info("Fetched bundles in %s", end)
             # Verify we have an input folder: create one if it's not in the bundle.
             input_rel_path = 'input'
+            input_dir = join(root_dir, 'run', 'input')
             if input_rel_path not in bundles:
-                input_dir = join(root_dir, 'run', 'input')
                 if os.path.exists(input_dir) == False:
                     os.mkdir(input_dir)
                     os.chmod(input_dir, 0777)
@@ -388,8 +398,17 @@ def get_run_func():
             if prog_rel_path not in bundles:
                 raise Exception("Program bundle is not available.")
 
-            prog_info = bundles[prog_rel_path]
-            if prog_info is None:
+            ingestion_prog_info = None
+            if 'ingestion_program' in bundles:
+                ingestion_prog_info = bundles['ingestion_program']
+                if not ingestion_prog_info:
+                    raise Exception("Ingestion program is missing metadata. Make sure the folder structure is "
+                                    "appropriate (metadata not in a subdirectory).")
+
+            # Look for submission/scoring program metadata, if we're scoring -- otherwise ingestion
+            # program will handle the case where a code submission has no metadata.
+            prog_info = bundles[prog_rel_path] or {}
+            if prog_info is None and is_scoring_step:
                 raise Exception("Program metadata is not available.")
 
             prog_cmd_list = []
@@ -398,7 +417,7 @@ def get_run_func():
                     prog_cmd_list = [_.strip() for _ in prog_info['command']]
                 else:
                     prog_cmd_list = [prog_info['command'].strip()]
-            if len(prog_cmd_list) <= 0:
+            if len(prog_cmd_list) <= 0 and is_scoring_step:
                 raise Exception("Program command is not specified.")
 
             # Create output folder
@@ -432,31 +451,44 @@ def get_run_func():
             stderr = open(stderr_file, "a+")
             prog_status = []
 
-            for prog_cmd_counter, prog_cmd in enumerate(prog_cmd_list):
-                # Update command-line with the real paths
-                logger.info("CMD: %s", prog_cmd)
-                prog_cmd = prog_cmd.replace("$program", join(run_dir, 'program')) \
-                                    .replace("$input", join(run_dir, 'input')) \
-                                    .replace("$output", join(run_dir, 'output')) \
-                                    .replace("$tmp", join(run_dir, 'temp')) \
-                                    .replace("/", os.path.sep) \
-                                    .replace("\\", os.path.sep)
-                prog_cmd = prog_cmd.split(' ')
-                docker_cmd = [
-                    'docker',
-                    'run',
-                    # Remove it after run,
-                    '--rm',
-                    # Set the right volume
-                    '-v', '{0}:{0}'.format(run_dir),
-                    # Set the right image
-                    sanitized_docker_image,
-                ]
-                prog_cmd = docker_cmd + prog_cmd
-                logger.info("Invoking program: %s", " ".join(prog_cmd))
+            ingestion_stdout_file = join(run_dir, 'ingestion_stdout_file.txt')
+            ingestion_stderr_file = join(run_dir, 'ingestion_stderr_file.txt')
+            ingestion_stdout = open(ingestion_stdout_file, "a+")
+            ingestion_stderr = open(ingestion_stderr_file, "a+")
 
+            run_ingestion_program = False
+
+
+
+
+
+
+
+
+
+
+
+            # If you find a hidden ref folder, MOVE IT SOMEPLACE SPECIAL!!!
+            # hidden_ref....!
+
+
+
+
+
+
+
+
+
+            timed_out = False
+            exit_code = None
+            ingestion_program_exit_code = None
+
+            # If our program command list is empty and we're not scoring, we probably got a result submission
+            if not prog_cmd_list and is_predict_step:
+                prog_cmd_list = ['']
+
+            for prog_cmd_counter, prog_cmd in enumerate(prog_cmd_list):
                 startTime = time.time()
-                timed_out = False
 
                 # Old style of execution
                 #
@@ -470,39 +502,154 @@ def get_run_func():
                 #     env=os.environ
                 # )
 
-                evaluator_process = Popen(
-                    prog_cmd,
-                    stdout=stdout,
-                    stderr=stderr,
-                    env=os.environ
-                )
+                # Do we want to run a submission, or did we just receive results/data and not code?
+                run_submission = False
+                # Ingestion programs (optional) determine whether or not a submission is code or results, and then
+                # if given, run the code or move the results appropriately
 
-                logger.info("Started process, pid=%s" % evaluator_process.pid)
+                if is_predict_step:
+                    logger.info("Running ingestion program")
 
-                time_difference = time.time() - startTime
-                signal.signal(signal.SIGALRM, alarm_handler)
-                signal.alarm(int(math.fabs(math.ceil(execution_time_limit - time_difference))))
+                    # Check that we should even be running this submission in a special way, may
+                    # just be results..
+                    submission_path = join(run_dir, "program")
+                    metadata_path = join(submission_path, "metadata")
+                    is_code_submission = False
+                    if exists(metadata_path):
+                        submission_metadata = yaml.load(open(metadata_path).read())
+                        is_code_submission = "command" in submission_metadata.keys()
 
-                exit_code = None
+                    if is_code_submission:
+                        logger.info("We have a code submission!")
 
-                logger.info("Checking process, exit_code = %s" % exit_code)
+                    # We're in prediction so use an ingestion program to process the submission.
+                    # Was an ingestion program provided?
+                    if is_code_submission and ingestion_prog_info:
+                        logger.info("Running organizer provided ingestion program and submission.")
+                        # Run ingestion program, run submission
+                        run_ingestion_program = True
+                    elif is_code_submission:
+                        logger.info("Running code submission like normal, no ingestion program provided.")
+                    else:
+                        # We didn't find an ingestion program, let's use the following simple one
+                        # that just executes the submission and moves results
+                        logger.info("No code submission, moving input directory to output.")
+                        # This isn't a code submission, it is already ready to score. Remove
+                        # old output directory and replace it with this submission's contents.
+                        os.rmdir(output_dir)
+                        os.rename(input_dir, output_dir)
 
-                try:
-                    while exit_code == None:
-                        time.sleep(1)
-                        exit_code = evaluator_process.poll()
-                except (ValueError, OSError):
-                    pass  # tried to communicate with dead process
-                except ExecutionTimeLimitExceeded:
-                    exit_code = -1
-                    logger.info("Killed process for running too long!")
-                    stderr.write("Execution time limit exceeded!")
-                    evaluator_process.kill()
-                    timed_out = True
+                evaluator_process = None
+                if prog_cmd:
+                    # Update command-line with the real paths
+                    prog_cmd = prog_cmd.replace("$program", join(run_dir, 'program')) \
+                                        .replace("$input", join(run_dir, 'input')) \
+                                        .replace("$output", join(run_dir, 'output')) \
+                                        .replace("$tmp", join(run_dir, 'temp')) \
+                                        .replace("/", os.path.sep) \
+                                        .replace("\\", os.path.sep)
+                    prog_cmd = prog_cmd.split(' ')
+                    docker_cmd = [
+                        'docker',
+                        'run',
+                        # Remove it after run,
+                        '--rm',
+                        # Set the right volume
+                        '-v', '{0}:{0}'.format(run_dir),
+                        # Set the right image
+                        docker_image,
+                    ]
+                    prog_cmd = docker_cmd + prog_cmd
 
-                signal.alarm(0)
+                    logger.info("Invoking program: %s", " ".join(prog_cmd))
+                    evaluator_process = Popen(
+                        prog_cmd,
+                        stdout=stdout,
+                        stderr=stderr,
+                        env=os.environ,
+                        # cwd=join(run_dir, 'program')
+                    )
 
-                logger.info("Exit Code: %d", exit_code)
+                if run_ingestion_program:
+                    if 'command' not in ingestion_prog_info:
+                        raise Exception("Ingestion program metadata was found, but is missing the 'command' attribute,"
+                                        "which is necessary to execute the ingestion program.")
+                    ingestion_prog_cmd = ingestion_prog_info['command']
+
+                    # ingestion_run_dir = join(run_dir, 'ingestion')
+                    ingestion_prog_cmd = ingestion_prog_cmd.replace("$program", join(run_dir, 'ingestion_program')) \
+                        .replace("$input", join(run_dir, 'input')) \
+                        .replace("$output", join(run_dir, 'output')) \
+                        .replace("$tmp", join(run_dir, 'temp')) \
+                        .replace("/", os.path.sep) \
+                        .replace("\\", os.path.sep)
+                    ingestion_prog_cmd = ingestion_prog_cmd.split(' ')
+                    ingestion_docker_cmd = [
+                        'docker',
+                        'run',
+                        # Remove it after run,
+                        '--rm',
+                        # Set the right volume
+                        '-v', '{0}:{0}'.format(run_dir),
+                        # Set the right image
+                        ingestion_program_docker_image,
+                    ]
+                    ingestion_prog_cmd = ingestion_docker_cmd + ingestion_prog_cmd
+
+                    logger.info("Invoking ingestion program: %s", " ".join(ingestion_prog_cmd))
+                    ingestion_process = Popen(
+                        ingestion_prog_cmd,
+                        stdout=ingestion_stdout,
+                        stderr=ingestion_stderr,
+                        # cwd=join(run_dir, 'ingestion_program')
+                    )
+                else:
+                    ingestion_process = None
+
+                if evaluator_process:
+                    logger.info("Started process, pid=%s" % evaluator_process.pid)
+
+                if evaluator_process or ingestion_process:
+                    # Only if a program is running do these checks, otherwise infinite loop checking nothing!
+                    time_difference = time.time() - startTime
+                    signal.signal(signal.SIGALRM, alarm_handler)
+                    signal.alarm(int(math.fabs(math.ceil(execution_time_limit - time_difference))))
+
+                    logger.info("Checking process, exit_code = %s" % exit_code)
+
+                    try:
+                        # While either program is running and hasn't exited, continue polling
+                        while (evaluator_process and exit_code == None) or (ingestion_process and ingestion_program_exit_code == None):
+                            time.sleep(1)
+
+                            if evaluator_process and exit_code is None:
+                                exit_code = evaluator_process.poll()
+
+                            if ingestion_process and ingestion_program_exit_code is None:
+                                ingestion_program_exit_code = ingestion_process.poll()
+                    except (ValueError, OSError):
+                        pass  # tried to communicate with dead process
+                    except ExecutionTimeLimitExceeded:
+                        logger.info("Killed process for running too long!")
+                        stderr.write("Execution time limit exceeded!")
+
+                        if evaluator_process:
+                            exit_code = -1
+                            evaluator_process.kill()
+                        if ingestion_process:
+                            ingestion_program_exit_code = -1
+                            ingestion_process.kill()
+
+                        timed_out = True
+
+                    signal.alarm(0)
+
+                    if evaluator_process:
+                        logger.info("Exit Code regular process: %d", exit_code)
+                    if ingestion_process:
+                        logger.info("Exit Code ingestion process: %d", ingestion_program_exit_code)
+                else:
+                    exit_code = 0  # let code down below know everything went OK
 
                 endTime = time.time()
                 elapsedTime = endTime - startTime
@@ -522,6 +669,10 @@ def get_run_func():
                 with open(join(output_dir, 'metadata'), 'w') as f:
                     f.write(yaml.dump(prog_status, default_flow_style=False))
 
+                if timed_out or exit_code != 0:
+                    # Submission failed somewhere in here, bomb out
+                    break
+
             stdout.close()
             stderr.close()
 
@@ -529,6 +680,12 @@ def get_run_func():
 
             put_blob(stdout_url, stdout_file)
             put_blob(stderr_url, stderr_file)
+
+            if run_ingestion_program:
+                ingestion_stdout.close()
+                ingestion_stderr.close()
+                put_blob(ingestion_program_stderr_url, ingestion_stdout_file)
+                put_blob(ingestion_program_output_url, ingestion_stderr_file)
 
             private_dir = join(output_dir, 'private')
             if os.path.exists(private_dir):

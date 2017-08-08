@@ -165,7 +165,10 @@
     })
     $('#s3-file-upload, #fileUploadButton').click(save_settings) //Azure and S3
     function load_settings() {
-        $('#submission_docker_image').val(localStorage.getItem(docker_image_key))
+        var remembered_image = localStorage.getItem(docker_image_key)
+        if(remembered_image) {
+            $('#submission_docker_image').val()
+        }
     }
     function save_settings() {
         localStorage.setItem(docker_image_key, $('#submission_docker_image').val())
