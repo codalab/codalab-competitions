@@ -4,15 +4,18 @@
 
 {% block content %}
     <a href="{% url "competitions:view" pk=competition.pk %}" >Go Back to Competition Homepage</a>
+    <i>Note: Refresh the page to view updates.</i>
     <div class="panel">
         <div class="panel-body">
             <button id="make_dump" class="btn btn-primary">Create Competition Dump</button>
+            <button id="refresh_page" class="btn btn-primary">Refresh the Page</button>
             {% if dumps %}
                 <h1>Dumps for: {{ competition.title }}</h1>
                 <table id="dump-table" class="table table-responsive">
                 <thead>
                     <td width="100px"><h5><b>Download link</b></h5></td>
                     <td width="100px"><h5><b>Status</b></h5></td>
+                    <td width="100px"><h5><b>Size</b></h5></td>
                     <td width="400px"><h5><b>Publish Date</b></h5></td>
                 </thead>
                     <tbody>
@@ -26,6 +29,11 @@
                                 </td>
                                 <td>
                                     <b>{{ dump.status }}</b>
+                                </td>
+                                <td>
+                                    {% if dump.status == "Finished" %}
+                                        <b>{{ dump.get_size_mb|floatformat:2 }} mb</b>
+                                    {% endif %}
                                 </td>
                                 <td>
                                     <i>{{ dump.timestamp }}</i>
@@ -42,16 +50,20 @@
         </div>
     </div>
     <script>
+        $('#refresh_page').click(function() {
+            location.reload(true)
+        });
+
         $(document).ready(function() {
             $("#make_dump").click(function() {
                 var url = "{% url 'competitions:make_bundle' competition_pk=competition.pk %}"
                 $.post(url)
-                    .success(function() {
-                        location.reload(true)
-                    })
-                    .error(function() {
-                        alert("There was a problem generating the dump. Please make sure you're connected to the Internet, if the problem persists please contact an admin.")
-                    })
+                .success(function() {
+                    location.reload(true)
+                })
+                .error(function() {
+                    alert("There was a problem generating the dump. Please make sure you're connected to the Internet, if the problem persists please contact an admin.")
+                })
             })
         })
     </script>
