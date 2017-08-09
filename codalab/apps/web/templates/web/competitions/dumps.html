@@ -17,6 +17,7 @@
                     <td width="100px"><h5><b>Status</b></h5></td>
                     <td width="100px"><h5><b>Size</b></h5></td>
                     <td width="400px"><h5><b>Publish Date</b></h5></td>
+                    <td width="400px"><h5><b>Delete</b></h5></td>
                 </thead>
                     <tbody>
                         <tr id="dump-table-data">
@@ -37,6 +38,9 @@
                                 </td>
                                 <td>
                                     <i>{{ dump.timestamp }}</i>
+                                </td>
+                                <td>
+                                    <a href="{% url 'competitions:delete_dump' pk=dump.pk %}" class="btn btn-danger btn-xs">Delete</a>
                                 </td>
                                 {% if forloop.counter|divisibleby:1 %}</tr>{% endif %}
                             {% endfor %}

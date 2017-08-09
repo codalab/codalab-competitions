@@ -2149,10 +2149,9 @@ class CompetitionDump(models.Model):
 
     def get_size_mb(self):
         if self.status == "Finished":
-            return float(self.data_file.size) * 0.000001
+            return float(self.data_file.size) * 0.00000095367432
         else:
             return 0
-
 
     def sassy_url(self):
         from apps.web.tasks import _make_url_sassy

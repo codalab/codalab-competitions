@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block page_title %}Competition Dumps{% endblock %}
+{% block head_title %}Competition Dumps{% endblock %}
+
+{% block content %}
+
+    <p>Are you sure you wish to delete this Competition Dump?</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Yes, I'm sure.</button>
+    </form>
+
+{% endblock %}
