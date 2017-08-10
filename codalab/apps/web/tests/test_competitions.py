@@ -1,5 +1,10 @@
 import datetime
+
+import StringIO
+import zipfile
+
 import mock
+from django.core.files.base import ContentFile
 
 from django.core.urlresolvers import reverse
 from django.test import TestCase
@@ -13,7 +18,7 @@ from apps.web.models import (Competition,
                              CompetitionSubmissionStatus,
                              ParticipantStatus,
                              PhaseLeaderBoard,
-                             PhaseLeaderBoardEntry)
+                             PhaseLeaderBoardEntry, CompetitionDump)
 
 User = get_user_model()
 
@@ -137,7 +142,6 @@ class CompetitionPhaseToPhase(TestCase):
     #     self.assertFalse(self.competition.is_migrating_delayed)
 
 
-
 class CompetitionTest(TestCase):
 
     def setUp(self):
@@ -190,6 +194,57 @@ class CompetitionDeleteTests(CompetitionTest):
 
         self.assertEquals(resp.status_code, 302)
         self.assertEquals(len(Competition.objects.filter(pk=self.competition.pk)), 0)
+
+
+class CompetitionDumpDeleteTests(CompetitionTest):
+
+    def setUp(self):
+        zip_buffer = StringIO.StringIO()
+        zip_name = "{0}.zip".format("Example_Title")
+        zip_file = zipfile.ZipFile(zip_buffer, "w")
+        zip_file.close()
+        temp_comp_data = ContentFile(zip_buffer.getvalue())
+        self.competitiondump = CompetitionDump.objects.create(
+            competition=self.competition,
+            status="Finished",
+        )
+        self.competitiondump.data_file.save(zip_name, temp_comp_data)
+
+    def test_cant_view_delete_competition_template_if_you_dont_own_it(self):
+        self.client.login(username="participant", password="pass")
+        resp = self.client.get(reverse("competitions:delete_dump", kwargs={"pk": self.competitiondump.pk}))
+
+        self.assertEquals(resp.status_code, 403)
+
+    def test_can_view_delete_competition_with_ownership(self):
+        self.client.login(username="organizer", password="pass")
+        resp = self.client.get(reverse("competitions:delete_dump", kwargs={"pk": self.competitiondump.pk}))
+
+        self.assertEquals(resp.status_code, 200)
+
+    def test_cant_delete_competition_if_you_dont_own_it(self):
+        self.client.login(username="participant", password="pass")
+        resp = self.client.delete(reverse("competitions:delete_dump", kwargs={"pk": self.competitiondump.pk}))
+
+        self.assertEquals(resp.status_code, 403)
+
+    def test_can_delete_competition_with_ownership(self):
+        self.client.login(username="organizer", password="pass")
+        resp = self.client.delete(reverse("competitions:delete_dump", kwargs={"pk": self.competitiondump.pk}))
+
+        self.assertEquals(resp.status_code, 302)
+        self.assertEquals(len(CompetitionDump.objects.filter(pk=self.competitiondump.pk)), 0)
+
+    def test_can_delete_competition_dump_with_admin(self):
+        some_admin = User.objects.create_user(username="some_admin", password="pass")
+        self.client.logout()
+        self.client.login(username="some_admin", password="pass")
+        self.competition.admins.add(some_admin)
+        self.competition.save()
+        resp = self.client.delete(reverse("competitions:delete_dump", kwargs={"pk": self.competitiondump.pk}))
+
+        self.assertEquals(resp.status_code, 302)
+        self.assertEquals(len(CompetitionDump.objects.filter(pk=self.competitiondump.pk)), 0)
 
 
 class CompetitionEditPermissionsTests(CompetitionTest):
