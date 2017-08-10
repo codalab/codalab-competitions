@@ -14,6 +14,7 @@ from urllib import pathname2url
 
 from yaml.representer import SafeRepresenter
 from zipfile import ZipFile
+from collections import OrderedDict
 
 import sys
 
@@ -798,8 +799,7 @@ def do_phase_migrations():
 
 @task(queue='site-worker', soft_time_limit=60 * 60 * 24)
 def make_modified_bundle(competition_pk):
-
-    from collections import OrderedDict
+    # The following lines help dump this in a nice format
     _mapping_tag = yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG
 
     def dict_representer(dumper, data):
@@ -807,7 +807,34 @@ def make_modified_bundle(competition_pk):
 
     def dict_constructor(loader, node):
         return OrderedDict(loader.construct_pairs(node))
+    # Credit to miracle2k on Github for orderdict safe dump
 
+    def represent_odict(dump, tag, mapping, flow_style=None):
+        """Like BaseRepresenter.represent_mapping, but does not issue the sort().
+        """
+        value = []
+        node = yaml.MappingNode(tag, value, flow_style=flow_style)
+        if dump.alias_key is not None:
+            dump.represented_objects[dump.alias_key] = node
+        best_style = True
+        if hasattr(mapping, 'items'):
+            mapping = mapping.items()
+        for item_key, item_value in mapping:
+            node_key = dump.represent_data(item_key)
+            node_value = dump.represent_data(item_value)
+            if not (isinstance(node_key, yaml.ScalarNode) and not node_key.style):
+                best_style = False
+            if not (isinstance(node_value, yaml.ScalarNode) and not node_value.style):
+                best_style = False
+            value.append((node_key, node_value))
+        if flow_style is None:
+            if dump.default_flow_style is not None:
+                node.flow_style = dump.default_flow_style
+            else:
+                node.flow_style = best_style
+        return node
+    yaml.SafeDumper.add_representer(OrderedDict,
+                                    lambda dumper, value: represent_odict(dumper, u'tag:yaml.org,2002:map', value))
     # Following line supresses the broadexception warning. We catch and do a traceback for now from logs.
     # noinspection PyBroadException
     try:
@@ -934,10 +961,9 @@ def make_modified_bundle(competition_pk):
         temp_comp_dump.status = "Finalizing"
         temp_comp_dump.save()
         logger.info("Finalizing")
-        comp_yaml_my_dump = yaml.dump(yaml_data, default_flow_style=False, allow_unicode=True, encoding="utf-8")
-        yaml_data = yaml.load(comp_yaml_my_dump)
+        comp_yaml_my_dump = yaml.safe_dump(yaml_data, default_flow_style=False, allow_unicode=True, encoding="utf-8")
         zip_file.writestr(yaml_data["image"], competition.image.file.read())
-        zip_file.writestr("competition.yaml", yaml.dump(yaml_data))
+        zip_file.writestr("competition.yaml", comp_yaml_my_dump)
         zip_file.close()
         logger.info("Stored Zip buffer yaml dump, and image")
         logger.info("Attempting to save ZIP")

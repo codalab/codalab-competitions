@@ -22,9 +22,9 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.servers.basehttp import FileWrapper
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.db.models import Q, Max, Min, Count
-from django.http import Http404
+from django.http import Http404, HttpResponseForbidden
 from django.http import HttpResponse, HttpResponseRedirect
 from django.http import StreamingHttpResponse
 from django.shortcuts import render_to_response, render
@@ -1855,7 +1855,25 @@ def competition_dumps_view(request, competition_pk):
 @login_required
 def start_make_bundle_task(request, competition_pk):
     competition = models.Competition.objects.get(pk=competition_pk)
-    if request.user.id != competition.creator_id and request.user not in competition.admins.all():
+    if request.user != competition.creator and request.user not in competition.admins.all():
         raise Http404()
     make_modified_bundle.apply_async((competition.pk,))
     return HttpResponse()
+
+class CompetitionDumpDeleteView(DeleteView):
+    model = models.CompetitionDump
+    template_name = 'web/competitions/delete_dump_confirm.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        pk = kwargs.get('pk')
+        dump = models.CompetitionDump.objects.get(pk=pk)
+        competition = dump.competition
+        user = request.user
+        if user.id != competition.creator.id and user not in competition.admins.all():
+            return HttpResponseForbidden()
+        else:
+            return super(CompetitionDumpDeleteView, self).dispatch(request, *args, **kwargs)
+
+    def get_success_url(self):
+        dump = self.object
+        return reverse('competitions:dumps', kwargs={'competition_pk': dump.competition.pk})
