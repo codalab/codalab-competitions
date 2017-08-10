@@ -199,6 +199,7 @@ class CompetitionDeleteTests(CompetitionTest):
 class CompetitionDumpDeleteTests(CompetitionTest):
 
     def setUp(self):
+        super(CompetitionDumpDeleteTests, self).setUp()
         zip_buffer = StringIO.StringIO()
         zip_name = "{0}.zip".format("Example_Title")
         zip_file = zipfile.ZipFile(zip_buffer, "w")
