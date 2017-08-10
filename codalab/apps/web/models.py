@@ -975,7 +975,7 @@ class CompetitionPhase(models.Model):
 
             scoreDefs = []
             columnKeys = {} # maps a column key to its index in headers list
-            for x in SubmissionScoreSet.objects.order_by('tree_id','lft').filter(scoredef__isnull=False,
+            for x in SubmissionScoreSet.objects.order_by('tree_id', 'lft').filter(scoredef__isnull=False,
                                                                         scoredef__groups__in=[g],
                                                                         **kwargs).select_related('scoredef', 'parent'):
                 if x.parent is not None:
