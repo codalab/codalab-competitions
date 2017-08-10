@@ -172,6 +172,10 @@ def predict(submission, job_id):
         raise ValueError("Program is missing.")
 
     if submission.phase.ingestion_program:
+        # Keep stdout/stder for ingestion
+        submission.ingestion_program_stdout_file.save('ingestion_program_stdout_file.txt', ContentFile(''))
+        submission.ingestion_program_stderr_file.save('ingestion_program_stderr_file.txt', ContentFile(''))
+
         # For the ingestion program we have to include the actual ingestion program...
         lines.append("ingestion_program: %s" % _make_url_sassy(submission.phase.ingestion_program))
 
@@ -241,8 +245,8 @@ def _prepare_compute_worker_run(job_id, submission, is_prediction):
             "stdout_url": _make_url_sassy(stdout, permission='w'),
             "stderr_url": _make_url_sassy(stderr, permission='w'),
             "output_url": _make_url_sassy(output, permission='w'),
-            "ingestion_program_stderr_url": _make_url_sassy(stderr, permission='w'),
-            "ingestion_program_output_url": _make_url_sassy(output, permission='w'),
+            "ingestion_program_output_url": _make_url_sassy(submission.ingestion_program_stdout_file.name, permission='w'),
+            "ingestion_program_stderr_url": _make_url_sassy(submission.ingestion_program_stderr_file.name, permission='w'),
             "detailed_results_url": _make_url_sassy(submission.detailed_results_file.name, permission='w'),
             "private_output_url": _make_url_sassy(submission.private_output_file.name, permission='w'),
             "secret": submission.secret,

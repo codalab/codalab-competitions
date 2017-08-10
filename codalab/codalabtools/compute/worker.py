@@ -325,7 +325,6 @@ def get_run_func():
         is_predict_step = task_args.get("predict", False)
         is_scoring_step = not is_predict_step
         secret = task_args['secret']
-        root_dir = None
         current_dir = os.getcwd()
         temp_dir = os.environ.get('SUBMISSION_TEMP_DIR', '/tmp/codalab')
 
@@ -373,14 +372,27 @@ def get_run_func():
             _send_update(task_id, 'running', secret, extra={
                 'metadata': debug_metadata
             })
-            # Create temporary directory for the run
+            # Create temporary directories for the run
             root_dir = tempfile.mkdtemp(dir=temp_dir)
             os.chmod(root_dir, 0777)
+
+            run_dir = join(root_dir, 'run')
+            shared_dir = tempfile.mkdtemp(dir=temp_dir)
+            hidden_data_dir = None
+
             # Fetch and stage the bundles
             logger.info("Fetching bundles...")
             start = time.time()
 
             bundles = get_bundle(root_dir, 'run', bundle_url)
+
+            # If we were passed hidden data, move it
+            if is_predict_step:
+                hidden_ref_original_location = join(run_dir, 'hidden_ref')
+                if exists(hidden_ref_original_location):
+                    logger.info("Found reference data AND an ingestion program, hiding reference data for ingestion program to use.")
+                    shutil.move(hidden_ref_original_location, temp_dir)
+                    hidden_data_dir = join(temp_dir, 'hidden_ref')
 
             logger.info("Metadata: %s" % bundles)
 
@@ -433,7 +445,6 @@ def get_run_func():
             # Report the list of folders and files staged
             #
             # Invoke custom evaluation program
-            run_dir = join(root_dir, 'run')
             os.chdir(run_dir)
             os.environ["PATH"] += os.pathsep + run_dir + "/program"
             logger.info("Execution directory: %s", run_dir)
@@ -457,27 +468,6 @@ def get_run_func():
             ingestion_stderr = open(ingestion_stderr_file, "a+")
 
             run_ingestion_program = False
-
-
-
-
-
-
-
-
-
-
-
-            # If you find a hidden ref folder, MOVE IT SOMEPLACE SPECIAL!!!
-            # hidden_ref....!
-
-
-
-
-
-
-
-
 
             timed_out = False
             exit_code = None
@@ -546,6 +536,7 @@ def get_run_func():
                                         .replace("$input", join(run_dir, 'input')) \
                                         .replace("$output", join(run_dir, 'output')) \
                                         .replace("$tmp", join(run_dir, 'temp')) \
+                                        .replace("$shared", shared_dir) \
                                         .replace("/", os.path.sep) \
                                         .replace("\\", os.path.sep)
                     prog_cmd = prog_cmd.split(' ')
@@ -556,6 +547,7 @@ def get_run_func():
                         '--rm',
                         # Set the right volume
                         '-v', '{0}:{0}'.format(run_dir),
+                        '-v', '{0}:{0}'.format(shared_dir),
                         # Set the right image
                         docker_image,
                     ]
@@ -581,6 +573,8 @@ def get_run_func():
                         .replace("$input", join(run_dir, 'input')) \
                         .replace("$output", join(run_dir, 'output')) \
                         .replace("$tmp", join(run_dir, 'temp')) \
+                        .replace("$shared", shared_dir) \
+                        .replace("$hidden", hidden_data_dir) \
                         .replace("/", os.path.sep) \
                         .replace("\\", os.path.sep)
                     ingestion_prog_cmd = ingestion_prog_cmd.split(' ')
@@ -591,6 +585,8 @@ def get_run_func():
                         '--rm',
                         # Set the right volume
                         '-v', '{0}:{0}'.format(run_dir),
+                        '-v', '{0}:{0}'.format(shared_dir),
+                        '-v', '{0}:{0}'.format(hidden_data_dir),
                         # Set the right image
                         ingestion_program_docker_image,
                     ]
