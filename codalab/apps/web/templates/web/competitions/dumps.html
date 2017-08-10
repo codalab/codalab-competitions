@@ -7,7 +7,8 @@
     <i>Note: Refresh the page to view updates.</i>
     <div class="panel">
         <div class="panel-body">
-            <button id="make_dump" class="btn btn-primary">Create Competition Dump</button>
+            <!--<button id="make_dump" class="btn btn-primary">Create Competition Dump</button>-->
+            <button type="button" data-toggle="modal" href="#create_dump_modal" class="btn btn-primary">Create Dump</button>
             <button id="refresh_page" class="btn btn-primary">Refresh the Page</button>
             {% if dumps %}
                 <h1>Dumps for: {{ competition.title }}</h1>
@@ -53,6 +54,63 @@
             {% endif %}
         </div>
     </div>
+    <!-- Modal Form -->
+    <div class="modal fade" id="create_dump_modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <!--<h4 class="modal-title">Email Participants</h4>--->
+                    <h4>Create Competition Dump</h4>
+                </div>
+                <div class="modal-body">
+                    <form id="message-form">
+                        <div class="form-group">
+                            <!--<input id="subject_input" type="text" placeholder="Subject" class="form-control">-->
+                            <div class="alert alert-danger" id="subject-alert" role="alert">
+                                <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                                <span class="sr-only">Error:</span>
+                                <!--Enter subject.-->
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <table class="table table-responsive">
+                                <thead>
+                                <td>
+                                    <p>Use dataset URI keys instead of dataset files</p>
+                                </td>
+                                <td>
+                                    <p>Truncated Dump: Dump only required/filled-in fields.</p>
+                                </td>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                <td>
+                                    <input type="checkbox" id="dataset_uri" name="dataset_uri">
+                                </td>
+                                <td>
+                                    <input type="checkbox" id="truncate_dump" name="truncate_dump">
+                                </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <!--<textarea id="message_textarea" placeholder="Message" class="form-control"></textarea>-->
+                            <div class="alert alert-danger" role="alert" id="message-alert">
+                                <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                                <span class="sr-only">Error:</span>
+                                <!--Enter message.-->
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button id="make_dump" class="btn btn-primary">Create Competition Dump</button>
+                    <!--<button id="direct_message_participants_button" class="btn btn-primary">Send</button>-->
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
     <script>
         $('#refresh_page').click(function() {
             location.reload(true)
@@ -61,7 +119,7 @@
         $(document).ready(function() {
             $("#make_dump").click(function() {
                 var url = "{% url 'competitions:make_bundle' competition_pk=competition.pk %}"
-                $.post(url)
+                $.post(url, {'dataset_flag': $('#dataset_uri').is(':checked')})
                 .success(function() {
                     location.reload(true)
                 })
