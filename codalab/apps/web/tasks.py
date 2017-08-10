@@ -14,6 +14,7 @@ from urllib import pathname2url
 
 from yaml.representer import SafeRepresenter
 from zipfile import ZipFile
+from collections import OrderedDict
 
 import sys
 
@@ -799,7 +800,6 @@ def do_phase_migrations():
 @task(queue='site-worker', soft_time_limit=60 * 60 * 24)
 def make_modified_bundle(competition_pk):
     # The following lines help dump this in a nice format
-    from collections import OrderedDict
     _mapping_tag = yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG
 
     def dict_representer(dumper, data):
@@ -807,7 +807,8 @@ def make_modified_bundle(competition_pk):
 
     def dict_constructor(loader, node):
         return OrderedDict(loader.construct_pairs(node))
-    #Credit to miracle2k on Github for orderdict safe dump
+    # Credit to miracle2k on Github for orderdict safe dump
+
     def represent_odict(dump, tag, mapping, flow_style=None):
         """Like BaseRepresenter.represent_mapping, but does not issue the sort().
         """

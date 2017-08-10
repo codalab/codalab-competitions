@@ -1855,7 +1855,7 @@ def competition_dumps_view(request, competition_pk):
 @login_required
 def start_make_bundle_task(request, competition_pk):
     competition = models.Competition.objects.get(pk=competition_pk)
-    if request.user.id != competition.creator_id and request.user not in competition.admins.all():
+    if request.user != competition.creator and request.user not in competition.admins.all():
         raise Http404()
     make_modified_bundle.apply_async((competition.pk,))
     return HttpResponse()
