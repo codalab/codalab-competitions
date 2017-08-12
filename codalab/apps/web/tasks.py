@@ -798,7 +798,7 @@ def do_phase_migrations():
 
 
 @task(queue='site-worker', soft_time_limit=60 * 60 * 24)
-def make_modified_bundle(competition_pk, dataset_flag):
+def make_modified_bundle(competition_pk, exclude_datasets_flag):
     # The following lines help dump this in a nice format
     _mapping_tag = yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG
 
@@ -907,7 +907,7 @@ def make_modified_bundle(competition_pk, dataset_flag):
                     if hasattr(phase, data_type):
                         data_field = getattr(phase, data_type)
                         if data_field.file.name not in file_cache.keys():
-                            if dataset_flag == "true":
+                            if exclude_datasets_flag == True:
                                 data_field = getattr(phase, data_type + '_organizer_dataset')
                                 phase_dict[data_type] = data_field.key
                                 file_name = "{}_{}.zip".format(data_type, phase.phasenumber)
@@ -923,7 +923,7 @@ def make_modified_bundle(competition_pk, dataset_flag):
                                 }
                                 zip_file.writestr(file_name, data_field.read())
                         else:
-                            if dataset_flag == "true":
+                            if exclude_datasets_flag == True:
                                 data_field = getattr(phase, data_type + '_organizer_dataset')
                                 file_name = file_cache[data_field.name]['name']
                                 phase_dict[data_type] = data_field.key

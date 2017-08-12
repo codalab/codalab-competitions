@@ -7,7 +7,6 @@
     <i>Note: Refresh the page to view updates.</i>
     <div class="panel">
         <div class="panel-body">
-            <!--<button id="make_dump" class="btn btn-primary">Create Competition Dump</button>-->
             <button type="button" data-toggle="modal" href="#create_dump_modal" class="btn btn-primary">Create Dump</button>
             <button id="refresh_page" class="btn btn-primary">Refresh the Page</button>
             {% if dumps %}
@@ -64,7 +63,7 @@
                 </div>
                 <div class="modal-body">
                     <label class="custom-control custom-checkbox">
-                        <input type="checkbox" id="dataset_uri" class="custom-control-input">
+                        <input type="checkbox" id="exclude_datasets_flag" class="custom-control-input">
                         <span class="custom-control-indicator"></span>
                         <span class="custom-control-description">URI Keys instead of files</span>
                         <hr>
@@ -86,7 +85,7 @@
         $(document).ready(function() {
             $("#make_dump").click(function() {
                 var url = "{% url 'competitions:make_bundle' competition_pk=competition.pk %}"
-                $.post(url, {'dataset_flag': $('#dataset_uri').is(':checked')})
+                $.post(url, {'exclude_datasets_flag': $('#exclude_datasets_flag').is(':checked')})
                 .success(function() {
                     location.reload(true)
                 })

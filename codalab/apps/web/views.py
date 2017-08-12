@@ -1859,8 +1859,8 @@ def start_make_bundle_task(request, competition_pk):
         raise Http404()
     # make_modified_bundle.apply_async((competition.pk, dataset_flag,))
     if request.method == "POST":
-        dataset_flag = request.POST.get('dataset_flag')
-        make_modified_bundle.apply_async((competition.pk, dataset_flag,))
+        exclude_datasets_flag = bool(request.POST.get('exclude_datasets_flag'))
+        make_modified_bundle.apply_async((competition.pk, exclude_datasets_flag,))
     return HttpResponse()
 
 
