@@ -800,7 +800,6 @@ class CompetitionPhase(models.Model):
         blank=True,
         null=True,
     )
-
     starting_kit_organizer_dataset = models.ForeignKey(
         'OrganizerDataSet',
         null=True,
@@ -809,6 +808,21 @@ class CompetitionPhase(models.Model):
         verbose_name="Starting Kit",
         on_delete=models.SET_NULL
     )
+
+    ingestion_program = models.FileField(
+        upload_to=_uuidify('ingestion_program'),
+        storage=BundleStorage,
+        blank=True,
+        null=True,
+    )
+    ingestion_program_docker_image = models.CharField(max_length=128, default='', blank=True)
+    # ingestion_program_organizer_dataset = models.ForeignKey(
+    #     'OrganizerDataSet',
+    #     null=True,
+    #     blank=True,
+    #     related_name="ingestion_program_organizer_dataset",
+    #     on_delete=models.SET_NULL
+    # )
 
     def get_starting_kit(self):
         from apps.web.tasks import _make_url_sassy
@@ -961,7 +975,7 @@ class CompetitionPhase(models.Model):
 
             scoreDefs = []
             columnKeys = {} # maps a column key to its index in headers list
-            for x in SubmissionScoreSet.objects.order_by('tree_id','lft').filter(scoredef__isnull=False,
+            for x in SubmissionScoreSet.objects.order_by('tree_id', 'lft').filter(scoredef__isnull=False,
                                                                         scoredef__groups__in=[g],
                                                                         **kwargs).select_related('scoredef', 'parent'):
                 if x.parent is not None:
@@ -1061,31 +1075,35 @@ class CompetitionPhase(models.Model):
 
             # format values
             for result in results:
-                scores = result['scores']
-                for sdef in result['scoredefs']:
-                    knownValues = {}
-                    if sdef.id in values:
-                        knownValues = values[sdef.id]
-                    knownRanks = {}
-                    if sdef.id in ranks:
-                        knownRanks = ranks[sdef.id]
-                    for id in submission_ids:
-                        v = "-"
-                        if id in knownValues:
-                            v = CompetitionPhase.format_value(knownValues[id], sdef.numeric_format)
-                        r = "-"
-                        if id in knownRanks:
-                            r = knownRanks[id]
-                        if sdef.show_rank:
-                            scores[id]['values'].append({'val': v, 'rnk': r, 'name' : sdef.key})
-                        else:
-                            scores[id]['values'].append({'val': v, 'hidden_rnk': r, 'name' : sdef.key})
-                    if (sdef.key == result['selection_key']):
-                        overall_ranks = ranks[sdef.id]
-                ranked_submissions = sorted(submission_ids, cmp=CompetitionPhase.rank_submissions(overall_ranks))
-                final_scores = [(overall_ranks[id], scores[id]) for id in ranked_submissions]
-                result['scores'] = final_scores
-                del result['scoredefs']
+                try:
+
+                    scores = result['scores']
+                    for sdef in result['scoredefs']:
+                        knownValues = {}
+                        if sdef.id in values:
+                            knownValues = values[sdef.id]
+                        knownRanks = {}
+                        if sdef.id in ranks:
+                            knownRanks = ranks[sdef.id]
+                        for id in submission_ids:
+                            v = "-"
+                            if id in knownValues:
+                                v = CompetitionPhase.format_value(knownValues[id], sdef.numeric_format)
+                            r = "-"
+                            if id in knownRanks:
+                                r = knownRanks[id]
+                            if sdef.show_rank:
+                                scores[id]['values'].append({'val': v, 'rnk': r, 'name' : sdef.key})
+                            else:
+                                scores[id]['values'].append({'val': v, 'hidden_rnk': r, 'name' : sdef.key})
+                        if (sdef.key == result['selection_key']):
+                            overall_ranks = ranks[sdef.id]
+                    ranked_submissions = sorted(submission_ids, cmp=CompetitionPhase.rank_submissions(overall_ranks))
+                    final_scores = [(overall_ranks[id], scores[id]) for id in ranked_submissions]
+                    result['scores'] = final_scores
+                    del result['scoredefs']
+                except KeyError:
+                    pass
         return results
 
 
@@ -1180,6 +1198,9 @@ class CompetitionSubmission(models.Model):
     exception_details = models.TextField(blank=True, null=True)
     prediction_stdout_file = models.FileField(upload_to=_uuidify('predict_submission_stdout'), storage=BundleStorage, null=True, blank=True)
     prediction_stderr_file = models.FileField(upload_to=_uuidify('predict_submission_stderr'), storage=BundleStorage, null=True, blank=True)
+
+    ingestion_program_stdout_file = models.FileField(upload_to=_uuidify('predict_submission_stdout'), storage=BundleStorage, null=True, blank=True)
+    ingestion_program_stderr_file = models.FileField(upload_to=_uuidify('predict_submission_stderr'), storage=BundleStorage, null=True, blank=True)
 
     method_name = models.CharField(max_length=20, null=True, blank=True)
     method_description = models.TextField(null=True, blank=True)
@@ -1327,20 +1348,7 @@ class CompetitionSubmission(models.Model):
 
         :param key: A name identifying the file to download.
 
-        .. note::
-
-            Choices are:
-                - input.zip
-                - output.zip
-                - prediction-output.zip
-                - stdout.txt
-                - stderr.txt
-                - history.txt
-                - private_output.zip
-
         :param requested_by: A user object identifying the user making the request to access the file.
-
-        :Raises:
 
            - ValueError exception for improper arguments.
            - PermissionDenied exception when access to the file cannot be granted.
@@ -1359,6 +1367,8 @@ class CompetitionSubmission(models.Model):
             'stderr.txt': ('stderr_file', 'txt', False),
             'predict_stdout.txt': ('prediction_stdout_file', 'txt', True),
             'predict_stderr.txt': ('prediction_stderr_file', 'txt', True),
+            'ingestion_program_stdout_file.txt': ('ingestion_program_stdout_file', 'txt', True),
+            'ingestion_program_stderr_file.txt': ('ingestion_program_stderr_file', 'txt', True),
             'detailed_results.html': ('detailed_results_file', 'html', True),
         }
         if key not in downloadable_files:

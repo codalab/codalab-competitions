@@ -23,21 +23,6 @@ services:
   # --------------------------------------------------------------------------
   # Database
   # --------------------------------------------------------------------------
-  mysql:
-    image: mysql:5.7
-    hostname: mysql
-    environment:
-      # These aren't set in .env
-      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
-      - MYSQL_DATABASE=${DB_NAME}
-    volumes:
-      - ./docker:/app/docker
-      - ./docker/mysql:/etc/mysql/conf.d
-      - ${LOGGING_DIR}/mysql:/var/log/mysql
-      - ${DB_DATA_PATH}:/var/lib/mysql
-    env_file: .env
-    container_name: mysql
-
   postgres:
     image: postgres:9.6.3
     environment:
@@ -126,7 +111,7 @@ services:
     environment:
       - CONFIG_SERVER_NAME=${CODALAB_SITE_DOMAIN}
     links:
-      - mysql
+      - postgres
       - rabbit
       - memcached
     container_name: django
@@ -146,7 +131,7 @@ services:
       - ${LOGGING_DIR}/worker_site:/var/log/
     env_file: .env
     links:
-      - mysql
+      - postgres
       - rabbit
     container_name: worker_site
       
@@ -166,6 +151,5 @@ services:
       - DB_ENGINE=memory
     env_file: .env
     links:
-      - mysql
       - rabbit
     container_name: worker_compute
