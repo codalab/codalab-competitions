@@ -24,6 +24,6 @@ Before your program is executed the following strings will be replaced with the 
 | --- | --- |
 | $program | root directory containing your program |
 | $input | input directory containing competition data |
-| $output | directory to put your code results |
+| $output | where the code submission saves results |
 | $shared | special directory to talk to submission program during a code submission |
 | $hidden | directory where hidden reference data is stored |
