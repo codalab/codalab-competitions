@@ -1857,8 +1857,12 @@ def start_make_bundle_task(request, competition_pk):
     competition = models.Competition.objects.get(pk=competition_pk)
     if request.user != competition.creator and request.user not in competition.admins.all():
         raise Http404()
-    make_modified_bundle.apply_async((competition.pk,))
+    # make_modified_bundle.apply_async((competition.pk, dataset_flag,))
+    if request.method == "POST":
+        exclude_datasets_flag = bool(request.POST.get('exclude_datasets_flag'))
+        make_modified_bundle.apply_async((competition.pk, exclude_datasets_flag,))
     return HttpResponse()
+
 
 class CompetitionDumpDeleteView(DeleteView):
     model = models.CompetitionDump

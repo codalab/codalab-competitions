@@ -7,7 +7,7 @@
     <i>Note: Refresh the page to view updates.</i>
     <div class="panel">
         <div class="panel-body">
-            <button id="make_dump" class="btn btn-primary">Create Competition Dump</button>
+            <button type="button" data-toggle="modal" href="#create_dump_modal" class="btn btn-primary">Create Dump</button>
             <button id="refresh_page" class="btn btn-primary">Refresh the Page</button>
             {% if dumps %}
                 <h1>Dumps for: {{ competition.title }}</h1>
@@ -53,6 +53,30 @@
             {% endif %}
         </div>
     </div>
+    <!-- Modal Form -->
+    <div class="modal fade" id="create_dump_modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4>Create Competition Dump</h4>
+                </div>
+                <div class="modal-body">
+                    <label class="custom-control custom-checkbox">
+                        <input type="checkbox" id="exclude_datasets_flag" class="custom-control-input">
+                        <span class="custom-control-indicator"></span>
+                        <span class="custom-control-description">URI Keys instead of files</span>
+                        <hr>
+                        <i>Note: Using Keys instead of files makes a much smaller download!</i>
+                    </label>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button id="make_dump" class="btn btn-primary">Create Competition Dump</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
     <script>
         $('#refresh_page').click(function() {
             location.reload(true)
@@ -61,7 +85,7 @@
         $(document).ready(function() {
             $("#make_dump").click(function() {
                 var url = "{% url 'competitions:make_bundle' competition_pk=competition.pk %}"
-                $.post(url)
+                $.post(url, {'exclude_datasets_flag': $('#exclude_datasets_flag').is(':checked')})
                 .success(function() {
                     location.reload(true)
                 })
