@@ -1,6 +1,6 @@
 {% load codalab_tags %}
 
-<h1>Starting Kits</h1>
+<h1>Files</h1>
 {% if competition.has_starting_kit %}
     <table style="border: 1px solid rgba(0,0,0,0.3)" class="table table-responsive">
         <thead>
@@ -8,15 +8,27 @@
             Download
         </th>
         <th>
+            Size ( mb )
+        </th>
+        <th>
+            Filetype:
+        </th>
+        <th>
             Phase
         </th>
         </thead>
         <tbody>
         {% for phase in competition.phases.all %}
-            {% if phase and phase.starting_kit %}
+            {% if phase and phase.starting_kit_organizer_dataset %}
                 <tr>
                     <td>
                         <a href="{{ phase.get_starting_kit }}" class="btn btn-primary phase-btn-{{ phase.color }}">{{phase.label}}</a>
+                    </td>
+                    <td style="padding-top: 12px;">
+                        {{ phase.get_starting_kit_size_mb|floatformat:3 }}
+                    </td>
+                    <td style="padding-top: 12px;">
+                        {{ phase.starting_kit_organizer_dataset.type }}
                     </td>
                     <td style="padding-top: 12px;">
                         #{{ phase.phasenumber }} {{ phase.label }}
@@ -27,5 +39,5 @@
         </tbody>
     </table>
 {% else %}
-    <i>No starting kits have been added for this competition yet.</i>
+    <i>No files have been added for this competition yet.</i>
 {% endif %}
