@@ -314,7 +314,7 @@ class Competition(models.Model):
 
     @property
     def has_starting_kit(self):
-        return self.phases.filter(starting_kit__isnull=False).exists()
+        return self.phases.filter(starting_kit_organizer_dataset__isnull=False).exists()
 
     def check_future_phase_sumbmissions(self):
         '''
@@ -826,7 +826,10 @@ class CompetitionPhase(models.Model):
 
     def get_starting_kit(self):
         from apps.web.tasks import _make_url_sassy
-        return _make_url_sassy(self.starting_kit.name)
+        return _make_url_sassy(self.starting_kit_organizer_dataset.data_file.name)
+
+    def get_starting_kit_size_mb(self):
+        return float(self.starting_kit_organizer_dataset.data_file.size) * 0.00000095367432
 
     class Meta:
         ordering = ['phasenumber']
@@ -1630,7 +1633,7 @@ class CompetitionDefBundle(models.Model):
             codename="get_data",
             competition=comp,
             label="Get Data",
-            rank=0,
+            rank=1,
             html=zf.read(comp_spec['html']['data'])
         )
         Page.objects.create(
@@ -1638,8 +1641,8 @@ class CompetitionDefBundle(models.Model):
             container=pc,
             codename="get_starting_kit",
             competition=comp,
-            label="Get Starting Kit",
-            rank=2,
+            label="Files",
+            rank=0,
             html=""
         )
         Page.objects.create(
@@ -1647,7 +1650,7 @@ class CompetitionDefBundle(models.Model):
             container=pc,
             codename="submit_results",
             label="Submit / View Results",
-            rank=1,
+            rank=2,
             html=""
         )
         logger.debug("CompetitionDefBundle::unpack created competition pages (pk=%s)", self.pk)
