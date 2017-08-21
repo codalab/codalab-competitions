@@ -93,7 +93,7 @@ class CompetitionPhaseForm(forms.ModelForm):
             'scoring_program_docker_image',
             'default_docker_image',
             'disable_custom_docker_image',
-            'ingestion_program',
+            'ingestion_program_organizer_dataset',
             'ingestion_program_docker_image',
         )
         widgets = {

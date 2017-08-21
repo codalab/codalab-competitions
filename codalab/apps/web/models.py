@@ -632,8 +632,14 @@ def phase_scoring_program_file(phase, filename="program.zip"):
 def phase_reference_data_file(phase, filename="reference.zip"):
     return os.path.join(phase_data_prefix(phase), filename)
 
+
 def phase_starting_kit_data_file(phase, filename="starting_kit.zip"):
     return os.path.join(phase_data_prefix(phase), filename)
+
+
+def phase_ingestion_program_file(phase, filename="ingestion_program.zip"):
+    return os.path.join(phase_data_prefix(phase), filename)
+
 
 def phase_input_data_file(phase, filename="input.zip"):
     return os.path.join(phase_data_prefix(phase), filename)
@@ -816,13 +822,13 @@ class CompetitionPhase(models.Model):
         null=True,
     )
     ingestion_program_docker_image = models.CharField(max_length=128, default='', blank=True)
-    # ingestion_program_organizer_dataset = models.ForeignKey(
-    #     'OrganizerDataSet',
-    #     null=True,
-    #     blank=True,
-    #     related_name="ingestion_program_organizer_dataset",
-    #     on_delete=models.SET_NULL
-    # )
+    ingestion_program_organizer_dataset = models.ForeignKey(
+        'OrganizerDataSet',
+        null=True,
+        blank=True,
+        related_name="ingestion_program_organizer_dataset",
+        on_delete=models.SET_NULL
+    )
 
     def get_starting_kit(self):
         from apps.web.tasks import _make_url_sassy
@@ -1745,6 +1751,31 @@ class CompetitionDefBundle(models.Model):
                     except OrganizerDataSet.DoesNotExist:
                         assert False, "OrganizerDataSet (%s) could not be found" % phase_spec["reference_data"]
 
+            if hasattr(phase, 'ingestion_program') and phase.ingestion_program:
+                if phase_spec["ingestion_program"].endswith(".zip"):
+                    phase.ingestion_program.save(phase_ingestion_program_file(phase),
+                                              File(io.BytesIO(zf.read(phase_spec['ingestion_program']))))
+
+                    file_name = os.path.splitext(os.path.basename(phase_spec['ingestion_program']))[0]
+                    if phase_spec['ingestion_program'] not in data_set_cache:
+                        logger.debug('Adding organizer dataset to cache: %s' % phase_spec['ingestion_program'])
+                        data_set_cache[phase_spec['ingestion_program']] = OrganizerDataSet.objects.create(
+                            name="%s_%s_%s" % (file_name, phase.phasenumber, comp.pk),
+                            type="Reference Data",
+                            data_file=phase.ingestion_program.file.name,
+                            uploaded_by=self.owner
+                        )
+                    phase.ingestion_program_organizer_dataset = data_set_cache[phase_spec['ingestion_program']]
+                else:
+                    logger.debug("CompetitionDefBundle::unpack getting dataset for ingestion_program with key %s",
+                                 phase_spec["ingestion_program"])
+                    try:
+                        data_set = OrganizerDataSet.objects.get(key=phase_spec["ingestion_program"])
+                        phase.ingestion_program = data_set.data_file.file.name
+                        phase.ingestion_program_organizer_dataset = data_set
+                    except OrganizerDataSet.DoesNotExist:
+                        assert False, "OrganizerDataSet (%s) could not be found" % phase_spec["ingestion_program"]
+
             # Begin unpack starting_kit
             if hasattr(phase, 'starting_kit') and phase.starting_kit:
                 if phase_spec["starting_kit"].endswith(".zip"):
@@ -2044,6 +2075,7 @@ class OrganizerDataSet(models.Model):
         ("Reference Data", "Reference Data"),
         ("Scoring Program", "Scoring Program"),
         ("Input Data", "Input Data"),
+        ("Ingestion Program", "Ingestion Program"),
         ("Starting Kit", "Starting Kit"),
         ("None", "None")
     )
