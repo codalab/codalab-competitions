@@ -280,7 +280,7 @@ def get_run_func():
                 if exists(hidden_ref_original_location):
                     logger.info("Found reference data AND an ingestion program, hiding reference data for ingestion program to use.")
                     shutil.move(hidden_ref_original_location, temp_dir)
-                    hidden_data_dir = join(temp_dir, 'hidden_ref_%s'.format(str(uuid.uuid1())[0:8]))
+                    hidden_data_dir = join(temp_dir, 'hidden_ref_{}'.format(str(uuid.uuid1())[0:8]))
 
             logger.info("Metadata: %s" % bundles)
 
