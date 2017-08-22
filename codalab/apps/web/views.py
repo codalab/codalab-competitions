@@ -289,6 +289,9 @@ class CompetitionEdit(LoginRequiredMixin, NamedFormsetsMixin, UpdateWithInlinesV
             if phase_form.cleaned_data["scoring_program_organizer_dataset"]:
                 phase_form.instance.scoring_program = phase_form.cleaned_data["scoring_program_organizer_dataset"].data_file.file.name
 
+            if phase_form.cleaned_data["ingestion_program_organizer_dataset"]:
+                phase_form.instance.ingestion_program = phase_form.cleaned_data["ingestion_program_organizer_dataset"].data_file.file.name
+
             phase_form.instance.save()
 
         # Look for admins that are not participants yet
@@ -321,6 +324,7 @@ class CompetitionEdit(LoginRequiredMixin, NamedFormsetsMixin, UpdateWithInlinesV
         input_data_ids = models.CompetitionPhase.objects.filter(competition=self.object).values_list('input_data_organizer_dataset')
         reference_data_ids = models.CompetitionPhase.objects.filter(competition=self.object).values_list('reference_data_organizer_dataset')
         scoring_program_ids = models.CompetitionPhase.objects.filter(competition=self.object).values_list('scoring_program_organizer_dataset')
+        ingestion_program_ids = models.CompetitionPhase.objects.filter(competition=self.object).values_list('ingestion_program_organizer_dataset')
 
         input_data_organizer_dataset = models.OrganizerDataSet.objects.filter(
             Q(uploaded_by=self.request.user, type="Input Data") | Q(pk__in=input_data_ids)
@@ -331,11 +335,15 @@ class CompetitionEdit(LoginRequiredMixin, NamedFormsetsMixin, UpdateWithInlinesV
         scoring_program_organizer_dataset = models.OrganizerDataSet.objects.filter(
             Q(uploaded_by=self.request.user, type="Scoring Program") | Q(pk__in=scoring_program_ids)
         ).select_related('uploaded_by')
+        ingestion_program_organizer_dataset = models.OrganizerDataSet.objects.filter(
+            Q(uploaded_by=self.request.user, type="Ingestion Program") | Q(pk__in=ingestion_program_ids)
+        ).select_related('uploaded_by')
 
         for inline_form in inline_formsets[1].forms:
             inline_form.fields['input_data_organizer_dataset'].queryset = input_data_organizer_dataset
             inline_form.fields['reference_data_organizer_dataset'].queryset = reference_data_organizer_dataset
             inline_form.fields['scoring_program_organizer_dataset'].queryset = scoring_program_organizer_dataset
+            inline_form.fields['ingestion_program_organizer_dataset'].queryset = ingestion_program_organizer_dataset
         return inline_formsets
 
     def get(self, request, *args, **kwargs):
