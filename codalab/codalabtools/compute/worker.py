@@ -8,6 +8,8 @@ import json
 import logging.config
 import os
 import platform
+import uuid
+
 import psutil
 import pwd
 import grp
@@ -74,25 +76,6 @@ def docker_prune():
         logger.info("Pruning")
         os.system("docker system prune --force")
 
-# class WorkerConfig(BaseConfig):
-#     """
-#     Defines configuration properties (mostly credentials) for a worker process.
-#     """
-#     def __init__(self, filename='.codalabconfig'):
-#         super(WorkerConfig, self).__init__(filename)
-#         self._winfo = self.info['compute-worker']
-#
-#     def getLoggerDictConfig(self):
-#         """Gets Dict config for logging configuration."""
-#         if 'logging' in self._winfo:
-#             return self._winfo['logging']
-#         else:
-#             return super(WorkerConfig, self).getLoggerDictConfig()
-#
-#     def getLocalRoot(self):
-#         """Gets the path for the local directory where files are staged or None if the path is not provided."""
-#         return self._winfo['local-root'] if 'local-root' in self._winfo else None
-
 
 def get_bundle(root_dir, relative_dir, url):
     # get file name from /test.zip?signature=!@#a/df
@@ -150,101 +133,6 @@ def get_bundle(root_dir, relative_dir, url):
                     # input: http://test.com/goku?sas=123
                     metadata[k] = get_bundle(bundle_path, k, v)
     return metadata
-
-
-# def getBundle(root_path, blob_service, container, bundle_id, bundle_rel_path, max_depth=3):
-#     """
-#     be controlled with the max_depth parameter.
-#
-#     root_path: Path of the local directory under which all files are staged for execution.
-#     blob_service: Azure BlobService to access the storage account holding the bundles.
-#     container: Name of Blob container holding the bundles in the specified storage account.
-#     bundle_id: The ID of the bundle which in this implementation is the path of the Blob
-#         relative to the container. For example if a bundle is stored in a Blob with URL
-#         'https://codalab.blob.core.windows.net/bundlecontainer/bundles/1/run.txt' then
-#         the bundle ID is 'bundles/1/run.txt'.
-#     bundle_rel_path: Path of the local bundle directory relative to the root directory. For
-#         example, if root_path is 'C:\\tmp123' and bundle_rel_path is 'run\\program', then the
-#         program bundle will be located at 'C:\\tmp123\\run\\program'.
-#     max_depth: An optional argument to limit the depth of recursion when resolving bundle
-#         dependencies.
-#
-#     Return value: A dictionary where each key denotes the relative path of a bundle which
-#         was staged. The value associated with a key is a dictionary representing the bundle's
-#         metadata. The value may be None if a metadata file was not found. For a valid run,
-#         the set of keys should contain at the minimum: 'run', 'run\\program' and 'run\\input'.
-#     """
-#
-#     def getThem(bundle_id, bundle_rel_path, bundles, depth):
-#         """Recursively gets the bundles."""
-#         logger.info("Trying to get %s", bundle_rel_path)
-#
-#         retries_left = 2
-#         while retries_left > 0:
-#             try:
-#                 logger.debug("Getting bundle_id=%s from container=%s" % (bundle_id, container))
-#                 blob = blob_service.get_blob(container, bundle_id)
-#                 break
-#             except azure.WindowsAzureMissingResourceError:
-#                 retries_left = 0
-#             except:
-#                 logger.exception("Failed to fetch bundle_id=%s blob", bundle_id)
-#                 retries_left -= 1
-#
-#         if retries_left == 0:
-#             # file not found lets None this bundle
-#             bundles[bundle_rel_path] = None
-#             return bundles
-#
-#         bundle_ext = os.path.splitext(bundle_id)[1]
-#         bundle_file = tempfile.NamedTemporaryFile(prefix='tmp', suffix=bundle_ext, dir=root_path, delete=False)
-#
-#         logger.debug("Reading from bundle_file.name=%s" % bundle_file.name)
-#
-#         # take our temp file and write whatever is it form the blob
-#         with open(bundle_file.name, 'wb') as f:
-#             f.write(blob)
-#         # stage the bundle directory
-#         bundle_path = join(root_path, bundle_rel_path)
-#         metadata_path = join(bundle_path, 'metadata')
-#
-#         if bundle_ext == '.zip':
-#             with ZipFile(bundle_file.file, 'r') as z:
-#                 z.extractall(bundle_path)
-#
-#             # check if we just unzipped something containing a folder and nothing else
-#             metadata_folder = _find_only_folder_with_metadata(bundle_path)
-#             if metadata_folder:
-#                 # Make a temp dir and copy data there
-#                 temp_folder_name = join(root_path, "%s%s" % (bundle_rel_path, '_tmp'))
-#                 shutil.copytree(metadata_folder, temp_folder_name)
-#
-#                 # Delete old dir, move copied data back
-#                 shutil.rmtree(bundle_path, ignore_errors=True)
-#                 shutil.move(temp_folder_name, bundle_path)
-#         else:
-#             os.mkdir(bundle_path)
-#             shutil.copyfile(bundle_file.name, metadata_path)
-#         # read the metadata if it exists
-#         bundle_info = None
-#         if os.path.exists(metadata_path):
-#             with open(metadata_path) as mf:
-#                 bundle_info = yaml.load(mf)
-#
-#         os.chmod(bundle_path, 0777)
-#
-#         bundles[bundle_rel_path] = bundle_info
-#         # get referenced bundles
-#
-#         if (bundle_info is not None) and isinstance(bundle_info, dict) and (depth < max_depth):
-#             for (k, v) in bundle_info.items():
-#                 if k not in ("description", "command", "exitCode", "elapsedTime", "stdout", "stderr", "submitted-by", "submitted-at"):
-#                     if isinstance(v, str):
-#                         getThem(v, join(bundle_rel_path, k), bundles, depth + 1)
-#
-#         return bundles
-#
-#     return getThem(bundle_id, bundle_rel_path, {}, 0)
 
 
 def _send_update(task_id, status, secret, virtual_host='/', extra=None):
@@ -392,7 +280,7 @@ def get_run_func():
                 if exists(hidden_ref_original_location):
                     logger.info("Found reference data AND an ingestion program, hiding reference data for ingestion program to use.")
                     shutil.move(hidden_ref_original_location, temp_dir)
-                    hidden_data_dir = join(temp_dir, 'hidden_ref')
+                    hidden_data_dir = join(temp_dir, 'hidden_ref_%s'.format(str(uuid.uuid1())[0:8]))
 
             logger.info("Metadata: %s" % bundles)
 
@@ -480,20 +368,6 @@ def get_run_func():
             for prog_cmd_counter, prog_cmd in enumerate(prog_cmd_list):
                 startTime = time.time()
 
-                # Old style of execution
-                #
-                # prog_cmd = prog_cmd.replace("python", join(run_dir, "/home/azureuser/anaconda/bin/python"))
-                # # Run as separate user
-                # evaluator_process = Popen(
-                #     prog_cmd.split(' '),
-                #     preexec_fn=demote(),  # this pre-execution function drops into a lower user
-                #     stdout=stdout,
-                #     stderr=stderr,
-                #     env=os.environ
-                # )
-
-                # Do we want to run a submission, or did we just receive results/data and not code?
-                run_submission = False
                 # Ingestion programs (optional) determine whether or not a submission is code or results, and then
                 # if given, run the code or move the results appropriately
 
@@ -548,6 +422,7 @@ def get_run_func():
                         # Set the right volume
                         '-v', '{0}:{0}'.format(run_dir),
                         '-v', '{0}:{0}'.format(shared_dir),
+                        # Note that hidden data dir is excluded here!
                         # Set the right image
                         docker_image,
                     ]
