@@ -313,8 +313,9 @@ class Competition(models.Model):
             return True if self.end_date is None else self.end_date > now()
 
     @property
-    def has_starting_kit(self):
-        return self.phases.filter(starting_kit_organizer_dataset__isnull=False).exists()
+    def has_starting_kit_or_public_data(self):
+        return self.phases.filter(starting_kit_organizer_dataset__isnull=False).exists() or \
+               self.phases.filter(public_data_organizer_dataset__isnull=False).exists()
 
     def check_future_phase_sumbmissions(self):
         '''
@@ -637,6 +638,10 @@ def phase_starting_kit_data_file(phase, filename="starting_kit.zip"):
     return os.path.join(phase_data_prefix(phase), filename)
 
 
+def phase_public_data_data_file(phase, filename="public_data.zip"):
+    return os.path.join(phase_data_prefix(phase), filename)
+
+
 def phase_ingestion_program_file(phase, filename="ingestion_program.zip"):
     return os.path.join(phase_data_prefix(phase), filename)
 
@@ -815,6 +820,22 @@ class CompetitionPhase(models.Model):
         on_delete=models.SET_NULL
     )
 
+    public_data = models.FileField(
+        upload_to=_uuidify('public_data'),
+        storage=BundleStorage,
+        verbose_name="Public Data",
+        blank=True,
+        null=True,
+    )
+    public_data_organizer_dataset = models.ForeignKey(
+        'OrganizerDataSet',
+        null=True,
+        blank=True,
+        related_name="public_data_organizer_dataset",
+        verbose_name="Public Data",
+        on_delete=models.SET_NULL
+    )
+
     ingestion_program = models.FileField(
         upload_to=_uuidify('ingestion_program'),
         storage=BundleStorage,
@@ -830,12 +851,20 @@ class CompetitionPhase(models.Model):
         on_delete=models.SET_NULL
     )
 
+    # Should really just make a util function to do this
     def get_starting_kit(self):
         from apps.web.tasks import _make_url_sassy
         return _make_url_sassy(self.starting_kit_organizer_dataset.data_file.name)
 
     def get_starting_kit_size_mb(self):
         return float(self.starting_kit_organizer_dataset.data_file.size) * 0.00000095367432
+
+    def get_public_data(self):
+        from apps.web.tasks import _make_url_sassy
+        return _make_url_sassy(self.public_data_organizer_dataset.data_file.name)
+
+    def get_public_data_size_mb(self):
+        return float(self.public_data_organizer_dataset.data_file.size) * 0.00000095367432
 
     class Meta:
         ordering = ['phasenumber']
@@ -1801,6 +1830,35 @@ class CompetitionDefBundle(models.Model):
                         assert False, "OrganizerDataSet (%s) could not be found" % phase_spec["starting_kit"]
                         # End unpack starting kit
 
+            # Begin unpack public data
+            if hasattr(phase, 'public_data') and phase.public_data:
+                if phase_spec["public_data"].endswith(".zip"):
+                    phase.public_data.save(phase_public_data_data_file(phase),
+                                            File(io.BytesIO(zf.read(phase_spec['public_data']))))
+
+                    file_name = os.path.splitext(os.path.basename(phase_spec['public_data']))[0]
+                    if phase_spec['public_data'] not in data_set_cache:
+                        logger.debug('Adding organizer dataset to cache: %s' % phase_spec['public_data'])
+                        data_set_cache[phase_spec['public_data']] = OrganizerDataSet.objects.create(
+                            name="%s_%s_%s" % (file_name, phase.phasenumber, comp.pk),
+                            type="Public Data",
+                            data_file=phase.public_data.file.name,
+                            uploaded_by=self.owner
+                        )
+                    phase.public_data_organizer_dataset = data_set_cache[phase_spec['public_data']]
+                else:
+                    logger.debug(
+                        "CompetitionDefBundle::unpack getting dataset for public_data with key %s",
+                        phase_spec["public_data"])
+                    try:
+                        data_set = OrganizerDataSet.objects.get(key=phase_spec["public_data"])
+                        phase.public_data = data_set.data_file.file.name
+                        phase.public_data_organizer_dataset = data_set
+                    except OrganizerDataSet.DoesNotExist:
+                        assert False, "OrganizerDataSet (%s) could not be found" % phase_spec[
+                            "public_data"]
+                        # End unpack public data
+
             if 'input_data' in phase_spec:
                 if phase_spec["input_data"].endswith(".zip"):
                     phase.input_data.save(phase_input_data_file(phase), File(io.BytesIO(zf.read(phase_spec['input_data']))))
@@ -2077,6 +2135,7 @@ class OrganizerDataSet(models.Model):
         ("Input Data", "Input Data"),
         ("Ingestion Program", "Ingestion Program"),
         ("Starting Kit", "Starting Kit"),
+        ("Public Data", "Public Data"),
         ("None", "None")
     )
     name = models.CharField(max_length=255)
