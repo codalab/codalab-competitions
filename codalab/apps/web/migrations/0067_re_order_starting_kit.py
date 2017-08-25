@@ -12,8 +12,8 @@ class Migration(DataMigration):
         # Note: Don't use "from appname.models import ModelName". 
         # Use orm.ModelName to refer to models in this application,
         # and orm['appname.ModelName'] for models in other applications.
-        orm.Page.objects.filter(codename='get_starting_kit').exclude(rank=0).update(rank=0)
-        orm.Page.objects.filter(codename='get_data').exclude(rank=1).update(rank=1)
+        orm.Page.objects.filter(codename='get_starting_kit').exclude(rank=1).update(rank=1)
+        orm.Page.objects.filter(codename='get_data').exclude(rank=0).update(rank=0)
         orm.Page.objects.filter(codename='submit_results').exclude(rank=2).update(rank=2)
 
     def backwards(self, orm):

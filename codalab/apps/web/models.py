@@ -1639,7 +1639,7 @@ class CompetitionDefBundle(models.Model):
             codename="get_data",
             competition=comp,
             label="Get Data",
-            rank=1,
+            rank=0,
             html=zf.read(comp_spec['html']['data'])
         )
         Page.objects.create(
@@ -1648,7 +1648,7 @@ class CompetitionDefBundle(models.Model):
             codename="get_starting_kit",
             competition=comp,
             label="Files",
-            rank=0,
+            rank=1,
             html=""
         )
         Page.objects.create(
