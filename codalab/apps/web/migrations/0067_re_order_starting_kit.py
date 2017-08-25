@@ -15,6 +15,8 @@ class Migration(DataMigration):
         orm.Page.objects.filter(codename='get_starting_kit').exclude(rank=1).update(rank=1)
         orm.Page.objects.filter(codename='get_data').exclude(rank=0).update(rank=0)
         orm.Page.objects.filter(codename='submit_results').exclude(rank=2).update(rank=2)
+        # Update starting_kit page label if not right
+        orm.Page.objects.filter(codename='get_starting_kit').exclude(label="Files").update(label="Files")
 
     def backwards(self, orm):
         "Write your backwards methods here."
