@@ -178,7 +178,7 @@ def predict(submission, job_id):
         submission.ingestion_program_stderr_file.save('ingestion_program_stderr_file.txt', ContentFile(''))
 
         # For the ingestion program we have to include the actual ingestion program...
-        lines.append("ingestion_program: %s" % _make_url_sassy(submission.phase.ingestion_program))
+        lines.append("ingestion_program: %s" % _make_url_sassy(submission.phase.ingestion_program.name))
 
         # ..as well as the reference data for this phase.
         ref_value = submission.phase.reference_data.name
