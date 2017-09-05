@@ -5,26 +5,7 @@
 
 {% block content %}
     <div class="panel-body">
-        <h3>What are queues?</h3>
-        <p>
-            <b>As a competition organizer</b> each submission in your competition on Codalab has to be run on
-            some machine. Codalab has many machines already provided on the default queue, but they may
-            not meet certain needs for a competition you are running. Maybe you have a petabyte of data to process,
-            for example, and it's not practical to transmit this for each competition.
-        </p>
-        <p>
-            You can add a custom queue here, connect your worker to it, and run submissions just for your
-            competition <i>or</i> make your worker queue public so anyone can use it.
-        </p>
-        <h3>How do I setup a worker to process submissions?</h3>
-        <ol>
-            <li>install <a href="https://docs.docker.com/engine/installation/">docker</a> and <a href="https://git-scm.com/book/en/v2/Getting-Started-Installing-Git">git</a></li>
-            <li><code>git clone git@github.com:codalab/codalab-competitions.git</code></li>
-            <li>CONFIGURATION ... TO BE DECIDED, something with insert <code>BROKER_URL</code> from below...</li>
-            <li><code>docker-compose up worker -d</code></li>
-            <li>make a submission to your competition and check logs with <code>docker logs -f compute</code> to confirm it is working</li>
-        </ol>
-
+        <a href="https://github.com/codalab/codalab-competitions/wiki/Worker-Queues">Read more about Worker Queues here.</a>
 
         <a href="{% url "queues:create" %}" class="btn btn-primary" style="float: right; margin: 10px 0 10px 10px;">
             Add Queue
