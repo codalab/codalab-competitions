@@ -918,7 +918,7 @@ def make_modified_bundle(competition_pk, exclude_datasets_flag):
             phase_dict['color'] = phase.color
             phase_dict['max_submissions_per_day'] = phase.max_submissions_per_day
             # Write the programs/data to zip
-            data_types = ['reference_data', 'scoring_program', 'input_data', 'starting_kit', 'public_data']
+            data_types = ['reference_data', 'scoring_program', 'input_data', 'starting_kit', 'public_data', 'ingestion_program']
             # data_types = []
             try:
                 for data_type in data_types:
