@@ -918,35 +918,38 @@ def make_modified_bundle(competition_pk, exclude_datasets_flag):
             phase_dict['color'] = phase.color
             phase_dict['max_submissions_per_day'] = phase.max_submissions_per_day
             # Write the programs/data to zip
-            data_types = ('reference_data', 'scoring_program', 'input_data')
+            data_types = ['reference_data', 'scoring_program', 'input_data', 'starting_kit', 'public_data']
+            # data_types = []
             try:
                 for data_type in data_types:
+                    logger.info("Current data type is {}".format(data_type))
                     if hasattr(phase, data_type):
                         data_field = getattr(phase, data_type)
-                        if data_field.file.name not in file_cache.keys():
-                            if exclude_datasets_flag == True:
-                                data_field = getattr(phase, data_type + '_organizer_dataset')
-                                phase_dict[data_type] = data_field.key
-                                file_name = "{}_{}.zip".format(data_type, phase.phasenumber)
-                                file_cache[data_field.name] = {
-                                    'name': file_name
-                                }
+                        if data_field:
+                            if data_field.file.name not in file_cache.keys():
+                                if exclude_datasets_flag:
+                                    data_field = getattr(phase, data_type + '_organizer_dataset')
+                                    phase_dict[data_type] = data_field.key
+                                    file_name = "{}_{}.zip".format(data_type, phase.phasenumber)
+                                    file_cache[data_field.name] = {
+                                        'name': file_name
+                                    }
+                                else:
+                                    # logger.info("Datafield is {}".format(data_field))
+                                    file_name = "{}_{}.zip".format(data_type, phase.phasenumber)
+                                    phase_dict[data_type] = file_name
+                                    file_cache[data_field.file.name] = {
+                                        'name': file_name
+                                    }
+                                    zip_file.writestr(file_name, data_field.read())
                             else:
-                                logger.info("Datafield is {}".format(data_field))
-                                file_name = "{}_{}.zip".format(data_type, phase.phasenumber)
-                                phase_dict[data_type] = file_name
-                                file_cache[data_field.file.name] = {
-                                    'name': file_name
-                                }
-                                zip_file.writestr(file_name, data_field.read())
-                        else:
-                            if exclude_datasets_flag == True:
-                                data_field = getattr(phase, data_type + '_organizer_dataset')
-                                file_name = file_cache[data_field.name]['name']
-                                phase_dict[data_type] = data_field.key
-                            else:
-                                file_name = file_cache[data_field.file.name]['name']
-                                phase_dict[data_type] = file_name
+                                if exclude_datasets_flag:
+                                    data_field = getattr(phase, data_type + '_organizer_dataset')
+                                    # file_name = file_cache[data_field.name]['name']
+                                    phase_dict[data_type] = data_field.key
+                                else:
+                                    file_name = file_cache[str(data_field.name)]['name']
+                                    phase_dict[data_type] = file_name
             except ValueError:
                 logger.info("Failed to retrieve the file.")
             datasets = phase.datasets.all()

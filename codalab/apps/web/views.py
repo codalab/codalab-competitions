@@ -1853,7 +1853,7 @@ def competition_dumps_view(request, competition_pk):
         competition = models.Competition.objects.get(pk=competition_pk)
         if request.user.id != competition.creator_id and request.user not in competition.admins.all():
             raise Http404()
-        dumps = competition.dumps.all()
+        dumps = competition.dumps.all().order_by('-timestamp')
     except ObjectDoesNotExist:
         raise Http404()
 
@@ -1867,7 +1867,12 @@ def start_make_bundle_task(request, competition_pk):
         raise Http404()
     # make_modified_bundle.apply_async((competition.pk, dataset_flag,))
     if request.method == "POST":
-        exclude_datasets_flag = bool(request.POST.get('exclude_datasets_flag'))
+        exclude_datasets_flag = request.POST.get('exclude_datasets_flag')
+        if exclude_datasets_flag == "false":
+            exclude_datasets_flag = False
+        else:
+            exclude_datasets_flag = True
+        print("Datasets flag is {}".format(exclude_datasets_flag))
         make_modified_bundle.apply_async((competition.pk, exclude_datasets_flag,))
     return HttpResponse()
 
