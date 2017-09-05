@@ -10,6 +10,7 @@ done
 echo "WEB IS RUNNING"
 
 # Static files
+npm cache clean
 npm install .
 npm install -g less
 npm run build-css
