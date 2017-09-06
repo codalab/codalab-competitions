@@ -321,11 +321,19 @@ class CompetitionEdit(LoginRequiredMixin, NamedFormsetsMixin, UpdateWithInlinesV
         #   inline_formsets[1] == phases
 
         # get existing datasets and add them, so admins can see them!
+        public_data_ids = models.CompetitionPhase.objects.filter(competition=self.object).values_list('public_data_organizer_dataset')
+        starting_kit_ids = models.CompetitionPhase.objects.filter(competition=self.object).values_list('starting_kit_organizer_dataset')
         input_data_ids = models.CompetitionPhase.objects.filter(competition=self.object).values_list('input_data_organizer_dataset')
         reference_data_ids = models.CompetitionPhase.objects.filter(competition=self.object).values_list('reference_data_organizer_dataset')
         scoring_program_ids = models.CompetitionPhase.objects.filter(competition=self.object).values_list('scoring_program_organizer_dataset')
         ingestion_program_ids = models.CompetitionPhase.objects.filter(competition=self.object).values_list('ingestion_program_organizer_dataset')
 
+        public_data_organizer_dataset = models.OrganizerDataSet.objects.filter(
+            Q(uploaded_by=self.request.user, type="Public Data") | Q(pk__in=public_data_ids)
+        ).select_related('uploaded_by')
+        starting_kit_organizer_dataset = models.OrganizerDataSet.objects.filter(
+            Q(uploaded_by=self.request.user, type="Starting Kit") | Q(pk__in=starting_kit_ids)
+        ).select_related('uploaded_by')
         input_data_organizer_dataset = models.OrganizerDataSet.objects.filter(
             Q(uploaded_by=self.request.user, type="Input Data") | Q(pk__in=input_data_ids)
         ).select_related('uploaded_by')
@@ -340,6 +348,8 @@ class CompetitionEdit(LoginRequiredMixin, NamedFormsetsMixin, UpdateWithInlinesV
         ).select_related('uploaded_by')
 
         for inline_form in inline_formsets[1].forms:
+            inline_form.fields['public_data_organizer_dataset'].queryset = public_data_organizer_dataset
+            inline_form.fields['starting_kit_organizer_dataset'].queryset = starting_kit_organizer_dataset
             inline_form.fields['input_data_organizer_dataset'].queryset = input_data_organizer_dataset
             inline_form.fields['reference_data_organizer_dataset'].queryset = reference_data_organizer_dataset
             inline_form.fields['scoring_program_organizer_dataset'].queryset = scoring_program_organizer_dataset
@@ -1853,7 +1863,7 @@ def competition_dumps_view(request, competition_pk):
         competition = models.Competition.objects.get(pk=competition_pk)
         if request.user.id != competition.creator_id and request.user not in competition.admins.all():
             raise Http404()
-        dumps = competition.dumps.all()
+        dumps = competition.dumps.all().order_by('-timestamp')
     except ObjectDoesNotExist:
         raise Http404()
 
@@ -1867,7 +1877,12 @@ def start_make_bundle_task(request, competition_pk):
         raise Http404()
     # make_modified_bundle.apply_async((competition.pk, dataset_flag,))
     if request.method == "POST":
-        exclude_datasets_flag = bool(request.POST.get('exclude_datasets_flag'))
+        exclude_datasets_flag = request.POST.get('exclude_datasets_flag')
+        if exclude_datasets_flag == "false":
+            exclude_datasets_flag = False
+        else:
+            exclude_datasets_flag = True
+        print("Datasets flag is {}".format(exclude_datasets_flag))
         make_modified_bundle.apply_async((competition.pk, exclude_datasets_flag,))
     return HttpResponse()
 
