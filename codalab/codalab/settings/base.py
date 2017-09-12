@@ -65,7 +65,7 @@ class Base(Settings):
     AUTH_USER_MODEL = 'authenz.ClUser'
 
     # Keep in sync with codalab-cli
-    CODALAB_VERSION = '0.1.1'
+    CODALAB_VERSION = '0.1.5'
 
     # Hosts/domain names that are valid for this site; required if DEBUG is False
     # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
