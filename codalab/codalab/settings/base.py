@@ -630,14 +630,17 @@ class DevBase(Base):
         EXTRA_MIDDLEWARE_CLASSES = (
             'debug_toolbar.middleware.DebugToolbarMiddleware',
             'userswitch.middleware.UserSwitchMiddleware',
-            'pin_passcode.middleware.PinPasscodeMiddleware',
         )
         DEBUG_TOOLBAR_CONFIG = {
             'SHOW_TEMPLATE_CONTEXT': True,
-            'ENABLE_STACKTRACES' : True,
+            'ENABLE_STACKTRACES': True,
         }
 
-        PIN_PASSCODE_PIN = 1234
+        if os.environ.get('PIN_PASSCODE_ENABLED', False):
+            EXTRA_MIDDLEWARE_CLASSES += ('pin_passcode.middleware.PinPasscodeMiddleware',)
+            PIN_PASSCODE_PIN = os.environ.get('PIN_PASSCODE_PIN', 1234)
+            PIN_PASSCODE_IP_WHITELIST = ('127.0.0.1', 'localhost',)
+
         # Increase amount of logging output in Dev mode.
         # for logger_name in ('codalab', 'apps'):
         #     Base.LOGGING['loggers'][logger_name]['level'] = 'DEBUG'
