@@ -240,6 +240,9 @@ class Base(Settings):
         # Search
         'haystack',
         'django_extensions',
+
+        # Lockout
+        'pin_passcode',
     )
 
     ACCOUNT_ADAPTER = ("apps.authenz.adapter.CodalabAccountAdapter")
@@ -612,6 +615,7 @@ class Base(Settings):
         if cls.SERVER_NAME not in cls.ALLOWED_HOSTS:
             cls.ALLOWED_HOSTS.append(cls.SERVER_NAME)
 
+
 class DevBase(Base):
 
     if os.environ.get('DEBUG', False):
@@ -629,8 +633,14 @@ class DevBase(Base):
         )
         DEBUG_TOOLBAR_CONFIG = {
             'SHOW_TEMPLATE_CONTEXT': True,
-            'ENABLE_STACKTRACES' : True,
+            'ENABLE_STACKTRACES': True,
         }
+
+        if os.environ.get('PIN_PASSCODE_ENABLED', False):
+            EXTRA_MIDDLEWARE_CLASSES += ('pin_passcode.middleware.PinPasscodeMiddleware',)
+            PIN_PASSCODE_PIN = os.environ.get('PIN_PASSCODE_PIN', 1234)
+            PIN_PASSCODE_IP_WHITELIST = ('127.0.0.1', 'localhost',)
+
         # Increase amount of logging output in Dev mode.
         # for logger_name in ('codalab', 'apps'):
         #     Base.LOGGING['loggers'][logger_name]['level'] = 'DEBUG'

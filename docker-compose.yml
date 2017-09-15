@@ -110,6 +110,7 @@ services:
     env_file: .env
     environment:
       - CONFIG_SERVER_NAME=${CODALAB_SITE_DOMAIN}
+      - PYTHONUNBUFFERED=0
     links:
       - postgres
       - rabbit
