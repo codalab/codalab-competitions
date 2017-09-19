@@ -866,11 +866,9 @@ def make_modified_bundle(competition_pk, exclude_datasets_flag):
         yaml_data = OrderedDict()
         yaml_data['title'] = competition.title
         yaml_data['description'] = competition.description.replace("/n", "").replace("\"", "").strip()
-        try:
-            if competition.logo.file:
-                yaml_data['image'] = 'logo.png'
-        except ValueError:
-            print("No image for competition.")
+        if competition.logo:
+            yaml_data['image'] = 'logo.png'
+        else:
             logger.info("No image for competition.")
         yaml_data['has_registration'] = competition.has_registration
         yaml_data['html'] = dict()
@@ -1001,10 +999,9 @@ def make_modified_bundle(competition_pk, exclude_datasets_flag):
         temp_comp_dump.save()
         logger.info("Finalizing")
         comp_yaml_my_dump = yaml.safe_dump(yaml_data, default_flow_style=False, allow_unicode=True, encoding="utf-8")
-        try:
+        if competition.image:
             zip_file.writestr(yaml_data["image"], competition.image.file.read())
-        except ValueError:
-            print("No image for competition.")
+        else:
             logger.info("No image for competition.")
         zip_file.writestr("competition.yaml", comp_yaml_my_dump)
         zip_file.close()
