@@ -130,6 +130,9 @@ services:
       - ./codalab:/app/codalab
       - ./docker:/app/docker
       - ${LOGGING_DIR}/worker_site:/var/log/
+    environment:
+      # Stop memory leaks
+      - DEBUG=False
     env_file: .env
     links:
       - postgres
@@ -150,6 +153,8 @@ services:
     environment:
       # Unset database for this, use memory
       - DB_ENGINE=memory
+      # Stop memory leaks
+      - DEBUG=False
     env_file: .env
     links:
       - rabbit
