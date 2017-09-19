@@ -254,6 +254,7 @@ class Competition(models.Model):
     enable_teams = models.BooleanField(default=True, verbose_name="Enable Competition level teams")
     require_team_approval = models.BooleanField(default=True, verbose_name="Organizers need to approve the new teams")
     teams = models.ManyToManyField(Team, related_name='competition_teams', blank=True, null=True)
+    enable_single_competition_view = models.BooleanField(default=False, verbose_name="Enable new template that hides extra details")
 
     @property
     def pagecontent(self):
