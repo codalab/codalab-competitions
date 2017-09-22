@@ -4,10 +4,10 @@ Last update: December 30, 2013
 
 CodaLab is an open-source, community-run project. A meritocracy model is used to govern the project’s needs, objectives and future goals.
 
-## Mission statement
+## Mission Statement
 The purpose of CodaLab is to provide an open-source platform to support and accelerate data and computationally-intensive research in a collaborative cloud-enabled environment.
 
-##Core team
+### Core Team 
 **Role:** The core team is responsible for strategic planning, maintaining account information for Codalab at https://github.com/codalab/codalab and approving changes to the governance model. It also makes decisions when community consensus cannot be reached.
 
 **How to join:** The core team is open to anyone who has invested a significant amount of time either as a Content Contributor (through uploading algorithms and datasets) or as a Framework Contributor of many patches. New members are accepted via majority vote by the existing members. Currently, the core team consists of developers, testers, and at least one representative from each of the current main university and industry partners.
