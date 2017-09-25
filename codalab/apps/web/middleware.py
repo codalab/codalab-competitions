@@ -135,10 +135,12 @@ class CodalabUserSwitchMiddleware(UserSwitchMiddleware):
     use this feature."""
 
     def process_request(self, request):
-        if request.user.is_authenticated and request.user.is_superuser:
-            return super(CodalabUserSwitchMiddleware, self).process_request(request)
+        if hasattr(request, 'user'):
+            if request.user.is_authenticated() and request.user.is_superuser:
+                return super(CodalabUserSwitchMiddleware, self).process_request(request)
 
     def process_response(self, request, response):
-        if request.user.is_authenticated and request.user.is_superuser:
-            return super(CodalabUserSwitchMiddleware, self).process_response(request, response)
+        if hasattr(request, 'user'):
+            if request.user.is_authenticated() and request.user.is_superuser:
+                return super(CodalabUserSwitchMiddleware, self).process_response(request, response)
         return response
