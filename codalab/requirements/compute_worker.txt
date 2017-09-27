@@ -45,3 +45,6 @@ psutil==5.2.0
 
 # Required when PostgreSQL is used in competitions
 psycopg2==2.7.1
+
+# Lock unwanted people out on staging servers
+django-pin-passcode==0.1.9
