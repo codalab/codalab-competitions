@@ -633,7 +633,7 @@ class DevBase(Base):
 
         if os.environ.get('USER_SWITCH_MIDDLEWARE', False):
             EXTRA_MIDDLEWARE_CLASSES += (
-                'userswitch.middleware.UserSwitchMiddleware'
+                'userswitch.middleware.UserSwitchMiddleware',
             )
 
         DEBUG_TOOLBAR_CONFIG = {
