@@ -2071,7 +2071,7 @@ class SubmissionScoreSet(MPTTModel):
     competition = models.ForeignKey(Competition)
     key = models.CharField(max_length=50)
     label = models.CharField(max_length=50)
-    scoredef = models.ForeignKey(SubmissionScoreDef, null=True, blank=True)
+    scoredef = models.ForeignKey(SubmissionScoreDef, null=True, blank=True, on_delete=models.CASCADE)
     ordering = models.PositiveIntegerField(default=1)
 
     class Meta:
