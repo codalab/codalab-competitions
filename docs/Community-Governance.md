@@ -14,7 +14,7 @@ The purpose of CodaLab is to provide an open-source platform to support and acce
 
 ### Framework Contributors
 **Role:** A Framework Contributor is anyone who submits a patch to the project that adheres to the mission statement. At first, the patches should be small, but can grow once Committers express confidence in the quality of the Framework Contributor’s patches.
-For non-trivial patches (over 50 lines of code): Before a Framework Contributor’s first patch is put into the repository they must sign a Contributor License Agreement (CLA). To request a CLA, send an email with your name and the project name (CodaLab) to contributors@outercurve.org.
+For non-trivial patches (over 50 lines of code): Before a Framework Contributor’s first patch is put into the repository they must sign a Contributor License Agreement (CLA). We use the standard GitHub CLA, see https://cla.github.com/agreement.
 
 **How to join:** Submit a patch as a pull request to https://github.com/codalab/codalab. Patches must adhere to the conventions found at http://www.python.org/dev/peps/pep-0008/. All patches must be accompanied by unit tests before being accepted.
 
