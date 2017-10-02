@@ -422,6 +422,8 @@ def get_run_func():
                         # Set the right volume
                         '-v', '{0}:{0}'.format(run_dir),
                         '-v', '{0}:{0}'.format(shared_dir),
+                        # Set current working directory
+                        '-w', run_dir,
                         # Note that hidden data dir is excluded here!
                         # Set the right image
                         docker_image,
@@ -462,6 +464,8 @@ def get_run_func():
                         '-v', '{0}:{0}'.format(run_dir),
                         '-v', '{0}:{0}'.format(shared_dir),
                         '-v', '{0}:{0}'.format(hidden_data_dir),
+                        # Set current working directory
+                        '-w', run_dir,
                         # Set the right image
                         ingestion_program_docker_image,
                     ]
