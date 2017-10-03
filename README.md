@@ -24,7 +24,7 @@ To start the compute worker under project directory:
 
 If for some reason you need to rebuild the image run:
 
-`docker-compuse up --build worker`
+`docker-compose up --build worker`
 
 
 ## Tests
