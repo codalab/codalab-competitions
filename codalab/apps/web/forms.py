@@ -52,21 +52,13 @@ class CompetitionForm(forms.ModelForm):
         super(CompetitionForm, self).__init__(*args, **kwargs)
         self.fields["admins"].widget.attrs["style"] = "width: 100%;"
 
-        # Get public queues
+        # Get public queues and include current queue instance if it's selected
+        filters = Q(is_public=True) | Q(owner=user) | Q(organizers__in=[user])
         if self.instance.queue:
-            qs = Queue.objects.filter(
-                Q(is_public=True) | Q(owner=user) | Q(organizers__in=[user]) | Q(pk=self.instance.queue.pk)
-            )
-        else:
-            # else, don't use pk
-            qs = Queue.objects.filter(
-                Q(is_public=True) | Q(owner=user) | Q(organizers__in=[user])
-            )
+            filters |= Q(pk=self.instance.queue.pk)
 
-        # And ones you own
-        qs = qs.filter()
         self.fields["queue"].choices = [("", "Default")]
-        self.fields["queue"].choices += [(queue.pk, str(queue)) for queue in qs]
+        self.fields["queue"].choices += Queue.objects.filter(filters).values_list('pk', 'name').distinct()
 
 
 class CompetitionPhaseForm(forms.ModelForm):

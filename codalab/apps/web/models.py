@@ -249,9 +249,9 @@ class Competition(models.Model):
     allow_teams = models.BooleanField(default=False)
     enable_per_submission_metadata = models.BooleanField(default=False, help_text="(Team name, Method name, Method description, etc.)")
     allow_public_submissions = models.BooleanField(default=False, verbose_name="Allow sharing of public submissions")
-    enable_forum = models.BooleanField(default=True)
+    enable_forum = models.BooleanField(default=False)
     anonymous_leaderboard = models.BooleanField(default=False)
-    enable_teams = models.BooleanField(default=True, verbose_name="Enable Competition level teams")
+    enable_teams = models.BooleanField(default=False, verbose_name="Enable Competition level teams")
     require_team_approval = models.BooleanField(default=True, verbose_name="Organizers need to approve the new teams")
     teams = models.ManyToManyField(Team, related_name='competition_teams', blank=True, null=True)
 
@@ -2071,7 +2071,7 @@ class SubmissionScoreSet(MPTTModel):
     competition = models.ForeignKey(Competition)
     key = models.CharField(max_length=50)
     label = models.CharField(max_length=50)
-    scoredef = models.ForeignKey(SubmissionScoreDef, null=True, blank=True)
+    scoredef = models.ForeignKey(SubmissionScoreDef, null=True, blank=True, on_delete=models.CASCADE)
     ordering = models.PositiveIntegerField(default=1)
 
     class Meta:

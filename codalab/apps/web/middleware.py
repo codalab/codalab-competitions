@@ -1,7 +1,3 @@
-
-# Orignal version taken from http://www.djangosnippets.org/snippets/186/
-# Original author: udfalkso
-
 import sys
 import os
 import re

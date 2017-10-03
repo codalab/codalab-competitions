@@ -629,8 +629,13 @@ class DevBase(Base):
         }
         EXTRA_MIDDLEWARE_CLASSES = (
             'debug_toolbar.middleware.DebugToolbarMiddleware',
-            'apps.web.middleware.CodalabUserSwitchMiddleware',
         )
+
+        if os.environ.get('USER_SWITCH_MIDDLEWARE', False):
+            EXTRA_MIDDLEWARE_CLASSES += (
+                'userswitch.middleware.UserSwitchMiddleware',
+            )
+
         DEBUG_TOOLBAR_CONFIG = {
             'SHOW_TEMPLATE_CONTEXT': True,
             'ENABLE_STACKTRACES': True,
