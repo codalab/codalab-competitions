@@ -573,6 +573,8 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
         obj.description = escape(self.request.QUERY_PARAMS.get('description', ""))
         if not phase.disable_custom_docker_image:
             obj.docker_image = escape(self.request.QUERY_PARAMS.get('docker_image', ""))
+        if not obj.docker_image:
+            obj.docker_image = phase.default_docker_image or settings.DOCKER_DEFAULT_WORKER_IMAGE
         obj.team_name = escape(self.request.QUERY_PARAMS.get('team_name', ""))
         obj.organization_or_affiliation = escape(self.request.QUERY_PARAMS.get('organization_or_affiliation', ""))
         obj.method_name = escape(self.request.QUERY_PARAMS.get('method_name', ""))
@@ -580,6 +582,8 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
         obj.project_url = escape(self.request.QUERY_PARAMS.get('project_url', ""))
         obj.publication_url = escape(self.request.QUERY_PARAMS.get('publication_url', ""))
         obj.bibtex = escape(self.request.QUERY_PARAMS.get('bibtex', ""))
+        if phase.competition.queue:
+            obj.queue_name = phase.competition.queue.name or ''
 
     def post_save(self, obj, created):
         if created:

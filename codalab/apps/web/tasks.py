@@ -263,7 +263,15 @@ def _prepare_compute_worker_run(job_id, submission, is_prediction):
     if time_limit <= 0:
         time_limit = 60 * 10  # 10 minutes timeout by default
 
+    if not submission.docker_image:
+        # We may have re-ran submission from admin page, make sure this is set for debug purposes
+        submission.docker_image = submission.phase.default_docker_image or settings.DOCKER_DEFAULT_WORKER_IMAGE
+        submission.save()
+
     if submission.phase.competition.queue:
+        submission.queue_name = submission.phase.competition.queue.name or ''
+        submission.save()
+
         # Send to special queue?
         app = app_or_default()
         with app.connection() as new_connection:
