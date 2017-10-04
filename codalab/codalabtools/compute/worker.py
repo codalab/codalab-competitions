@@ -401,8 +401,10 @@ def get_run_func():
                         logger.info("No code submission, moving input directory to output.")
                         # This isn't a code submission, it is already ready to score. Remove
                         # old output directory and replace it with this submission's contents.
+                        logger.info("Removing output_dir: {}".format(output_dir))
                         os.rmdir(output_dir)
-                        os.rename(input_dir, output_dir)
+                        logger.info("Renaming submission_path: {} to old output_dir name {}".format(submission_path, output_dir))
+                        os.rename(submission_path, output_dir)
 
                 evaluator_process = None
                 if prog_cmd:
