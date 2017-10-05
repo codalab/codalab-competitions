@@ -275,15 +275,15 @@ def _prepare_compute_worker_run(job_id, submission, is_prediction):
         app = app_or_default()
         with app.connection() as new_connection:
             new_connection.virtual_host = submission.phase.competition.queue.vhost
-            compute_worker_run((data,), soft_time_limit=time_limit, connection=new_connection)
+            compute_worker_run(data, soft_time_limit=time_limit, connection=new_connection)
     else:
-        compute_worker_run((data,), soft_time_limit=time_limit)
+        compute_worker_run(data, soft_time_limit=time_limit)
 
 
 def compute_worker_run(data, **kwargs):
     task_args = data['task_args'] if 'task_args' in data else None
     app = app_or_default()
-    app.send_task('compute_worker_runasdf', args=(data["id"], task_args), queue='compute-worker', **kwargs)
+    app.send_task('compute_worker_run', args=(data["id"], task_args), queue='compute-worker', **kwargs)
 
 
 def _make_url_sassy(path, permission='r', duration=60 * 60 * 24):
