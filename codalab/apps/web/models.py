@@ -1262,6 +1262,8 @@ class CompetitionSubmission(models.Model):
     # Team of the user in the moment of the submission
     team = models.ForeignKey(Team, related_name='team', null=True, blank=True)
 
+    queue_name = models.TextField(null=True, blank=True)
+
     class Meta:
         unique_together = (('submission_number','phase','participant'),)
 

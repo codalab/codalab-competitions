@@ -215,6 +215,9 @@ def get_run_func():
         secret = task_args['secret']
         current_dir = os.getcwd()
         temp_dir = os.environ.get('SUBMISSION_TEMP_DIR', '/tmp/codalab')
+        # Create temporary directories for the run
+        root_dir = tempfile.mkdtemp(dir=temp_dir)
+        os.chmod(root_dir, 0777)
 
         if is_predict_step:
             logger.info("Task is prediction.")
@@ -260,9 +263,6 @@ def get_run_func():
             _send_update(task_id, 'running', secret, extra={
                 'metadata': debug_metadata
             })
-            # Create temporary directories for the run
-            root_dir = tempfile.mkdtemp(dir=temp_dir)
-            os.chmod(root_dir, 0777)
 
             run_dir = join(root_dir, 'run')
             shared_dir = tempfile.mkdtemp(dir=temp_dir)
