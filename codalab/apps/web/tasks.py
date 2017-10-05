@@ -63,7 +63,6 @@ from apps.coopetitions.models import DownloadRecord
 import time
 # import cProfile
 from codalab.azure_storage import make_blob_sas_url
-from codalabtools.compute.worker import get_run_func
 
 from apps.web import models
 
@@ -276,21 +275,16 @@ def _prepare_compute_worker_run(job_id, submission, is_prediction):
         app = app_or_default()
         with app.connection() as new_connection:
             new_connection.virtual_host = submission.phase.competition.queue.vhost
-            compute_worker_run.apply_async((data,), soft_time_limit=time_limit, connection=new_connection)
+            compute_worker_run((data,), soft_time_limit=time_limit, connection=new_connection)
     else:
-        compute_worker_run.apply_async((data,), soft_time_limit=time_limit)
+        compute_worker_run((data,), soft_time_limit=time_limit)
 
 
-@task(queue='compute-worker')
-def compute_worker_run(data):
-    """Runs only on the compute workers that predicts (optional step) then scores
-    submissions."""
+def compute_worker_run(data, **kwargs):
     try:
-        # config = WorkerConfig()
-        # logging.config.dictConfig(config.getLoggerDictConfig())
-        run = get_run_func()
         task_args = data['task_args'] if 'task_args' in data else None
-        run(data["id"], task_args)
+        app = app_or_default()
+        app.send_task('compute_worker_run', args=(data["id"], task_args), **kwargs)
     except SoftTimeLimitExceeded:
         update_submission.apply_async((data["id"], {'status': 'failed'}, data['task_args']['secret']))
 
