@@ -281,12 +281,9 @@ def _prepare_compute_worker_run(job_id, submission, is_prediction):
 
 
 def compute_worker_run(data, **kwargs):
-    try:
-        task_args = data['task_args'] if 'task_args' in data else None
-        app = app_or_default()
-        app.send_task('compute_worker_run', args=(data["id"], task_args), **kwargs)
-    except SoftTimeLimitExceeded:
-        update_submission.apply_async((data["id"], {'status': 'failed'}, data['task_args']['secret']))
+    task_args = data['task_args'] if 'task_args' in data else None
+    app = app_or_default()
+    app.send_task('compute_worker_run', args=(data["id"], task_args), queue='compute-worker', **kwargs)
 
 
 def _make_url_sassy(path, permission='r', duration=60 * 60 * 24):
