@@ -215,9 +215,6 @@ def get_run_func():
         secret = task_args['secret']
         current_dir = os.getcwd()
         temp_dir = os.environ.get('SUBMISSION_TEMP_DIR', '/tmp/codalab')
-        # Create temporary directories for the run
-        root_dir = tempfile.mkdtemp(dir=temp_dir)
-        os.chmod(root_dir, 0777)
 
         if is_predict_step:
             logger.info("Task is prediction.")
@@ -264,9 +261,13 @@ def get_run_func():
                 'metadata': debug_metadata
             })
 
+            # Create temporary directories for the run
+            root_dir = tempfile.mkdtemp(dir=temp_dir)
+            os.chmod(root_dir, 0777)
+
             run_dir = join(root_dir, 'run')
             shared_dir = tempfile.mkdtemp(dir=temp_dir)
-            hidden_data_dir = None
+            hidden_ref_dir = None
 
             # Fetch and stage the bundles
             logger.info("Fetching bundles...")
@@ -280,7 +281,7 @@ def get_run_func():
                 if exists(hidden_ref_original_location):
                     logger.info("Found reference data AND an ingestion program, hiding reference data for ingestion program to use.")
                     shutil.move(hidden_ref_original_location, temp_dir)
-                    hidden_data_dir = join(temp_dir, 'hidden_ref_{}'.format(str(uuid.uuid1())[0:8]))
+                    hidden_ref_dir = join(temp_dir, 'hidden_ref')
 
             logger.info("Metadata: %s" % bundles)
 
@@ -400,19 +401,23 @@ def get_run_func():
                         logger.info("No code submission, moving input directory to output.")
                         # This isn't a code submission, it is already ready to score. Remove
                         # old output directory and replace it with this submission's contents.
+                        logger.info("Removing output_dir: {}".format(output_dir))
                         os.rmdir(output_dir)
-                        os.rename(input_dir, output_dir)
+                        logger.info("Renaming submission_path: {} to old output_dir name {}".format(submission_path, output_dir))
+                        os.rename(submission_path, output_dir)
 
                 evaluator_process = None
                 if prog_cmd:
                     # Update command-line with the real paths
-                    prog_cmd = prog_cmd.replace("$program", join(run_dir, 'program')) \
-                                        .replace("$input", join(run_dir, 'input')) \
-                                        .replace("$output", join(run_dir, 'output')) \
-                                        .replace("$tmp", join(run_dir, 'temp')) \
-                                        .replace("$shared", shared_dir) \
-                                        .replace("/", os.path.sep) \
-                                        .replace("\\", os.path.sep)
+                    prog_cmd = prog_cmd\
+                        .replace("$program", join(run_dir, 'program')) \
+                        .replace("$predictions", join(run_dir, 'input', 'res')) \
+                        .replace("$input", join(run_dir, 'input')) \
+                        .replace("$output", join(run_dir, 'output')) \
+                        .replace("$tmp", join(run_dir, 'temp')) \
+                        .replace("$shared", shared_dir) \
+                        .replace("/", os.path.sep) \
+                        .replace("\\", os.path.sep)
                     prog_cmd = prog_cmd.split(' ')
                     docker_cmd = [
                         'docker',
@@ -446,12 +451,16 @@ def get_run_func():
                     ingestion_prog_cmd = ingestion_prog_info['command']
 
                     # ingestion_run_dir = join(run_dir, 'ingestion')
-                    ingestion_prog_cmd = ingestion_prog_cmd.replace("$program", join(run_dir, 'ingestion_program')) \
+                    ingestion_prog_cmd = ingestion_prog_cmd\
+                        .replace("$program", join(run_dir, 'ingestion_program')) \
+                        .replace("$ingestion_program", join(run_dir, 'ingestion_program')) \
+                        .replace("$submission_program", join(run_dir, 'program')) \
+                        .replace("$predictions", join(run_dir, 'input', 'res')) \
                         .replace("$input", join(run_dir, 'input')) \
                         .replace("$output", join(run_dir, 'output')) \
                         .replace("$tmp", join(run_dir, 'temp')) \
                         .replace("$shared", shared_dir) \
-                        .replace("$hidden", hidden_data_dir) \
+                        .replace("$hidden", hidden_ref_dir) \
                         .replace("/", os.path.sep) \
                         .replace("\\", os.path.sep)
                     ingestion_prog_cmd = ingestion_prog_cmd.split(' ')
@@ -463,7 +472,7 @@ def get_run_func():
                         # Set the right volume
                         '-v', '{0}:{0}'.format(run_dir),
                         '-v', '{0}:{0}'.format(shared_dir),
-                        '-v', '{0}:{0}'.format(hidden_data_dir),
+                        '-v', '{0}:{0}'.format(hidden_ref_dir),
                         # Set current working directory
                         '-w', run_dir,
                         # Set the right image
