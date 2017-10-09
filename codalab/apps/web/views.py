@@ -615,6 +615,10 @@ class CompetitionDetailView(DetailView):
         # Use this flag to trigger container-fluid for result table
         context['on_competition_detail'] = True
 
+        # We may have an organization logo
+        if competition.organization_logo:
+            context['CUSTOM_HEADER_LOGO'] = competition.organization_logo.url
+
         return context
 
 

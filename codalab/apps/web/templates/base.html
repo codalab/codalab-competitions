@@ -58,7 +58,7 @@
 
 <body {% block custom_body_attributes %}{% endblock %}>
     <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
-        <div class="container-fluid">
+        <div class="container-fluid" style="overflow-y: hidden;">
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar_collapse">
                     <span class="sr-only">Toggle navigation</span>
@@ -67,13 +67,15 @@
                     <span class="icon-bar"></span>
                 </button>
                 {% block title %}
-                    <a class="navbar-brand" href="/" tabIndex=1 target="_self">
-                        {% if CUSTOM_HEADER_LOGO %}
-                            <img src="{{ CUSTOM_HEADER_LOGO }}" alt="Home">
-                        {% else %}
+                    {% if CUSTOM_HEADER_LOGO %}
+                        <a class="navbar-brand" href="#">
+                            <img src="{{ CUSTOM_HEADER_LOGO }}">
+                        </a>
+                    {% else %}
+                        <a class="navbar-brand" href="/" tabIndex=1 target="_self">
                             <img src="{{ STATIC_URL }}img/codalab-logo-fullcolor-positive.png" alt="Home">
-                        {% endif %}
-                    </a>
+                        </a>
+                    {% endif %}
                 {% endblock title %}
             </div>
             {% block top_bar_right_menus %}
