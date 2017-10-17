@@ -140,21 +140,12 @@ services:
     container_name: worker_site
       
   worker_compute:
-    build:
-      context: .
-      dockerfile: docker/worker_compute/Dockerfile
+    image: ckcollab/competitions-v1-compute-worker
     privileged: true
     volumes:
-      - ./codalab:/app/codalab
-      - ./docker:/app/docker
       - ${LOGGING_DIR}/worker_compute:/var/log/
       - ${SUBMISSION_TEMP_DIR}:${SUBMISSION_TEMP_DIR}
       - /var/run/docker.sock:/var/run/docker.sock
-    environment:
-      # Unset database for this, use memory
-      - DB_ENGINE=memory
-      # Stop memory leaks
-      - DEBUG=False
     env_file: .env
     links:
       - rabbit
