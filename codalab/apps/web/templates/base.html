@@ -87,7 +87,7 @@
                     {% endif %}
                     <ul class="nav navbar-nav navbar-right">
                           <li class="{% active request '/my/' %}">
-                              {% if SINGLE_COMPETITION_VIEW_PK %}
+                              {% if SINGLE_COMPETITION_MODE %}
                                   {% if request.user.is_superuser or request.user.is_staff %}
                                       <a href="/my">My Competitions</a>
                                   {% endif %}
@@ -165,7 +165,7 @@
     <footer class="navbar-fixed-bottom">
         <div class="container-fluid">
             <ul class="nav navbar-nav navbar-right">
-                {% if SINGLE_COMPETITION_VIEW_PK %}
+                {% if SINGLE_COMPETITION_MODE %}
                     <li><a href="http://codalab.org/" target="_blank">Powered by Codalab</a></li>
                 {% else %}
                     <li><a href="https://github.com/codalab/codalab/wiki/Project_About_CodaLab" target="_blank">About</a></li>

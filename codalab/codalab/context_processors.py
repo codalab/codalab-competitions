@@ -1,6 +1,7 @@
 from django.conf import settings
 
 from apps.customizer.models import Configuration
+from apps.web.models import Competition
 from codalab import settings as codalab_settings
 
 
@@ -13,8 +14,7 @@ def app_version_proc(request):
 
 def common_settings(request):
     """A context processor that returns dev settings"""
-    return {
-        'SINGLE_COMPETITION_VIEW_PK': settings.SINGLE_COMPETITION_VIEW_PK,
+    context = {
         'CUSTOM_HEADER_LOGO': settings.CUSTOM_HEADER_LOGO,
         'compile_less': codalab_settings.COMPILE_LESS,
         'local_mathjax': codalab_settings.LOCAL_MATHJAX,
@@ -22,3 +22,8 @@ def common_settings(request):
         'is_dev': codalab_settings.IS_DEV,
         'USE_AWS': codalab_settings.USE_AWS,
     }
+
+    if settings.SINGLE_COMPETITION_VIEW_PK:
+        context['SINGLE_COMPETITION_MODE'] = True
+
+    return context

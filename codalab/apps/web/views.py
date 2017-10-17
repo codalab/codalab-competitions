@@ -615,6 +615,8 @@ class CompetitionDetailView(DetailView):
         # Use this flag to trigger container-fluid for result table
         context['on_competition_detail'] = True
 
+        context['SINGLE_COMPETITION_MODE'] = self.object.enable_single_competition_view
+
         return context
 
 
