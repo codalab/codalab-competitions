@@ -48,25 +48,10 @@
     <h3><b>Team Information</b></h3>
     <div class="row">
         <div class="col-sm-12">
+            {{ form.non_field_errors }}
+
             <table id="teams-edit" class="table table-striped affiliation">
-                <tbody>
-                    <tr>
-                        <th>{{ form.name.label }}</th>
-                        <td>{{ form.name }}</td>
-                    </tr>
-                    <tr>
-                        <th>{{ form.image.label }}</th>
-                        <td>{{ form.image }}</td>
-                    </tr>
-                    <tr>
-                        <th>{{ form.description.label }}</th>
-                        <td>{{ form.description }}</td>
-                    </tr>
-                    <tr>
-                        <th>{{ form.allow_requests.label }}</th>
-                        <td>{{ form.allow_requests }}</td>
-                    </tr>
-                </tbody>
+                {{ form.as_table }}
             </table>
         </div>
     </div>

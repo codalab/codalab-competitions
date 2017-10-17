@@ -224,7 +224,7 @@ class NewRequestTeamView(LoginRequiredMixin, CreateView):
     form_class = forms.TeamMembershipForm
 
     def get_success_url(self):
-        competition=Competition.objects.get(pk=self.kwargs['competition_pk']);
+        competition = Competition.objects.get(pk=self.kwargs['competition_pk']);
         return reverse('team_detail', kwargs={'competition_pk': competition.pk})
 
     def get_context_data(self, **kwargs):
@@ -234,10 +234,10 @@ class NewRequestTeamView(LoginRequiredMixin, CreateView):
         return context
 
     def form_valid(self, form):
-        form.instance.user=self.request.user
-        form.instance.team=Team.objects.get(pk=self.kwargs['team_pk'])
-        form.instance.start_date=now()
-        form.instance.is_request=True
+        form.instance.user = self.request.user
+        form.instance.team = Team.objects.get(pk=self.kwargs['team_pk'])
+        form.instance.start_date = now()
+        form.instance.is_request = True
         form.instance.status = TeamMembershipStatus.objects.get(codename=TeamMembershipStatus.PENDING)
         form.save()
         return super(NewRequestTeamView, self).form_valid(form)
@@ -249,7 +249,7 @@ class TeamCreateView(LoginRequiredMixin, CreateView):
     form_class = forms.TeamEditForm
 
     def get_success_url(self):
-        return reverse('team_edit', kwargs={'competition_pk': self.object.competition.pk,'team_pk':self.object.pk})
+        return reverse('team_detail', kwargs={'competition_pk': self.object.competition.pk})
 
     def get_context_data(self, **kwargs):
         context = super(TeamCreateView, self).get_context_data(**kwargs)
@@ -276,7 +276,7 @@ class TeamEditView(LoginRequiredMixin, UpdateView):
     pk_url_kwarg = 'team_pk'
 
     def get_success_url(self):
-        return ''
+        return reverse('team_detail', kwargs={'competition_pk': self.object.competition.pk})
 
     def get_context_data(self, **kwargs):
         context = super(TeamEditView, self).get_context_data(**kwargs)
