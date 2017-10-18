@@ -73,10 +73,19 @@ services:
       - AMQP_PASSWORD=${RABBITMQ_DEFAULT_PASS}
       - AMQP_HOST=rabbit
       - AMQP_PORT=${RABBITMQ_PORT}
+
+      - AMQP_ADMIN_USERNAME=${RABBITMQ_DEFAULT_USER}
+      - AMQP_ADMIN_PASSWORD=${RABBITMQ_DEFAULT_PASS}
+      - AMQP_ADMIN_HOST=rabbit
+      - AMQP_ADMIN_PORT=${RABBITMQ_MANAGEMENT_PORT}
+
+#      - FLOWER_BROKER=${BROKER_URL}
       - FLOWER_CERTFILE=${SSL_CERTIFICATE}
       - FLOWER_KEYFILE=${SSL_CERTIFICATE_KEY}
     volumes:
       - ./certs:/app/certs
+      # For flowerconfig.py
+#      - ./docker/flower:/app
     env_file: .env
     links:
       - rabbit
