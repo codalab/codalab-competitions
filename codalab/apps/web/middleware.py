@@ -123,7 +123,7 @@ class SingleCompetitionMiddleware(object):
                 settings.SINGLE_COMPETITION_VIEW_PK = config.only_competition.pk
 
             # Make sure we don't override an existing custom header logo
-            if config.header_logo and 'CUSTOM_HEADER_LOGO' not in request.context:
+            if config.header_logo:
                 settings.CUSTOM_HEADER_LOGO = config.header_logo.url
 
 

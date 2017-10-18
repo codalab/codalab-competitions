@@ -22,7 +22,7 @@ def common_settings(request):
         'USE_AWS': codalab_settings.USE_AWS,
     }
 
-    # if 'CUSTOM_HEADER_LOGO' not in request.context:
-    #     context['CUSTOM_HEADER_LOGO'] = settings.CUSTOM_HEADER_LOGO
+    if hasattr(settings, 'CUSTOM_HEADER_LOGO'):
+        context['CUSTOM_HEADER_LOGO'] = settings.CUSTOM_HEADER_LOGO
 
     return context
