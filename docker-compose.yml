@@ -116,6 +116,8 @@ services:
       context: .
       dockerfile: Dockerfile
     hostname: django
+    ports:
+      - ${DJANGO_PORT}:${DJANGO_PORT}
     command: bash /app/docker/run_django.sh
     volumes:
       - ./certs:/app/certs
