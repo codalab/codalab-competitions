@@ -25,6 +25,20 @@
         </select>
     </div>
 
+    {% if scoring_exception and bad_scores %}
+        <div class="alert alert-danger">
+            <p>{{ scoring_exception }}</p>
+            <strong>Bad Scores:</strong>
+            {% for bad_score in bad_scores %}
+                <ul>
+                    <li>
+                        {{ bad_score }}
+                    </li>
+                </ul>
+            {% endfor %}
+        </div>
+    {% endif %}
+
     <a href="{% url "competitions:competition_submissions_metadata" competition_id=competition.pk phase_id=selected_phase.id %}">View all submission's metadata</a>
 
     <h4>Select phase description</h4>

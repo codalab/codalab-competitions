@@ -32,3 +32,22 @@ def docker_image_clean(image_name):
     # If any not allowed are found, replaced with second argument to sub.
     image_name = re.sub('[^0-9a-zA-Z/.:-]+', '', image_name)
     return image_name
+
+
+def check_bad_scores(score_dict):
+    bad_score_count = 0
+    bad_scores = list()
+    for score in score_dict:
+        for subm in score['scores']:
+            for i in range(len(subm)):
+                if type(subm[i]) is dict:
+                    for k, v in subm[i].iteritems():
+                        print("K: {0}; V:{1}".format(k, v))
+                        if k == 'values':
+                            for result in v:
+                                for result_key, result_value in result.iteritems():
+                                    print("Result value: {0}; Decimal: {1}".format(result_value, type(result_value)))
+                                    if result_value == 'NaN' or result_value == '-':
+                                        bad_score_count += 1
+                                        bad_scores.append(result)
+    return bad_score_count, bad_scores

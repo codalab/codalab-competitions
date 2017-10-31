@@ -2,6 +2,7 @@ import csv
 import urllib
 from datetime import datetime, timedelta
 import json
+import math
 import os
 import StringIO
 import sys
@@ -9,6 +10,7 @@ import traceback
 import yaml
 import zipfile
 
+from decimal import Decimal
 from yaml.representer import SafeRepresenter
 
 from django.db import connection
@@ -46,6 +48,7 @@ from apps.web import tasks
 from apps.coopetitions.models import Like, Dislike
 from apps.forums.models import Forum
 from apps.common.competition_utils import get_most_popular_competitions, get_featured_competitions
+from apps.web.exceptions import ScoringException
 from apps.web.forms import CompetitionS3UploadForm, SubmissionS3UploadForm
 from apps.web.models import SubmissionScore, SubmissionScoreDef, get_current_phase
 
@@ -54,6 +57,8 @@ from tasks import evaluate_submission, re_run_all_submissions_in_phase, create_c
 from apps.teams.models import TeamMembership, get_user_team, get_competition_teams, get_competition_pending_teams, get_competition_deleted_teams, get_last_team_submissions, get_user_requests, get_team_pending_membership
 
 from extra_views import UpdateWithInlinesView, InlineFormSet, NamedFormsetsMixin
+
+from .utils import check_bad_scores
 
 try:
     import azure
@@ -742,6 +747,13 @@ class CompetitionResultsPage(TemplateView):
             context['phase'] = phase
             context['groups'] = phase.scores()
 
+            bad_score_count, bad_scores = check_bad_scores(context['groups'])
+            if bad_score_count > 0:
+                context['scoring_exception'] = "ERROR: Improperly configured leaderboard. Some scores have NaN! Please " \
+                                               "check your scoredef configuration for the competition!"
+                context['bad_scores'] = bad_scores
+                context['bad_score_count'] = bad_score_count
+
             for group in context['groups']:
                 for _, scoredata in group['scores']:
                     sub = models.CompetitionSubmission.objects.get(pk=scoredata['id'])
@@ -1262,7 +1274,20 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                 'name': 'is_in_leaderboard'
             },
         ]
+
+        # This line is causing problems...
+        # Active phase should be fine
         scores = active_phase.scores(include_scores_not_on_leaderboard=True)
+
+
+        bad_score_count, bad_scores = check_bad_scores(scores)
+        if bad_score_count > 0:
+            context['scoring_exception'] = "ERROR: Improperly configured leaderboard. Some scores have NaN! Please " \
+                                           "check your scoredef configuration for the competition!"
+            context['bad_scores'] = bad_scores
+            context['bad_score_count'] = bad_score_count
+
+
         for score_group_index, score_group in enumerate(scores):
             column = {
                 'label': score_group['label'],
