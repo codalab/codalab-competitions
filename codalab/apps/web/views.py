@@ -749,8 +749,9 @@ class CompetitionResultsPage(TemplateView):
 
             bad_score_count, bad_scores = check_bad_scores(context['groups'])
             if bad_score_count > 0:
-                context['scoring_exception'] = "ERROR: Improperly configured leaderboard. Some scores have NaN! Please " \
-                                               "check your scoredef configuration for the competition!"
+                context['scoring_exception'] = "ERROR: Improperly configured leaderboard or scoring program. Some " \
+                                               "scores have NaN! Please check your leaderboard configuration and" \
+                                               " scoring program for the competition!"
                 context['bad_scores'] = bad_scores
                 context['bad_score_count'] = bad_score_count
 
@@ -1278,15 +1279,16 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
         # This line is causing problems...
         # Active phase should be fine
         scores = active_phase.scores(include_scores_not_on_leaderboard=True)
-
-
         bad_score_count, bad_scores = check_bad_scores(scores)
-        if bad_score_count > 0:
-            context['scoring_exception'] = "ERROR: Improperly configured leaderboard. Some scores have NaN! Please " \
-                                           "check your scoredef configuration for the competition!"
+        try:
+            if bad_score_count > 0:
+                raise ScoringException("Improperly configured leaderboard or scoring program!")
+        except ScoringException:
+            context['scoring_exception'] = "ERROR: Improperly configured leaderboard or scoring program. Some " \
+                                           "scores have NaN! Please check your leaderboard configuration and" \
+                                           " scoring program for the competition!"
             context['bad_scores'] = bad_scores
             context['bad_score_count'] = bad_score_count
-
 
         for score_group_index, score_group in enumerate(scores):
             column = {

@@ -30,13 +30,36 @@
         <div class="alert alert-danger">
             <p>{{ scoring_exception }}</p>
             <strong>Bad Scores:</strong>
-            {% for bad_score in bad_scores %}
-                <ul>
-                    <li>
-                        {{ bad_score }}
-                    </li>
-                </ul>
-            {% endfor %}
+            <table class="table table-bordered table-responsive">
+                <thead>
+                <tr>
+                    <th>
+                        Rank:
+                    </th>
+                    <th>
+                        Value:
+                    </th>
+                    <th>
+                        Column Name:
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for bad_score in bad_scores %}
+                    <tr>
+                        <td>
+                            {{ bad_score.rnk }}
+                        </td>
+                        <td>
+                            {{ bad_score.val }}
+                        </td>
+                        <td>
+                            {{ bad_score.name }}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
         </div>
     {% endif %}
 
