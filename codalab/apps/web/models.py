@@ -920,11 +920,10 @@ class CompetitionPhase(models.Model):
         if len(valid_pairs) == 0:
             return {id: 1 for id in ids}
         # Sort and compute ranks
-        for k,v in valid_pairs.iteritems():
-            # print("K: {0}; V: {1}".format(k, v))
+        for k, v in valid_pairs.iteritems():
             if math.isnan(v):
+                # If we're getting a score value that is NaN, set to 0 for comparrison
                 valid_pairs[k] = Decimal('0.0')
-                # print("valid_pairs[{0}] = {1}".format(k,v))
         sorted_pairs = sorted(valid_pairs.iteritems(), key=operator.itemgetter(1), reverse=not sort_ascending)
         r = 1
         k, v = sorted_pairs[0]

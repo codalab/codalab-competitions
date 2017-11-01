@@ -35,29 +35,17 @@
                 <table class="table table-bordered table-responsive">
                     <thead>
                     <tr>
-                        <th>
-                            Rank:
-                        </th>
-                        <th>
-                            Value:
-                        </th>
-                        <th>
-                            Column Name:
-                        </th>
+                        <th>Rank:</th>
+                        <th>Value:</th>
+                        <th>Column Name:</th>
                     </tr>
                     </thead>
                     <tbody>
                     {% for bad_score in bad_scores %}
                         <tr>
-                            <td>
-                                {{ bad_score.rnk }}
-                            </td>
-                            <td>
-                                {{ bad_score.val }}
-                            </td>
-                            <td>
-                                {{ bad_score.name }}
-                            </td>
+                            <td>{{ bad_score.rnk }}</td>
+                            <td>{{ bad_score.val }}</td>
+                            <td>{{ bad_score.name }}</td>
                         </tr>
                     {% endfor %}
                     </tbody>
