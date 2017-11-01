@@ -12,9 +12,11 @@ import urllib
 import uuid
 import yaml
 import zipfile
+import math
 
 from os.path import split
 
+from decimal import Decimal
 from django.conf import settings
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
@@ -43,6 +45,7 @@ from s3direct.fields import S3DirectField
 from apps.forums.models import Forum
 from apps.coopetitions.models import DownloadRecord
 from apps.authenz.models import ClUser
+from apps.web.exceptions import ScoringException
 from apps.web.utils import PublicStorage, BundleStorage
 from apps.teams.models import Team, get_user_team
 
@@ -917,7 +920,11 @@ class CompetitionPhase(models.Model):
         if len(valid_pairs) == 0:
             return {id: 1 for id in ids}
         # Sort and compute ranks
-        sorted_pairs = sorted(valid_pairs.iteritems(), key = operator.itemgetter(1), reverse=not sort_ascending)
+        for k, v in valid_pairs.iteritems():
+            if math.isnan(v):
+                # If we're getting a score value that is NaN, set to 0 for comparrison
+                valid_pairs[k] = Decimal('0.0')
+        sorted_pairs = sorted(valid_pairs.iteritems(), key=operator.itemgetter(1), reverse=not sort_ascending)
         r = 1
         k, v = sorted_pairs[0]
         ranks[k] = r
@@ -956,7 +963,7 @@ class CompetitionPhase(models.Model):
         try:
             if precision is not None:
                 p = min(10, max(1, int(precision)))
-        except exceptions.ValueError:
+        except ValueError:
             pass
         return ("{:." + str(p) + "f}").format(v)
 

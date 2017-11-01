@@ -1,0 +1,2 @@
+class ScoringException(Exception):
+    pass
