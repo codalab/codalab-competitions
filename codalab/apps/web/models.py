@@ -964,7 +964,7 @@ class CompetitionPhase(models.Model):
         try:
             if precision is not None:
                 p = min(10, max(1, int(precision)))
-        except exceptions.ValueError:
+        except ValueError:
             pass
         return ("{:." + str(p) + "f}").format(v)
 
