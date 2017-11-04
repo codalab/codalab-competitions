@@ -149,4 +149,6 @@ services:
     env_file: .env
     links:
       - rabbit
+    mem_limit: 300m
+    memswap_limit: 1g
     container_name: worker_compute
