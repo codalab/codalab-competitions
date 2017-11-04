@@ -22,7 +22,7 @@
             {% if phase and phase.starting_kit_organizer_dataset %}
                 <tr>
                     <td>
-                        <a href="{{ phase.get_starting_kit }}" class="btn btn-primary phase-btn-{{ phase.color }}">{{phase.label}}</a>
+                        <a href="{% url 'datasets_download' dataset_key=phase.starting_kit_organizer_dataset.key %}" class="btn btn-primary phase-btn-{{ phase.color }}">{{phase.label}}</a>
                     </td>
                     <td style="padding-top: 12px;">
                         {{ phase.get_starting_kit_size_mb|floatformat:3 }}
@@ -38,7 +38,7 @@
             {% if phase and phase.public_data_organizer_dataset %}
                 <tr>
                     <td>
-                        <a href="{{ phase.get_public_data }}" class="btn btn-primary phase-btn-{{ phase.color }}">{{phase.label}}</a>
+                        <a href="{% url 'datasets_download' dataset_key=phase.public_data_organizer_dataset.key %}" class="btn btn-primary phase-btn-{{ phase.color }}">{{phase.label}}</a>
                     </td>
                     <td style="padding-top: 12px;">
                         {{ phase.get_public_data_size_mb|floatformat:3 }}

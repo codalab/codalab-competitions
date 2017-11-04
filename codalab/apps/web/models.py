@@ -860,14 +860,24 @@ class CompetitionPhase(models.Model):
         return _make_url_sassy(self.starting_kit_organizer_dataset.data_file.name)
 
     def get_starting_kit_size_mb(self):
-        return float(self.starting_kit_organizer_dataset.data_file.size) * 0.00000095367432
+        size = float(self.starting_kit_organizer_dataset.data_file.size)
+        if self.starting_kit_organizer_dataset.sub_data_files and len(self.starting_kit_organizer_dataset.sub_data_files.all()) > 0:
+            size = float(0)
+            for sub_data in self.starting_kit_organizer_dataset.sub_data_files.all():
+                size += float(sub_data.data_file.size)
+        return size * 0.00000095367432
 
     def get_public_data(self):
         from apps.web.tasks import _make_url_sassy
         return _make_url_sassy(self.public_data_organizer_dataset.data_file.name)
 
     def get_public_data_size_mb(self):
-        return float(self.public_data_organizer_dataset.data_file.size) * 0.00000095367432
+        size = float(self.public_data_organizer_dataset.data_file.size)
+        if self.public_data_organizer_dataset.sub_data_files and len(self.public_data_organizer_dataset.sub_data_files.all()) > 0:
+            size = float(0)
+            for sub_data in self.public_data_organizer_dataset.sub_data_files.all():
+                size += float(sub_data.data_file.size)
+        return size * 0.00000095367432
 
     class Meta:
         ordering = ['phasenumber']
