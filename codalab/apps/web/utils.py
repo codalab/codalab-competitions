@@ -25,6 +25,8 @@ else:
 
 
 def docker_image_clean(image_name):
+    if not image_name:
+        return ""
     # Remove all excess whitespaces on edges, split on spaces and grab the first word.
     # Wraps in double quotes so bash cannot interpret as an exec
     image_name = '"{}"'.format(image_name.strip().split(' ')[0])
