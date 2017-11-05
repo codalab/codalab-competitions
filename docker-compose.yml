@@ -63,7 +63,9 @@ services:
     container_name: rabbit
 
   flower:
-    image: totem/celery-flower-docker
+    build:
+      context: .
+      dockerfile: docker/flower/Dockerfile
     hostname: flower
     ports:
       - ${FLOWER_PORT}:${FLOWER_PORT}
