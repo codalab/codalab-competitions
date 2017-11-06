@@ -503,7 +503,7 @@ def score(submission, job_id):
     # Pre-save files so we can overwrite their names later
     submission.output_file.save('output_file.zip', ContentFile(''))
     submission.private_output_file.save('private_output_file.zip', ContentFile(''))
-    submission.detailed_results_file.save('detailed_results_file.zip', ContentFile(''))
+    submission.detailed_results_file.save('detailed_results_file.html', ContentFile(''))
     submission.save()
     # Submit the request to the computation service
     _prepare_compute_worker_run(job_id, submission, is_prediction=False)
