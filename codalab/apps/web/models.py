@@ -408,7 +408,8 @@ class Competition(models.Model):
                 new_submission = CompetitionSubmission(
                     participant=participant,
                     file=submission.file,
-                    phase=next_phase
+                    phase=next_phase,
+                    docker_image=submission.docker_image,
                 )
                 new_submission.save(ignore_submission_limits=True)
 
