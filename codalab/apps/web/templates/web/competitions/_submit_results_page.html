@@ -29,11 +29,11 @@
         <div class="form-group">
             <label class="control-label">Click the Submit button to upload a new submission.</label>
 
-            {% if not phase.is_scoring_only and not phase.disable_custom_docker_image %}
-                <div class="form-group">
-                    <input maxLength="128" class="form-control" id="submission_docker_image" placeholder="Optional docker image name, eg codalab/default">
-                </div>
-            {% endif %}
+{#            {% if not phase.is_scoring_only and not phase.disable_custom_docker_image %}#}
+{#                <div class="form-group">#}
+{#                    <input maxLength="128" class="form-control" id="submission_docker_image" placeholder="Optional docker image name, eg codalab/default">#}
+{#                </div>#}
+{#            {% endif %}#}
 
             {% if not phase.competition.enable_per_submission_metadata %}
                 <textarea id="submission_description_textarea" class="form-control" placeholder="Optionally add more information about this submission"></textarea>
@@ -147,32 +147,32 @@
     //**************************************************************//
     //**                 docker image max length                  **//
     //**************************************************************//
-    $('#submission_docker_image').keyup(function () {
-           var max_length = 128;
-           var text = $(this).val();
-           var text_length = text.length;
-           if (text_length >= max_length) {
-               $(this).val(text.substring(0, (max_length)));
-               alert("Sorry, only " + max_length + " characters are allowed");
-           }
-       });
-    //**************************************************************//
-    //**                 docker image local storage               **//
-    //**************************************************************//
-    var docker_image_key = window.location.href + '_docker_image'
-    $(document).ready(function() {
-        load_settings()
-    })
-    $('#s3-file-upload, #fileUploadButton').click(save_settings) //Azure and S3
-    function load_settings() {
-        var remembered_image = localStorage.getItem(docker_image_key)
-        if(remembered_image) {
-            $('#submission_docker_image').val()
-        }
-    }
-    function save_settings() {
-        localStorage.setItem(docker_image_key, $('#submission_docker_image').val())
-    }
+{#    $('#submission_docker_image').keyup(function () {#}
+{#           var max_length = 128;#}
+{#           var text = $(this).val();#}
+{#           var text_length = text.length;#}
+{#           if (text_length >= max_length) {#}
+{#               $(this).val(text.substring(0, (max_length)));#}
+{#               alert("Sorry, only " + max_length + " characters are allowed");#}
+{#           }#}
+{#       });#}
+{#    //**************************************************************//#}
+{#    //**                 docker image local storage               **//#}
+{#    //**************************************************************//#}
+{#    var docker_image_key = window.location.href + '_docker_image'#}
+{#    $(document).ready(function() {#}
+{#        load_settings()#}
+{#    })#}
+{#    $('#s3-file-upload, #fileUploadButton').click(save_settings) //Azure and S3#}
+{#    function load_settings() {#}
+{#        var remembered_image = localStorage.getItem(docker_image_key)#}
+{#        if(remembered_image) {#}
+{#            $('#submission_docker_image').val()#}
+{#        }#}
+{#    }#}
+{#    function save_settings() {#}
+{#        localStorage.setItem(docker_image_key, $('#submission_docker_image').val())#}
+{#    }#}
     //**************************************************************//
     //**                 S3 Filestorage functions                 **//
     //**************************************************************//
