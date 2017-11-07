@@ -14,6 +14,7 @@ from apps.queues.models import Queue
 from apps.web.models import PageContainer
 from apps.web.models import ContentCategory
 from apps.web.models import SubmissionScoreSet
+from apps.web.utils import clean_html_script
 
 User = get_user_model()
 
@@ -132,6 +133,9 @@ class PageForm(forms.ModelForm):
     def save(self, commit=True):
 
         instance = super(PageForm, self).save(commit=False)
+
+        if instance.html:
+            instance.html = clean_html_script(instance.html)
 
         if instance.pk is None:
             instance.codename = self.cleaned_data['label']

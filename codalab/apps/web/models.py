@@ -46,7 +46,7 @@ from apps.forums.models import Forum
 from apps.coopetitions.models import DownloadRecord
 from apps.authenz.models import ClUser
 from apps.web.exceptions import ScoringException
-from apps.web.utils import PublicStorage, BundleStorage
+from apps.web.utils import PublicStorage, BundleStorage, clean_html_script
 from apps.teams.models import Team, get_user_team
 
 User = settings.AUTH_USER_MODEL
@@ -584,6 +584,8 @@ class Page(models.Model):
         ordering = ['category', 'rank']
 
     def save(self, *args, **kwargs):
+        if self.html:
+            self.html = clean_html_script(self.html)
         if self.defaults:
             if self.category != self.defaults.category:
                 raise Exception("Defaults category must match Item category")
