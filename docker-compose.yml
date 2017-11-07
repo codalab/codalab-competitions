@@ -72,7 +72,9 @@ services:
     container_name: rabbit
 
   flower:
-    image: totem/celery-flower-docker
+    build:
+      context: .
+      dockerfile: docker/flower/Dockerfile
     hostname: flower
     ports:
       - ${FLOWER_PORT}:${FLOWER_PORT}
@@ -175,4 +177,6 @@ services:
     logging:
       options:
         max-size: "200k"
+    mem_limit: 1g
+    memswap_limit: 1g
     container_name: worker_compute

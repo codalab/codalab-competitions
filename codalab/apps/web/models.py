@@ -12,9 +12,11 @@ import urllib
 import uuid
 import yaml
 import zipfile
+import math
 
 from os.path import split
 
+from decimal import Decimal
 from django.conf import settings
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
@@ -43,6 +45,7 @@ from s3direct.fields import S3DirectField
 from apps.forums.models import Forum
 from apps.coopetitions.models import DownloadRecord
 from apps.authenz.models import ClUser
+from apps.web.exceptions import ScoringException
 from apps.web.utils import PublicStorage, BundleStorage
 from apps.teams.models import Team, get_user_team
 
@@ -405,7 +408,8 @@ class Competition(models.Model):
                 new_submission = CompetitionSubmission(
                     participant=participant,
                     file=submission.file,
-                    phase=next_phase
+                    phase=next_phase,
+                    docker_image=submission.docker_image,
                 )
                 new_submission.save(ignore_submission_limits=True)
 
@@ -857,14 +861,24 @@ class CompetitionPhase(models.Model):
         return _make_url_sassy(self.starting_kit_organizer_dataset.data_file.name)
 
     def get_starting_kit_size_mb(self):
-        return float(self.starting_kit_organizer_dataset.data_file.size) * 0.00000095367432
+        size = float(self.starting_kit_organizer_dataset.data_file.size)
+        if self.starting_kit_organizer_dataset.sub_data_files and len(self.starting_kit_organizer_dataset.sub_data_files.all()) > 0:
+            size = float(0)
+            for sub_data in self.starting_kit_organizer_dataset.sub_data_files.all():
+                size += float(sub_data.data_file.size)
+        return size * 0.00000095367432
 
     def get_public_data(self):
         from apps.web.tasks import _make_url_sassy
         return _make_url_sassy(self.public_data_organizer_dataset.data_file.name)
 
     def get_public_data_size_mb(self):
-        return float(self.public_data_organizer_dataset.data_file.size) * 0.00000095367432
+        size = float(self.public_data_organizer_dataset.data_file.size)
+        if self.public_data_organizer_dataset.sub_data_files and len(self.public_data_organizer_dataset.sub_data_files.all()) > 0:
+            size = float(0)
+            for sub_data in self.public_data_organizer_dataset.sub_data_files.all():
+                size += float(sub_data.data_file.size)
+        return size * 0.00000095367432
 
     class Meta:
         ordering = ['phasenumber']
@@ -917,7 +931,11 @@ class CompetitionPhase(models.Model):
         if len(valid_pairs) == 0:
             return {id: 1 for id in ids}
         # Sort and compute ranks
-        sorted_pairs = sorted(valid_pairs.iteritems(), key = operator.itemgetter(1), reverse=not sort_ascending)
+        for k, v in valid_pairs.iteritems():
+            if math.isnan(v):
+                # If we're getting a score value that is NaN, set to 0 for comparrison
+                valid_pairs[k] = Decimal('0.0')
+        sorted_pairs = sorted(valid_pairs.iteritems(), key=operator.itemgetter(1), reverse=not sort_ascending)
         r = 1
         k, v = sorted_pairs[0]
         ranks[k] = r
@@ -956,7 +974,7 @@ class CompetitionPhase(models.Model):
         try:
             if precision is not None:
                 p = min(10, max(1, int(precision)))
-        except exceptions.ValueError:
+        except ValueError:
             pass
         return ("{:." + str(p) + "f}").format(v)
 
