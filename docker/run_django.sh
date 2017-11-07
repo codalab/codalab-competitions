@@ -23,4 +23,11 @@ python manage.py syncdb --migrate
 python scripts/initialize.py
 
 # start development server on public ip interface, on port 8000
-PYTHONUNBUFFERED=TRUE gunicorn codalab.wsgi --bind django:$DJANGO_PORT --access-logfile=/var/log/django/access.log --error-logfile=/var/log/django/error.log --log-level $DJANGO_LOG_LEVEL --reload --enable-stdio-inheritance
+PYTHONUNBUFFERED=TRUE gunicorn codalab.wsgi \
+    --bind django:$DJANGO_PORT \
+    --access-logfile=/var/log/django/access.log \
+    --error-logfile=/var/log/django/error.log \
+    --log-level $DJANGO_LOG_LEVEL \
+    --reload \
+    --timeout 4096 \
+    --enable-stdio-inheritance

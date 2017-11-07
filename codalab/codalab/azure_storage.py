@@ -51,7 +51,10 @@ class AzureStorage(Storage):
     def connection(self):
         if self._connection is None:
             self._connection = azure.storage.BlobService(
-                self.account_name, self.account_key)
+                self.account_name,
+                self.account_key,
+                timeout=4096
+            )
         return self._connection
 
     def _open(self, name, mode="rb"):
