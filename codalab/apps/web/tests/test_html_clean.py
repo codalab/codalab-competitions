@@ -5,10 +5,6 @@ from apps.web.utils import clean_html_script
 
 
 class HTMLCleanTestCase(TestCase):
-
-    def setUp(self):
-        self.user = ClUser.objects.create_user(username="organizer", password="pass")
-
     def test_script_tags_get_removed_from_html_content(self):
         self.assertEquals(clean_html_script("<script></script>"), "")
         self.assertEquals(clean_html_script("<script src=\"https://www.googleorsomething\"></script>"), "")
