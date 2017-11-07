@@ -58,7 +58,6 @@ if __name__ == "__main__":
     # >>> ***http://url-we-want.com/***
     base_url_path = 'stresser/{}/{}'.format(str(uuid4())[:10], basename(args.submission_zip))
     get_sas_url_script = dedent("""
-        from uuid import uuid4
         from apps.web.tasks import _make_url_sassy
         
         url = _make_url_sassy('{}', permission='w')
