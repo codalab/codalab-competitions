@@ -3,13 +3,14 @@
 import argparse
 import requests
 from textwrap import dedent
+from uuid import uuid4
 from subprocess import check_output
 
-from os.path import exists
+from os.path import exists, basename
 
 
 def put_blob(url, file_path):
-    requests.put(
+    return requests.put(
         url,
         data=open(file_path, 'rb'),
         headers={
@@ -17,6 +18,19 @@ def put_blob(url, file_path):
             'x-ms-blob-type': 'BlockBlob',
         }
     )
+
+
+def run_shell_script(script):
+    output = check_output([
+        "docker",
+        "exec",
+        "-it",
+        "django",
+        "bash",
+        "-c",
+        'echo "{}" | python manage.py shell_plus'.format(script)
+    ])
+    return output
 
 
 if __name__ == "__main__":
@@ -34,52 +48,45 @@ if __name__ == "__main__":
     if not exists(args.submission_zip):
         raise Exception("Zip file not found: {}".format(args.submission_zip))
 
-    print(args.submission_zip)
-    print(args.participant_email)
-    print(args.competition)
+    print("Uploading submission '{}' for user '' for competition={}".format(
+        args.submission_zip,
+        args.participant_email,
+        args.competition,
+    ))
 
     # Get SAS URL by running a script inside docker and printing out the URL between asterisks, like:
     # >>> ***http://url-we-want.com/***
+    base_url_path = 'stresser/{}/{}'.format(str(uuid4())[:10], basename(args.submission_zip))
     get_sas_url_script = dedent("""
-        from django.conf import settings
+        from uuid import uuid4
         from apps.web.tasks import _make_url_sassy
         
-        if settings.USE_AWS:
-            attr = 's3_file'
-        else:
-            attr = 'file'
-        
-        url = _make_url_sassy(getattr(CompetitionSubmission(), attr), permission='w')
+        url = _make_url_sassy('{}', permission='w')
         
         # wrap the URL so we can easily parse it from the output
-        print('***{}***'.format(url))
-    """)
+        print('***{{}}***'.format(url))
+    """).format(base_url_path)
 
-    test = check_output([
-        "docker",
-        "exec",
-        "-it",
-        "django",
-        "bash",
-        "-c",
-        'echo "{}" | python manage.py shell_plus'.format(get_sas_url_script)
-    ])
+    execute_sas_script = run_shell_script(get_sas_url_script)
 
-    submission_url = test.split('***')[1]
+    submission_url = execute_sas_script.split('***')[1]
 
     # Put submission to that URL
-    put_blob(submission_url, args.submission_zip)
+    resp = put_blob(submission_url, args.submission_zip)
 
+    # Strip extra query params from URL since we don't need it any more
+    submission_url = submission_url.split('?')[0]
 
     # Tie it together and submit
-    submission_script = """
+    submission_script = dedent("""
         from django.conf import settings
         from apps.web.models import Competition, CompetitionSubmission, CompetitionParticipant
+        from apps.web.tasks import evaluate_submission
         
         if settings.USE_AWS:
-                file_kwarg = {{'s3_file': {submission_url}}}
-            else:
-                file_kwarg = {{'file': {submission_url}}}
+            file_kwarg = {{'s3_file': '{submission_url}'}}
+        else:
+            file_kwarg = {{'file': '{submission_url}'}}
                 
         competition = Competition.objects.get(pk={competition_id})
         phase = None
@@ -89,38 +96,17 @@ if __name__ == "__main__":
                 break
         
         new_submission = CompetitionSubmission(
-            participant=CompetitionParticipant.objects.get(email={email}, competition=competition),
+            participant=CompetitionParticipant.objects.get(user__email='{email}', competition=competition),
             phase=phase,
             **file_kwarg
         )
         new_submission.save(ignore_submission_limits=True)
     
         evaluate_submission.apply_async((new_submission.pk, phase.is_scoring_only))
-    """.format(
-        submission_url=submission_url,
+    """).format(
+        submission_url=base_url_path,
         email=args.participant_email,
         competition_id=args.competition
     )
 
-
-    # # Get arguments
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument("submissions", nargs="*", help="Submission zip files to use for stressing")
-    # args = parser.parse_args()
-    #
-    # # Get valid submission zips
-    # submissions = []
-    #
-    # for arg in args.submissions:
-    #     if not arg.endswith(".zip"):
-    #         print("WARNING: Received non zip file: {}".format(arg))
-    #     else:
-    #         submissions.append(arg)
-    #
-    # submission_count = len(submissions)
-    # if submission_count == 0:
-    #     raise Exception("ERROR: Did not receive any submission zips, arguments were: {}".format(sys.argv))
-    #
-    # #
-    # print("Running stress test with {} submissions".format(len(submissions)))
-
+    run_shell_script(submission_script)
