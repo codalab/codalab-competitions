@@ -27,6 +27,14 @@ optional arguments:
 Takes a list of emails, separated by newlines, default filename `approve_emails.txt`. Marks any email
 matching the pattern as approved, any email not matching is denied.
 
+Example `approve_emails.txt`
+
+```
+admin@admin.com
+*@codalab.org
+*@*.edu
+```
+
 
 ## view_reports.py
 
