@@ -17,6 +17,9 @@ services:
     env_file: .env
     links:
       - django:django
+    logging:
+      options:
+        max-size: "200k"
     container_name: nginx
 
 
@@ -34,6 +37,9 @@ services:
       - ${LOGGING_DIR}/psql:/var/log/psql
       - ${DB_DATA_PATH}:/var/lib/postgresql/data
     env_file: .env
+    logging:
+      options:
+        max-size: "200k"
     container_name: postgres
 
 
@@ -60,6 +66,9 @@ services:
     ports:
       - ${RABBITMQ_PORT}:${RABBITMQ_PORT}
       - ${RABBITMQ_MANAGEMENT_PORT}:${RABBITMQ_MANAGEMENT_PORT}
+    logging:
+      options:
+        max-size: "200k"
     container_name: rabbit
 
   flower:
@@ -82,6 +91,9 @@ services:
     env_file: .env
     links:
       - rabbit
+    logging:
+      options:
+        max-size: "200k"
     container_name: flower
 
 
@@ -92,6 +104,9 @@ services:
     image: memcached
     hostname: memcached
     command: "/usr/local/bin/memcached -u memcache -vv"
+    logging:
+      options:
+        max-size: "200k"
     container_name: memcached
 
 
@@ -103,6 +118,8 @@ services:
       context: .
       dockerfile: Dockerfile
     hostname: django
+    ports:
+      - ${DJANGO_PORT}:${DJANGO_PORT}
     command: bash /app/docker/run_django.sh
     volumes:
       - ./certs:/app/certs
@@ -117,6 +134,9 @@ services:
       - postgres
       - rabbit
       - memcached
+    logging:
+      options:
+        max-size: "200k"
     container_name: django
 
 
@@ -139,6 +159,9 @@ services:
     links:
       - postgres
       - rabbit
+    logging:
+      options:
+        max-size: "200k"
     container_name: worker_site
       
   worker_compute:
@@ -151,6 +174,9 @@ services:
     env_file: .env
     links:
       - rabbit
-    mem_limit: 300m
+    logging:
+      options:
+        max-size: "200k"
+    mem_limit: 1g
     memswap_limit: 1g
     container_name: worker_compute
