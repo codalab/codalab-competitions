@@ -101,3 +101,8 @@ ace-builds-master
 # Local files to be ignored #
 ##############################
 /codalab/local_fabfile.py
+
+# Stress testing #
+##################
+approve_emails.txt
+submission_ids.txt

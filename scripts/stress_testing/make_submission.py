@@ -4,9 +4,8 @@ import argparse
 import requests
 from textwrap import dedent
 from uuid import uuid4
-from subprocess import check_output
-
 from os.path import exists, basename
+from utils import run_shell_script
 
 
 def put_blob(url, file_path):
@@ -18,19 +17,6 @@ def put_blob(url, file_path):
             'x-ms-blob-type': 'BlockBlob',
         }
     )
-
-
-def run_shell_script(script):
-    output = check_output([
-        "docker",
-        "exec",
-        "-it",
-        "django",
-        "bash",
-        "-c",
-        'echo "{}" | python manage.py shell_plus'.format(script)
-    ])
-    return output
 
 
 if __name__ == "__main__":
@@ -48,7 +34,7 @@ if __name__ == "__main__":
     if not exists(args.submission_zip):
         raise Exception("Zip file not found: {}".format(args.submission_zip))
 
-    print("Uploading submission '{}' for user '' for competition={}".format(
+    print("Uploading submission '{}' for user '{}' in competition={}".format(
         args.submission_zip,
         args.participant_email,
         args.competition,
@@ -66,9 +52,9 @@ if __name__ == "__main__":
         print('***{{}}***'.format(url))
     """).format(base_url_path)
 
-    execute_sas_script = run_shell_script(get_sas_url_script)
+    sas_script_result = run_shell_script(get_sas_url_script)
 
-    submission_url = execute_sas_script.split('***')[1]
+    submission_url = sas_script_result.split('***')[1]
 
     # Put submission to that URL
     resp = put_blob(submission_url, args.submission_zip)
@@ -102,10 +88,20 @@ if __name__ == "__main__":
         new_submission.save(ignore_submission_limits=True)
     
         evaluate_submission.apply_async((new_submission.pk, phase.is_scoring_only))
+        
+        # wrap the submission ID so we can easily parse it from the output
+        print('***{{}}***'.format(new_submission.pk))
     """).format(
         submission_url=base_url_path,
         email=args.participant_email,
         competition_id=args.competition
     )
 
-    run_shell_script(submission_script)
+    submission_script_result = run_shell_script(submission_script)
+
+    pk = submission_script_result.split('***')[1]
+
+    print("Submission (id={}) started".format(pk))
+
+    with open("submission_ids.txt", "w+") as submission_ids:
+        submission_ids.write("{}\n".format(pk))
