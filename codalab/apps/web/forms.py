@@ -14,6 +14,7 @@ from apps.queues.models import Queue
 from apps.web.models import PageContainer
 from apps.web.models import ContentCategory
 from apps.web.models import SubmissionScoreSet
+from apps.web.tasks import _make_url_sassy
 
 User = get_user_model()
 
@@ -217,15 +218,8 @@ class OrganizerDataSetModelForm(forms.ModelForm):
         instance = super(OrganizerDataSetModelForm, self).save(commit=False)
         instance.uploaded_by = self.request_user
 
-        # Write sub bundle metadata, replaces old data_file!
         if len(self.cleaned_data.get("sub_data_files")) > 0:
-            lines = []
-
-            for dataset in self.cleaned_data.get("sub_data_files"):
-                file_name = os.path.splitext(os.path.basename(dataset.data_file.file.name))[0]
-                lines.append("%s: %s" % (file_name, dataset.data_file.file.name))
-
-            self.instance.data_file.save("metadata", ContentFile("\n".join(lines)))
+            instance.write_multidataset_metadata(datasets=self.cleaned_data.get("sub_data_files"))
 
         if commit:
             instance.save()
