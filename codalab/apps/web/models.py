@@ -806,7 +806,7 @@ class CompetitionPhase(models.Model):
 
     scoring_program_docker_image = models.CharField(max_length=128, default='', blank=True)
     default_docker_image = models.CharField(max_length=128, default='', blank=True)
-    disable_custom_docker_image = models.BooleanField(default=False)
+    disable_custom_docker_image = models.BooleanField(default=True)
 
     starting_kit = models.FileField(
         upload_to=_uuidify('starting_kit'),
