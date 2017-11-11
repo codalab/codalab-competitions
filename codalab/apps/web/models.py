@@ -46,7 +46,7 @@ from apps.forums.models import Forum
 from apps.coopetitions.models import DownloadRecord
 from apps.authenz.models import ClUser
 from apps.web.exceptions import ScoringException
-from apps.web.tasks import _make_url_sassy
+
 from apps.web.utils import PublicStorage, BundleStorage
 from apps.teams.models import Team, get_user_team
 
@@ -2188,6 +2188,8 @@ class OrganizerDataSet(models.Model):
         if not datasets:
             datasets = self.sub_data_files.all()
 
+        # Inline import to avoid circular imports
+        from apps.web.tasks import _make_url_sassy
         for dataset in datasets:
             file_name = os.path.splitext(os.path.basename(dataset.data_file.file.name))[0]
             # Make these URLs signed for 100 years
