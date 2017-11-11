@@ -29,11 +29,11 @@
         <div class="form-group">
             <label class="control-label">Click the Submit button to upload a new submission.</label>
 
-{#            {% if not phase.is_scoring_only and not phase.disable_custom_docker_image %}#}
-{#                <div class="form-group">#}
-{#                    <input maxLength="128" class="form-control" id="submission_docker_image" placeholder="Optional docker image name, eg codalab/default">#}
-{#                </div>#}
-{#            {% endif %}#}
+            {% if not phase.is_scoring_only and not phase.disable_custom_docker_image %}
+                <div class="form-group">
+                    <input maxLength="128" class="form-control" id="submission_docker_image" placeholder="Optional docker image name, eg codalab/default">
+                </div>
+            {% endif %}
 
             {% if not phase.competition.enable_per_submission_metadata %}
                 <textarea id="submission_description_textarea" class="form-control" placeholder="Optionally add more information about this submission"></textarea>
