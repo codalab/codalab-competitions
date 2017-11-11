@@ -46,6 +46,7 @@ from apps.forums.models import Forum
 from apps.coopetitions.models import DownloadRecord
 from apps.authenz.models import ClUser
 from apps.web.exceptions import ScoringException
+from apps.web.tasks import _make_url_sassy
 from apps.web.utils import PublicStorage, BundleStorage
 from apps.teams.models import Team, get_user_team
 
@@ -2179,6 +2180,21 @@ class OrganizerDataSet(models.Model):
 
     def __unicode__(self):
         return "%s uploaded by %s" % (self.name, self.uploaded_by)
+
+    def write_multidataset_metadata(self, datasets=None):
+        # Write sub bundle metadata, replaces old data_file!
+        lines = []
+
+        if not datasets:
+            datasets = self.sub_data_files.all()
+
+        for dataset in datasets:
+            file_name = os.path.splitext(os.path.basename(dataset.data_file.file.name))[0]
+            # Make these URLs signed for 100 years
+            one_hundred_years = 60 * 60 * 24 * 365 * 100
+            lines.append("%s: %s" % (file_name, _make_url_sassy(dataset.data_file.file.name, duration=one_hundred_years)))
+
+        self.data_file.save("metadata", ContentFile("\n".join(lines)))
 
 
 class CompetitionSubmissionMetadata(models.Model):
