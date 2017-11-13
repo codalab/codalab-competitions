@@ -28,6 +28,7 @@ class CompetitionForm(forms.ModelForm):
             'queue',
             'disallow_leaderboard_modifying',
             'force_submission_to_leaderboard',
+            'organization_logo',
             'image',
             'has_registration',
             'end_date',
