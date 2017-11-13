@@ -1361,7 +1361,8 @@ class CompetitionSubmission(models.Model):
                         phase__competition=self.phase.competition,
                         participant=self.participant,
                         phase=self.phase,
-                        submitted_at__gte=datetime.date.today()
+                        submitted_at__gte=datetime.date.today(),
+                        status__codename=CompetitionSubmissionStatus.FINISHED,
                     ))
 
                     print 'Count is %s and maximum is %s' % (submissions_from_today_count, self.phase.max_submissions_per_day)
