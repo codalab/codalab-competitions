@@ -408,7 +408,8 @@ class Competition(models.Model):
                 new_submission = CompetitionSubmission(
                     participant=participant,
                     file=submission.file,
-                    phase=next_phase
+                    phase=next_phase,
+                    docker_image=submission.docker_image,
                 )
                 new_submission.save(ignore_submission_limits=True)
 
@@ -807,7 +808,7 @@ class CompetitionPhase(models.Model):
 
     scoring_program_docker_image = models.CharField(max_length=128, default='', blank=True)
     default_docker_image = models.CharField(max_length=128, default='', blank=True)
-    disable_custom_docker_image = models.BooleanField(default=False)
+    disable_custom_docker_image = models.BooleanField(default=True)
 
     starting_kit = models.FileField(
         upload_to=_uuidify('starting_kit'),
@@ -2180,6 +2181,23 @@ class OrganizerDataSet(models.Model):
 
     def __unicode__(self):
         return "%s uploaded by %s" % (self.name, self.uploaded_by)
+
+    def write_multidataset_metadata(self, datasets=None):
+        # Write sub bundle metadata, replaces old data_file!
+        lines = []
+
+        if not datasets:
+            datasets = self.sub_data_files.all()
+
+        # Inline import to avoid circular imports
+        from apps.web.tasks import _make_url_sassy
+        for dataset in datasets:
+            file_name = os.path.splitext(os.path.basename(dataset.data_file.file.name))[0]
+            # Make these URLs signed for 100 years
+            one_hundred_years = 60 * 60 * 24 * 365 * 100
+            lines.append("%s: %s" % (file_name, _make_url_sassy(dataset.data_file.file.name, duration=one_hundred_years)))
+
+        self.data_file.save("metadata", ContentFile("\n".join(lines)))
 
 
 class CompetitionSubmissionMetadata(models.Model):

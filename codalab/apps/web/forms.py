@@ -15,6 +15,7 @@ from apps.web.models import PageContainer
 from apps.web.models import ContentCategory
 from apps.web.models import SubmissionScoreSet
 from apps.web.utils import clean_html_script
+from apps.web.tasks import _make_url_sassy
 
 User = get_user_model()
 
@@ -90,6 +91,9 @@ class CompetitionPhaseForm(forms.ModelForm):
             'ingestion_program_organizer_dataset',
             'ingestion_program_docker_image',
         )
+        labels = {
+            'default_docker_image': "Default participant docker image"
+        }
         widgets = {
             'leaderboard_management_mode' : forms.Select(
                 attrs={'class': 'competition-editor-phase-leaderboard-mode'},
@@ -221,15 +225,8 @@ class OrganizerDataSetModelForm(forms.ModelForm):
         instance = super(OrganizerDataSetModelForm, self).save(commit=False)
         instance.uploaded_by = self.request_user
 
-        # Write sub bundle metadata, replaces old data_file!
         if len(self.cleaned_data.get("sub_data_files")) > 0:
-            lines = []
-
-            for dataset in self.cleaned_data.get("sub_data_files"):
-                file_name = os.path.splitext(os.path.basename(dataset.data_file.file.name))[0]
-                lines.append("%s: %s" % (file_name, dataset.data_file.file.name))
-
-            self.instance.data_file.save("metadata", ContentFile("\n".join(lines)))
+            instance.write_multidataset_metadata(datasets=self.cleaned_data.get("sub_data_files"))
 
         if commit:
             instance.save()
