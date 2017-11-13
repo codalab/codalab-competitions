@@ -90,6 +90,9 @@ class CompetitionPhaseForm(forms.ModelForm):
             'ingestion_program_organizer_dataset',
             'ingestion_program_docker_image',
         )
+        labels = {
+            'default_docker_image': "Default participant docker image"
+        }
         widgets = {
             'leaderboard_management_mode' : forms.Select(
                 attrs={'class': 'competition-editor-phase-leaderboard-mode'},
