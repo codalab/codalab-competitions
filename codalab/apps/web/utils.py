@@ -24,6 +24,11 @@ else:
     PublicStorage = StorageClass()
 
 
+def clean_html_script(html_content):
+    # Finds <script and everything between /script>. No scripts for you.
+    return re.sub('(<script)(\s*?\S*?)*?(/script>)', "", str(html_content))
+
+
 def docker_image_clean(image_name):
     if not image_name:
         return ""
