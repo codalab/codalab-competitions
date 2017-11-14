@@ -737,7 +737,6 @@ def re_run_all_submissions_in_phase(phase_pk):
         new_submission = CompetitionSubmission(
             participant=submission.participant,
             phase=submission.phase,
-            docker_image=submission.docker_image,
             **file_kwarg
         )
         new_submission.save(ignore_submission_limits=True)

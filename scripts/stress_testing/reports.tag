@@ -1,4 +1,8 @@
 <reports>
+    <p show={ last_update }>Last update: { last_update }</p>
+
+    <button class="ui button positive" onclick={ update_report }>Force update</button>
+
     <table class="ui selectable striped table">
         <thead>
             <tr>
@@ -10,36 +14,62 @@
                 <th>Queue used</th>
                 <th>Score</th>
                 <th>Total time taken</th>
+                <th>Status</th>
             </tr>
         </thead>
         <tbody>
-            <tr each={submission in submissions}>
-                <td>{submission["id"]}</td>
-                <td>{submission["Submitter name"]}</td>
-                <td>{submission["Zip name"]}</td>
-                <td>{submission["Size of zip"]}</td>
-                <td>{submission["Compute worker used"]}</td>
-                <td>{submission["Queue used"]}</td>
-                <td>{submission["Score"]}</td>
-                <td>{submission["Total time taken"]}</td>
+            <tr each={ submission in submissions } class="{ error: submission['Status'] == 'failed' }">
+                <td>{ submission["id"] }</td>
+                <td>{ submission["Submitter name"] }</td>
+                <td>{ submission["Zip name"] }</td>
+                <td>{ submission["Size of zip"] }</td>
+                <td>{ submission["Compute worker used"] }</td>
+                <td>{ submission["Queue used"] }</td>
+                <td>{ submission["Score"] }</td>
+                <td>{ submission["Total time taken"] }</td>
+                <td>{ submission["Status"] }</td>
             </tr>
         </tbody>
     </table>
     <script>
         var self = this
 
+        // --------------------------------------------------------------------
+        // Tag init
+        self.on('mount', function() {
+            self.update_report()
 
-        $.get("report.csv").done(function(data){
-            var csv = Papa.parse(data, {dynamicTyping: true, header: true})
-
-            // Remove empty elements
-            csv.data = csv.data.filter(function(item){
-                return item.id != undefined && item.id != ""
-            })
-
-            self.update({submissions: csv.data})
+            // Every 60 seconds update the report
+            self.update_loop_forever()
         })
 
+        // --------------------------------------------------------------------
+        // Updates
+        self.update_report = function() {
+            $.get("report.csv").done(function (data) {
+                self.last_update = new Date()
+                var csv = Papa.parse(data, {dynamicTyping: true, header: true})
+
+                // Remove empty elements
+                csv.data = csv.data.filter(function (item) {
+                    return item.id != undefined && item.id != ""
+                })
+
+                csv.data.forEach(function(item) {
+                    console.log(item)
+                    item['Status'] = item['Status'].replace(/(\r\n|\n|\r)/gm,"")
+                })
+
+                self.update({submissions: csv.data})
+            })
+        }
+
+        self.update_loop_forever = function() {
+            window.setTimeout(function() {
+                self.update_report()
+                self.update_loop_forever()
+            }, 60000)
+        }
     </script>
     <style>
         reports {

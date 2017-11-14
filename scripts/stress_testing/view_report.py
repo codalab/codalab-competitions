@@ -23,6 +23,7 @@ CSV_HEADERS = [
     'Queue used',
     'Score',
     'Total time taken',
+    'Status',
 ]
 
 
@@ -39,7 +40,7 @@ def get_submission_report(submission_id):
         import json
         from django.conf import settings
         from os.path import basename
-        from apps.web.models import CompetitionSubmission
+        from apps.web.models import CompetitionSubmission, CompetitionSubmissionStatus
         
         submission = CompetitionSubmission.objects.get(pk={submission_id})
         
@@ -55,6 +56,11 @@ def get_submission_report(submission_id):
         # Make it easier to parse out the json with this separator
         separator = '{separator}'
         
+        if submission.status.codename == CompetitionSubmissionStatus.FINISHED:
+            total_time_taken = str(submission.completed_at - submission.started_at)
+        else:
+            total_time_taken = 'N/A'
+        
         submission_report = {{
             'id': submission.pk,
             'Submitter name': submission.participant.user.get_full_name(),
@@ -63,7 +69,8 @@ def get_submission_report(submission_id):
             'Compute worker used': metadata.hostname,
             'Queue used': submission.queue_name,
             'Score': str(submission.get_default_score()),
-            'Total time taken, begin/end': str(submission.completed_at - submission.started_at),
+            'Total time taken': total_time_taken,
+            'Status': submission.status.codename,
         }}
         
         print '{{}}{{}}{{}}'.format(separator, json.dumps(submission_report), separator)
