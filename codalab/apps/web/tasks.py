@@ -233,17 +233,15 @@ def _prepare_compute_worker_run(job_id, submission, is_prediction):
         stderr = submission.stderr_file.name
         output = submission.output_file.name
 
-    # First case because if this has a value, this is what we set it to to make it reproducable
     if submission.docker_image and submission.docker_image != "":
         docker_image = submission.docker_image
-    elif submission.phase.competition.competition_docker_image and submission.phase.competition.competition_docker_image != "":
-        docker_image = submission.phase.competition.competition_docker_image
     else:
-        docker_image = settings.DOCKER_DEFAULT_WORKER_IMAGE
-    # Save, could have been updated.
-    submission.docker_image = docker_image
-    submission.save()
+        docker_image = submission.phase.competition.competition_docker_image or settings.DOCKER_DEFAULT_WORKER_IMAGE
+        submission.docker_image = docker_image
+        submission.save()
+
     logger.info("@@@ Docker image set to: {} @@@".format(docker_image))
+    print("@@@ Docker image set to: {} @@@".format(docker_image))
 
     data = {
         "id": job_id,
@@ -742,6 +740,7 @@ def re_run_all_submissions_in_phase(phase_pk):
         new_submission = CompetitionSubmission(
             participant=submission.participant,
             phase=submission.phase,
+            docker_image=submission.docker_image,
             **file_kwarg
         )
         new_submission.save(ignore_submission_limits=True)
