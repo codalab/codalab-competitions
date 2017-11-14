@@ -36,7 +36,7 @@ admin@admin.com
 ```
 
 
-## view_reports.py
+## view_report.py
 
 Starts a simple webserver that processes `submission_ids.txt` and serves up a processed view of it.
 

@@ -103,5 +103,5 @@ if __name__ == "__main__":
 
     print("Submission (id={}) started".format(pk))
 
-    with open("submission_ids.txt", "w+") as submission_ids:
+    with open("submission_ids.txt", "a+") as submission_ids:
         submission_ids.write("{}\n".format(pk))
