@@ -56,7 +56,6 @@
                 })
 
                 csv.data.forEach(function(item) {
-                    console.log(item)
                     item['Status'] = item['Status'].replace(/(\r\n|\n|\r)/gm,"")
                 })
 
