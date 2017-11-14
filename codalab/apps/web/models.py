@@ -1813,7 +1813,7 @@ class CompetitionDefBundle(models.Model):
                         logger.debug('Adding organizer dataset to cache: %s' % phase_spec['ingestion_program'])
                         data_set_cache[phase_spec['ingestion_program']] = OrganizerDataSet.objects.create(
                             name="%s_%s_%s" % (file_name, phase.phasenumber, comp.pk),
-                            type="Reference Data",
+                            type="Ingestion Program",
                             data_file=phase.ingestion_program.file.name,
                             uploaded_by=self.owner
                         )
