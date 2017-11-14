@@ -88,9 +88,6 @@ class CompetitionPhaseForm(forms.ModelForm):
             'force_best_submission_to_leaderboard',
             'ingestion_program_organizer_dataset',
         )
-        labels = {
-            # 'default_docker_image': "Default participant docker image"
-        }
         widgets = {
             'leaderboard_management_mode' : forms.Select(
                 attrs={'class': 'competition-editor-phase-leaderboard-mode'},
