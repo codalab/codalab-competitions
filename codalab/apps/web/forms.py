@@ -45,6 +45,7 @@ class CompetitionForm(forms.ModelForm):
             'anonymous_leaderboard',
             'enable_teams',
             'require_team_approval',
+            'competition_docker_image',
         )
         widgets = {'description': TinyMCE(attrs={'rows' : 20, 'class' : 'competition-editor-description'},
                                           mce_attrs={"theme": "advanced", "cleanup_on_startup": True, "theme_advanced_toolbar_location": "top", "gecko_spellcheck": True})}
@@ -85,14 +86,10 @@ class CompetitionPhaseForm(forms.ModelForm):
             'scoring_program_organizer_dataset',
             'phase_never_ends',
             'force_best_submission_to_leaderboard',
-            'scoring_program_docker_image',
-            'default_docker_image',
-            'disable_custom_docker_image',
             'ingestion_program_organizer_dataset',
-            'ingestion_program_docker_image',
         )
         labels = {
-            'default_docker_image': "Default participant docker image"
+            # 'default_docker_image': "Default participant docker image"
         }
         widgets = {
             'leaderboard_management_mode' : forms.Select(

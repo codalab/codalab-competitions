@@ -258,6 +258,8 @@ class Competition(models.Model):
     require_team_approval = models.BooleanField(default=True, verbose_name="Organizers need to approve the new teams")
     teams = models.ManyToManyField(Team, related_name='competition_teams', blank=True, null=True)
 
+    competition_docker_image = models.CharField(max_length=128, default='', blank=True)
+
     @property
     def pagecontent(self):
         items = list(self.pagecontainers.all())

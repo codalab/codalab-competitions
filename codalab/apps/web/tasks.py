@@ -225,15 +225,23 @@ def _prepare_compute_worker_run(job_id, submission, is_prediction):
         stdout = submission.prediction_stdout_file.name
         stderr = submission.prediction_stderr_file.name
         output = submission.prediction_output_file.name
-        docker_image = submission.docker_image or submission.phase.default_docker_image or \
-                       settings.DOCKER_DEFAULT_WORKER_IMAGE
+        # docker_image = submission.docker_image or submission.phase.default_docker_image or \
+        #                settings.DOCKER_DEFAULT_WORKER_IMAGE
+
     else:
         # Scoring, if we're not predicting
         bundle_url = submission.runfile.name
         stdout = submission.stdout_file.name
         stderr = submission.stderr_file.name
         output = submission.output_file.name
-        docker_image = submission.phase.scoring_program_docker_image or settings.DOCKER_DEFAULT_WORKER_IMAGE
+        # docker_image = submission.phase.scoring_program_docker_image or settings.DOCKER_DEFAULT_WORKER_IMAGE
+
+    if submission.phase.competition.competition_docker_image:
+        docker_image = submission.phase.competition.competition_docker_image
+    else:
+        docker_image = settings.DOCKER_DEFAULT_WORKER_IMAGE
+    submission.save()
+    logger.info("@@@ Docker image set to: {} @@@".format(docker_image))
 
     data = {
         "id": job_id,
@@ -241,7 +249,7 @@ def _prepare_compute_worker_run(job_id, submission, is_prediction):
         "task_args": {
             "submission_id": submission.pk,
             "docker_image": docker_image,
-            "ingestion_program_docker_image": submission.phase.ingestion_program_docker_image or settings.DOCKER_DEFAULT_WORKER_IMAGE,
+            "ingestion_program_docker_image": docker_image,
             "bundle_url": _make_url_sassy(bundle_url),
             "stdout_url": _make_url_sassy(stdout, permission='w'),
             "stderr_url": _make_url_sassy(stderr, permission='w'),
@@ -262,10 +270,11 @@ def _prepare_compute_worker_run(job_id, submission, is_prediction):
     if time_limit <= 0:
         time_limit = 60 * 10  # 10 minutes timeout by default
 
-    if not submission.docker_image:
-        # We may have re-ran submission from admin page, make sure this is set for debug purposes
-        submission.docker_image = submission.phase.default_docker_image or settings.DOCKER_DEFAULT_WORKER_IMAGE
-        submission.save()
+    # if not submission.docker_image:
+    #     # We may have re-ran submission from admin page, make sure this is set for debug purposes
+    #     # submission.docker_image = submission.phase.default_docker_image or settings.DOCKER_DEFAULT_WORKER_IMAGE
+    #     submission.docker_image = submission.phase.competition.competition_docker_image or settings.DOCKER_DEFAULT_WORKER_IMAGE
+    #     submission.save()
 
     if submission.phase.competition.queue:
         submission.queue_name = submission.phase.competition.queue.name or ''
