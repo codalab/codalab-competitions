@@ -225,8 +225,6 @@ def _prepare_compute_worker_run(job_id, submission, is_prediction):
         stdout = submission.prediction_stdout_file.name
         stderr = submission.prediction_stderr_file.name
         output = submission.prediction_output_file.name
-        # docker_image = submission.docker_image or submission.phase.default_docker_image or \
-        #                settings.DOCKER_DEFAULT_WORKER_IMAGE
 
     else:
         # Scoring, if we're not predicting
@@ -234,7 +232,6 @@ def _prepare_compute_worker_run(job_id, submission, is_prediction):
         stdout = submission.stdout_file.name
         stderr = submission.stderr_file.name
         output = submission.output_file.name
-        # docker_image = submission.phase.scoring_program_docker_image or settings.DOCKER_DEFAULT_WORKER_IMAGE
 
     if submission.phase.competition.competition_docker_image:
         docker_image = submission.phase.competition.competition_docker_image
@@ -269,12 +266,6 @@ def _prepare_compute_worker_run(job_id, submission, is_prediction):
     time_limit = submission.phase.execution_time_limit
     if time_limit <= 0:
         time_limit = 60 * 10  # 10 minutes timeout by default
-
-    # if not submission.docker_image:
-    #     # We may have re-ran submission from admin page, make sure this is set for debug purposes
-    #     # submission.docker_image = submission.phase.default_docker_image or settings.DOCKER_DEFAULT_WORKER_IMAGE
-    #     submission.docker_image = submission.phase.competition.competition_docker_image or settings.DOCKER_DEFAULT_WORKER_IMAGE
-    #     submission.save()
 
     if submission.phase.competition.queue:
         submission.queue_name = submission.phase.competition.queue.name or ''
