@@ -277,10 +277,12 @@ def _prepare_compute_worker_run(job_id, submission, is_prediction):
             new_connection.virtual_host = submission.phase.competition.queue.vhost
             compute_worker_run(data, soft_time_limit=time_limit, connection=new_connection)
     else:
-        compute_worker_run(data, soft_time_limit=time_limit)
+        compute_worker_run(data, soft_time_limit=time_limit, priority=2)
 
 
-def compute_worker_run(data, **kwargs):
+def compute_worker_run(data, priority=None, **kwargs):
+    if priority:
+        kwargs['queue_arguments'] = {'x-max-priority': priority}
     task_args = data['task_args'] if 'task_args' in data else None
     app = app_or_default()
     app.send_task('compute_worker_run', args=(data["id"], task_args), queue='compute-worker', **kwargs)
