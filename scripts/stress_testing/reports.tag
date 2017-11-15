@@ -3,7 +3,7 @@
 
     <button class="ui button positive" onclick={ update_report }>Force update</button>
 
-    <table class="ui selectable striped table">
+    <table ref="table" class="ui selectable striped table">
         <thead>
             <tr>
                 <th>id</th>
@@ -41,6 +41,8 @@
 
             // Every 60 seconds update the report
             self.update_loop_forever()
+
+            self.table_sorter = Tablesort(self.refs.table)
         })
 
         // --------------------------------------------------------------------
@@ -60,6 +62,7 @@
                 })
 
                 self.update({submissions: csv.data})
+                self.budget_table_sorter.refresh();
             })
         }
 
