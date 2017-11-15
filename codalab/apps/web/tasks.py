@@ -241,7 +241,6 @@ def _prepare_compute_worker_run(job_id, submission, is_prediction):
         submission.save()
 
     logger.info("@@@ Docker image set to: {} @@@".format(docker_image))
-    print("@@@ Docker image set to: {} @@@".format(docker_image))
 
     data = {
         "id": job_id,
