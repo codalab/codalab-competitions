@@ -868,6 +868,8 @@ def make_modified_bundle(competition_pk, exclude_datasets_flag):
         yaml_data = OrderedDict()
         yaml_data['title'] = competition.title
         yaml_data['description'] = competition.description.replace("/n", "").replace("\"", "").strip()
+        if competition.competition_docker_image and competition.competition_docker_image != "":
+            yaml_data['competition_docker_image'] = competition.competition_docker_image
         if competition.image:
             yaml_data['image'] = 'logo.png'
         else:

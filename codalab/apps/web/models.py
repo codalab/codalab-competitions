@@ -1649,6 +1649,17 @@ class CompetitionDefBundle(models.Model):
                 except models.ObjectDoesNotExist:
                     CompetitionParticipant.objects.create(user=admin, competition=comp, status=approved_status)
 
+        if 'competition_docker_image' in comp_base:
+            try:
+                comp.docker_image = comp_base['competition_docker_image']
+                logger.debug(
+                    "CompetitionDefBundle::unpack saved competition docker image {0} for competition {1}".format(
+                        comp.docker_image, comp.pk))
+            except KeyError:
+                logger.debug(
+                    "CompetitionDefBundle::unpack found no competition docker image {0} for competition {1}".format(
+                        comp.docker_image, comp.pk))
+
         # Unpack and save the logo
         if 'image' in comp_base:
             try:
