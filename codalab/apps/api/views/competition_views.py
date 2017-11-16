@@ -574,7 +574,7 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
         if not phase.disable_custom_docker_image:
             obj.docker_image = escape(self.request.QUERY_PARAMS.get('docker_image', ""))
         if not obj.docker_image:
-            obj.docker_image = phase.default_docker_image or settings.DOCKER_DEFAULT_WORKER_IMAGE
+            obj.docker_image = phase.competition.competition_docker_image or settings.DOCKER_DEFAULT_WORKER_IMAGE
         obj.team_name = escape(self.request.QUERY_PARAMS.get('team_name', ""))
         obj.organization_or_affiliation = escape(self.request.QUERY_PARAMS.get('organization_or_affiliation', ""))
         obj.method_name = escape(self.request.QUERY_PARAMS.get('method_name', ""))

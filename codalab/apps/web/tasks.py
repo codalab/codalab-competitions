@@ -225,15 +225,22 @@ def _prepare_compute_worker_run(job_id, submission, is_prediction):
         stdout = submission.prediction_stdout_file.name
         stderr = submission.prediction_stderr_file.name
         output = submission.prediction_output_file.name
-        docker_image = submission.docker_image or submission.phase.default_docker_image or \
-                       settings.DOCKER_DEFAULT_WORKER_IMAGE
+
     else:
         # Scoring, if we're not predicting
         bundle_url = submission.runfile.name
         stdout = submission.stdout_file.name
         stderr = submission.stderr_file.name
         output = submission.output_file.name
-        docker_image = submission.phase.scoring_program_docker_image or settings.DOCKER_DEFAULT_WORKER_IMAGE
+
+    if submission.docker_image and submission.docker_image != "":
+        docker_image = submission.docker_image
+    else:
+        docker_image = submission.phase.competition.competition_docker_image or settings.DOCKER_DEFAULT_WORKER_IMAGE
+        submission.docker_image = docker_image
+        submission.save()
+
+    logger.info("@@@ Docker image set to: {} @@@".format(docker_image))
 
     data = {
         "id": job_id,
@@ -241,7 +248,7 @@ def _prepare_compute_worker_run(job_id, submission, is_prediction):
         "task_args": {
             "submission_id": submission.pk,
             "docker_image": docker_image,
-            "ingestion_program_docker_image": submission.phase.ingestion_program_docker_image or settings.DOCKER_DEFAULT_WORKER_IMAGE,
+            "ingestion_program_docker_image": docker_image,
             "bundle_url": _make_url_sassy(bundle_url),
             "stdout_url": _make_url_sassy(stdout, permission='w'),
             "stderr_url": _make_url_sassy(stderr, permission='w'),
@@ -261,11 +268,6 @@ def _prepare_compute_worker_run(job_id, submission, is_prediction):
     time_limit = submission.phase.execution_time_limit
     if time_limit <= 0:
         time_limit = 60 * 10  # 10 minutes timeout by default
-
-    if not submission.docker_image:
-        # We may have re-ran submission from admin page, make sure this is set for debug purposes
-        submission.docker_image = submission.phase.default_docker_image or settings.DOCKER_DEFAULT_WORKER_IMAGE
-        submission.save()
 
     if submission.phase.competition.queue:
         submission.queue_name = submission.phase.competition.queue.name or ''
@@ -739,6 +741,7 @@ def re_run_all_submissions_in_phase(phase_pk):
         new_submission = CompetitionSubmission(
             participant=submission.participant,
             phase=submission.phase,
+            docker_image=submission.docker_image,
             **file_kwarg
         )
         new_submission.save(ignore_submission_limits=True)
@@ -867,6 +870,8 @@ def make_modified_bundle(competition_pk, exclude_datasets_flag):
         yaml_data = OrderedDict()
         yaml_data['title'] = competition.title
         yaml_data['description'] = competition.description.replace("/n", "").replace("\"", "").strip()
+        if competition.competition_docker_image and competition.competition_docker_image != "":
+            yaml_data['competition_docker_image'] = competition.competition_docker_image
         if competition.image:
             yaml_data['image'] = 'logo.png'
         else:

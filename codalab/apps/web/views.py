@@ -1823,6 +1823,7 @@ def submission_re_run(request, submission_pk):
             new_submission = models.CompetitionSubmission(
                 participant=submission.participant,
                 phase=submission.phase,
+                docker_image=submission.docker_image,
                 **file_kwarg
             )
             new_submission.save(ignore_submission_limits=True)
@@ -1875,7 +1876,9 @@ def submission_migrate(request, pk):
             new_submission = models.CompetitionSubmission(
                 participant=submission.participant,
                 file=submission.file,
-                phase=next_phase)
+                phase=next_phase,
+                docker_image=submission.docker_image,
+            )
 
             new_submission.save(ignore_submission_limits=True)
 

@@ -258,6 +258,8 @@ class Competition(models.Model):
     require_team_approval = models.BooleanField(default=True, verbose_name="Organizers need to approve the new teams")
     teams = models.ManyToManyField(Team, related_name='competition_teams', blank=True, null=True)
 
+    competition_docker_image = models.CharField(max_length=128, default='', blank=True)
+
     @property
     def pagecontent(self):
         items = list(self.pagecontainers.all())
@@ -1646,6 +1648,17 @@ class CompetitionDefBundle(models.Model):
                     participant.save()
                 except models.ObjectDoesNotExist:
                     CompetitionParticipant.objects.create(user=admin, competition=comp, status=approved_status)
+
+        if 'competition_docker_image' in comp_base:
+            try:
+                comp.docker_image = comp_base['competition_docker_image']
+                logger.debug(
+                    "CompetitionDefBundle::unpack saved competition docker image {0} for competition {1}".format(
+                        comp.docker_image, comp.pk))
+            except KeyError:
+                logger.debug(
+                    "CompetitionDefBundle::unpack found no competition docker image {0} for competition {1}".format(
+                        comp.docker_image, comp.pk))
 
         # Unpack and save the logo
         if 'image' in comp_base:
