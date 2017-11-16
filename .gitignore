@@ -101,3 +101,4 @@ ace-builds-master
 # Local files to be ignored #
 ##############################
 /codalab/local_fabfile.py
+/codalab/server_config.yaml
