@@ -46,7 +46,7 @@ from apps.forums.models import Forum
 from apps.coopetitions.models import DownloadRecord
 from apps.authenz.models import ClUser
 from apps.web.exceptions import ScoringException
-from apps.web.utils import PublicStorage, BundleStorage
+from apps.web.utils import PublicStorage, BundleStorage, clean_html_script
 from apps.teams.models import Team, get_user_team
 
 User = settings.AUTH_USER_MODEL
@@ -257,6 +257,8 @@ class Competition(models.Model):
     enable_teams = models.BooleanField(default=False, verbose_name="Enable Competition level teams")
     require_team_approval = models.BooleanField(default=True, verbose_name="Organizers need to approve the new teams")
     teams = models.ManyToManyField(Team, related_name='competition_teams', blank=True, null=True)
+
+    competition_docker_image = models.CharField(max_length=128, default='', blank=True)
 
     @property
     def pagecontent(self):
@@ -585,6 +587,8 @@ class Page(models.Model):
         ordering = ['category', 'rank']
 
     def save(self, *args, **kwargs):
+        if self.html:
+            self.html = clean_html_script(self.html)
         if self.defaults:
             if self.category != self.defaults.category:
                 raise Exception("Defaults category must match Item category")
@@ -806,7 +810,7 @@ class CompetitionPhase(models.Model):
 
     scoring_program_docker_image = models.CharField(max_length=128, default='', blank=True)
     default_docker_image = models.CharField(max_length=128, default='', blank=True)
-    disable_custom_docker_image = models.BooleanField(default=False)
+    disable_custom_docker_image = models.BooleanField(default=True)
 
     starting_kit = models.FileField(
         upload_to=_uuidify('starting_kit'),
@@ -1359,7 +1363,8 @@ class CompetitionSubmission(models.Model):
                         phase__competition=self.phase.competition,
                         participant=self.participant,
                         phase=self.phase,
-                        submitted_at__gte=datetime.date.today()
+                        submitted_at__gte=datetime.date.today(),
+                        status__codename=CompetitionSubmissionStatus.FINISHED,
                     ))
 
                     print 'Count is %s and maximum is %s' % (submissions_from_today_count, self.phase.max_submissions_per_day)
@@ -1644,6 +1649,17 @@ class CompetitionDefBundle(models.Model):
                 except models.ObjectDoesNotExist:
                     CompetitionParticipant.objects.create(user=admin, competition=comp, status=approved_status)
 
+        if 'competition_docker_image' in comp_base:
+            try:
+                comp.docker_image = comp_base['competition_docker_image']
+                logger.debug(
+                    "CompetitionDefBundle::unpack saved competition docker image {0} for competition {1}".format(
+                        comp.docker_image, comp.pk))
+            except KeyError:
+                logger.debug(
+                    "CompetitionDefBundle::unpack found no competition docker image {0} for competition {1}".format(
+                        comp.docker_image, comp.pk))
+
         # Unpack and save the logo
         if 'image' in comp_base:
             try:
@@ -1810,7 +1826,7 @@ class CompetitionDefBundle(models.Model):
                         logger.debug('Adding organizer dataset to cache: %s' % phase_spec['ingestion_program'])
                         data_set_cache[phase_spec['ingestion_program']] = OrganizerDataSet.objects.create(
                             name="%s_%s_%s" % (file_name, phase.phasenumber, comp.pk),
-                            type="Reference Data",
+                            type="Ingestion Program",
                             data_file=phase.ingestion_program.file.name,
                             uploaded_by=self.owner
                         )
@@ -2179,6 +2195,23 @@ class OrganizerDataSet(models.Model):
 
     def __unicode__(self):
         return "%s uploaded by %s" % (self.name, self.uploaded_by)
+
+    def write_multidataset_metadata(self, datasets=None):
+        # Write sub bundle metadata, replaces old data_file!
+        lines = []
+
+        if not datasets:
+            datasets = self.sub_data_files.all()
+
+        # Inline import to avoid circular imports
+        from apps.web.tasks import _make_url_sassy
+        for dataset in datasets:
+            file_name = os.path.splitext(os.path.basename(dataset.data_file.file.name))[0]
+            # Make these URLs signed for 100 years
+            one_hundred_years = 60 * 60 * 24 * 365 * 100
+            lines.append("%s: %s" % (file_name, _make_url_sassy(dataset.data_file.file.name, duration=one_hundred_years)))
+
+        self.data_file.save("metadata", ContentFile("\n".join(lines)))
 
 
 class CompetitionSubmissionMetadata(models.Model):

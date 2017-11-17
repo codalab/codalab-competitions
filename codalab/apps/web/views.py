@@ -1156,7 +1156,7 @@ class MyCompetitionSubmissionOutput(LoginRequiredMixin, View):
                 raise Http404()
         else:
             if (competition.creator != request.user and request.user not in competition.admins.all()) and \
-                request.user != submission.participant.user:
+                            request.user != submission.participant.user:
                 raise Http404()
 
         filetype = kwargs.get('filetype')
@@ -1207,7 +1207,12 @@ class MyCompetitionSubmissionDetailedResults(TemplateView):
 
     def get(self, request, *args, **kwargs):
         submission = models.CompetitionSubmission.objects.get(pk=kwargs.get('submission_id'))
-        context_dict = {'id': kwargs.get('submission_id'), 'user': submission.participant.user, 'filename':submission.detailed_results_file.name}
+
+        context_dict = {
+            'id': kwargs.get('submission_id'),
+            'user': submission.participant.user,
+            'submission': submission,
+        }
         return render_to_response('web/my/detailed_results.html', context_dict, RequestContext(request))
 
 
@@ -1818,6 +1823,7 @@ def submission_re_run(request, submission_pk):
             new_submission = models.CompetitionSubmission(
                 participant=submission.participant,
                 phase=submission.phase,
+                docker_image=submission.docker_image,
                 **file_kwarg
             )
             new_submission.save(ignore_submission_limits=True)
@@ -1870,7 +1876,9 @@ def submission_migrate(request, pk):
             new_submission = models.CompetitionSubmission(
                 participant=submission.participant,
                 file=submission.file,
-                phase=next_phase)
+                phase=next_phase,
+                docker_image=submission.docker_image,
+            )
 
             new_submission.save(ignore_submission_limits=True)
 
