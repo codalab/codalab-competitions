@@ -102,3 +102,7 @@ ace-builds-master
 ##############################
 /codalab/local_fabfile.py
 /codalab/server_config.yaml
+
+# Backups #
+###########
+backups/
