@@ -133,7 +133,7 @@ def get_team_submissions_inf(team, phase):
 
     # find which submission is in the leaderboard, if any and only if phase allows seeing results.
     id_of_submission_in_leaderboard = -1
-    if not phase.is_blind:
+    if phase and not phase.is_blind:
         leaderboard_entry = web.models.PhaseLeaderBoardEntry.objects.filter(
             board__phase=phase,
             result__team=team
