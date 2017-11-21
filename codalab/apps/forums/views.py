@@ -94,3 +94,8 @@ class ThreadDetailView(ForumBaseMixin, DetailView):
     template_name = "forums/thread_detail.html"
     pk_url_kwarg = 'thread_pk'
 
+    def get_context_data(self, **kwargs):
+        thread = self.object
+        context = super(ThreadDetailView, self).get_context_data(**kwargs)
+        context['ordered_posts'] = thread.posts.all().order_by('date_created')
+        return context
