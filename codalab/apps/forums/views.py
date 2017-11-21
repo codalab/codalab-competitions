@@ -4,7 +4,6 @@ from django.contrib.auth import get_user_model
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.views.generic import DetailView, CreateView
-from django.views.generic.base import ContextMixin
 
 from apps.web.views import LoginRequiredMixin
 from .forms import PostForm, ThreadForm
@@ -89,7 +88,7 @@ class CreateThreadView(ForumBaseMixin, RedirectToThreadMixin, LoginRequiredMixin
         return HttpResponseRedirect(self.get_success_url())
 
 
-class ThreadDetailView(ForumBaseMixin, DetailView, ContextMixin):
+class ThreadDetailView(ForumBaseMixin, DetailView):
     """ View to read the details of a particular thread."""
     model = Thread
     template_name = "forums/thread_detail.html"
