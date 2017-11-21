@@ -36,6 +36,7 @@ services:
       - ./docker:/app/docker
       - ${LOGGING_DIR}/psql:/var/log/psql
       - ${DB_DATA_PATH}:/var/lib/postgresql/data
+      - ./backups:/app/backups
     env_file: .env
     logging:
       options:
@@ -126,6 +127,7 @@ services:
       - ./codalab:/app/codalab
       - ./docker:/app/docker
       - ${LOGGING_DIR}/django:/var/log/django/
+      - ./backups:/app/backups
     env_file: .env
     environment:
       - CONFIG_SERVER_NAME=${CODALAB_SITE_DOMAIN}
