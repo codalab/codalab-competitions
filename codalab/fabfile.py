@@ -47,7 +47,9 @@ def hosts(key):
 
 
 def compute_worker_update():
-    """Meant to be used with `hosts` like so:
+    """Updates compute workers to latest docker image
+
+    Meant to be used with `hosts` like so:
         fab hosts:prod_workers compute_worker_update
     """
     with warn_only():
@@ -62,6 +64,15 @@ def compute_worker_update():
             "-d --restart unless-stopped "
             "--name compute_worker -- "
             "ckcollab/competitions-v1-compute-worker:latest")
+
+
+def compute_worker_status():
+    """Prints out `docker ps` for each worker
+
+    Meant to be used with `hosts` like so:
+        fab hosts:prod_workers compute_worker_status
+    """
+    run('docker ps')
 
 
 ###############################################################################
