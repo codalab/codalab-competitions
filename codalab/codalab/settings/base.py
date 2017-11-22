@@ -246,7 +246,7 @@ class Base(Settings):
 
     ACCOUNT_ADAPTER = ("apps.authenz.adapter.CodalabAccountAdapter")
 
-    OPTIONAL_APPS = []
+    OPTIONAL_APPS = tuple()
     INTERNAL_IPS = []
 
     OAUTH2_PROVIDER = {
