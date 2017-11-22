@@ -2222,6 +2222,8 @@ class CompetitionSubmissionMetadata(models.Model):
     hostname = models.CharField(max_length=255, blank=True, null=True)
     processes_running_in_temp_dir = models.TextField(blank=True, null=True)
 
+    ingestion_program_duration = models.TextField(null=True, blank=True)
+
     beginning_virtual_memory_usage = models.TextField(blank=True, null=True)
     beginning_swap_memory_usage = models.TextField(blank=True, null=True)
     beginning_cpu_usage = models.TextField(blank=True, null=True)
@@ -2248,6 +2250,7 @@ class CompetitionSubmissionMetadata(models.Model):
         details are available.'''
         return {
             "processes_running_in_temp_dir": self.processes_running_in_temp_dir,
+            "ingestion_program_duration": self.ingestion_program_duration,
             "beginning_virtual_memory_usage": self._get_json_property_percent('beginning_virtual_memory_usage'),
             "beginning_swap_memory_usage": self._get_json_property_percent('beginning_swap_memory_usage'),
             "beginning_cpu_usage": self._get_property_percent('beginning_cpu_usage'),
