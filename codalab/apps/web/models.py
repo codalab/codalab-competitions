@@ -2175,6 +2175,7 @@ class OrganizerDataSet(models.Model):
         ("None", "None")
     )
     name = models.CharField(max_length=255)
+    full_name = models.TextField(default="")
     type = models.CharField(max_length=64, choices=TYPES, default="None")
     description = models.TextField(null=True, blank=True)
     data_file = models.FileField(
@@ -2191,10 +2192,11 @@ class OrganizerDataSet(models.Model):
     def save(self, **kwargs):
         if self.key is None or self.key == '':
             self.key = "%s" % (uuid.uuid4())
+        self.full_name = "%s uploaded by %s" % (self.name, self.uploaded_by)
         super(OrganizerDataSet, self).save(**kwargs)
 
     def __unicode__(self):
-        return "%s uploaded by %s" % (self.name, self.uploaded_by)
+        return self.full_name
 
     def write_multidataset_metadata(self, datasets=None):
         # Write sub bundle metadata, replaces old data_file!
