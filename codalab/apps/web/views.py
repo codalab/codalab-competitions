@@ -302,17 +302,13 @@ class CompetitionEdit(LoginRequiredMixin, NamedFormsetsMixin, UpdateWithInlinesV
         # Look for admins that are not participants yet
         approved_status = models.ParticipantStatus.objects.get(codename=models.ParticipantStatus.APPROVED)
 
-        # Turn queryset into a list by casting
-        admin_list = list(form.instance.admins.all())
-        # Update participant objects that correlate with `admin` users.
-        updated_admins = models.CompetitionParticipant.objects.filter(user__in=admin_list, competition=form.instance).update(status=approved_status)
-        # Turn queryset into a list by casting
-        updated_admins_list = list(updated_admins)
-        # Find admins in admin_list no int updated_admins
-        for admin in admin_list:
-            if admin not in updated_admins_list:
-                models.CompetitionParticipant.objects.create(user=admin, competition=form.instance,
-                                                             status=approved_status)
+        for admin in form.instance.admins.all():
+            try:
+                participant = models.CompetitionParticipant.objects.get(user=admin, competition=form.instance)
+                participant.status = approved_status
+                participant.save()
+            except ObjectDoesNotExist:
+                models.CompetitionParticipant.objects.create(user=admin, competition=form.instance, status=approved_status)
 
         return save_result
 
@@ -330,32 +326,29 @@ class CompetitionEdit(LoginRequiredMixin, NamedFormsetsMixin, UpdateWithInlinesV
         #   inline_formsets[1] == phases
 
         # get existing datasets and add them, so admins can see them!
-        all_phases = models.CompetitionPhase.objects.all()
-        public_data_ids = all_phases.filter(competition=self.object).values_list('public_data_organizer_dataset')
-        starting_kit_ids = all_phases.filter(competition=self.object).values_list('starting_kit_organizer_dataset')
-        input_data_ids = all_phases.filter(competition=self.object).values_list('input_data_organizer_dataset')
-        reference_data_ids = all_phases.filter(competition=self.object).values_list('reference_data_organizer_dataset')
-        scoring_program_ids = all_phases.filter(competition=self.object).values_list('scoring_program_organizer_dataset')
-        ingestion_program_ids = all_phases.filter(competition=self.object).values_list('ingestion_program_organizer_dataset')
+        public_data_ids = models.CompetitionPhase.objects.filter(competition=self.object).values_list('public_data_organizer_dataset')
+        starting_kit_ids = models.CompetitionPhase.objects.filter(competition=self.object).values_list('starting_kit_organizer_dataset')
+        input_data_ids = models.CompetitionPhase.objects.filter(competition=self.object).values_list('input_data_organizer_dataset')
+        reference_data_ids = models.CompetitionPhase.objects.filter(competition=self.object).values_list('reference_data_organizer_dataset')
+        scoring_program_ids = models.CompetitionPhase.objects.filter(competition=self.object).values_list('scoring_program_organizer_dataset')
+        ingestion_program_ids = models.CompetitionPhase.objects.filter(competition=self.object).values_list('ingestion_program_organizer_dataset')
 
-        all_organizer_datasets = models.OrganizerDataSet.objects.all()
-
-        public_data_organizer_dataset = all_organizer_datasets.filter(
+        public_data_organizer_dataset = models.OrganizerDataSet.objects.filter(
             Q(uploaded_by=self.request.user, type="Public Data") | Q(pk__in=public_data_ids)
         ).select_related('uploaded_by')
-        starting_kit_organizer_dataset = all_organizer_datasets.filter(
+        starting_kit_organizer_dataset = models.OrganizerDataSet.objects.filter(
             Q(uploaded_by=self.request.user, type="Starting Kit") | Q(pk__in=starting_kit_ids)
         ).select_related('uploaded_by')
-        input_data_organizer_dataset = all_organizer_datasets.filter(
+        input_data_organizer_dataset = models.OrganizerDataSet.objects.filter(
             Q(uploaded_by=self.request.user, type="Input Data") | Q(pk__in=input_data_ids)
         ).select_related('uploaded_by')
-        reference_data_organizer_dataset = all_organizer_datasets.filter(
+        reference_data_organizer_dataset = models.OrganizerDataSet.objects.filter(
             Q(uploaded_by=self.request.user, type="Reference Data") | Q(pk__in=reference_data_ids)
         ).select_related('uploaded_by')
-        scoring_program_organizer_dataset = all_organizer_datasets.filter(
+        scoring_program_organizer_dataset = models.OrganizerDataSet.objects.filter(
             Q(uploaded_by=self.request.user, type="Scoring Program") | Q(pk__in=scoring_program_ids)
         ).select_related('uploaded_by')
-        ingestion_program_organizer_dataset = all_organizer_datasets.filter(
+        ingestion_program_organizer_dataset = models.OrganizerDataSet.objects.filter(
             Q(uploaded_by=self.request.user, type="Ingestion Program") | Q(pk__in=ingestion_program_ids)
         ).select_related('uploaded_by')
 
