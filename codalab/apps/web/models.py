@@ -2213,6 +2213,10 @@ class OrganizerDataSet(models.Model):
         if not datasets:
             datasets = self.sub_data_files.all()
 
+        if not datasets:
+            # If we still don't have a dataset don't continue
+            return
+
         # Inline import to avoid circular imports
         from apps.web.tasks import _make_url_sassy
         for dataset in datasets:
