@@ -6,6 +6,6 @@
 {% block content %}
     <a href="{% url "competitions:view" pk=submission.phase.competition.pk %}" >Go Back to Competition Homepage</a>
     <div align="center">
-        <iframe style="width:100%; height:90vh;" src="{% url "competitions:my_competition_output" submission_id=submission.pk filetype='detailed_results.html' %}"></iframe>
+        <iframe sandbox style="width:100%; height:90vh;" src="{% url "competitions:my_competition_output" submission_id=submission.pk filetype='detailed_results.html' %}"></iframe>
     </div>
 {% endblock %}
