@@ -29,10 +29,12 @@
         </div>
 
         {% if scoring_exception and bad_scores %}
-            <div class="alert alert-danger">
+            <button class="btn btn-danger" data-toggle="collapse" data-target="#demo">Show Leaderboard Debug</button>
+
+            <div id="demo" class="collapse well">
                 <p>{{ scoring_exception }}</p>
                 <strong>Bad Scores:</strong>
-                <table class="table table-bordered table-responsive">
+                <table class="table table-bordered table-responsive bg-warning">
                     <thead>
                     <tr>
                         <th>Rank:</th>
@@ -51,6 +53,7 @@
                     </tbody>
                 </table>
             </div>
+            <br>
         {% endif %}
 
         <a href="{% url "competitions:competition_submissions_metadata" competition_id=competition.pk phase_id=selected_phase.id %}">View
@@ -83,8 +86,10 @@
                     {% for column in columns %}
                         <th>
                             <a href="?phase={{ selected_phase_id }}&order=
+
                                     {{ column.name }}{% if direction == 'asc' and order == column.name %}&direction=desc{% endif %}">
                                 {{ column.label }} <span class="glyphicon
+
                                     {% if order == column.name %}{% if direction == 'asc' %}glyphicon-arrow-down{% else %}glyphicon-arrow-up{% endif %}{% endif %} pull-right"></span>
                             </a>
                         </th>

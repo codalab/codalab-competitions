@@ -747,14 +747,6 @@ class CompetitionResultsPage(TemplateView):
             context['phase'] = phase
             context['groups'] = phase.scores()
 
-            bad_score_count, bad_scores = check_bad_scores(context['groups'])
-            if bad_score_count > 0:
-                context['scoring_exception'] = "ERROR: Improperly configured leaderboard or scoring program. Some " \
-                                               "scores have NaN! Please check your leaderboard configuration and" \
-                                               " scoring program for the competition!"
-                context['bad_scores'] = bad_scores
-                context['bad_score_count'] = bad_score_count
-
             for group in context['groups']:
                 for _, scoredata in group['scores']:
                     sub = models.CompetitionSubmission.objects.get(pk=scoredata['id'])
