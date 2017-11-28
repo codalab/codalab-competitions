@@ -76,7 +76,7 @@ def get_competition_user_pending_teams(competition,user):
 
 
 def get_user_requests(user, competition):
-    team_list=get_competition_teams(competition)
+    team_list = get_competition_teams(competition)
     user_requests = TeamMembership.objects.filter(
         user=user.user,
         team__in=team_list,
@@ -90,23 +90,23 @@ def get_allowed_teams(user,competition):
 
 
 def get_user_team(user, competition):
-    team=get_competition_user_teams(competition, user)
+    team = get_competition_user_teams(competition, user)
 
     if team is not None:
         return team
 
     user_requests = get_user_requests(user, competition)
-    user_team=user_requests.filter(status=TeamMembershipStatus.objects.get(codename="approved")).all()
-    if len(user_team)==0:
-        user_team=None
+    user_team = user_requests.filter(status=TeamMembershipStatus.objects.get(codename="approved")).all()
+    if len(user_team) == 0:
+        user_team = None
 
     if user_team is not None:
         for req in user_team:
             if req.is_active:
-                team=req
+                team = req
 
     if team is not None:
-        team=team.team
+        team = team.team
 
     return team
 
@@ -133,7 +133,7 @@ def get_team_submissions_inf(team, phase):
 
     # find which submission is in the leaderboard, if any and only if phase allows seeing results.
     id_of_submission_in_leaderboard = -1
-    if not phase.is_blind:
+    if phase and not phase.is_blind:
         leaderboard_entry = web.models.PhaseLeaderBoardEntry.objects.filter(
             board__phase=phase,
             result__team=team

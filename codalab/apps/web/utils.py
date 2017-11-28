@@ -1,5 +1,6 @@
 import re
 
+import requests
 from django.conf import settings
 from django.core.files.storage import get_storage_class
 
@@ -56,3 +57,14 @@ def check_bad_scores(score_dict):
                                         bad_score_count += 1
                                         bad_scores.append(result)
     return bad_score_count, bad_scores
+
+
+def _put_blob(url, file_path):
+    requests.put(
+        url,
+        data=open(file_path, 'rb'),
+        headers={
+            # For Azure but doesn't hurt AWS
+            'x-ms-blob-type': 'BlockBlob',
+        }
+    )

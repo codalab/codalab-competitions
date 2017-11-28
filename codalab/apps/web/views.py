@@ -1151,10 +1151,7 @@ class MyCompetitionSubmissionOutput(LoginRequiredMixin, View):
         competition = submission.phase.competition
 
         # Check competition admin permissions or user permissions
-        if submission.is_public:
-            if competition.has_registration and not competition.participants.filter(user=request.user).exists():
-                raise Http404()
-        else:
+        if not submission.is_public:
             if (competition.creator != request.user and request.user not in competition.admins.all()) and \
                             request.user != submission.participant.user:
                 raise Http404()

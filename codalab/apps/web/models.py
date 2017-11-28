@@ -47,7 +47,7 @@ from apps.coopetitions.models import DownloadRecord
 from apps.authenz.models import ClUser
 from apps.web.exceptions import ScoringException
 from apps.web.utils import PublicStorage, BundleStorage, clean_html_script
-from apps.teams.models import Team, get_user_team
+from apps.teams.models import Team, get_user_team, TeamMembershipStatus, TeamMembership
 
 User = settings.AUTH_USER_MODEL
 logger = logging.getLogger(__name__)
@@ -1015,7 +1015,15 @@ class CompetitionPhase(models.Model):
             # add the location of the results on the blob storage to the scores
             for submission in submissions:
                 user = submission.participant.user
-                team =  get_user_team(submission.participant, submission.participant.competition)
+                try:
+                    team_membersip = TeamMembership.objects.get(
+                        user=user,
+                        status__codename="approved",
+                        team__competition=self.competition
+                    )
+                    team = team_membersip.team
+                except TeamMembership.DoesNotExist:
+                    team = None
                 # If competition teams are enabled, and the user is in a team, use the team name as team_name.
                 # Otherwise, use the user default team_name
                 if self.competition.enable_teams:
@@ -2175,6 +2183,7 @@ class OrganizerDataSet(models.Model):
         ("None", "None")
     )
     name = models.CharField(max_length=255)
+    full_name = models.TextField(default="")
     type = models.CharField(max_length=64, choices=TYPES, default="None")
     description = models.TextField(null=True, blank=True)
     data_file = models.FileField(
@@ -2191,10 +2200,11 @@ class OrganizerDataSet(models.Model):
     def save(self, **kwargs):
         if self.key is None or self.key == '':
             self.key = "%s" % (uuid.uuid4())
+        self.full_name = "%s uploaded by %s" % (self.name, self.uploaded_by)
         super(OrganizerDataSet, self).save(**kwargs)
 
     def __unicode__(self):
-        return "%s uploaded by %s" % (self.name, self.uploaded_by)
+        return self.full_name
 
     def write_multidataset_metadata(self, datasets=None):
         # Write sub bundle metadata, replaces old data_file!
@@ -2202,6 +2212,10 @@ class OrganizerDataSet(models.Model):
 
         if not datasets:
             datasets = self.sub_data_files.all()
+
+        if not datasets:
+            # If we still don't have a dataset don't continue
+            return
 
         # Inline import to avoid circular imports
         from apps.web.tasks import _make_url_sassy

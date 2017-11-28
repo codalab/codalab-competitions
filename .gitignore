@@ -108,3 +108,7 @@ ace-builds-master
 scripts/stress_testing/approve_emails.txt
 scripts/stress_testing/submission_ids.txt
 scripts/stress_testing/report.csv
+
+# Backups #
+###########
+backups/

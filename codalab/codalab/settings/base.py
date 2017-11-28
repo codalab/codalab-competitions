@@ -64,8 +64,7 @@ class Base(Settings):
 
     AUTH_USER_MODEL = 'authenz.ClUser'
 
-    # Keep in sync with codalab-cli
-    CODALAB_VERSION = '0.1.5'
+    CODALAB_VERSION = '1.5'
 
     # Hosts/domain names that are valid for this site; required if DEBUG is False
     # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
@@ -247,7 +246,7 @@ class Base(Settings):
 
     ACCOUNT_ADAPTER = ("apps.authenz.adapter.CodalabAccountAdapter")
 
-    OPTIONAL_APPS = []
+    OPTIONAL_APPS = tuple()
     INTERNAL_IPS = []
 
     OAUTH2_PROVIDER = {
@@ -576,7 +575,7 @@ class Base(Settings):
     # =========================================================================
     DOCKER_DEFAULT_WORKER_IMAGE = "ckcollab/codalab-legacy"
     DOCKER_MAX_SIZE_GB = 10.0
-    
+
     # =========================================================================
     # Misc
     # =========================================================================
@@ -593,13 +592,7 @@ class Base(Settings):
     @classmethod
     def pre_setup(cls):
         if hasattr(cls,'OPTIONAL_APPS'):
-            for a in cls.OPTIONAL_APPS:
-                try:
-                    __import__(a)
-                except ImportError as e:
-                    print e
-                else:
-                    cls.INSTALLED_APPS += (a,)
+            cls.INSTALLED_APPS += cls.OPTIONAL_APPS
         if hasattr(cls, 'EXTRA_MIDDLEWARE_CLASSES'):
             cls.MIDDLEWARE_CLASSES += cls.EXTRA_MIDDLEWARE_CLASSES
         cls.STARTUP_ENV.update({ 'CONFIG_HTTP_PORT': cls.PORT,
@@ -619,8 +612,9 @@ class Base(Settings):
 class DevBase(Base):
 
     if os.environ.get('DEBUG', False):
-        OPTIONAL_APPS = ('debug_toolbar','django_extensions',)
-        INTERNAL_IPS = ('127.0.0.1',)
+        OPTIONAL_APPS = (
+            'debug_toolbar',
+        )
         ACCOUNT_EMAIL_VERIFICATION = None
         CACHES = {
             'default': {
@@ -639,6 +633,7 @@ class DevBase(Base):
         DEBUG_TOOLBAR_CONFIG = {
             'SHOW_TEMPLATE_CONTEXT': True,
             'ENABLE_STACKTRACES': True,
+            'SHOW_TOOLBAR_CALLBACK': lambda x: True,
         }
 
         if os.environ.get('PIN_PASSCODE_ENABLED', False):
