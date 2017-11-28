@@ -22,16 +22,42 @@
         {% else %}
             <p>None</p>
         {% endif %}
-
         <p><b>Max submissions per day: </b> {{ phase.max_submissions_per_day }}</p>
         <p><b>Max submissions total: </b> {{ phase.max_submissions }}</p>
     </div>
+    <!-- Where to put the warnings for bad scores if we're showing them on results as well -->
+    {% if scoring_exception and bad_scores %}
+        <div class="alert alert-danger">
+            <p>{{ scoring_exception }}</p>
+            <strong>Bad Scores:</strong>
+            <table class="table table-bordered table-responsive">
+                <thead>
+                <tr>
+                    <th>Rank:</th>
+                    <th>Value:</th>
+                    <th>Column Name:</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for bad_score in bad_scores %}
+                    <tr>
+                        <td>{{ bad_score.rnk }}</td>
+                        <td>{{ bad_score.val }}</td>
+                        <td>{{ bad_score.name }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+
     {% if groups|length > 0 %}
         <a class="icon-excel btn btn-default" href="/competitions/{{phase.competition.id}}/results/{{phase.id}}/data">Download CSV</a>
     {% endif %}
     {% if request.user == phase.competition.creator or request.user in phase.competition.admins.all %}
         <a class="icon-download btn btn-default" href="{% url "competitions:download_leaderboard_results" competition_pk=phase.competition.pk phase_pk=phase.pk %}">Download all submissions on leaderboard</a>
     {% endif %}
+
     <div class="leaderboard-result-table">
         {% for group in groups %}
             <table class="resultsTable dataTable">
@@ -41,6 +67,8 @@
                 <tr class="leaderboard-result-table-header">
                     <th rowspan="2">#</th>
                     <th rowspan="2">User</th>
+                    <th rowspan="2">Entries</th>
+                    <th rowspan="2">Date of Last Entry</th>
                     {% if phase.competition.allow_teams %}
                     <th rowspan="2">Team Name</th>
                     {% endif %}
@@ -79,17 +107,31 @@
                     {% for pk, scoredata in group.scores %}
                         <tr {% if phase.competition.anonymous_leaderboard and request.user.username == scoredata.username %}style="background-color: #D7FFFA;"{% endif %}>
                             <td class="row-position">
-                                {{ forloop.counter }}
+                                {% if forloop.counter < 4 %}
+                                    <p class="leader-top3">{{ forloop.counter }}</p>
+                                {% else %}
+                                    {{ forloop.counter }}
+                                {% endif %}
                             </td>
                             <td>
                                 {% if phase.competition.anonymous_leaderboard %}
-                                    <i>Anonymous</i>
+                                    {% if forloop.counter < 4 %}
+                                        <p class="leader-top3"><i>Anonymous</i></p><
+                                    {% else %}
+                                        <i>Anonymous</i>
+                                    {% endif %}
                                 {% else %}
-                                    {{scoredata.username}}
+                                    {% if forloop.counter < 4 %}
+                                        <p class="leader-top3">{{ scoredata.username }}</p>
+                                    {% else %}
+                                        {{ scoredata.username }}
+                                    {% endif %}
                                 {% endif %}
                             </td>
+                            <td> {{ scoredata.count }} </td>
+                            <td> {{ scoredata.date|date:"m/d/y" }} </td>
                             {% if phase.competition.allow_teams %}
-                            <td>{{scoredata.team_name|default_if_none:""}}</td>
+                            <td>{{ scoredata.team_name|default_if_none:"" }}</td>
                             {% endif %}
                             {% for head in group.headers %}
                                 {% for head_or_sub in head|get_array_or_attr:'subs' %}
@@ -109,15 +151,15 @@
                                     </a></br>
                                 </td>
                             {% endif %}
-                            {% if phase.competition.enable_medical_image_viewer %}
-                                {% with "http://cirrusweb.cloudapp.net:8080/Packages/MeVisLab/Private/Sources/Web/application/Presentation.html?module=CodaLabViewer&useTiling=1" as viewerlink %}
-                                    <td>
-                                        <a href="{{viewerlink}}&imageData={{phase.input_data.name|get_sas}}&overlayData={{scoredata.resultLocation|get_sas}}" onclick="window.open('{{viewerlink}}&imageData={{phase.input_data.name|get_sas}}&overlayData={{scoredata.resultLocation|get_sas}}', '_blank', 'width=1000, height=1000, location=0'); return false;">
-                                            View results
-                                        </a>
-                                    </td>
-                                {% endwith %}
-                            {% endif %}
+{#                            {% if phase.competition.enable_medical_image_viewer %}#}
+{#                                {% with "http://cirrusweb.cloudapp.net:8080/Packages/MeVisLab/Private/Sources/Web/application/Presentation.html?module=CodaLabViewer&useTiling=1" as viewerlink %}#}
+{#                                    <td>#}
+{#                                        <a href="{{viewerlink}}&imageData={{phase.input_data.name|get_sas}}&overlayData={{scoredata.resultLocation|get_sas}}" onclick="window.open('{{viewerlink}}&imageData={{phase.input_data.name|get_sas}}&overlayData={{scoredata.resultLocation|get_sas}}', '_blank', 'width=1000, height=1000, location=0'); return false;">#}
+{#                                            View results#}
+{#                                        </a>#}
+{#                                    </td>#}
+{#                                {% endwith %}#}
+{#                            {% endif %}#}
                         </tr>
                     {% endfor %}
                 {% endif %}

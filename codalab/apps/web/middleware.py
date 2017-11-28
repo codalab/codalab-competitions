@@ -1,7 +1,3 @@
-
-# Orignal version taken from http://www.djangosnippets.org/snippets/186/
-# Original author: udfalkso
-
 import sys
 import os
 import re
@@ -10,6 +6,9 @@ import tempfile
 import StringIO
 
 from django.conf import settings
+from userswitch.middleware import UserSwitchMiddleware
+
+from apps.customizer.models import Configuration
 
 words_re = re.compile( r'\s+' )
 
@@ -18,6 +17,7 @@ group_prefix_re = [
     re.compile( "^(.*)/[^/]+$" ), # extract module path
     re.compile( ".*" ),           # catch strange entries
 ]
+
 
 class ProfileMiddleware(object):
     """
@@ -110,4 +110,33 @@ class ProfileMiddleware(object):
 
             os.unlink(self.tmpfile)
 
+        return response
+
+
+class SingleCompetitionMiddleware(object):
+    def process_request(self, request):
+        if not settings.SINGLE_COMPETITION_VIEW_PK or not settings.CUSTOM_HEADER_LOGO:
+            # Try and get from database if we don't have competition set in ENV vars
+            config, created = Configuration.objects.get_or_create(pk=1)
+
+            if config.only_competition:
+                settings.SINGLE_COMPETITION_VIEW_PK = config.only_competition.pk
+
+            if config.header_logo:
+                settings.CUSTOM_HEADER_LOGO = config.header_logo.url
+
+
+class CodalabUserSwitchMiddleware(UserSwitchMiddleware):
+    """Augments the UserSwitchMiddleware helper from django-debug-toolbar to only allow superusers to
+    use this feature."""
+
+    def process_request(self, request):
+        if hasattr(request, 'user'):
+            if request.user.is_authenticated() and request.user.is_superuser:
+                return super(CodalabUserSwitchMiddleware, self).process_request(request)
+
+    def process_response(self, request, response):
+        if hasattr(request, 'user'):
+            if request.user.is_authenticated() and request.user.is_superuser:
+                return super(CodalabUserSwitchMiddleware, self).process_response(request, response)
         return response

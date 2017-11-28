@@ -1,9 +1,184 @@
 version: '2'
 services:
-  db:
-    image: mysql:5.7
-    environment:
-      - "MYSQL_ROOT_PASSWORD=mysql"
-      - "MYSQL_DATABASE=codalab_website"
+  # --------------------------------------------------------------------------
+  # HTTP Server
+  # --------------------------------------------------------------------------
+  nginx:
+    image: nginx
     ports:
-        - 3306:3306
+      - ${NGINX_PORT}:${NGINX_PORT}
+      - ${SSL_PORT}:${SSL_PORT}
+    command: bash -x /app/docker/run_nginx.sh
+    volumes:
+      - ./certs:/app/certs
+      - ./docker:/app/docker
+      - ./codalab:/app/codalab
+      - ${LOGGING_DIR}/nginx:/var/log/nginx/
+    env_file: .env
+    links:
+      - django:django
+    logging:
+      options:
+        max-size: "200k"
+    container_name: nginx
+
+
+  # --------------------------------------------------------------------------
+  # Database
+  # --------------------------------------------------------------------------
+  postgres:
+    image: postgres:9.6.3
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - ./docker:/app/docker
+      - ${LOGGING_DIR}/psql:/var/log/psql
+      - ${DB_DATA_PATH}:/var/lib/postgresql/data
+      - ./backups:/app/backups
+    env_file: .env
+    logging:
+      options:
+        max-size: "200k"
+    container_name: postgres
+
+
+  # --------------------------------------------------------------------------
+  # Message queue
+  # --------------------------------------------------------------------------
+  rabbit:
+    build:
+      # Custom Dockerfile for rabbit mostly to make building faster because
+      # of envsubst dependency
+      context: .
+      dockerfile: docker/rabbitmq/Dockerfile
+    hostname: rabbit
+    command: bash -x /app/docker/run_rabbitmq.sh
+    environment:
+      - RABBITMQ_LOGS=/var/log/rabbitmq/output.log
+      - RABBITMQ_SASL_LOGS=/var/log/rabbitmq/output_sasl.log
+    env_file: .env
+    volumes:
+      - ./docker:/app/docker
+      - ./certs:/app/certs
+      - ${LOGGING_DIR}/rabbitmq:/var/log/rabbitmq
+      - ./var/data/rabbitmq/:/var/lib/rabbitmq/mnesia
+    ports:
+      - ${RABBITMQ_PORT}:${RABBITMQ_PORT}
+      - ${RABBITMQ_MANAGEMENT_PORT}:${RABBITMQ_MANAGEMENT_PORT}
+    logging:
+      options:
+        max-size: "200k"
+    container_name: rabbit
+
+  flower:
+    build:
+      context: .
+      dockerfile: docker/flower/Dockerfile
+    hostname: flower
+    ports:
+      - ${FLOWER_PORT}:${FLOWER_PORT}
+    environment:
+      # These aren't set in .env
+      - AMQP_USERNAME=${RABBITMQ_DEFAULT_USER}
+      - AMQP_PASSWORD=${RABBITMQ_DEFAULT_PASS}
+      - AMQP_HOST=rabbit
+      - AMQP_PORT=${RABBITMQ_PORT}
+      - FLOWER_CERTFILE=${SSL_CERTIFICATE}
+      - FLOWER_KEYFILE=${SSL_CERTIFICATE_KEY}
+    volumes:
+      - ./certs:/app/certs
+    env_file: .env
+    links:
+      - rabbit
+    logging:
+      options:
+        max-size: "200k"
+    container_name: flower
+
+
+  # --------------------------------------------------------------------------
+  # Cache
+  # --------------------------------------------------------------------------
+  memcached:
+    image: memcached
+    hostname: memcached
+    command: "/usr/local/bin/memcached -u memcache -vv"
+    logging:
+      options:
+        max-size: "200k"
+    container_name: memcached
+
+
+  # --------------------------------------------------------------------------
+  # Django
+  # --------------------------------------------------------------------------
+  django:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    hostname: django
+    ports:
+      - ${DJANGO_PORT}:${DJANGO_PORT}
+    command: bash /app/docker/run_django.sh
+    volumes:
+      - ./certs:/app/certs
+      - ./codalab:/app/codalab
+      - ./docker:/app/docker
+      - ${LOGGING_DIR}/django:/var/log/django/
+      - ./backups:/app/backups
+    env_file: .env
+    environment:
+      - CONFIG_SERVER_NAME=${CODALAB_SITE_DOMAIN}
+      - PYTHONUNBUFFERED=1
+    links:
+      - postgres
+      - rabbit
+      - memcached
+    logging:
+      options:
+        max-size: "200k"
+    container_name: django
+
+
+  # --------------------------------------------------------------------------
+  # Celery Workers
+  # --------------------------------------------------------------------------
+  worker_site:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: sh /app/docker/run_site.sh
+    volumes:
+      - ./codalab:/app/codalab
+      - ./docker:/app/docker
+      - ${LOGGING_DIR}/worker_site:/var/log/
+    environment:
+      # Stop memory leaks
+      - DEBUG=False
+    env_file: .env
+    links:
+      - postgres
+      - rabbit
+    logging:
+      options:
+        max-size: "200k"
+    container_name: worker_site
+      
+  worker_compute:
+    image: ckcollab/competitions-v1-compute-worker
+    privileged: true
+    volumes:
+      - ${LOGGING_DIR}/worker_compute:/var/log/
+      - ${SUBMISSION_TEMP_DIR}:${SUBMISSION_TEMP_DIR}
+      - /var/run/docker.sock:/var/run/docker.sock
+    env_file: .env
+    links:
+      - rabbit
+    logging:
+      options:
+        max-size: "200k"
+    mem_limit: 1g
+    memswap_limit: 1g
+    container_name: worker_compute

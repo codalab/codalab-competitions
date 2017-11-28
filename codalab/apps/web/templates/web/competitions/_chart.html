@@ -1,0 +1,61 @@
+{% load codalab_tags %}
+
+<canvas id="chart" width="400" height="200"></canvas>
+<script>
+    var ctx = document.getElementById("chart");
+    var local_highscore = 0
+    var chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: [{% for day in graph.days %}"{{ day }}",{% endfor %}],
+            datasets: [
+                {
+                    type: 'line',
+                    label: 'High Score',
+                    yAxisID: 'score',
+                    data: [{% for high_score in graph.high_scores %}{{ high_score|floatformat }}, {% endfor %}],
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    backgroundColor: 'rgba(255, 255, 255, 0.0)'
+                },
+                {
+                    type: 'bar',
+                    label: 'Total Daily Submissions',
+                    yAxisID: 'count',
+                    data: [{% for count in graph.counts %}{{ count }}, {% endfor %}]
+                }
+            ]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    id: "count",
+                    position: "left",
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Submission count'
+                    },
+                    ticks: {
+                        beginAtZero: true,
+                        min: 0,
+                        suggestedMax: 25
+                    }
+                }, {
+                    id: "score",
+                    position: "right",
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Submission score',
+                        fontColor: 'rgba(255,99,132,1)',
+                    },
+                    ticks: {
+                        beginAtZero: true,
+                        suggestedMin: -0.1,
+                        suggestedMax: 1.2,
+                        // Reverse the score axis if we're doing descending (1 is better than 0)
+                        reverse: "{{ graph.sorting }}" !== "asc"
+                    }
+                }]
+            }
+        }
+    });
+</script>

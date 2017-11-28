@@ -1,11 +1,9 @@
-import warnings
 import os
 import sys
+import warnings
+import yaml
 
-from fabric.api import env
-from fabric.api import hide
-from fabric.api import local
-from fabric.api import quiet
+from fabric.api import env, hide, local, quiet, run, warn_only
 from fabric.colors import red, green
 
 from django.core.exceptions import ImproperlyConfigured
@@ -27,48 +25,54 @@ CURRENT_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 
+###############################################################################
+# Helpers
 def _print(str):
     sys.stdout.write(str)
     sys.stdout.flush()
 
 
 ###############################################################################
-# Site/compute workers
-###############################################################################
-def view_workers():
-    with quiet():
-        if not local('tmux attach -t codalab_workers').succeeded:
-            print 'No workers started, please use fab start_workers first'
+# DevOps
+def hosts(key):
+    """Loads hosts from server_config.yaml in the format of:
+            host_key:
+              hosts:
+                - hostname1
+                - hostname2
+        """
+    assert os.path.exists('server_config.yaml'), "server_config.yaml does not exist next to fabfile.py"
+    hosts = yaml.load(open('server_config.yaml').read())
+    env.hosts = hosts[key]['hosts']
 
 
-def start_workers():
-    '''starts compute + site workers in the background, use view_workers to look at the output'''
-    with quiet():
-        if not local('tmux -V').succeeded:
-            print 'Please install tmux before running this command, i.e. "brew install tmux"'
-            return
-        _print("Starting tmux...")
+def compute_worker_update():
+    """Updates compute workers to latest docker image
 
-        if local('tmux has-session -t codalab_workers').succeeded:
-            print green("session already started! fab view_workers to view it.")
-            return
-
-        if local('./tmux.sh').succeeded:
-            print green("done")
-        else:
-            print red("could not start workers!")
-
-
-def stop_workers():
-    with quiet():
-        _print("Stopping tmux...")
-        local('tmux kill-session -t codalab_workers')
-        print green("done")
+    Meant to be used with `hosts` like so:
+        fab hosts:prod_workers compute_worker_update
+    """
+    with warn_only():
+        # Error if compute_worker isn't already running
+        run('docker kill compute_worker')
+        run('docker rm compute_worker')
+    run('docker pull ckcollab/competitions-v1-compute-worker:latest')
+    run("docker run "
+            "--env-file .env "
+            "-v /var/run/docker.sock:/var/run/docker.sock "
+            "-v /tmp/codalab:/tmp/codalab "
+            "-d --restart unless-stopped "
+            "--name compute_worker -- "
+            "ckcollab/competitions-v1-compute-worker:latest")
 
 
-def restart_workers():
-    stop_workers()
-    start_workers()
+def compute_worker_status():
+    """Prints out `docker ps` for each worker
+
+    Meant to be used with `hosts` like so:
+        fab hosts:prod_workers compute_worker_status
+    """
+    run('docker ps')
 
 
 ###############################################################################
@@ -114,10 +118,3 @@ def test():
 ###############################################################################
 def fresh_db():
     raise NotImplementedError()
-
-
-# for custom local helper fabric file, useful if doing something with keys
-try:
-    from local_fabfile import *
-except Exception, e:
-    pass

@@ -1,6 +1,7 @@
 import mock
 from unittest import TestCase
 
+import pytest
 from django.contrib.auth import get_user_model
 from django.forms import ValidationError
 
@@ -10,6 +11,7 @@ from apps.authenz.adapter import CodalabAccountAdapter
 User = get_user_model()
 
 
+@pytest.mark.django_db
 class TestRestrictedUsernames(TestCase):
     OK_USERNAMES = ['john', "test.man", "one_mo_time-again"]
     BAD_USERNAME = ['@#@#DFAFDA', "gmail@gmail.com", "testing-omg./wut"]

@@ -4,14 +4,21 @@ from django import forms
 from django.core.files.base import ContentFile
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth import get_user_model
+from django.db.models import Q
+from s3direct.widgets import S3DirectWidget
+
 import models
 from tinymce.widgets import TinyMCE
 
+from apps.queues.models import Queue
 from apps.web.models import PageContainer
 from apps.web.models import ContentCategory
 from apps.web.models import SubmissionScoreSet
+from apps.web.utils import clean_html_script
+from apps.web.tasks import _make_url_sassy
 
 User = get_user_model()
+
 
 class CompetitionForm(forms.ModelForm):
     class Meta:
@@ -19,6 +26,7 @@ class CompetitionForm(forms.ModelForm):
         fields = (
             'title',
             'description',
+            'queue',
             'disallow_leaderboard_modifying',
             'force_submission_to_leaderboard',
             'image',
@@ -35,12 +43,26 @@ class CompetitionForm(forms.ModelForm):
             'allow_public_submissions',
             'enable_forum',
             'anonymous_leaderboard',
+            'enable_teams',
+            'require_team_approval',
+            'competition_docker_image',
         )
-        widgets = { 'description' : TinyMCE(attrs={'rows' : 20, 'class' : 'competition-editor-description'},
-                                            mce_attrs={"theme" : "advanced", "cleanup_on_startup" : True, "theme_advanced_toolbar_location" : "top", "gecko_spellcheck" : True})}
+        widgets = {'description': TinyMCE(attrs={'rows' : 20, 'class' : 'competition-editor-description'},
+                                          mce_attrs={"theme": "advanced", "cleanup_on_startup": True, "theme_advanced_toolbar_location": "top", "gecko_spellcheck": True})}
+
     def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user')
         super(CompetitionForm, self).__init__(*args, **kwargs)
         self.fields["admins"].widget.attrs["style"] = "width: 100%;"
+
+        # Get public queues and include current queue instance if it's selected
+        filters = Q(is_public=True) | Q(owner=user) | Q(organizers__in=[user])
+        if self.instance.queue:
+            filters |= Q(pk=self.instance.queue.pk)
+
+        self.fields["queue"].choices = [("", "Default")]
+        self.fields["queue"].choices += Queue.objects.filter(filters).values_list('pk', 'name').distinct()
+
 
 class CompetitionPhaseForm(forms.ModelForm):
     class Meta:
@@ -57,18 +79,29 @@ class CompetitionPhaseForm(forms.ModelForm):
             'is_scoring_only',
             'auto_migration',
             'leaderboard_management_mode',
+            'starting_kit_organizer_dataset',
+            'public_data_organizer_dataset',
             'input_data_organizer_dataset',
             'reference_data_organizer_dataset',
             'scoring_program_organizer_dataset',
             'phase_never_ends',
+            'force_best_submission_to_leaderboard',
+            'ingestion_program_organizer_dataset',
+            # 'default_docker_image`,
+            # 'disable_custom_docker_image',
+            # 'scoring_program_docker_image',
+            # 'ingestion_program_docker_image',
         )
+        # labels = {
+        #     'default_docker_image': "Default participant docker image",
+        # }
         widgets = {
             'leaderboard_management_mode' : forms.Select(
                 attrs={'class': 'competition-editor-phase-leaderboard-mode'},
                 choices=(('default', 'Default'), ('hide_results', 'Hide Results'))
             ),
             'DELETE' : forms.HiddenInput,
-            #'phasenumber': forms.HiddenInput
+            # 'phasenumber': forms.HiddenInput
         }
 
     def clean_reference_data_organizer_dataset(self):
@@ -97,7 +130,7 @@ class CompetitionPhaseForm(forms.ModelForm):
 class PageForm(forms.ModelForm):
     class Meta:
         model = models.Page
-        fields = ('category', 'rank', 'label', 'html', 'container')
+        fields = ('category', 'rank', 'label', 'html')
         widgets = { 'html' : TinyMCE(attrs={'rows' : 20, 'class' : 'competition-editor-page-html'},
                                      mce_attrs={"theme" : "advanced", "cleanup_on_startup" : True, "theme_advanced_toolbar_location" : "top", "gecko_spellcheck" : True}),
                     'DELETE' : forms.HiddenInput, 'container' : forms.HiddenInput}
@@ -105,6 +138,9 @@ class PageForm(forms.ModelForm):
     def save(self, commit=True):
 
         instance = super(PageForm, self).save(commit=False)
+
+        if instance.html:
+            instance.html = clean_html_script(instance.html)
 
         if instance.pk is None:
             instance.codename = self.cleaned_data['label']
@@ -149,9 +185,11 @@ class LeaderboardForm(forms.ModelForm):
 
     #     return instance
 
+
 class CompetitionDatasetForm(forms.ModelForm):
     class Meta:
         model = models.Dataset
+
 
 class CompetitionParticipantForm(forms.ModelForm):
     class Meta:
@@ -176,9 +214,9 @@ class OrganizerDataSetModelForm(forms.ModelForm):
     def clean_data_file(self):
         data = self.cleaned_data.get('data_file')
 
-        #if data and self.data.get("sub_data_files"):
+        # if data and self.data.get("sub_data_files"):
         #    raise forms.ValidationError("Cannot submit both single data file and multiple sub files!")
-        #elif not data and not self.data.get("sub_data_files"):
+        # elif not data and not self.data.get("sub_data_files"):
         if not data and not self.data.get("sub_data_files"):
             raise forms.ValidationError("This field is required.")
 
@@ -188,15 +226,8 @@ class OrganizerDataSetModelForm(forms.ModelForm):
         instance = super(OrganizerDataSetModelForm, self).save(commit=False)
         instance.uploaded_by = self.request_user
 
-        # Write sub bundle metadata, replaces old data_file!
         if len(self.cleaned_data.get("sub_data_files")) > 0:
-            lines = []
-
-            for dataset in self.cleaned_data.get("sub_data_files"):
-                file_name = os.path.splitext(os.path.basename(dataset.data_file.file.name))[0]
-                lines.append("%s: %s" % (file_name, dataset.data_file.file.name))
-
-            self.instance.data_file.save("metadata", ContentFile("\n".join(lines)))
+            instance.write_multidataset_metadata(datasets=self.cleaned_data.get("sub_data_files"))
 
         if commit:
             instance.save()
@@ -231,3 +262,30 @@ class UserSettingsForm(forms.ModelForm):
             'method_description': forms.Textarea(attrs={"class": "form-control"}),
             'bibtex': forms.Textarea(attrs={"class": "form-control"})
         }
+
+
+class CompetitionS3UploadForm(forms.ModelForm):
+
+    class Meta:
+        model = models.CompetitionDefBundle
+        fields = ('s3_config_bundle',)
+
+    def __init__(self, *args, **kwargs):
+        # Call constructor before fields are built
+        super(CompetitionS3UploadForm, self).__init__(*args, **kwargs)
+
+        self.fields['s3_config_bundle'].required = True
+
+
+class SubmissionS3UploadForm(forms.ModelForm):
+
+    class Meta:
+        model = models.CompetitionSubmission
+        fields = ('s3_file',)
+
+    def __init__(self, *args, **kwargs):
+        # Call constructor before fields are built
+        super(SubmissionS3UploadForm, self).__init__(*args, **kwargs)
+
+        self.fields['s3_file'].required = True
+        self.fields['s3_file'].label = ''

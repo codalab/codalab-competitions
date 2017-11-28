@@ -1,0 +1,44 @@
+{% extends "queues/base_queues.html" %}
+
+{% block head_title %}Queues list{% endblock %}
+{% block page_title %}Queues list{% endblock page_title %}
+
+{% block content %}
+    <div class="panel-body">
+        <a href="https://github.com/codalab/codalab-competitions/wiki/Dev-Worker-Queues">Read more about Worker Queues here.</a>
+
+        <a href="{% url "queues:create" %}" class="btn btn-primary" style="float: right; margin: 10px 0 10px 10px;">
+            Add Queue
+        </a>
+
+        <table class="table table-bordered">
+            <thead>
+            <tr style="font-weight: bold;">
+                <td>Name</td>
+                <td>Broker URL</td>
+                <td width="100px;">Is public?</td>
+                <td width="150px;">Actions</td>
+            </tr>
+            </thead>
+            <tbody>
+            {% for queue in object_list %}
+                <tr>
+                    <td>{{ queue.name }}</td>
+                    <td>{{ queue.broker_url }}</td>
+                    <td>{% if queue.is_public %}<i class="glyphicon glyphicon-ok"></i>{% endif %}</td>
+                    <td>
+                        <a href="{% url "queues:update" pk=queue.pk %}" class="btn btn-default">Edit</a>
+                        <a href="{% url "queues:delete" pk=queue.pk %}" class="btn btn-danger">Delete</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="4">
+                        <i style="display: block; padding: 20px; text-align: center;">No queues created, yet!</i>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

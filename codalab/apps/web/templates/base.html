@@ -24,19 +24,21 @@
         <link rel="stylesheet" href="{{ STATIC_URL }}css/jquery.dataTables.css">
         <link rel="stylesheet" href="{{ STATIC_URL }}css/jquery-editable.css">
         <link rel="stylesheet" href="{{ STATIC_URL }}js/vendor/select2/select2.css" />
+        <link rel="stylesheet" href="{{ STATIC_URL }}css/jquery-eu-cookie-law-popup.css">
         {% if compile_less %}
             <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/imports.css">
         {% else %}
             <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}less/imports.less">
             <script src="//cdnjs.cloudflare.com/ajax/libs/less.js/1.7.5/less.min.js"></script>
         {% endif %}
-
+        <script src="//cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.bundle.min.js"></script>
         <script src="{{ STATIC_URL }}js/vendor/jquery-1.10.2.min.js"></script>
         <script src="{{ STATIC_URL }}js/vendor/custom.modernizr.js"></script>
         <!-- IE Fix for HTML5 Tags -->
         <!--[if lt IE 9]>
             <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
         <![endif]-->
+        <script src="{{ STATIC_URL }}js/vendor/jquery-eu-cookie-law-popup.js"></script>
     {% endblock css %}
 
     {% block extra_headers %}
@@ -65,7 +67,13 @@
                     <span class="icon-bar"></span>
                 </button>
                 {% block title %}
-                    <a class="navbar-brand" href="/" tabIndex=1 target="_self"><img src="{{STATIC_URL}}img/codalab-logo-fullcolor-positive.png" alt="Home"></a>
+                    <a class="navbar-brand" href="/" tabIndex=1 target="_self">
+                        {% if CUSTOM_HEADER_LOGO %}
+                            <img src="{{ CUSTOM_HEADER_LOGO }}" alt="Home">
+                        {% else %}
+                            <img src="{{ STATIC_URL }}img/codalab-logo-fullcolor-positive.png" alt="Home">
+                        {% endif %}
+                    </a>
                 {% endblock title %}
             </div>
             {% block top_bar_right_menus %}
@@ -79,10 +87,16 @@
                     {% endif %}
                     <ul class="nav navbar-nav navbar-right">
                           <li class="{% active request '/my/' %}">
-                              {% if user.is_authenticated %}
-                                  <a href="/my">My Competitions</a>
+                              {% if SINGLE_COMPETITION_VIEW_PK %}
+                                  {% if request.user.is_superuser or request.user.is_staff %}
+                                      <a href="/my">My Competitions</a>
+                                  {% endif %}
                               {% else %}
-                                  <a href="/competitions/">Search Competitions</a>
+                                  {% if user.is_authenticated %}
+                                      <a href="/my">My Competitions</a>
+                                  {% else %}
+                                      <a href="/competitions/">Search Competitions</a>
+                                  {% endif %}
                               {% endif %}
                           </li>
                           <li class="{% active request '/my/' %}">
@@ -99,7 +113,15 @@
                                     <img src="{{ STATIC_URL }}img/icon_mini_avatar.png" class="mini-avatar" alt="{{user.username}}"> {{user.username}} <span class="caret"></span>
                                 </a>
                                 <ul class="dropdown-menu" role="menu">
+                                    {% if user.is_superuser %}
+                                        <li><a href="{% url 'admin_monitoring_links' %}">Admin Monitoring Links</a></li>
+                                        <li class="divider"></li>
+                                        <li><a href="{% url 'customize_codalab' %}">Customize Codalab</a></li>
+                                        <li class="divider"></li>
+                                    {% endif %}
                                     <li><a href="{% url 'user_settings' %}">Settings</a></li>
+                                    <li class="divider"></li>
+                                    <li><a href="{% url 'queues:list' %}">Worker Queue Management</a></li>
                                     <li class="divider"></li>
                                     <li><a href="/accounts/password/reset/" target="_self">Change Password</a></li>
                                     <li class="divider"></li>
@@ -143,11 +165,15 @@
     <footer class="navbar-fixed-bottom">
         <div class="container-fluid">
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="https://github.com/codalab/codalab/wiki/Project_About_CodaLab" target="_blank">About</a></li>
-                  <li><a href="https://groups.google.com/forum/#!forum/codalabdev" target="_blank">Forum</a></li>
-                  <li><a href="http://www.instant.ly/s/nLDX8/nav#p/186a0" target="_blank">Survey</a></li>
-                <li><a href="https://github.com/codalab/codalab/wiki/Privacy" target="_blank">Privacy and Terms</a></li>
-              <li><a>v{{ CODALAB_VERSION }}</a></li>
+                <li><a href="https://github.com/codalab/codalab/issues" target="_blank">Join us on Github for contact & bug reports</a></li>
+                {% if SINGLE_COMPETITION_VIEW_PK %}
+                    <li><a href="http://codalab.org/" target="_blank">Powered by Codalab</a></li>
+                {% else %}
+                    <li><a href="https://github.com/codalab/codalab/wiki/Project_About_CodaLab" target="_blank">About</a></li>
+                    <li><a href="https://github.com/codalab/codalab/wiki/Privacy" target="_blank">Privacy and Terms</a></li>
+                {% endif %}
+
+                <li><a>v{{ CODALAB_VERSION }}</a></li>
             </ul>
         </div>
     </footer>
@@ -159,16 +185,17 @@
     <script src="{{ STATIC_URL }}lib/jq/jquery.cookie.js"></script>
 
     <!--js without compressing, use on dev env-->
-    {% if is_dev %}
-    <script type="text/javascript" src="{{STATIC_URL}}js/app.js"></script>
-    <script type="text/javascript" src="{{STATIC_URL}}js/Competition.js"></script>
-    <script type="text/javascript" src="{{STATIC_URL}}js/main.js"></script>
-    {% endif %}
+{#    {% if is_dev %}#}
+        <script type="text/javascript" src="{{STATIC_URL}}js/app.js"></script>
+        <script type="text/javascript" src="{{STATIC_URL}}js/Competition.js"></script>
+        <script type="text/javascript" src="{{STATIC_URL}}js/main.js"></script>
+{#    {% endif %}#}
 
-    <!--Compress version, use on staging and production server-->
-    {% if not is_dev%}
-    <script src="{{ STATIC_URL }}codalab.min.js"></script>
-    {% endif %}
+    {# Just disabling this compressed stuff actually.. really unnecessary... #}
+{#    <!--Compress version, use on staging and production server-->#}
+{#    {% if not is_dev%}#}
+{#        <script src="{{ STATIC_URL }}codalab.min.js"></script>#}
+{#    {% endif %}#}
 
     <script type="text/javascript">
 
@@ -200,6 +227,7 @@
 
     {% analytical_body_top %}
     {% analytical_body_bottom %}
+    <div class="eupopup eupopup-top"></div>
 
 </body>
 </html>

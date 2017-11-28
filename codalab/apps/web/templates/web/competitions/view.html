@@ -23,15 +23,19 @@
 {% if request.user.is_staff %}
     <a href="{% url "competitions:download" competition_pk=competition.pk %}" class="btn btn-primary">DOWNLOAD COMPETITION BUNDLE!</a>
 {% endif %}
-
 {% if is_admin_or_owner %}
     <h3>Admin features</h3>
     <a href="{% url "competitions:edit" pk=competition.pk %}" class="btn btn-primary">Edit</a>
-    <a href="{% url 'my_competition_participants' competition_id=competition.pk %}" class="btn btn-primary">Participants</a>
+    <a href="{% url 'my_competition_participants' competition_id=competition.pk %}" class="btn btn-primary">
+        Participants
+        {% if comp_num_pending_teams > 0 %}
+        <span class="glyphicon glyphicon-exclamation-sign" style="color:red">
+        {% endif %}
+    </a>
     <a href="{% url 'my_competition_submissions' competition_id=competition.pk %}" class="btn btn-primary">Submissions</a>
+    <a href="{% url 'competitions:dumps' competition_pk=competition.pk %}" class="btn btn-primary">Dumps</a>
     <hr>
 {% endif %}
-
 <div class="competition-view">
     <div class="row">
         <div class="col-sm-2">
@@ -127,6 +131,21 @@
                     {% if competition.enable_forum %}
                     <li><a href="{% url 'forum_detail' forum_pk=competition.forum.pk %}">Forums <i class="glyphicon glyphicon-log-in"></i></a></li>
                     {% endif %}
+                    {% if competition.enable_teams %}
+                        {% if my_status == "approved" %}
+                            <li>
+                                <a href="{% url 'team_detail' competition_pk=competition.pk %}">Team
+                                    <i class="glyphicon glyphicon-cog"></i>
+                                    {% if new_team_submission > 0 %}
+                                        <span class="label label-danger">{{new_team_submission}}</span>
+                                    {% endif %}
+                                    {% if my_team_alert == 1 %}
+                                        <span class="glyphicon glyphicon-exclamation-sign" style="color:red"></span>
+                                    {% endif %}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endif %}
                 {% endif %}
             {% endfor %}
         </ul>
@@ -209,6 +228,58 @@
             {% endfor %}
         </div>
     </section>
+        <div class="row">
+        <div class="col-md-4">
+            {% if top_three_leaders %}
+                <div class="panel">
+                    <div class="panel-body"">
+                        <center><h4>Top Three</h4></center>
+                        <table class="table table-responsive">
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Username</th>
+                                    <th>Score</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for leader in top_three_leaders %}
+                                    <tr>
+                                        <td class="leader">{{ forloop.counter }}</td>
+                                        <td class="leader">{{ leader.username }}</td>
+                                        <td class="leader">{{ leader.score }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% else %}
+                <div class="panel">
+                    <div class="panel-body"">
+                        <center><h4>Top Three</h4></center>
+                        <table class="table table-responsive">
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Username</th>
+                                    <th>Score</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>No data</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        <div class="col-md-8">
+            {% include "web/competitions/_chart.html" %}
+        </div>
+    </div>
 </div>
 
 {% endblock content %}
@@ -253,4 +324,8 @@
         });
 
     </script>
+{% endblock %}
+
+{% block extra_headers %}
+    {{ submission_upload_form.media }}
 {% endblock %}

@@ -3,9 +3,11 @@ Defines Django views for 'apps.api' app for competitions
 """
 import json
 import logging
+import os
 
 from uuid import uuid4
 
+from django.utils.text import slugify
 from rest_framework import (permissions, status, viewsets, views, filters)
 from rest_framework.decorators import action, link, permission_classes
 from rest_framework.exceptions import PermissionDenied, ParseError
@@ -24,10 +26,10 @@ from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
 from django.utils.html import escape
 
-
 from apps.api import serializers
 from apps.jobs.models import Job
 from apps.web import models as webmodels
+from apps.teams import models as teammodels
 from apps.web.tasks import (create_competition, evaluate_submission)
 
 from codalab.azure_storage import make_blob_sas_url, PREFERRED_STORAGE_X_MS_VERSION
@@ -90,9 +92,10 @@ class CompetitionCreationApi(views.APIView):
         cdb.config_bundle.name = blob_name
         cdb.save()
         logger.debug("CompetitionCreation def: owner=%s; def=%s; blob=%s.", owner.id, cdb.pk, cdb.config_bundle.name)
-        job = create_competition(cdb.pk)
-        logger.debug("CompetitionCreation job: owner=%s; def=%s; job=%s.", owner.id, cdb.pk, job.pk)
-        return Response({'token' : job.pk}, status=status.HTTP_201_CREATED)
+        # Make up a job for this, although we've removed that old system...
+        job = Job.objects.create_job('create_competition', {'comp_def_id': cdb.pk})
+        create_competition.apply_async((job.pk, cdb.pk,))
+        return Response({'token': job.pk}, status=status.HTTP_201_CREATED)
 
 
 @permission_classes((permissions.IsAuthenticated,))
@@ -377,6 +380,33 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
 
         return Response(json.dumps(resp), content_type="application/json")
 
+    @action(methods=['POST', 'PUT'], permission_classes=[permissions.IsAuthenticated])
+    def team_status(self, request, pk=None):
+        comp = self.get_object()
+        resp = {}
+        status = request.DATA['status']
+        teamID = request.DATA['team_id']
+        reason = request.DATA['reason']
+
+        if comp.creator != request.user and request.user not in comp.admins.all():
+            raise PermissionDenied()
+
+        try:
+            team = teammodels.Team.objects.get(competition=comp, pk=teamID)
+            team.status = teammodels.TeamStatus.objects.get(codename=status)
+            team.reason = reason
+            team.save()
+            resp = {
+                'status': status,
+                'teamId': teamID,
+                'reason': reason
+            }
+        except ObjectDoesNotExist as e:
+            resp = {
+                'status': 400
+            }
+        return Response(json.dumps(resp), content_type="application/json")
+
     @action(permission_classes=[permissions.IsAuthenticated])
     def info(self, request, *args, **kwargs):
         comp = self.get_object()
@@ -423,7 +453,6 @@ competitionphase_retrieve = CompetitionPhaseAPIViewset.as_view({'get':'retrieve'
 class CompetitionPageViewSet(viewsets.ModelViewSet):
     ## TODO: Turn the custom logic here into a mixin for other content
     serializer_class = serializers.PageSerial
-    content_type = ContentType.objects.get_for_model(webmodels.Competition)
     queryset = webmodels.Page.objects.all()
     _pagecontainer = None
     _pagecontainer_q = None
@@ -439,6 +468,10 @@ class CompetitionPageViewSet(viewsets.ModelViewSet):
             return self.queryset.filter(**kw)
         else:
             return self.queryset
+
+    @classmethod
+    def get_content_type(cls, *args, **kwargs):
+        return ContentType.objects.get_for_model(webmodels.Competition)
 
     def dispatch(self, request, *args, **kwargs):
         if 'competition_id' in kwargs:
@@ -496,6 +529,7 @@ class CompetitionSubmissionSasApi(views.APIView):
         response_data = _generate_blob_sas_url(prefix, '.zip')
         return Response(response_data, status=status.HTTP_201_CREATED)
 
+
 @permission_classes((permissions.IsAuthenticated,))
 class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
     queryset = webmodels.CompetitionSubmission.objects.all()
@@ -524,11 +558,23 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
         obj.phase = phase
 
         blob_name = self.request.DATA['id'] if 'id' in self.request.DATA else ''
+
         if len(blob_name) <= 0:
             raise ParseError(detail='Invalid or missing tracking ID.')
-        obj.file.name = blob_name
+        if settings.USE_AWS:
+            # obj.readable_filename = os.path.basename(blob_name)
+            # Get file name from url and ensure we aren't getting GET params along with it
+            obj.readable_filename = blob_name.split('/')[-1]
+            obj.readable_filename = obj.readable_filename.split('?')[0]
+            obj.s3_file = blob_name
+        else:
+            obj.file.name = blob_name
 
         obj.description = escape(self.request.QUERY_PARAMS.get('description', ""))
+        if not phase.disable_custom_docker_image:
+            obj.docker_image = escape(self.request.QUERY_PARAMS.get('docker_image', ""))
+        if not obj.docker_image:
+            obj.docker_image = phase.competition.competition_docker_image or settings.DOCKER_DEFAULT_WORKER_IMAGE
         obj.team_name = escape(self.request.QUERY_PARAMS.get('team_name', ""))
         obj.organization_or_affiliation = escape(self.request.QUERY_PARAMS.get('organization_or_affiliation', ""))
         obj.method_name = escape(self.request.QUERY_PARAMS.get('method_name', ""))
@@ -536,10 +582,12 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
         obj.project_url = escape(self.request.QUERY_PARAMS.get('project_url', ""))
         obj.publication_url = escape(self.request.QUERY_PARAMS.get('publication_url', ""))
         obj.bibtex = escape(self.request.QUERY_PARAMS.get('bibtex', ""))
+        if phase.competition.queue:
+            obj.queue_name = phase.competition.queue.name or ''
 
     def post_save(self, obj, created):
         if created:
-            evaluate_submission(obj.pk, obj.phase.is_scoring_only)
+            evaluate_submission.apply_async((obj.pk, obj.phase.is_scoring_only))
 
     def handle_exception(self, exc):
         if type(exc) is DjangoPermissionDenied:

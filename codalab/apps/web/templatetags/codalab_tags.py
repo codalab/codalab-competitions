@@ -4,6 +4,8 @@ from django.forms import CheckboxInput
 
 # Long way to point to the CodaLab directory where azure_storage.py resides
 # sys.path to find the settings
+from apps.web.tasks import _make_url_sassy
+
 root_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))), "codalab")
 sys.path.append(root_dir)
 
@@ -56,14 +58,7 @@ def get_sas(value):
     """
     Helper to generate SAS URL for any BLOB.
     """
-    blob_name = value
-    url = make_blob_sas_url(settings.BUNDLE_AZURE_ACCOUNT_NAME,
-                            settings.BUNDLE_AZURE_ACCOUNT_KEY,
-                            settings.BUNDLE_AZURE_CONTAINER,
-                            blob_name,permission='r',
-                            duration=60)
-    print url
-    return url
+    return _make_url_sassy(value)
 
 
 @register.simple_tag

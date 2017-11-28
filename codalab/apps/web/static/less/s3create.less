@@ -1,0 +1,46 @@
+
+.s3-panel {
+  margin-top: 5%;
+
+  label, .errorlist{
+    display: none;
+  }
+
+  .btn-primary{
+    width: 50%;
+    min-width: 200px;
+    margin: 25px 25%;
+  }
+
+  .s3direct {
+      margin: 5 auto !important;
+      width: 100% !important;
+      float:none;
+
+      .file-link, .file-remove, .progress {
+      margin: 0 auto !important;
+      width: 100% !important;
+      float: none !important;
+      text-align: center !important;
+      }
+
+      .file-input {
+          display: none !important;
+      }
+    }
+}
+
+.glyphicon-refresh-animate {
+    -animation: spin .7s infinite linear;
+    -webkit-animation: spin2 .7s infinite linear;
+}
+
+@-webkit-keyframes spin2 {
+    from { -webkit-transform: rotate(0deg);}
+    to { -webkit-transform: rotate(360deg);}
+}
+
+@keyframes spin {
+    from { transform: scale(1) rotate(0deg);}
+    to { transform: scale(1) rotate(360deg);}
+}
