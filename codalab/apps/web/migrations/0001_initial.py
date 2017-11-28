@@ -7,6 +7,11 @@ from django.db import models
 
 class Migration(SchemaMigration):
 
+    depends_on = (
+        ("queues", "0001_initial"),
+    )
+
+
     def forwards(self, orm):
         pass
 

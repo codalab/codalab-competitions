@@ -214,30 +214,45 @@ def deploy_compute_worker(label):
     with cd(env.deploy_codalab_dir):
         run('git checkout %s' % env.git_codalab_tag)
         run('git pull')
-        run('source /home/azureuser/codalab-competitions/venv/bin/activate && pip install -r /home/azureuser/codalab-competitions/codalab/requirements/dev_azure.txt')
+
+        # make sure we remove old version, added 2/20/17 can remove a while after that
+        run('source /home/azureuser/codalab-competitions/venv/bin/activate && pip uninstall django-storages && pip uninstall django-storages-redux', warn_only=True)
+
+        run('source /home/azureuser/codalab-competitions/venv/bin/activate && pip install --upgrade pip && pip install -r /home/azureuser/codalab-competitions/codalab/requirements/dev_azure.txt')
+
         # run('./dev_setup.sh')
 
     # run("source /home/azureuser/codalab-competitions/venv/bin/activate && pip install bottle==0.12.8")
 
     current_directory = os.path.dirname(os.path.realpath(__file__))
 
+    # Adding compute worker upstart config
+    broker_url = cfg.get_broker_url()
+    compute_worker_conf_template = open('{}/configs/upstart/codalab-compute-worker.conf'.format(current_directory)).read()
+    compute_worker_conf = compute_worker_conf_template.format(
+        broker_url=broker_url
+    )
+    compute_worker_conf_buf = StringIO()
+    compute_worker_conf_buf.write(compute_worker_conf)
     put(
-        local_path='{}/configs/upstart/codalab-compute-worker.conf'.format(current_directory),
+        local_path=compute_worker_conf_buf,  # Path can be a file-like object, in this case our processed template
         remote_path='/etc/init/codalab-compute-worker.conf',
         use_sudo=True
     )
-    put(
-        local_path='{}/configs/upstart/codalab-monitor.conf'.format(current_directory),
-        remote_path='/etc/init/codalab-monitor.conf',
-        use_sudo=True
-    )
+
+    # Adding codalab monitor upstart config  ### No longer needed!
+    # put(
+    #     local_path='{}/configs/upstart/codalab-monitor.conf'.format(current_directory),
+    #     remote_path='/etc/init/codalab-monitor.conf',
+    #     use_sudo=True
+    # )
     # run("echo %s > /home/azureuser/codalab-competitions/codalab/codalabtools/compute/password.txt" % env.logs_password)
 
     with settings(warn_only=True):
         sudo("stop codalab-compute-worker")
-        sudo("stop codalab-monitor")
+        sudo("stop codalab-monitor")  # just in case it's left from a previous install
         sudo("start codalab-compute-worker")
-        sudo("start codalab-monitor")
+        # sudo("start codalab-monitor")
 
 
 @roles('web')
@@ -346,6 +361,7 @@ def deploy():
     """
     Put a maintenance message, deploy, and then restore website.
     """
+    get_database_dump()
     maintenance('begin')
     supervisor('stop')
     _deploy()
@@ -358,8 +374,8 @@ def _deploy():
     # Pull branch and run requirements file, for info about requirments look into dev_setp.sh
     env_prefix, env_shell = setup_env()
     with env_prefix, env_shell, cd(env.deploy_codalab_dir):
-        run('git pull')
         run('git checkout %s' % env.git_codalab_tag)
+        run('git pull')
         run('./dev_setup.sh')
 
     # Create local.py
@@ -374,6 +390,13 @@ def _deploy():
     # Update the website configuration
     env_prefix, env_shell = setup_env()
     with env_prefix, env_shell, cd(env.deploy_codalab_dir), cd('codalab'):
+        # make sure we remove old version, added 2/20/17 can remove a while after that
+        run('pip uninstall django-storages && pip uninstall django-storages-redux && pip install django-storages-redux==1.3.2', warn_only=True)
+
+        sudo('apt-get install -y nodejs-legacy npm')
+        run('npm install')
+        run('npm run build-css')
+
         # Generate configuration files (bundle_server_config, nginx, etc.)
         # For more info look into https://github.com/greyside/django-config-gen
         run('python manage.py config_gen')
@@ -496,7 +519,9 @@ def get_database_dump():
     db_user = configuration.getDatabaseUser()
     db_password = configuration.getDatabasePassword()
 
-    dump_file_name = 'competitiondump.sql.gz'
+    import time
+    timestr = time.strftime("%Y%m%d-%H%M%S")
+    dump_file_name = '{}-{}-competitiondump.sql.gz'.format(env.cfg_label, timestr)
 
     run('mysqldump --host=%s --user=%s --password=%s %s --port=3306 | gzip > /tmp/%s' % (
         db_host,
@@ -507,7 +532,7 @@ def get_database_dump():
         )
     backup_directory = os.path.dirname(os.path.realpath(__file__))
 
-    get('%s' % dump_file_name, backup_directory)
+    get('/tmp/%s' % dump_file_name, backup_directory)
 
 
 @roles('web')

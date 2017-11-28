@@ -127,28 +127,27 @@
                 font-size: @font-size-large;
                 background-color: @purple;
                 text-transform: none;
-                text-align: left;
+                text-align: center;
             }
             tr.leaderboard-result-table-header th {
               background: @blue;
               color: white;
+              text-align: left;
+            }
+            tr.leaderboard-result-table-header th:nth-child(1){
+              text-align: center;
             }
             tr:nth-child(odd) .column-selected {
                 background: #e8e8e8 !important;
             }
             tr:nth-child(2) {
-                th:nth-child(1) {
+                th:nth-child(-n+4), th:last-child {
                     background: #648ca8;
                     color: #fff;
                 }
-                th:nth-child(2) {
-                    background: #648ca8;
-                    color: #fff;
-                }
-                th:last-child {
-                    background: #648ca8;
-                    color: #fff;
-                }
+            }
+            td:nth-child(1){
+              text-align: center;
             }
         }
     }

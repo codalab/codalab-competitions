@@ -16,7 +16,7 @@
                     {% if field.name == "data_file" %}
                         <div class="btn-group margin-top margin-bottom">
                             <button type="button" id="single_dataset_button" class="button btn btn-default btn-secondary active">Single new dataset</button>
-                            <button type="button" id="multiple_dataset_button" class="button btn btn-default">Many existing datasets bundled into one new dataset</span>
+                            <button type="button" id="multiple_dataset_button" class="button btn btn-default">Many existing datasets bundled into one new dataset</button>
                         </div>
                     {% endif %}
                     <div class="form-group {% if field.name == 'data_file' or field.name == 'sub_data_files' %}hide{% endif %}{% if field.errors%} has-error{% endif %}" id="{{field.name}}-field-container">
@@ -102,7 +102,7 @@ $(function () {
     });
 
     // Init form single or many selection
-    var instance_already_many = {% if form.instance.sub_data_files.all %}true{% else %}false{% endif %};
+    var instance_already_many = {% if form.instance and form.instance.sub_data_files.all %}true{% else %}false{% endif %};
     var dataset_form_single_or_many = localStorage.getItem("dataset_form_single_or_many");
 
     if(instance_already_many) {

@@ -12,7 +12,100 @@
 
 {% block content %}
 
+<a href="{% url "competitions:view" pk=competition_id %}" class="pull-right" >Go Back to Competition Homepage</a>
+
 <div class="participants">
+    <h3>Teams</h3>
+    {% if teams_enabled %}
+        {% if pending_teams %}
+            {% for item in pending_teams %}
+                <div class="panel panel-default competitionUserBlock teamUserBlock_{{item.id}}">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">{{ item.name }}
+                            <span class="participationStatus label label-{{ item.status.codename }}">
+                                {% if item.status.codename == 'pending' %}
+                                    Team pending approval
+                                {% elif item.status.codename == 'approved' %}
+                                    Team approved
+                                {% elif item.status.codename == 'denied' %}
+                                    Team denied
+                                {% elif item.status.codename == 'deleted' %}
+                                    Team deleted
+                                {% else %}
+                                    Unknown Status
+                                {% endif %}
+                            </span>
+                        </h3>
+                    </div>
+                    <div class="panel-body">
+                        {% if item.status.codename == 'denied' %}
+                            <p class="text-danger">Reason: {{ item.reason }}</p>
+                        {% endif %}
+                        <form class="custom process_request" id="team_request_{{item.id}}">{% csrf_token %}
+                            <input type="hidden" name="team_id" value="{{item.id}}"/>
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <div class="form-group">
+                                        <label for="status">Status:</label>
+                                        <select id="status" name="status" class="form-control">
+                                            <option value="approved">Approve</option>
+                                            <option value="denied">Deny</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-8">
+                                    <div class="form-group">
+                                        <label for="reason">Reason:</label>
+                                        <textarea id="reason" name="reason" class="form-control"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <input type="submit" class="btn btn-primary pull-right" value="Process" />
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+        {% if not team_list %}
+             <p><em>There are no teams.</em></p>
+        {% else %}
+            <table class="resultsTable dataTable table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        {% for column in team_columns %}
+                        <th>
+                            <a href="?order={{column.name}}{% if direction == 'asc' and order == column.name %}&direction=desc{% endif %}">
+                                {{column.label}} <i class="{% if order == column.name %}{% if direction == 'asc'%}fi-arrow-down{% else %}fi-arrow-up{% endif %}{% endif %} right"></i>
+                            </a>
+                        </th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for team in team_list %}
+                    <tr>
+                        {% for column in team_columns %}
+                        <td>
+                            {% if column.label == "STATUS" %}
+                                <span class="label label-{{team|get_item:column.name}}">
+                                    {{team|get_item:column.name}}
+                                </span>
+                                <button type="button" class="pull-right btn btn-danger btn-sm team_revoke_button button {% if team.status == "denied" %}hide{% endif %}" team_id="{{ team.pk }}">Revoke</button>
+                                <button type="button" class="pull-right btn btn-success btn-sm team_reinstate_button button {% if team.status == "approved" %}hide{% endif %}" team_id="{{ team.pk }}">Reinstate</button>
+                            {% else %}
+                                {{ team|get_item:column.name }}
+                            {% endif %}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    {% endif %}
+</div>
+<div class="participants">
+    <h3>Participants</h3>
     {% if not object_list %}
         <p><em>There are no participants.</em></p>
     {% else %}
@@ -206,33 +299,64 @@
         var values = $(this).serialize();
         var fid = $(this).attr('id');
 
-        /* Send the data using post and put the results in a div */
-        request = $.ajax({
-            url: "/api/competition/{{competition_id}}/participation_status/",
-            type: "post",
-            dataType: "json",
-            accept: {'json': "application/json" },
-            data: values,
-            success: function(response, textStatus, jqXHR) {
-                $('#'+fid).remove();
-                var data = $.parseJSON(response);
+        if (fid.match('team_request_')) {
+            /* Send the data using post and put the results in a div */
+            request = $.ajax({
+                url: "/api/competition/{{competition_id}}/team_status/",
+                type: "post",
+                dataType: "json",
+                accept: {'json': "application/json" },
+                data: values,
+                success: function(response, textStatus, jqXHR) {
+                    $('#'+fid).remove();
+                    var data = $.parseJSON(response);
 
-                var pid = $('div.competitionUserBlock_' + data.participantId + ' p.participationStatus');
+                    var pid = $('div.teamUserBlock_' + data.teamId + ' .participationStatus');
 
 
-                pid.text(ParticipateStatusText[data.status]);
+                    pid.text(TeamStatusText[data.status]);
 
-                if(data.reason) {
-                   var reasontext = '<p style="' + ParticipationReasonStyle[data.status] + ';">Reason: ' + data.reason +'</p>';
+                    if(data.reason) {
+                       var reasontext = '<p style="' + TeamReasonStyle[data.status] + ';">Reason: ' + data.reason +'</p>';
 
-                   pid.append(reasontext);
-               }
+                       pid.append(reasontext);
+                   }
 
-            },
-            error: function(jsXHR, textStatus, errorThrown) {
-                alert("There was a problem processing this request for this competition.");;
-            }
-        });
+                },
+                error: function(jsXHR, textStatus, errorThrown) {
+                    alert("There was a problem processing this request for this competition.");;
+                }
+            });
+        } else {
+            /* Send the data using post and put the results in a div */
+            request = $.ajax({
+                url: "/api/competition/{{competition_id}}/participation_status/",
+                type: "post",
+                dataType: "json",
+                accept: {'json': "application/json"},
+                data: values,
+                success: function (response, textStatus, jqXHR) {
+                    $('#' + fid).remove();
+                    var data = $.parseJSON(response);
+
+                    var pid = $('div.competitionUserBlock_' + data.participantId + ' p.participationStatus');
+
+
+                    pid.text(ParticipateStatusText[data.status]);
+
+                    if (data.reason) {
+                        var reasontext = '<p style="' + ParticipationReasonStyle[data.status] + ';">Reason: ' + data.reason + '</p>';
+
+                        pid.append(reasontext);
+                    }
+
+                },
+                error: function (jsXHR, textStatus, errorThrown) {
+                    alert("There was a problem processing this request for this competition.");
+                    ;
+                }
+            });
+        }
     });
 
     // Send email to participants

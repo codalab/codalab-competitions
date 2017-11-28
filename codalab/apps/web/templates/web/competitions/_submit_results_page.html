@@ -29,6 +29,12 @@
         <div class="form-group">
             <label class="control-label">Click the Submit button to upload a new submission.</label>
 
+{#            {% if not phase.is_scoring_only and not phase.disable_custom_docker_image %}#}
+{#                <div class="form-group">#}
+{#                    <input maxLength="128" class="form-control" id="submission_docker_image" placeholder="Optional docker image name, eg codalab/default">#}
+{#                </div>#}
+{#            {% endif %}#}
+
             {% if not phase.competition.enable_per_submission_metadata %}
                 <textarea id="submission_description_textarea" class="form-control" placeholder="Optionally add more information about this submission"></textarea>
             {% else %}
@@ -39,11 +45,28 @@
                 <br><b>Publication URL: </b><input id="submission_publication_url" class="form-control" placeholder="Publication URL" value="{{ last_submission_publication_url|default_if_none:""|escape }}">
                 <br><b>Bibtex: </b><textarea id="submission_bibtex" class="form-control" placeholder="Bibtex">{{ last_submission_bibtex|default_if_none:""|escape }}</textarea>
                 <br><b>Organization/affiliation: </b><input id="submission_organization_or_affiliation" class="form-control" placeholder="Organization or Affiliation" value="{{ last_submission_organization_or_affiliation|default_if_none:""|escape }}">
-
             {% endif %}
         </div>
-        <button id="fileUploadButton" class="button btn btn-primary {% if not phase.reference_data %}disabled{% endif %}"
-                        {% if not phase.reference_data %}disabled="disabled"{% endif %}>Submit</button>
+
+        {% if USE_AWS %}
+            <form id="s3_upload_form" action="" method="post">
+                {% csrf_token %}
+                {{ form }}
+                <div id="s3-file-upload"
+                        class="button btn btn-primary {% if not phase.reference_data %}disabled{% endif %}"
+                        {% if not phase.reference_data %}disabled="disabled"{% endif %}>
+                    Submit
+                </div>
+            </form>
+        {% else %}
+            <button id="fileUploadButton"
+                    class="button btn btn-primary {% if not phase.reference_data %}disabled{% endif %}"
+                    {% if not phase.reference_data %}disabled="disabled"{% endif %}>
+                Submit
+            </button>
+        {% endif %}
+
+
         {% if not phase.reference_data %}
             <p><em>This phase doesn't have reference_data supplied yet, please add reference data before submissions may be uploaded!</em></p>
         {% endif %}
@@ -66,24 +89,26 @@
             <thead>
                 <tr>
                     <th>#</th>
+                    <th>Score</th>
                     <th>Filename</th>
+                    <th>Score</th>
                     <th>Submission date</th>
                     <th>Status</th>
                     <th class="text-center"><span class="glyphicon glyphicon-ok"></span></th>
-                    <th></th>
                 </tr>
             </thead>
             <tbody>
             {% if submission_info_list|length_is:"0" %}
                 <tr class="noData">
-                    <td class="tdDetails" colspan="6">No data available in table</td>
+                    <td class="tdDetails" colspan="7">No data available in table</td>
                 </tr>
             {% else %}
                 {% for submission_info in submission_info_list %}
-                    <tr id="{{submission_info.id}}"
+                    <tr id="{{ submission_info.id }}"
                         {% if submission_info.exception_details %}
                             data-exception="{{ submission_info.exception_details|escape }}"
                         {% endif %}
+                        data-score="{{ submission_info.score|default_if_none:""|escape }}"
                         data-description="{{ submission_info.description|default_if_none:""|escape }}"
                         data-method-name="{{ submission_info.method_name|default_if_none:""|escape }}"
                         data-method-description="{{ submission_info.method_description|default_if_none:""|escape }}"
@@ -99,9 +124,10 @@
                             <input type="hidden" name="state" value='0' />
                         {% endif %}
                         <td>{{ forloop.counter }}</td>
-                        <td>{{submission_info.filename}}</td>
-                        <td>{{submission_info.submitted_at|date:"m/d/Y H:i:s"}}</td>
-                        <td class="statusName">{{submission_info.status_name}}</td>
+                        <td>{{ submission_info.score }}</td>
+                        <td>{{ submission_info.filename }}</td>
+                        <td>{{ submission_info.submitted_at|date:"m/d/Y H:i:s" }}</td>
+                        <td class="statusName">{{ submission_info.status_name }}</td>
                         {% if submission_info.is_in_leaderboard %}
                             <td class="status submitted text-center"><span class="glyphicon glyphicon-ok text-success"></span></td>
                         {% else %}
@@ -116,3 +142,62 @@
     </div>
 {% include "web/common/_submission_details_template.html" %}
 {% endif %}
+
+<script>
+    //**************************************************************//
+    //**                 docker image max length                  **//
+    //**************************************************************//
+{#    $('#submission_docker_image').keyup(function () {#}
+{#           var max_length = 128;#}
+{#           var text = $(this).val();#}
+{#           var text_length = text.length;#}
+{#           if (text_length >= max_length) {#}
+{#               $(this).val(text.substring(0, (max_length)));#}
+{#               alert("Sorry, only " + max_length + " characters are allowed");#}
+{#           }#}
+{#       });#}
+{#    //**************************************************************//#}
+{#    //**                 docker image local storage               **//#}
+{#    //**************************************************************//#}
+{#    var docker_image_key = window.location.href + '_docker_image'#}
+{#    $(document).ready(function() {#}
+{#        load_settings()#}
+{#    })#}
+{#    $('#s3-file-upload, #fileUploadButton').click(save_settings) //Azure and S3#}
+{#    function load_settings() {#}
+{#        var remembered_image = localStorage.getItem(docker_image_key)#}
+{#        if(remembered_image) {#}
+{#            $('#submission_docker_image').val()#}
+{#        }#}
+{#    }#}
+{#    function save_settings() {#}
+{#        localStorage.setItem(docker_image_key, $('#submission_docker_image').val())#}
+{#    }#}
+    //**************************************************************//
+    //**                 S3 Filestorage functions                 **//
+    //**************************************************************//
+    $("#s3-file-upload").click(function(e) {
+        // reset form
+        $(".s3direct .file-input").val('')
+        $('.s3direct a.file-link').attr('href', '')
+
+        $(".s3direct .file-input").click()
+    })
+
+    $(".s3direct .file-input").change(function(){
+        if($(".s3direct .file-input").val() == '') {
+            return
+        }
+
+        var test_if_done = function () {
+            var uploaded_url = $('.s3direct a.file-link').attr('href')
+
+            if (uploaded_url && uploaded_url != '' && uploaded_url.length > 0) {
+                Competition.submitUploadedSubmissionDetails(undefined, uploaded_url)
+            } else {
+                setTimeout(test_if_done, 100)
+            }
+        }
+        test_if_done()
+    })
+</script>

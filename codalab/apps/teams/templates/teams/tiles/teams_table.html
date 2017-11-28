@@ -1,0 +1,42 @@
+{# This page accepts the following params: #}
+{#    columns: The list of columns of the table #}
+{#    teams:   The list of teams pending to be accepted/rejected #}
+{% load static %}
+{% load humanize %}
+{% load staticfiles %}
+{% load codalab_tags %}
+{% load tz %}
+
+
+<table class="resultsTable dataTable table table-striped table-bordered">
+    <thead>
+        <tr>
+            {% for column in columns %}
+            <th>
+                <a href="?order={{column.name}}{% if direction == 'asc' and order == column.name %}&direction=desc{% endif %}">
+                    {{column.label}} <i class="{% if order == column.name %}{% if direction == 'asc'%}fi-arrow-down{% else %}fi-arrow-up{% endif %}{% endif %} right"></i>
+                </a>
+            </th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for team in teams %}
+        <tr>
+            {% for column in columns %}
+            <td>
+                {% if column.label == "STATUS" %}
+                    <span class="label label-{{team|get_item:column.name}}">
+                        {{team|get_item:column.name}}
+                    </span>
+                    <button type="button" class="pull-right btn btn-danger btn-sm team_revoke_button button {% if team.status == "denied" %}hide{% endif %}" team_id="{{ team.pk }}">Revoke</button>
+                    <button type="button" class="pull-right btn btn-success btn-sm team_reinstate_button button {% if team.status == "approved" %}hide{% endif %}" team_id="{{ team.pk }}">Reinstate</button>
+                {% else %}
+                    {{ team|get_item:column.name }}
+                {% endif %}
+            </td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

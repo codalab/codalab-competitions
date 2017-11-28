@@ -39,6 +39,11 @@
                                             <li><a href="/my/competition/submission/_/output.zip">Download evaluation output from scoring step</a></li>
                                         {% if user.id == phase.competition.creator.id %}
                                             <li><a href="/my/competition/submission/_/private_output.zip">Download private output from scoring step</a></li>
+
+                                            {% if not phase.is_scoring_only and phase.ingestion_program %}
+                                                <li><a href="/my/competition/submission/_/ingestion_program_stdout_file.txt" target="_blank">View ingestion output log</a></li>
+                                                <li><a href="/my/competition/submission/_/ingestion_program_stderr_file.txt" target="_blank">View ingestion error log</a></li>
+                                            {% endif %}
                                         {% endif %}
                                     {% endif %}
                                 </ul>
@@ -58,6 +63,7 @@
         <table id="submission_row_template">
             <tr>
                 <input type="hidden" name="state" value="0" />
+                <td></td>
                 <td></td>
                 <td></td>
                 <td></td>

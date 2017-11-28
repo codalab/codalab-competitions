@@ -1,0 +1,55 @@
+{# This page accepts the following params: #}
+{#    team: Object with the team information #}
+{#    manage: Indicates if the user can edit the team #}
+{% load static %}
+{% load humanize %}
+{% load staticfiles %}
+{% load codalab_tags %}
+{% load team_tags %}
+{% load tz %}
+
+<div class="team-tile">
+	<input id="teamID" type="hidden" value="{{ team.id }}" />
+	<div class="row">
+		<div class="col-sm-2 col-md-2">
+			<div class="img-container">
+				{% if team.image_url == None %}
+					<img src="{% static 'img/ProfileImageDummy.jpg' %}" class="img-responsive">
+				{% else %}
+					<img src="{{ team.image_url }}" class="img-responsive">
+				{% endif %}
+			</div>
+		</div>
+		<div class="col-sm-6 col-md-6">
+			<h3>{{ team.name }}</h3>
+			<p class="organizer">Created by {{ team.creator.username }}</p>
+			<p>{{ team.description|safe|truncatewords_html:20 }}</p>
+		</div>
+    	<div class="col-sm-4 col-md-4 right-panel">
+			{{ team.created_at|date:"M d, Y" }}<br>
+            <b>{{ team.active_members|length}}</b> member{% if team.active_members|length > 1 %}s{% endif %}<br>
+        </div>
+
+        <br><br>
+    </div>
+    <div class="row">
+    	<div class="team-actions" class="columns cursor-default myCompetitionButtons">
+			<div class="btn-group btn-group-justified">
+				{% if request.user == team.creator %}
+					{% if team.status.codename == 'pending' %}
+						<a class="btn btn-sm btn-primary" href="{% url 'team_delete' competition_pk=team.competition.pk team_pk=team.pk%}">Delete</a>
+					{% endif %}
+					{% if team.status.codename != 'deleted' and team.status.codename != 'denied' %}
+						<a class="btn btn-sm btn-primary" href="{% url 'team_edit' competition_pk=team.competition.pk team_pk=team.pk%}">Edit</a>
+					{% endif %}
+				{% else %}
+					{% if team.allow_requests %}
+						{% if not team|is_member:request.user and not team|has_applied:request.user %}
+							<a class="btn btn-sm btn-primary" href="{% url 'team_enrol' competition_pk=competition.pk team_pk=team.pk%}">Request enrolment</a>
+						{% endif %}
+					{% endif %}
+				{% endif %}
+			</div>
+		</div>
+	</div>
+</div>

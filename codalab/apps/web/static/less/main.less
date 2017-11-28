@@ -10,6 +10,13 @@ body {
         }
     }
 }
+
+@media (min-width: 992px) {
+    .container {
+        width: 1170px;
+    }
+}
+
 .jumbotron {
     background: url('../img/slider_exp_comp.gif') repeat-x center center;
     background-size:cover;
@@ -224,12 +231,12 @@ This code is for 768px and up
 */
 @media screen and (min-width: @screen-sm-min) {
     .homepage-competition-tile {
-        height: 110px;
+        //height: 110px;
         .row{
             height: 95%;
             .col-sm-6{
               height: 100%;
-              overflow: scroll;
+              //overflow: scroll;
             }
             .col-sm-4{
               padding-top: 15px;
@@ -243,12 +250,12 @@ This code is for 768px and up
 
 @media screen and (min-width: @screen-md-min) {
     .homepage-competition-tile {
-        height: 110px;
+        //height: 110px;
         .row{
           height: 95%;
         .col-sm-6{
           height: 100%;
-          overflow: scroll;
+          //overflow: scroll;
           padding-bottom: 10px;
         }
         .col-sm-4{
@@ -262,6 +269,10 @@ This code is for 768px and up
 
 .competition-tile .row .right-panel-homepage{
   line-height: 20px;
+}
+
+.competition-tile.full-width .row {
+    padding-bottom: 7px;
 }
 
 .container .row .competition-latest-list{
@@ -283,4 +294,37 @@ This code is for 768px and up
   pre{
     white-space: pre-wrap;
   }
+}
+
+body textarea {
+  resize: vertical;
+}
+
+.logo-image {
+  max-width: 200px;
+}
+
+.image-removed {
+  display: none;
+}
+
+label[for="image-clear_id"] {
+  display: none;
+}
+
+#image-clear_id {
+  display: none;
+}
+
+.leader-top3 {
+    font-weight: bolder;
+    color: green;
+}
+
+starting_kit_td {
+    padding-top: @navbar-height + 2px;
+}
+
+starting_kit_table {
+    border: 1px solid #000000;
 }

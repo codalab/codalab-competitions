@@ -1,0 +1,17 @@
+{% extends "queues/base_queues.html" %}
+
+{% block head_title %}Queue delete{% endblock %}
+{% block page_title %}Queue delete{% endblock page_title %}
+
+{% block content %}
+    <div class="panel-body">
+        <form action="" method="post" style="text-align: center;">
+            {% csrf_token %}
+
+            <h3>Are you sure you want to delete this queue?</h3>
+
+            <input type="submit" value="Confirm delete" class="btn btn-danger">
+            <a href="{% url "queues:list" %}" class="btn btn-default" style="margin-right: 10px;">Cancel</a>
+        </form>
+    </div>
+{% endblock %}

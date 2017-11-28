@@ -8,6 +8,7 @@ urlpatterns = patterns(
     url(r'^$', views.competition_index, name='list'),
     url(r'^(?P<pk>\d+)$', views.CompetitionDetailView.as_view(), name='view'),
     url(r'^create$', views.CompetitionUpload.as_view(), name='create'),
+    url(r'^s3_create_competition$', views.CompetitionS3Upload.as_view(), name='s3_create_competition'),
     url(r'^edit_competition/(?P<pk>\d+)$', views.CompetitionEdit.as_view(), name='edit'),
     url(r'^delete_competition/(?P<pk>\d+)$', views.CompetitionDelete.as_view(), name='delete'),
     url(r'^(?P<id>\d+)/submissions/(?P<phase>\d+)$', views.CompetitionSubmissionsPage.as_view(), name='competition_submissions_page'),
@@ -18,10 +19,10 @@ urlpatterns = patterns(
         name='my_competition_output'),
     url(r'^(?P<id>\d+)/results/(?P<phase>\d+)/data$', views.CompetitionResultsDownload.as_view(), name='competition_results_download'),
     url(r'^(?P<id>\d+)/results_complete/(?P<phase>\d+)/data$', views.CompetitionCompleteResultsDownload.as_view(), name='competition_results_complete_download'),
-    url(r'^check_phase_migrations', views.CompetitionCheckMigrations.as_view(), name="competition_check_phase_migrations"),
     url(r'^message_participants/(?P<competition_id>\d+)', views.competition_message_participants, name="competition_message_participants"),
     url(r'^submission_delete/(?P<pk>\d+)', views.SubmissionDelete.as_view(), name="submission_delete"),
     url(r'^download_yaml/(?P<competition_pk>\d+)', views.download_competition_yaml, name="download_yaml"),
+    url(r'^make_modified_bundle/(?P<competition_pk>\d+)/', views.start_make_bundle_task, name="make_bundle"),
     url(r'^download/(?P<competition_pk>\d+)', views.download_competition_bundle, name="download"),
     url(r'^download_leaderboard_results/(?P<competition_pk>\d+)/(?P<phase_pk>\d+)', views.download_leaderboard_results, name="download_leaderboard_results"),
     url(r'^update_description/(?P<submission_pk>\d+)', views.submission_update_description, name="submission_update_description"),
@@ -32,4 +33,7 @@ urlpatterns = patterns(
     url(r'^submission_migrate/(?P<pk>\d+)', views.submission_migrate, name="submission_migrate"),
     url(r'^public_submissions/(?P<pk>\d+)$', views.CompetitionPublicSubmission.as_view(), name='public_submissions'),
     url(r'^(?P<pk>\d+)/public_submissions/(?P<phase>\d+)$', views.CompetitionPublicSubmissionByPhases.as_view(), name='public_submissions_phase'),
+    url(r'^(?P<competition_pk>\d+)/dumps/$', views.competition_dumps_view, name='dumps'),
+    url(r'^(?P<pk>\d+)/delete_dump/$', views.CompetitionDumpDeleteView.as_view(), name="delete_dump"),
+
 )

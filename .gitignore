@@ -1,5 +1,14 @@
+# Docker #
+##########
+.env
+!certs/.gitkeep
+certs/
+var/*
+docker-compose.override.yml
+
 # CodaLab Files #
 #################
+codalab/node_modules/
 codalab/config/generated
 codalab/static/**/**
 codalab/media/**/**
@@ -7,6 +16,8 @@ codalab/clip
 **/**/.codalabconfig
 codalab/scores.txt
 codalab/codalab/scores.txt
+codalab/apps/web/static/css/imports.css
+codalab/celerybeat-schedule
 
 # Virtuelenv files #
 ####################
@@ -60,6 +71,7 @@ venv/
 ######################
 *.log
 *.sql
+*.sql.gz
 *.sqlite*
 *.db
 *.pid
@@ -89,3 +101,14 @@ ace-builds-master
 # Local files to be ignored #
 ##############################
 /codalab/local_fabfile.py
+/codalab/server_config.yaml
+
+# Stress testing #
+##################
+scripts/stress_testing/approve_emails.txt
+scripts/stress_testing/submission_ids.txt
+scripts/stress_testing/report.csv
+
+# Backups #
+###########
+backups/

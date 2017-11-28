@@ -33,6 +33,8 @@
                     <td>Submitted by</td>
                     <td width="150">Date</td>
                     <td>Compute worker</td>
+                    <td>Docker image</td>
+                    <td>Queue name</td>
                     <td>Submission ID#</td>
                     <td>Status</td>
                     <td>Prediction/Scoring?</td>
@@ -53,6 +55,8 @@
                             <td>{{ metadata.submission.participant.user.username }}</td>
                             <td>{{ metadata.submission.submitted_at|date:"Y-m-d h:m" }}</td>
                             <td>{{ metadata.hostname }}</td>
+                            <td>{{ submission.docker_image }}</td>
+                            <td>{{ submission.queue_name }}</td>
                             <td>{{ metadata.submission.pk }}</td>
                             <td>{{ metadata.submission.status }}</td>
                             <td>{% if metadata.is_predict %}Prediction{% else %}Scoring{% endif %}</td>
@@ -60,9 +64,9 @@
                             <td>{{ metadata.simple.beginning_virtual_memory_usage }}</td>
                             <td>{{ metadata.simple.beginning_swap_memory_usage }}</td>
                             <td>{{ metadata.simple.beginning_cpu_usage }}</td>
+                            <td>{{ metadata.simple.end_cpu_usage }}</td>
                             <td>{{ metadata.simple.end_virtual_memory_usage }}</td>
                             <td>{{ metadata.simple.end_swap_memory_usage }}</td>
-                            <td>{{ metadata.simple.end_cpu_usage }}</td>
                         </tr>
                     {% endfor %}
                 {% endfor %}

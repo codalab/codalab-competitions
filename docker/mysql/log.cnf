@@ -1,0 +1,5 @@
+[mysqld]
+log-error = /var/log/mysql/error.log
+slow_query_log = ON
+slow_query_log_file = /var/log/mysql/slow.log
+slow_launch_time = 2
