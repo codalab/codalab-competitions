@@ -29,9 +29,9 @@
         </div>
 
         {% if scoring_exception and bad_scores %}
-            <button class="btn btn-danger" data-toggle="collapse" data-target="#demo">Show Leaderboard Debug</button>
+            <button class="btn btn-danger" data-toggle="collapse" data-target="#leaderboard-debug">Show Leaderboard Debug</button>
 
-            <div id="demo" class="collapse well">
+            <div id="leaderboard-debug" class="collapse well">
                 <p>{{ scoring_exception }}</p>
                 <strong>Bad Scores:</strong>
                 <table class="table table-bordered table-responsive bg-warning">
