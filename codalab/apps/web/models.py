@@ -1172,6 +1172,10 @@ class CompetitionPhase(models.Model):
                     del result['scoredefs']
                 except KeyError:
                     pass
+
+        for group in results:
+            if type(group['scores']) == dict:
+                group['scores'] = group['scores'].items()
         return results
 
 
