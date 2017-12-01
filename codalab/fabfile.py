@@ -3,8 +3,10 @@ import sys
 import warnings
 import yaml
 
-from fabric.api import env, hide, local, quiet, run, warn_only
+from fabric import network
+from fabric.api import env, hide, local, quiet, run, warn_only, sudo
 from fabric.colors import red, green
+from fabric.state import connections
 
 from django.core.exceptions import ImproperlyConfigured
 
@@ -46,6 +48,29 @@ def hosts(key):
     env.hosts = hosts[key]['hosts']
 
 
+def compute_worker_init(BROKER_URL, BROKER_USE_SSL=False):
+    """Initializes compute worker by installing docker and the compute worker image
+
+    Meant to be used with `hosts` like so:
+        fab hosts:prod_workers compute_worker_initialize:url,True
+    """
+    # Get proper SSL flag value
+    BROKER_USE_SSL = bool(BROKER_USE_SSL)
+
+    # Make .env file settings for worker
+    env_file = 'BROKER_URL={}'.format(BROKER_URL)
+    if BROKER_USE_SSL:
+        env_file += "\nBROKER_USE_SSL=True"
+    run('echo "{}" > .env'.format(env_file))
+
+    # Install docker
+    run('curl https://get.docker.com | sudo sh')
+
+    # Add user to group and reset user group settings so we can run docker without sudo
+    user = str(run("echo $USER"))  # we have to get the user name this way...
+    sudo('usermod -aG docker {}'.format(user))
+
+
 def compute_worker_update():
     """Updates compute workers to latest docker image
 
@@ -57,6 +82,11 @@ def compute_worker_update():
         run('docker kill compute_worker')
         run('docker rm compute_worker')
     run('docker pull ckcollab/competitions-v1-compute-worker:latest')
+    run('docker pull {}'.format(django_settings.DOCKER_DEFAULT_WORKER_IMAGE))
+    compute_worker_run()
+
+
+def compute_worker_run():
     run("docker run "
             "--env-file .env "
             "-v /var/run/docker.sock:/var/run/docker.sock "
