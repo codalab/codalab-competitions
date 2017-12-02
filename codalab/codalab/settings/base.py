@@ -419,6 +419,7 @@ class Base(Settings):
     # Run as *not* root
     CELERYD_USER = "workeruser"
     CELERYD_GROUP = "workeruser"
+    CELERYD_MAX_TASKS_PER_CHILD = 100  # Make celery restart every N tasks to stop leaks
     CELERYBEAT_SCHEDULE = {
         'phase_migrations': {
             'task': 'apps.web.tasks.do_phase_migrations',
