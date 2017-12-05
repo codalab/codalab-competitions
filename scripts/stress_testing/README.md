@@ -7,6 +7,15 @@ Stress testing
 
 Creates a submission and saves the `id` to `submission_ids.txt`
 
+Example usage:
+
+```
+./make_submission.py test.zip admin@admin.com -c 5
+```
+
+
+Help:
+
 ```
 usage: make_submission.py [-h] [-c COMPETITION]
                           submission_zip participant_email
@@ -27,7 +36,29 @@ optional arguments:
 Takes a list of emails, separated by newlines, default filename `approve_emails.txt`. Marks any email
 matching the pattern as approved, any email not matching is denied.
 
-Example `approve_emails.txt`
+Example usage:
+
+```
+# Only runs once, not a daemon
+./approve_emails.py
+```
+
+Help:
+
+```
+usage: approve_emails.py [-h] [--valid_email_list VALID_EMAIL_LIST]
+                         [-c COMPETITION]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --valid_email_list VALID_EMAIL_LIST
+                        File containing a list of newline separated
+                        emails/patterns to approve
+  -c COMPETITION, --competition COMPETITION
+                        Competition ID, defaults to 1
+```
+
+Example `approve_emails.txt` file:
 
 ```
 admin@admin.com
