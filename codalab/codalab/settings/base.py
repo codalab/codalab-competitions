@@ -260,7 +260,7 @@ class Base(Settings):
     ACCOUNT_AUTHENTICATION_METHOD='username_email'
     ACCOUNT_EMAIL_REQUIRED = True
     ACCOUNT_USERNAME_REQUIRED = True
-    ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+    ACCOUNT_EMAIL_VERIFICATION = os.environ.get('ACCOUNT_EMAIL_VERIFICATION', 'mandatory')
     ACCOUNT_SIGNUP_FORM_CLASS = 'apps.authenz.forms.CodalabSignupForm'
 
     # Django Analytical configuration
@@ -419,6 +419,7 @@ class Base(Settings):
     # Run as *not* root
     CELERYD_USER = "workeruser"
     CELERYD_GROUP = "workeruser"
+    CELERYD_MAX_TASKS_PER_CHILD = 100  # Make celery restart every N tasks to stop leaks
     CELERYBEAT_SCHEDULE = {
         'phase_migrations': {
             'task': 'apps.web.tasks.do_phase_migrations',

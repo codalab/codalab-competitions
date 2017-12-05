@@ -40,6 +40,12 @@ admin@admin.com
 
 Starts a simple webserver that processes `submission_ids.txt` and serves up a processed view of it.
 
+Easy way to run in background on linux and ignoring output:
+
+```
+nohup python view_report.py > /dev/null 2>&1 &
+```
+
 
 ## cancel_tasks.py
 

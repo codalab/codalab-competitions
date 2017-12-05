@@ -46,9 +46,10 @@ def get_submission_report(submission_id):
         
         # Get file attribute whether we're on S3 or Azure
         if settings.USE_AWS:
-            file_kwarg = 's3_file'
+            from apps.web.utils import BundleStorage
+            size = BundleStorage.bucket.get_key(submission.s3_file).size
         else:
-            file_kwarg = 'file'
+            size = submission.file.size
             
         # Get submission metadata
         metadata = CompetitionSubmissionMetadata.objects.get(submission=submission)
@@ -65,7 +66,7 @@ def get_submission_report(submission_id):
             'id': submission.pk,
             'Submitter name': submission.participant.user.get_full_name(),
             'Zip name': submission.readable_filename,
-            'Size of zip': getattr(submission, file_kwarg).size,
+            'Size of zip': size,
             'Compute worker used': metadata.hostname,
             'Queue used': submission.queue_name,
             'Score': str(submission.get_default_score()),
