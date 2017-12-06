@@ -77,23 +77,47 @@ def compute_worker_update():
     Meant to be used with `hosts` like so:
         fab hosts:prod_workers compute_worker_update
     """
-    with warn_only():
-        # Error if compute_worker isn't already running
-        run('docker kill compute_worker')
-        run('docker rm compute_worker')
+    compute_worker_kill()
     run('docker pull ckcollab/competitions-v1-compute-worker:latest')
     run('docker pull {}'.format(django_settings.DOCKER_DEFAULT_WORKER_IMAGE))
     compute_worker_run()
 
 
+def compute_worker_kill():
+    """Kills compute worker
+
+    Meant to be used with `hosts` like so:
+        fab hosts:prod_workers compute_worker_kill
+    """
+    with warn_only():
+        # Error if compute_worker isn't already running
+        run('docker kill $(docker ps -a -q)')
+        run('docker rm $(docker ps -a -q)')
+
+
+def compute_worker_restart():
+    """Restarts compute worker
+
+    Meant to be used with `hosts` like so:
+        fab hosts:prod_workers compute_worker_restart
+    """
+    compute_worker_kill()
+    compute_worker_run()
+
+
 def compute_worker_run():
+    """Runs the actual compute worker.
+
+    Meant to be used with `hosts` like so:
+        fab hosts:prod_workers compute_worker_run
+    """
     run("docker run "
-            "--env-file .env "
-            "-v /var/run/docker.sock:/var/run/docker.sock "
-            "-v /tmp/codalab:/tmp/codalab "
-            "-d --restart unless-stopped "
-            "--name compute_worker -- "
-            "ckcollab/competitions-v1-compute-worker:latest")
+        "--env-file .env "
+        "-v /var/run/docker.sock:/var/run/docker.sock "
+        "-v /tmp/codalab:/tmp/codalab "
+        "-d --restart unless-stopped "
+        "--name compute_worker -- "
+        "ckcollab/competitions-v1-compute-worker:latest")
 
 
 def compute_worker_status():
