@@ -70,9 +70,10 @@ class Base(Settings):
     # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
     ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', ['*'])
 
+    # Example ADMINS = Name,example@test.com;Name2,example2@test.com
     ADMINS = os.environ.get('ADMINS')
     if ADMINS:
-        ADMINS = ADMINS.split(',')
+        ADMINS = [a.split(',') for a in ADMINS.split(';')]
 
     MANAGERS = ADMINS
 
