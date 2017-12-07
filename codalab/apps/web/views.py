@@ -990,7 +990,7 @@ class MyCompetitionParticipantView(LoginRequiredMixin, ListView):
         context['team_columns'] = team_columns
         # retrieve participant submissions information
         participant_list = []
-        competition_participants = self.queryset.filter(competition=competition)
+        competition_participants = self.queryset.filter(competition=competition).order_by('pk')
         competition_participants_ids = list(participant.id for participant in competition_participants)
         context['pending_participants'] = filter(lambda participant_submission: participant_submission.status.codename == models.ParticipantStatus.PENDING, competition_participants)
         participant_submissions = models.CompetitionSubmission.objects.filter(participant__in=competition_participants_ids)
