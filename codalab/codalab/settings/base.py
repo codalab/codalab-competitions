@@ -70,9 +70,9 @@ class Base(Settings):
     # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
     ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', ['*'])
 
-    ADMINS = (
-        # ('Your Name', 'your_email@example.com'),
-    )
+    ADMINS = os.environ.get('ADMINS')
+    if ADMINS:
+        ADMINS = ADMINS.split(',')
 
     MANAGERS = ADMINS
 
