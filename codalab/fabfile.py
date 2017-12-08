@@ -78,7 +78,7 @@ def compute_worker_update():
         fab hosts:prod_workers compute_worker_update
     """
     compute_worker_kill()
-    run('docker pull ckcollab/competitions-v1-compute-worker:latest')
+    run('docker pull codalab/competitions-v1-compute-worker:latest')
     run('docker pull {}'.format(django_settings.DOCKER_DEFAULT_WORKER_IMAGE))
     compute_worker_run()
 
@@ -117,7 +117,7 @@ def compute_worker_run():
         "-v /tmp/codalab:/tmp/codalab "
         "-d --restart unless-stopped "
         "--name compute_worker -- "
-        "ckcollab/competitions-v1-compute-worker:latest")
+        "codalab/competitions-v1-compute-worker:latest")
 
 
 def compute_worker_status():
