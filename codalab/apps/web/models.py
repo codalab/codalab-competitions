@@ -514,16 +514,14 @@ class Competition(models.Model):
 
     def get_top_three(self):
         """
-        Returns top three in leaderboard
+        Returns top three in leaderboard.
         """
         current_phase = None
         next_phase = None
         phases = self.phases.all()
         if len(phases) == 0:
             return
-
         last_phase = phases.reverse()[0]
-
         for index, phase in enumerate(phases):
             # Checking for active phase
             if phase.is_active:
@@ -533,32 +531,29 @@ class Competition(models.Model):
                     # Getting next phase
                     next_phase = phases[index + 1]
                 break
-
-        if current_phase is not None:
+        if current_phase and current_phase is not None:
             local_scores = current_phase.scores()
-
-            for group in local_scores:
-                for _, scoredata in group['scores']:
-                    sub = CompetitionSubmission.objects.get(pk=scoredata['id'])
-                    scoredata['date'] = sub.submitted_at
-                    scoredata['count'] = sub.phase.submissions.filter(participant=sub.participant).count()
-
-            top_three = []
-
-            if len(local_scores) > 0 and len(local_scores[0]) > 0 and len(local_scores[0]['scores']) > 0:
-                num_part = len(local_scores[0]['scores'])
-                local_scores = local_scores[0]['scores']
-
-                if num_part > 3: # Keep us in 1-3 range.
-                    num_part = 3
-
-                for index in range(num_part):
-                    temp_dict = {
-                        'username': local_scores[index][1]['username'],
-                        'score': local_scores[index][1]['values'][0]['val']
-                    }
-                    top_three.append(temp_dict.copy())
-            return top_three # Return only our top 3, with the data we want.
+            main_score_def = None
+            formatted_score_list = list()
+            for score_dict in local_scores:
+                # Grab score def list
+                header_list = score_dict['headers']
+                # This is in order, so grab the lowest score def.
+                main_score_def = header_list[0]
+                # Grab our list of scores
+                score_list = score_dict['scores']
+                for score in score_list:
+                    # Unpack the tuple, x is an integer index it seems.
+                    (x, score_dict) = score
+                    if score_dict['values']:
+                        for score_value in score_dict['values']:
+                            if score_value['name'] == main_score_def['key']:
+                                temp_dict = {
+                                    'username': score_dict['username'],
+                                    'score': score_value['val']
+                                }
+                                formatted_score_list.append(temp_dict)
+            return formatted_score_list[0:3]  # Return only our top 3, with the data we want.
 
 post_save.connect(Forum.competition_post_save, sender=Competition)
 
