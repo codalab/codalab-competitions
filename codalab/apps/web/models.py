@@ -514,7 +514,7 @@ class Competition(models.Model):
 
     def get_top_three(self):
         """
-        Returns top three in leaderboard
+        Returns top three in leaderboard.
         """
         current_phase = None
         next_phase = None
@@ -536,10 +536,14 @@ class Competition(models.Model):
             main_score_def = None
             formatted_score_list = list()
             for score_dict in local_scores:
+                # Grab score def list
                 header_list = score_dict['headers']
+                # This is in order, so grab the lowest score def.
                 main_score_def = header_list[0]
+                # Grab our list of scores
                 score_list = score_dict['scores']
                 for score in score_list:
+                    # Unpack the tuple, x is an integer index it seems.
                     (x, score_dict) = score
                     if score_dict['values']:
                         for score_value in score_dict['values']:
