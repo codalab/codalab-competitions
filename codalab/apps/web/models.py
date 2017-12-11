@@ -47,7 +47,7 @@ from apps.coopetitions.models import DownloadRecord
 from apps.authenz.models import ClUser
 from apps.web.exceptions import ScoringException
 from apps.web.utils import PublicStorage, BundleStorage, clean_html_script
-from apps.teams.models import Team, get_user_team
+from apps.teams.models import Team, get_user_team, TeamMembershipStatus, TeamMembership
 
 User = settings.AUTH_USER_MODEL
 logger = logging.getLogger(__name__)
@@ -514,16 +514,14 @@ class Competition(models.Model):
 
     def get_top_three(self):
         """
-        Returns top three in leaderboard
+        Returns top three in leaderboard.
         """
         current_phase = None
         next_phase = None
         phases = self.phases.all()
         if len(phases) == 0:
             return
-
         last_phase = phases.reverse()[0]
-
         for index, phase in enumerate(phases):
             # Checking for active phase
             if phase.is_active:
@@ -533,32 +531,29 @@ class Competition(models.Model):
                     # Getting next phase
                     next_phase = phases[index + 1]
                 break
-
-        if current_phase is not None:
+        if current_phase and current_phase is not None:
             local_scores = current_phase.scores()
-
-            for group in local_scores:
-                for _, scoredata in group['scores']:
-                    sub = CompetitionSubmission.objects.get(pk=scoredata['id'])
-                    scoredata['date'] = sub.submitted_at
-                    scoredata['count'] = sub.phase.submissions.filter(participant=sub.participant).count()
-
-            top_three = []
-
-            if len(local_scores) > 0 and len(local_scores[0]) > 0 and len(local_scores[0]['scores']) > 0:
-                num_part = len(local_scores[0]['scores'])
-                local_scores = local_scores[0]['scores']
-
-                if num_part > 3: # Keep us in 1-3 range.
-                    num_part = 3
-
-                for index in range(num_part):
-                    temp_dict = {
-                        'username': local_scores[index][1]['username'],
-                        'score': local_scores[index][1]['values'][0]['val']
-                    }
-                    top_three.append(temp_dict.copy())
-            return top_three # Return only our top 3, with the data we want.
+            main_score_def = None
+            formatted_score_list = list()
+            for score_dict in local_scores:
+                # Grab score def list
+                header_list = score_dict['headers']
+                # This is in order, so grab the lowest score def.
+                main_score_def = header_list[0]
+                # Grab our list of scores
+                score_list = score_dict['scores']
+                for score in score_list:
+                    # Unpack the tuple, x is an integer index it seems.
+                    (x, score_dict) = score
+                    if score_dict['values']:
+                        for score_value in score_dict['values']:
+                            if score_value['name'] == main_score_def['key']:
+                                temp_dict = {
+                                    'username': score_dict['username'],
+                                    'score': score_value['val']
+                                }
+                                formatted_score_list.append(temp_dict)
+            return formatted_score_list[0:3]  # Return only our top 3, with the data we want.
 
 post_save.connect(Forum.competition_post_save, sender=Competition)
 
@@ -1015,7 +1010,15 @@ class CompetitionPhase(models.Model):
             # add the location of the results on the blob storage to the scores
             for submission in submissions:
                 user = submission.participant.user
-                team =  get_user_team(submission.participant, submission.participant.competition)
+                try:
+                    team_membersip = TeamMembership.objects.get(
+                        user=user,
+                        status__codename="approved",
+                        team__competition=self.competition
+                    )
+                    team = team_membersip.team
+                except TeamMembership.DoesNotExist:
+                    team = None
                 # If competition teams are enabled, and the user is in a team, use the team name as team_name.
                 # Otherwise, use the user default team_name
                 if self.competition.enable_teams:
@@ -1164,6 +1167,10 @@ class CompetitionPhase(models.Model):
                     del result['scoredefs']
                 except KeyError:
                     pass
+
+        for group in results:
+            if type(group['scores']) == dict:
+                group['scores'] = group['scores'].items()
         return results
 
 
@@ -2175,6 +2182,7 @@ class OrganizerDataSet(models.Model):
         ("None", "None")
     )
     name = models.CharField(max_length=255)
+    full_name = models.TextField(default="")
     type = models.CharField(max_length=64, choices=TYPES, default="None")
     description = models.TextField(null=True, blank=True)
     data_file = models.FileField(
@@ -2191,10 +2199,11 @@ class OrganizerDataSet(models.Model):
     def save(self, **kwargs):
         if self.key is None or self.key == '':
             self.key = "%s" % (uuid.uuid4())
+        self.full_name = "%s uploaded by %s" % (self.name, self.uploaded_by)
         super(OrganizerDataSet, self).save(**kwargs)
 
     def __unicode__(self):
-        return "%s uploaded by %s" % (self.name, self.uploaded_by)
+        return self.full_name
 
     def write_multidataset_metadata(self, datasets=None):
         # Write sub bundle metadata, replaces old data_file!
@@ -2202,6 +2211,10 @@ class OrganizerDataSet(models.Model):
 
         if not datasets:
             datasets = self.sub_data_files.all()
+
+        if not datasets:
+            # If we still don't have a dataset don't continue
+            return
 
         # Inline import to avoid circular imports
         from apps.web.tasks import _make_url_sassy

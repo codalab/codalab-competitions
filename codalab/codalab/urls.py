@@ -21,8 +21,7 @@ urlpatterns = patterns('',
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 
-    # Uncomment the next line to enable the admin:
-    # url(r'^admin/', include(admin.site.urls)),
+    url(r'^hidden-admin/', include(admin.site.urls)),
 
     url(r'^', include('pin_passcode.urls')),
 
@@ -37,3 +36,9 @@ urlpatterns = patterns('',
     # JS Reverse for saner AJAX calls
     url(r'^jsreverse/$', 'django_js_reverse.views.urls_js', name='js_reverse')
 )
+
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns += patterns('',
+        url(r'^__debug__/', include(debug_toolbar.urls)),
+    )

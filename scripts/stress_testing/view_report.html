@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <title>Reports</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/4.3.6/papaparse.js" integrity="sha256-1eNoXzuQmOgFmqKQLctyLWRzqA4P/BOwvdsVHgUSA3A=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/riot/3.7.4/riot+compiler.min.js" integrity="sha256-lp5JWFc/Zj5JkrH6IZ7rk7yKppLSy/mgExtJOmijGpY=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tablesort/5.0.2/tablesort.min.js" integrity="sha256-IVtmd7irFb2bC2zR6jZ1JobCEgsSjrNVTlE+wwBYVmQ=" crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/semantic-ui/2.2.10/semantic.min.css">
+
+    <script type="riot/tag" src="reports.tag"></script>
+
+    <style>
+        /* tablesort */
+        th[role=columnheader]:not(.no-sort) {
+            cursor: pointer;
+        }
+
+        th[role=columnheader]:not(.no-sort):after {
+            content: '';
+            float: right;
+            margin-top: 7px;
+            border-width: 0 4px 4px;
+            border-style: solid;
+            border-color: #404040 transparent;
+            visibility: hidden;
+            opacity: 0;
+            -ms-user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            user-select: none;
+        }
+
+        th[aria-sort=ascending]:not(.no-sort):after {
+            border-bottom: none;
+            border-width: 4px 4px 0;
+        }
+
+        th[aria-sort]:not(.no-sort):after {
+            visibility: visible;
+            opacity: 0.4;
+        }
+
+        th[role=columnheader]:not(.no-sort):hover:after {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+<div class="pusher">
+    <div class="ui grid container">
+        <div class="row centered">
+            <h1>Reports</h1>
+        </div>
+        <div class="row">
+            <reports></reports>
+        </div>
+    </div>
+</div>
+<script>
+    riot.mount("*")
+</script>
+</body>
+</html>

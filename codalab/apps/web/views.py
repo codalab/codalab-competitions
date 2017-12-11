@@ -747,14 +747,6 @@ class CompetitionResultsPage(TemplateView):
             context['phase'] = phase
             context['groups'] = phase.scores()
 
-            bad_score_count, bad_scores = check_bad_scores(context['groups'])
-            if bad_score_count > 0:
-                context['scoring_exception'] = "ERROR: Improperly configured leaderboard or scoring program. Some " \
-                                               "scores have NaN! Please check your leaderboard configuration and" \
-                                               " scoring program for the competition!"
-                context['bad_scores'] = bad_scores
-                context['bad_score_count'] = bad_score_count
-
             for group in context['groups']:
                 for _, scoredata in group['scores']:
                     sub = models.CompetitionSubmission.objects.get(pk=scoredata['id'])
@@ -998,7 +990,7 @@ class MyCompetitionParticipantView(LoginRequiredMixin, ListView):
         context['team_columns'] = team_columns
         # retrieve participant submissions information
         participant_list = []
-        competition_participants = self.queryset.filter(competition=competition)
+        competition_participants = self.queryset.filter(competition=competition).order_by('pk')
         competition_participants_ids = list(participant.id for participant in competition_participants)
         context['pending_participants'] = filter(lambda participant_submission: participant_submission.status.codename == models.ParticipantStatus.PENDING, competition_participants)
         participant_submissions = models.CompetitionSubmission.objects.filter(participant__in=competition_participants_ids)
@@ -1151,10 +1143,7 @@ class MyCompetitionSubmissionOutput(LoginRequiredMixin, View):
         competition = submission.phase.competition
 
         # Check competition admin permissions or user permissions
-        if submission.is_public:
-            if competition.has_registration and not competition.participants.filter(user=request.user).exists():
-                raise Http404()
-        else:
+        if not submission.is_public:
             if (competition.creator != request.user and request.user not in competition.admins.all()) and \
                             request.user != submission.participant.user:
                 raise Http404()

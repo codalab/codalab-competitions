@@ -70,9 +70,10 @@ class Base(Settings):
     # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
     ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', ['*'])
 
-    ADMINS = (
-        # ('Your Name', 'your_email@example.com'),
-    )
+    # Example ADMINS = Name,example@test.com;Name2,example2@test.com
+    ADMINS = os.environ.get('ADMINS')
+    if ADMINS:
+        ADMINS = [a.split(',') for a in ADMINS.split(';')]
 
     MANAGERS = ADMINS
 
@@ -246,7 +247,7 @@ class Base(Settings):
 
     ACCOUNT_ADAPTER = ("apps.authenz.adapter.CodalabAccountAdapter")
 
-    OPTIONAL_APPS = []
+    OPTIONAL_APPS = tuple()
     INTERNAL_IPS = []
 
     OAUTH2_PROVIDER = {
@@ -260,7 +261,7 @@ class Base(Settings):
     ACCOUNT_AUTHENTICATION_METHOD='username_email'
     ACCOUNT_EMAIL_REQUIRED = True
     ACCOUNT_USERNAME_REQUIRED = True
-    ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+    ACCOUNT_EMAIL_VERIFICATION = os.environ.get('ACCOUNT_EMAIL_VERIFICATION', 'mandatory')
     ACCOUNT_SIGNUP_FORM_CLASS = 'apps.authenz.forms.CodalabSignupForm'
 
     # Django Analytical configuration
@@ -419,6 +420,7 @@ class Base(Settings):
     # Run as *not* root
     CELERYD_USER = "workeruser"
     CELERYD_GROUP = "workeruser"
+    CELERYD_MAX_TASKS_PER_CHILD = 100  # Make celery restart every N tasks to stop leaks
     CELERYBEAT_SCHEDULE = {
         'phase_migrations': {
             'task': 'apps.web.tasks.do_phase_migrations',
@@ -573,9 +575,9 @@ class Base(Settings):
     # =========================================================================
     # Docker
     # =========================================================================
-    DOCKER_DEFAULT_WORKER_IMAGE = "ckcollab/codalab-legacy"
+    DOCKER_DEFAULT_WORKER_IMAGE = os.environ.get("DOCKER_DEFAULT_WORKER_IMAGE", "codalab/codalab-legacy:1.0.0")
     DOCKER_MAX_SIZE_GB = 10.0
-    
+
     # =========================================================================
     # Misc
     # =========================================================================
@@ -592,13 +594,7 @@ class Base(Settings):
     @classmethod
     def pre_setup(cls):
         if hasattr(cls,'OPTIONAL_APPS'):
-            for a in cls.OPTIONAL_APPS:
-                try:
-                    __import__(a)
-                except ImportError as e:
-                    print e
-                else:
-                    cls.INSTALLED_APPS += (a,)
+            cls.INSTALLED_APPS += cls.OPTIONAL_APPS
         if hasattr(cls, 'EXTRA_MIDDLEWARE_CLASSES'):
             cls.MIDDLEWARE_CLASSES += cls.EXTRA_MIDDLEWARE_CLASSES
         cls.STARTUP_ENV.update({ 'CONFIG_HTTP_PORT': cls.PORT,
@@ -618,8 +614,9 @@ class Base(Settings):
 class DevBase(Base):
 
     if os.environ.get('DEBUG', False):
-        OPTIONAL_APPS = ('debug_toolbar','django_extensions',)
-        INTERNAL_IPS = ('127.0.0.1',)
+        OPTIONAL_APPS = (
+            'debug_toolbar',
+        )
         ACCOUNT_EMAIL_VERIFICATION = None
         CACHES = {
             'default': {
@@ -638,6 +635,7 @@ class DevBase(Base):
         DEBUG_TOOLBAR_CONFIG = {
             'SHOW_TEMPLATE_CONTEXT': True,
             'ENABLE_STACKTRACES': True,
+            'SHOW_TOOLBAR_CALLBACK': lambda x: True,
         }
 
         if os.environ.get('PIN_PASSCODE_ENABLED', False):
