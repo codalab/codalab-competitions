@@ -73,11 +73,6 @@
 {% endblock content %}
 {% block jsincludes %}
 <script>
-    $('.competition-tile').on('click',function(){
-        var competitionID = $(this).find('#competitionID').val();
-        window.location.href = '/competitions/' + competitionID;
-    });
-
     // Disable scrolling to tab
     if (location.hash) {
         setTimeout(function() {
