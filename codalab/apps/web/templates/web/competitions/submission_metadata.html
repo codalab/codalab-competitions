@@ -39,6 +39,7 @@
                     <td>Status</td>
                     <td>Prediction/Scoring?</td>
                     <td>Running processes (in temp dir)</td>
+                    <td>Ingestion program duration</td>
                     <td>Start RAM</td>
                     <td>End RAM</td>
                     <td>Start CPU</td>
@@ -61,6 +62,7 @@
                             <td>{{ metadata.submission.status }}</td>
                             <td>{% if metadata.is_predict %}Prediction{% else %}Scoring{% endif %}</td>
                             <td>{{ metadata.simple.processes_running_in_temp_dir }}</td>
+                            <td>{{ metadata.simple.ingestion_program_duration|floatformat:-2 }}</td>
                             <td>{{ metadata.simple.beginning_virtual_memory_usage }}</td>
                             <td>{{ metadata.simple.beginning_swap_memory_usage }}</td>
                             <td>{{ metadata.simple.beginning_cpu_usage }}</td>
