@@ -1316,7 +1316,8 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                 # Need to figure out a way to check if submission is garbage.
                 try:
                     user_score = filter(lambda user_score: user_score[1]['id'] == submission.id, score_group['scores'])[0] # This line return error.
-                    main_score = filter(lambda main_score: main_score['name'] == score_group['selection_key'], user_score[1]['values'])[0]
+                    # main_score = filter(lambda main_score: main_score['name'] == score_group['selection_key'], user_score[1]['values'])[0]
+                    main_score = filter(lambda main_score: main_score['name'] == score_group['headers'][0]['key'], user_score[1]['values'])[0]
                     submission_info['score_' + str(score_group_index)] = main_score['val']
                 # If submission is garbage put in garbage data.
                 except:
