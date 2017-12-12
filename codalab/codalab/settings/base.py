@@ -575,7 +575,7 @@ class Base(Settings):
     # =========================================================================
     # Docker
     # =========================================================================
-    DOCKER_DEFAULT_WORKER_IMAGE = os.environ.get("DOCKER_DEFAULT_WORKER_IMAGE", "codalab/codalab-legacy:1.0.0")
+    DOCKER_DEFAULT_WORKER_IMAGE = os.environ.get("DOCKER_DEFAULT_WORKER_IMAGE", "codalab/codalab-legacy:latest")
     DOCKER_MAX_SIZE_GB = 10.0
 
     # =========================================================================
