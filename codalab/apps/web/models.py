@@ -466,9 +466,9 @@ class Competition(models.Model):
                         ordering[sub['key']] = count
 
                         headers.append(header['label'])
-                        sub_headers.append(sub['label'])
+                        sub_headers.append(sub['label'].encode('utf-8'))
                 else:
-                    headers.append(header['label'])
+                    headers.append(header['label'].encode('utf-8'))
             csvwriter.writerow(['submission_pk',] + headers)
             if sub_headers != ['']:
                 csvwriter.writerow(sub_headers)
