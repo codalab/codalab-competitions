@@ -42,6 +42,7 @@ from django_extensions.db.fields import UUIDField
 from django.utils.functional import cached_property
 from s3direct.fields import S3DirectField
 
+from apps.chahub.models import ChaHubSaveMixin
 from apps.forums.models import Forum
 from apps.coopetitions.models import DownloadRecord
 from apps.authenz.models import ClUser
@@ -213,7 +214,7 @@ def _uuidify(directory):
     return wrapped_uuidify
 
 
-class Competition(models.Model):
+class Competition(ChaHubSaveMixin, models.Model):
     """ Model representing a competition. """
     # compute_worker_vhost = models.CharField(max_length=128, null=True, blank=True, help_text="(don't edit unless you're instructed to, will break submissions -- only admins can see this!)")
     queue = models.ForeignKey(
