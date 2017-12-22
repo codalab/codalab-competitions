@@ -49,9 +49,24 @@
         <hr>
 
         <div align="center">
-            <button class="btn btn-lg btn-primary" data-toggle="collapse" data-target="#jobs_from_today">
-                Jobs from today
-            </button>
+
+            <div class="btn-group" role="group" aria-label="Button Group">
+
+                <button class="btn btn-lg btn-primary" data-toggle="collapse" data-target="#jobs_from_today">
+                    Jobs from today ({{ jobs_today_count }})
+                </button>
+
+                <button class="btn btn-lg btn-primary" data-toggle="collapse" data-target="#jobs_last_fifty">
+                    Last 50 Jobs
+                </button>
+
+                <button class="btn btn-lg btn-danger" data-toggle="collapse" data-target="#jobs_pending">
+                    Stuck Jobs ({{ jobs_all_stuck_count }})
+                </button>
+
+            </div>
+
+            <!-- Today's jobs collapsable well-->
 
             <div id="jobs_from_today" class="collapse well">
                 <strong>All jobs from today:</strong>
@@ -61,18 +76,20 @@
                         <th>ID</th>
                         <th>Status</th>
                         <th>Created</th>
-                        <th>Updated</th>
+                        <th>Type</th>
                         <th>Info</th>
+                        <th>Updated</th>
                     </tr>
                     </thead>
                     <tbody>
                     {% for job in jobs_today %}
                         <tr>
                             <td>{{ job.pk }}</td>
-                            <td>{{ job.status }}</td>
+                            <td>{{ job.get_status_code_name }}</td>
                             <td>{{ job.created }}</td>
-                            <td>{{ job.updated }}</td>
+                            <td>{{ job.task_type }}</td>
                             <td>{{ job.task_info_json }}</td>
+                            <td>{{ job.updated }}</td>
                         </tr>
                     {% endfor %}
                     </tbody>
@@ -85,18 +102,20 @@
                         <th>ID</th>
                         <th>Status</th>
                         <th>Created</th>
-                        <th>Updated</th>
+                        <th>Type</th>
                         <th>Info</th>
+                        <th>Updated</th>
                     </tr>
                     </thead>
                     <tbody>
                     {% for job in jobs_today_failed %}
                         <tr>
                             <td>{{ job.pk }}</td>
-                            <td>{{ job.status }}</td>
+                            <td>{{ job.get_status_code_name }}</td>
                             <td>{{ job.created }}</td>
-                            <td>{{ job.updated }}</td>
+                            <td>{{ job.task_type }}</td>
                             <td>{{ job.task_info_json }}</td>
+                            <td>{{ job.updated }}</td>
                         </tr>
                     {% endfor %}
                     </tbody>
@@ -109,18 +128,20 @@
                         <th>ID</th>
                         <th>Status</th>
                         <th>Created</th>
-                        <th>Updated</th>
+                        <th>Type</th>
                         <th>Info</th>
+                        <th>Updated</th>
                     </tr>
                     </thead>
                     <tbody>
                     {% for job in jobs_today_finished %}
                         <tr>
                             <td>{{ job.pk }}</td>
-                            <td>{{ job.status }}</td>
+                            <td>{{ job.get_status_code_name }}</td>
                             <td>{{ job.created }}</td>
-                            <td>{{ job.updated }}</td>
+                            <td>{{ job.task_type }}</td>
                             <td>{{ job.task_info_json }}</td>
+                            <td>{{ job.updated }}</td>
                         </tr>
                     {% endfor %}
                     </tbody>
@@ -133,32 +154,28 @@
                         <th>ID</th>
                         <th>Status</th>
                         <th>Created</th>
-                        <th>Updated</th>
+                        <th>Type</th>
                         <th>Info</th>
+                        <th>Updated</th>
                     </tr>
                     </thead>
                     <tbody>
                     {% for job in jobs_today_pending %}
                         <tr>
                             <td>{{ job.pk }}</td>
-                            <td>{{ job.status }}</td>
+                            <td>{{ job.get_status_code_name }}</td>
                             <td>{{ job.created }}</td>
-                            <td>{{ job.updated }}</td>
+                            <td>{{ job.task_type }}</td>
                             <td>{{ job.task_info_json }}</td>
+                            <td>{{ job.updated }}</td>
                         </tr>
                     {% endfor %}
                     </tbody>
                 </table>
             </div>
             <br>
-        </div>
 
-        <hr>
-
-        <div align="center">
-            <button class="btn btn-lg btn-primary" data-toggle="collapse" data-target="#jobs_last_fifty">
-                Last 50 Jobs
-            </button>
+            <!-- Last 50 jobs collapsable well-->
 
             <div id="jobs_last_fifty" class="collapse well">
                 <strong>Last 50 Jobs by creation date</strong>
@@ -168,18 +185,20 @@
                         <th>ID</th>
                         <th>Status</th>
                         <th>Created</th>
-                        <th>Updated</th>
+                        <th>Type</th>
                         <th>Info</th>
+                        <th>Updated</th>
                     </tr>
                     </thead>
                     <tbody>
                     {% for job in jobs_last_fifty %}
                         <tr>
                             <td>{{ job.pk }}</td>
-                            <td>{{ job.status }}</td>
+                            <td>{{ job.get_status_code_name }}</td>
                             <td>{{ job.created }}</td>
-                            <td>{{ job.updated }}</td>
+                            <td>{{ job.task_type }}</td>
                             <td>{{ job.task_info_json }}</td>
+                            <td>{{ job.updated }}</td>
                         </tr>
                     {% endfor %}
                     </tbody>
@@ -192,18 +211,20 @@
                         <th>ID</th>
                         <th>Status</th>
                         <th>Created</th>
-                        <th>Updated</th>
+                        <th>Type</th>
                         <th>Info</th>
+                        <th>Updated</th>
                     </tr>
                     </thead>
                     <tbody>
                     {% for job in jobs_last_fifty_updated %}
                         <tr>
                             <td>{{ job.pk }}</td>
-                            <td>{{ job.status }}</td>
+                            <td>{{ job.get_status_code_name }}</td>
                             <td>{{ job.created }}</td>
-                            <td>{{ job.updated }}</td>
+                            <td>{{ job.task_type }}</td>
                             <td>{{ job.task_info_json }}</td>
+                            <td>{{ job.updated }}</td>
                         </tr>
                     {% endfor %}
                     </tbody>
@@ -216,59 +237,90 @@
                         <th>ID</th>
                         <th>Status</th>
                         <th>Created</th>
-                        <th>Updated</th>
+                        <th>Type</th>
                         <th>Info</th>
+                        <th>Updated</th>
                     </tr>
                     </thead>
                     <tbody>
                     {% for job in jobs_last_fifty_failed %}
                         <tr class="bg-danger">
                             <td>{{ job.pk }}</td>
-                            <td>{{ job.status }}</td>
+                            <td>{{ job.get_status_code_name }}</td>
                             <td>{{ job.created }}</td>
-                            <td>{{ job.updated }}</td>
+                            <td>{{ job.task_type }}</td>
                             <td>{{ job.task_info_json }}</td>
+                            <td>{{ job.updated }}</td>
                         </tr>
                     {% endfor %}
                     </tbody>
                 </table>
             </div>
-        </div>
 
-        <hr>
-
-        <div align="center">
-            <button class="btn btn-lg btn-danger" data-toggle="collapse" data-target="#jobs_pending">
-                Stuck Pending Jobs
-            </button>
+            <!-- Stuck jobs hidden well -->
 
             <div id="jobs_pending" class="collapse well">
                 <strong>Pending jobs older than one day</strong>
-                <i>These jobs are older than one day, and are still on the pending status.</i>
+                <strong>Count: {{ jobs_pending_stuck_count }}</strong>
                 <table class="table table-striped table-bordered table-responsive">
                     <thead>
                     <tr>
                         <th>ID</th>
                         <th>Status</th>
                         <th>Created</th>
-                        <th>Updated</th>
+                        <th>Type</th>
                         <th>Info</th>
+                        <th>Updated</th>
                     </tr>
                     </thead>
                     <tbody class="bg-warning">
                     {% for job in jobs_pending_stuck %}
                         <tr>
                             <td>{{ job.pk }}</td>
-                            <td>{{ job.status }}</td>
+                            <td>{{ job.get_status_code_name }}</td>
                             <td>{{ job.created }}</td>
-                            <td>{{ job.updated }}</td>
+                            <td>{{ job.task_type }}</td>
                             <td>{{ job.task_info_json }}</td>
+                            <td>{{ job.updated }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+
+                <hr>
+
+                <strong>Running jobs older than one day</strong>
+                <strong>Count: {{ jobs_running_stuck_count }}</strong>
+                <table class="table table-striped table-bordered table-responsive">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th>Type</th>
+                        <th>Info</th>
+                        <th>Updated</th>
+                    </tr>
+                    </thead>
+                    <tbody class="bg-warning">
+                    {% for job in jobs_running_stuck %}
+                        <tr>
+                            <td>{{ job.pk }}</td>
+                            <td>{{ job.get_status_code_name }}</td>
+                            <td>{{ job.created }}</td>
+                            <td>{{ job.task_type }}</td>
+                            <td>{{ job.task_info_json }}</td>
+                            <td>{{ job.updated }}</td>
                         </tr>
                     {% endfor %}
                     </tbody>
                 </table>
             </div>
         </div>
+
+        <!-- End Job Tables -->
+
+        <hr>
 
         <p class="title" data-section-title width="100%" height="100%">
         <h1><a href="#settings">Settings</a></h1>
