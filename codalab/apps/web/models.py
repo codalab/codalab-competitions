@@ -261,6 +261,13 @@ class Competition(ChaHubSaveMixin, models.Model):
 
     competition_docker_image = models.CharField(max_length=128, default='', blank=True)
 
+    class Meta:
+        permissions = (
+            ('is_owner', 'Owner'),
+            ('can_edit', 'Edit'),
+            )
+        ordering = ['end_date']
+
     @property
     def pagecontent(self):
         items = list(self.pagecontainers.all())
@@ -269,18 +276,20 @@ class Competition(ChaHubSaveMixin, models.Model):
     def get_absolute_url(self):
         return reverse('competitions:view', kwargs={'pk':self.pk})
 
-    class Meta:
-        permissions = (
-            ('is_owner', 'Owner'),
-            ('can_edit', 'Edit'),
-            )
-        ordering = ['end_date']
-
     def __unicode__(self):
         return self.title
 
     def set_owner(self, user):
         return assign_perm('view_task', user, self)
+
+    def get_chahub_endpoint(self):
+        return "competitions/"
+
+    def get_chahub_data(self):
+        return {
+            "remote_id": self.id,
+            "title": self.title
+        }
 
     def save(self, *args, **kwargs):
         # Make sure the image_url_base is set from the actual storage implementation
