@@ -33,6 +33,7 @@ Clone this repo and get the default environment setup
 $ git clone git@github.com:codalab/codalab-competitions.git
 $ cd codalab-competitions
 $ cp .env_sample .env
+$ pip install docker-compose
 $ docker-compose up -d
 ```
 
