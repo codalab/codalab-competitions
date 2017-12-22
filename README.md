@@ -16,7 +16,7 @@ The CodaLab community forum is hosted on Google Groups.
 - [CodaLabDev Google Groups Forum](https://groups.google.com/forum/#!forum/codalabdev)
 
 
-## Quick installation
+## Quick installation (for Linux!)
 
 Install docker and add your user to the docker group, if you haven't already
 
