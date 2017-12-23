@@ -7,7 +7,8 @@
 {% block head_title %}Sign In{% endblock head_title %}
 {% block page_title %}Sign In{% endblock page_title %}
 {% block extra_head %}
-    <script>
+<meta charset="utf-8">
+<script>
         $(document).ready(function() {
             if (!("autofocus" in document.createElement("input"))) {
                 $("#id_login").focus();
@@ -45,7 +46,7 @@
             {% endif %}
 
             <div class="form-group">
-                <label for="id_login">Login:</label>
+                <label for="id_login">{% trans 'Login:' %}</label>
                 <input id="id_login" class="form-control" name="login" placeholder="Username or e-mail" type="text" autofocus>
             </div>
             <div class="form-group">

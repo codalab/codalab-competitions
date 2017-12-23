@@ -1,0 +1,118 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-12-23 06:48+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: apps/authenz/adapter.py:25
+msgid "Usernames can only contain letters, digits and ./-/_ "
+msgstr ""
+
+#: apps/authenz/adapter.py:31
+msgid "Username can not be used. Please use other username."
+msgstr ""
+
+#: apps/authenz/adapter.py:40
+msgid "This username is already taken. Please choose another."
+msgstr ""
+
+#: apps/web/templates/account/login.html:24
+#, python-format
+msgid ""
+"Please sign in with one\n"
+"                of your existing third party accounts. Or, <a href="
+"\"%(signup_url)s\">sign up</a>\n"
+"                for a %(site_name)s account and sign in below:\n"
+"                "
+msgstr ""
+
+#: apps/web/templates/account/login.html:33
+msgid "or"
+msgstr ""
+
+#: apps/web/templates/account/login.html:49
+msgid "Login:"
+msgstr "账号"
+
+#: apps/web/templates/account/login.html:65
+msgid "Sign In"
+msgstr "222"
+
+#: apps/web/templates/account/logout.html:11
+msgid "Are you sure you want to sign out?"
+msgstr "fff"
+
+#: apps/web/templates/account/logout.html:18
+msgid "Sign Out"
+msgstr "11111"
+
+#: apps/web/templates/account/password_reset.html:14
+msgid ""
+"Forgot your password? Enter your e-mail address below, and we'll send you an "
+"e-mail allowing you to reset it."
+msgstr ""
+
+#: apps/web/templates/account/password_reset.html:23
+msgid "Reset My Password"
+msgstr ""
+
+#: apps/web/templates/account/password_reset_complete.html:6
+msgid "Home"
+msgstr ""
+
+#: apps/web/templates/account/password_reset_complete.html:7
+msgid "Password reset"
+msgstr ""
+
+#: apps/web/templates/account/password_reset_complete.html:11
+#: apps/web/templates/account/password_reset_complete.html:15
+msgid "Password reset complete"
+msgstr ""
+
+#: apps/web/templates/account/password_reset_complete.html:17
+msgid "Your password has been set.  You may go ahead and log in now."
+msgstr ""
+
+#: apps/web/templates/account/password_reset_complete.html:19
+msgid "Log in"
+msgstr ""
+
+#: apps/web/templates/account/password_reset_done.html:16
+msgid ""
+"We have sent you an e-mail. Please contact us if you do not receive it "
+"within a few minutes."
+msgstr ""
+
+#: apps/web/templates/account/password_reset_from_key.html:12
+#, python-format
+msgid ""
+"The password reset link was invalid, possibly because it has already been "
+"used.  Please request a <a href=\"%(passwd_reset_url)s\">new password reset</"
+"a>."
+msgstr ""
+
+#: apps/web/templates/account/password_reset_from_key.html:27
+msgid "Set new password"
+msgstr ""
+
+#: apps/web/templates/account/password_reset_from_key.html:30
+msgid "Your password is now changed."
+msgstr ""
+
+#: apps/web/templates/account/signup.html:49
+msgid "Sign Up"
+msgstr ""

@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 import re
 import uuid
 
@@ -26,6 +27,7 @@ class Base(Settings):
     PROJECT_APP_DIR = os.path.dirname(SETTINGS_DIR)
     PROJECT_DIR = os.path.dirname(PROJECT_APP_DIR)
     ROOT_DIR = os.path.dirname(PROJECT_DIR)
+    BASE_DIR = os.path.dirname(os.path.dirname(__file__))
     PORT = '8000'
     DOMAIN_NAME = 'localhost'
     SERVER_NAME = 'localhost'
@@ -85,7 +87,17 @@ class Base(Settings):
 
     # Language code for this installation. All choices can be found here:
     # http://www.i18nguy.com/unicode/language-identifiers.html
-    LANGUAGE_CODE = 'zh-cn'
+    LANGUAGE_CODE = 'zh_CN'
+
+   # LANGUAGES = (
+  #      ('en',('English')),
+  #      ('zh-cn',('简体中文')),
+  #  )
+   # LOCALE_PATHS = (
+   #     os.path.join(BASE_DIR, 'locale'),
+   # )
+    LOCALE_PATHS=('/app/codalab/locale',)
+
 
     SITE_ID = 1
     CODALAB_SITE_DOMAIN = os.environ.get('CODALAB_SITE_DOMAIN', 'localhost')
@@ -149,9 +161,11 @@ class Base(Settings):
         'apps.web.middleware.SingleCompetitionMiddleware',
         'django.middleware.common.CommonMiddleware',
         'django.contrib.sessions.middleware.SessionMiddleware',
+        'django.middleware.locale.LocaleMiddleware',
         'django.middleware.csrf.CsrfViewMiddleware',
         'django.contrib.auth.middleware.AuthenticationMiddleware',
         'django.contrib.messages.middleware.MessageMiddleware',
+  
     )
 
     ROOT_URLCONF = 'codalab.urls'
@@ -172,6 +186,9 @@ class Base(Settings):
         "codalab.context_processors.app_version_proc",
         "django.core.context_processors.request",
         "codalab.context_processors.common_settings",
+       # "django.contrib.auth.context_processors.auth",
+       # "django.core.context_processors.i18n",
+
     )
 
     AUTHENTICATION_BACKENDS = (
@@ -427,7 +444,7 @@ class Base(Settings):
             'schedule': timedelta(seconds=300),
         },
     }
-    CELERY_TIMEZONE = 'UTC'
+    CELERY_TIMEZONE = 'Asia/Shanghai'
 
 
     # =========================================================================
@@ -635,6 +652,7 @@ class DevBase(Base):
         DEBUG_TOOLBAR_CONFIG = {
             'SHOW_TEMPLATE_CONTEXT': True,
             'ENABLE_STACKTRACES': True,
+            ###Control the right side bar
             'SHOW_TOOLBAR_CALLBACK': lambda x: True,
         }
 
