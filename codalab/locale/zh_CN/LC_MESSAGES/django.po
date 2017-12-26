@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-12-23 06:48+0000\n"
+"POT-Creation-Date: 2017-12-26 14:16+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,15 +20,89 @@ msgstr ""
 
 #: apps/authenz/adapter.py:25
 msgid "Usernames can only contain letters, digits and ./-/_ "
-msgstr ""
+msgstr "用户名注册异常"
 
 #: apps/authenz/adapter.py:31
 msgid "Username can not be used. Please use other username."
-msgstr ""
+msgstr "用户名无法被使用，请尝试注册其它用户名。"
 
 #: apps/authenz/adapter.py:40
 msgid "This username is already taken. Please choose another."
-msgstr ""
+msgstr "用户名已经被其他人注册，请尝试注册其它用户名"
+
+#: apps/web/templates/base.html:65
+msgid "Toggle navigation"
+msgstr "切换导航"
+
+#: apps/web/templates/base.html:93 apps/web/templates/base.html.py:97
+#: apps/web/templates/base.html:105
+msgid "My Competitions"
+msgstr "我的竞赛"
+
+#: apps/web/templates/base.html:99
+msgid "Search Competitions"
+msgstr "查询竞赛"
+
+#: apps/web/templates/base.html:109
+msgid "Help"
+msgstr "帮助"
+
+#: apps/web/templates/base.html:118
+msgid "Admin Monitoring Links"
+msgstr "管理控制链接"
+
+#: apps/web/templates/base.html:120
+msgid "Customize Codalab"
+msgstr "个性化定制"
+
+#: apps/web/templates/base.html:123
+msgid "Settings"
+msgstr "设置"
+
+#: apps/web/templates/base.html:125
+msgid "Worker Queue Management"
+msgstr "后台工作队列管理"
+
+#: apps/web/templates/base.html:127
+#: apps/web/templates/account/password_reset_from_key.html:6
+#: apps/web/templates/account/password_reset_from_key.html:7
+msgid "Change Password"
+msgstr "修改密码"
+
+#: apps/web/templates/base.html:129 apps/web/templates/account/logout.html:6
+#: apps/web/templates/account/logout.html:7
+#: apps/web/templates/account/logout.html:18
+msgid "Sign Out"
+msgstr "注销登录"
+
+#: apps/web/templates/base.html:134 apps/web/templates/account/signup.html:6
+#: apps/web/templates/account/signup.html:7
+#: apps/web/templates/account/signup.html:49
+msgid "Sign Up"
+msgstr "注册"
+
+#: apps/web/templates/base.html:137 apps/web/templates/account/login.html:7
+#: apps/web/templates/account/login.html:8
+#: apps/web/templates/account/login.html:65
+#: apps/web/templates/account/password_reset_from_key.html:31
+msgid "Sign In"
+msgstr "登录"
+
+#: apps/web/templates/base.html:169
+msgid "Join us on Github for contact & bug reports"
+msgstr "Bug提交或意见反馈"
+
+#: apps/web/templates/base.html:171
+msgid "Powered by Codalab"
+msgstr "BUAA_NLSDE"
+
+#: apps/web/templates/base.html:173
+msgid "About"
+msgstr "关于我们"
+
+#: apps/web/templates/base.html:174
+msgid "Privacy and Terms"
+msgstr "隐私条例"
 
 #: apps/web/templates/account/login.html:24
 #, python-format
@@ -39,63 +113,108 @@ msgid ""
 "                for a %(site_name)s account and sign in below:\n"
 "                "
 msgstr ""
+"请用一个\n"
+"               已存在的三方账号登录，或者 <a href=\"%(signup_url)s\">以下列网"
+"站的账号登录</a>\n"
+"                 %(site_name)s \n"
+"                "
 
 #: apps/web/templates/account/login.html:33
 msgid "or"
-msgstr ""
+msgstr "或者"
 
 #: apps/web/templates/account/login.html:49
 msgid "Login:"
-msgstr "账号"
+msgstr "账号："
 
-#: apps/web/templates/account/login.html:65
-msgid "Sign In"
-msgstr "222"
+#: apps/web/templates/account/login.html:50
+msgid "Username or e-mail"
+msgstr "用户名或者电子邮件地址"
+
+#: apps/web/templates/account/login.html:53
+msgid "Password:"
+msgstr "密码："
+
+#: apps/web/templates/account/login.html:54
+#: apps/web/templates/account/signup.html:33
+#: apps/web/templates/account/signup.html:37
+#, fuzzy
+msgid "Password"
+msgstr "密码："
+
+#: apps/web/templates/account/login.html:59
+msgid "Remember Me"
+msgstr "记住登录状态"
+
+#: apps/web/templates/account/login.html:68
+msgid "Don't have an account? Sign up!"
+msgstr "还没有账号吗？请立刻注册吧：）"
+
+#: apps/web/templates/account/login.html:69
+msgid "Forgot your password?"
+msgstr "忘记密码了吗？"
+
+#: apps/web/templates/account/login.html:70
+msgid ""
+"<a href=\"\" onclick=\"alert('Please wait 5 minutes and attempt logging in "
+"again to resend confirmation email.'); return false;\">Resend confirmation "
+"email</a>"
+msgstr ""
+"<a href=\"\" onclick=\"alert('请等待5分钟，然后再次尝试重新发送确认电子邮件'); return "
+"false;\">重新发送确认邮件</a>"
 
 #: apps/web/templates/account/logout.html:11
 msgid "Are you sure you want to sign out?"
-msgstr "fff"
+msgstr "你确定要注销登录吗？"
 
-#: apps/web/templates/account/logout.html:18
-msgid "Sign Out"
-msgstr "11111"
+#: apps/web/templates/account/password_reset.html:7
+#: apps/web/templates/account/password_reset.html:8
+#: apps/web/templates/account/password_reset_done.html:6
+#: apps/web/templates/account/password_reset_done.html:7
+#, fuzzy
+msgid "Password Reset"
+msgstr "密码重置"
 
 #: apps/web/templates/account/password_reset.html:14
 msgid ""
 "Forgot your password? Enter your e-mail address below, and we'll send you an "
 "e-mail allowing you to reset it."
 msgstr ""
+"如果你忘记密码的话，请在下方填写你的注册邮件，我们将向你发送认证邮件以帮助你"
+"找回密码。"
 
 #: apps/web/templates/account/password_reset.html:23
 msgid "Reset My Password"
-msgstr ""
+msgstr "密码重置"
 
 #: apps/web/templates/account/password_reset_complete.html:6
 msgid "Home"
-msgstr ""
+msgstr "主页"
 
 #: apps/web/templates/account/password_reset_complete.html:7
 msgid "Password reset"
-msgstr ""
+msgstr "密码重置"
 
 #: apps/web/templates/account/password_reset_complete.html:11
 #: apps/web/templates/account/password_reset_complete.html:15
 msgid "Password reset complete"
-msgstr ""
+msgstr "完成密码重置"
 
 #: apps/web/templates/account/password_reset_complete.html:17
 msgid "Your password has been set.  You may go ahead and log in now."
-msgstr ""
+msgstr "您的密码已经被设置，您现在就可以登录了。"
 
 #: apps/web/templates/account/password_reset_complete.html:19
 msgid "Log in"
-msgstr ""
+msgstr "登录"
 
 #: apps/web/templates/account/password_reset_done.html:16
 msgid ""
 "We have sent you an e-mail. Please contact us if you do not receive it "
 "within a few minutes."
 msgstr ""
+"我们已经向您发送了一封邮件，如果在5分钟后仍然没有收到请尝试重新提交申请，或者"
+"与我们联系。"
 
 #: apps/web/templates/account/password_reset_from_key.html:12
 #, python-format
@@ -104,15 +223,290 @@ msgid ""
 "used.  Please request a <a href=\"%(passwd_reset_url)s\">new password reset</"
 "a>."
 msgstr ""
+"密码重置的链接无效。或许它在您之前已经被使用过了，请在<a href="
+"\"%(passwd_reset_url)s\">重新提交密码重置申请"
+
+#: apps/web/templates/account/password_reset_from_key.html:20
+msgid "New Password:"
+msgstr "新的密码："
+
+#: apps/web/templates/account/password_reset_from_key.html:24
+msgid "New Password (again):"
+msgstr "确认新的密码："
 
 #: apps/web/templates/account/password_reset_from_key.html:27
 msgid "Set new password"
-msgstr ""
+msgstr "设置新的密码"
 
 #: apps/web/templates/account/password_reset_from_key.html:30
 msgid "Your password is now changed."
-msgstr ""
+msgstr "密码修改成功"
 
-#: apps/web/templates/account/signup.html:49
-msgid "Sign Up"
+#: apps/web/templates/account/signup.html:24
+msgid "*Username:"
+msgstr "*用户名"
+
+#: apps/web/templates/account/signup.html:25
+#, fuzzy
+msgid "Username"
+msgstr "用户名"
+
+#: apps/web/templates/account/signup.html:28
+msgid "*E-mail:"
+msgstr "*电子邮箱"
+
+#: apps/web/templates/account/signup.html:29
+msgid "E-mail address"
+msgstr "电子邮件地址"
+
+#: apps/web/templates/account/signup.html:32
+msgid "*Password:"
+msgstr "*密码"
+
+#: apps/web/templates/account/signup.html:36
+msgid "*Password (again):"
+msgstr "*确认密码"
+
+#: apps/web/templates/account/signup.html:43
+msgid ""
+"I accept the <a href=\"https://github.com/codalab/codalab-competitions/wiki/"
+"Privacy\" target=\"_blank\">terms and conditions</a>"
 msgstr ""
+"我接受<a href=\"https://github.com/codalab/codalab-competitions/wiki/Privacy"
+"\" target=\"_blank\">相关隐私条例"
+
+#: apps/web/templates/emails/base_email.html:64
+#, python-format
+msgid "Hello %(user.username)s,"
+msgstr "你好 %(user.username)s,"
+
+#: apps/web/templates/emails/base_email.html:74
+msgid "Thanks,"
+msgstr "感谢"
+
+#: apps/web/templates/emails/base_email.html:76
+msgid "CodaLab Team"
+msgstr "团队"
+
+#: apps/web/templates/emails/base_email.html:80
+msgid "Unsubscribe or manage notification settings"
+msgstr "不再订阅通知"
+
+#: apps/web/templates/emails/base_email.html:80
+msgid "Privacy policy"
+msgstr "隐私政策"
+
+#: apps/web/templates/emails/notifications/organizer_participation_accepted.html:6
+#, python-format
+msgid "The user %(participant.user)s was accepted into your competition:"
+msgstr "用户 %(participant.user)s 已经接受您竞赛的邀请"
+
+#: apps/web/templates/emails/notifications/organizer_participation_accepted.html:9
+#: apps/web/templates/emails/notifications/organizer_participation_requested.html:8
+#: apps/web/templates/emails/notifications/organizer_participation_revoked.html:8
+msgid "Manage participants"
+msgstr "管理成员"
+
+#: apps/web/templates/emails/notifications/organizer_participation_requested.html:5
+#, python-format
+msgid "The user %(participant.user)s requested access into your competition:"
+msgstr "用户 %(participant.user)s 请求加入您的竞赛"
+
+#: apps/web/templates/emails/notifications/organizer_participation_revoked.html:5
+#, python-format
+msgid ""
+"The user %(participant.user)s was denied permission from your competition:"
+msgstr "用户 %(participant.user)s 被您的竞赛拒绝"
+
+#: apps/web/templates/emails/notifications/participation_accepted.html:5
+#: apps/web/templates/emails/notifications/participation_revoked.html:5
+msgid "This is a message updating your access to the competition:"
+msgstr "这是更新您竞赛信息的一条消息："
+
+#: apps/web/templates/emails/notifications/participation_accepted.html:8
+msgid "Your status has been accepted!"
+msgstr "您的申请已被接受！"
+
+#: apps/web/templates/emails/notifications/participation_accepted.html:11
+#: apps/web/templates/emails/notifications/participation_revoked.html:11
+msgid "Reason:"
+msgstr "原因是："
+
+#: apps/web/templates/emails/notifications/participation_organizer_direct_email.html:5
+msgid "This is a message from the organizer for the competition:"
+msgstr "这是来自竞赛组织者的一条消息："
+
+#: apps/web/templates/emails/notifications/participation_organizer_direct_email.html:12
+msgid "Message:"
+msgstr "消息内容："
+
+#: apps/web/templates/emails/notifications/participation_requested.html:5
+msgid ""
+"This is a message confirming you have requested access to the competition:"
+msgstr "这是确认您已经申请参加比赛的信息"
+
+#: apps/web/templates/emails/notifications/participation_requested.html:8
+msgid ""
+"You will be notified if your participation status is approved or denied."
+msgstr "不论竞赛参与者被接受或是拒绝，您都将会收到通知"
+
+#: apps/web/templates/emails/notifications/participation_revoked.html:8
+msgid "Your participation privileges have been suspended."
+msgstr "你的参与权限已被停止"
+
+#: apps/web/templates/search/search.html:9
+msgid "Results"
+msgstr "搜索结果"
+
+#: apps/web/templates/search/search.html:15
+#, python-format
+msgid "No results found for query: %(query)s."
+msgstr "没有相关查询结果：%(query)s"
+
+#: apps/web/templates/search/search.html:20
+msgid "Previous"
+msgstr "上一页"
+
+#: apps/web/templates/search/search.html:21
+msgid "Next"
+msgstr "下一页"
+
+#: apps/web/templates/web/admin_monitoring_links.html:5
+#: apps/web/templates/web/admin_monitoring_links.html:6
+#, fuzzy
+msgid "Services Monitoring links"
+msgstr "管理控制链接"
+
+#: apps/web/templates/web/admin_monitoring_links.html:13
+msgid "RabbitMQ"
+msgstr "RabbitMQ"
+
+#: apps/web/templates/web/admin_monitoring_links.html:15
+msgid ""
+"This page allows admins to view connections, queued messages, message rates, "
+"channels, exchanges, and other administrative features relating to rabbitmq "
+"e.g creating users, adding v-hosts, and creating policies."
+msgstr ""
+"这一页面允许管理者浏览链接状态，管理工作队列，信息传递速率渠道，信息交换，以"
+"及其它和rabbitmq相关的管理特征例如创建用户，增加v-hosts，以及创建条例。"
+
+#: apps/web/templates/web/admin_monitoring_links.html:20
+msgid "Flower"
+msgstr "Flower"
+
+#: apps/web/templates/web/admin_monitoring_links.html:22
+msgid ""
+"Flower is a powerful web based Celery monitoring tool designed to keep track "
+"of our tasks. Admins may view the state of which tasks were run, with what "
+"arguments, and many more features. Here you may also view which queues your "
+"celery workers are consuming, and the state of any tasks in them. At last, "
+"there is also a great monitoring page for viewing the systemic impact of "
+"your workers."
+msgstr ""
+"Flower是一个强大的web监控工具，它被用户记录你的任务流程。 管理员可看到任务运"
+"行状态及其它的特征在这里您也可以看到您的工作队列，以及在工作队列中的任务。在"
+"最后，Flower也可以监控您的工作队列的系统性影响。"
+
+#: apps/web/templates/web/competition_latest.html:23
+#, python-format
+msgid "Organized by %(competition.creator)s"
+msgstr "由%(competition.creator)s组织"
+
+#: apps/web/templates/web/index.html:12
+msgid "Accelerating reproducible computational research."
+msgstr "致力于促进可重复性计算研究的发展"
+
+#: apps/web/templates/web/index.html:25
+msgid "Popular Competitions"
+msgstr "热门比赛"
+
+#: apps/web/templates/web/index.html:27 apps/web/templates/web/index.html:37
+msgid "There are no competitions."
+msgstr "当前没有比赛。"
+
+#: apps/web/templates/web/index.html:35
+msgid "Featured Competitions"
+msgstr "精选比赛"
+
+#: apps/web/templates/web/project_version.html:4
+msgid "Version"
+msgstr "版本号"
+
+#: apps/web/templates/web/user_detail.html:5
+#: apps/web/templates/web/user_detail.html:6
+#, fuzzy
+msgid "Competition"
+msgstr "我的竞赛"
+
+#: apps/web/templates/web/user_detail.html:13
+#, python-format
+msgid "Details for %(object)s"
+msgstr "查看 %(object)s 细节"
+
+#: apps/web/templates/web/user_detail.html:15
+msgid "Details are currently hidden"
+msgstr "当前的细节被隐藏"
+
+#: apps/web/templates/web/common/_submission_details_template.html:8
+msgid "No description given."
+msgstr "没有关于提交的解释。"
+
+#: apps/web/templates/web/common/_submission_details_template.html:10
+msgid "save description"
+msgstr "保存提交的解释"
+
+#: apps/web/templates/web/common/_submission_details_template.html:11
+msgid "update description"
+msgstr "更新解释"
+
+#: apps/web/templates/web/common/_submission_details_template.html:25
+msgid "Download your submission"
+msgstr "下载你的提交"
+
+#: apps/web/templates/web/common/_submission_details_template.html:27
+msgid "View standard error log"
+msgstr "浏览错误信息"
+
+#: apps/web/templates/web/common/_submission_details_template.html:29
+msgid "View scoring output log"
+msgstr "浏览分数信息"
+
+#: apps/web/templates/web/common/_submission_details_template.html:30
+msgid "View scoring error log"
+msgstr "浏览评分错误信息"
+
+#: apps/web/templates/web/common/_submission_details_template.html:32
+msgid "View predict output log"
+msgstr "浏览预测的输出结果"
+
+#: apps/web/templates/web/common/_submission_details_template.html:33
+msgid "View predict error log"
+msgstr "浏览预测的错误信息"
+
+#: apps/web/templates/web/common/_submission_details_template.html:34
+msgid "Download evaluation output from prediction step"
+msgstr "从预测阶段下载评估的结果"
+
+#: apps/web/templates/web/common/_submission_details_template.html:37
+msgid "View detailed results"
+msgstr "浏览详细结果"
+
+#: apps/web/templates/web/common/_submission_details_template.html:39
+msgid "Download evaluation output from scoring step"
+msgstr "从得分阶段下载评估结果"
+
+#: apps/web/templates/web/common/_submission_details_template.html:41
+msgid "Download private output from scoring step"
+msgstr "从得分阶段下载私人输出结果"
+
+#: apps/web/templates/web/common/_submission_details_template.html:44
+msgid "View ingestion output log"
+msgstr "浏览摄取程序输出结果"
+
+#: apps/web/templates/web/common/_submission_details_template.html:45
+msgid "View ingestion error log"
+msgstr "浏览摄取程序的错误信息"
+
+#: apps/web/templates/web/common/_submission_details_template.html:55
+msgid "Make your submission public"
+msgstr "公开提交结果"

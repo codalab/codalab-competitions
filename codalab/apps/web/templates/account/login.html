@@ -4,8 +4,8 @@
 {% load i18n %}
 {% load url from future %}
 
-{% block head_title %}Sign In{% endblock head_title %}
-{% block page_title %}Sign In{% endblock page_title %}
+{% block head_title %}{% trans 'Sign In'%}{% endblock head_title %}
+{% block page_title %}{% trans 'Sign In'%}{% endblock page_title %}
 {% block extra_head %}
 <meta charset="utf-8">
 <script>
@@ -47,16 +47,16 @@
 
             <div class="form-group">
                 <label for="id_login">{% trans 'Login:' %}</label>
-                <input id="id_login" class="form-control" name="login" placeholder="Username or e-mail" type="text" autofocus>
+                <input id="id_login" class="form-control" name="login" placeholder="{%trans "Username or e-mail"%}" type="text" autofocus>
             </div>
             <div class="form-group">
                 <label for="id_password">{% trans 'Password:'%}</label>
-                <input id="id_password" class="form-control" name="password" placeholder="Password" type="password">
+               <input id="id_password" class="form-control" name="password" placeholder="{%trans "Password"%}" type="password">
             </div>
             <div class="checkbox">
                 <label for="id_remember">
                     <input id="id_remember" name="remember" type="checkbox">
-                    Remember Me
+                    {% trans "Remember Me"%}
                 </label>
             </div>
             {% if redirect_field_value %}
@@ -65,9 +65,9 @@
             <button class="btn btn-primary margin-top" type="submit">{% trans "Sign In" %}</button>
         </form>
         <p>
-        <p><a href="../signup">{% trans 'Don't have an account? Sign up!'%}</a></p>
+        <p><a href="../signup">{% trans "Don't have an account? Sign up!" %}</a></p>
         <p><a href="../password/reset/">{% trans 'Forgot your password?'%}</a></p>
-        {% trans '<a href="" onclick="alert('Please wait 5 minutes and attempt logging in again to resend confirmation email.'); return false;">'%}{% trans 'Resend confirmation email'%}</a>
+        {% blocktrans %}<a href="" onclick="alert('Please wait 5 minutes and attempt logging in again to resend confirmation email.'); return false;">Resend confirmation email</a>{% endblocktrans %}
     </div>
 </div>
 {% endblock %}
