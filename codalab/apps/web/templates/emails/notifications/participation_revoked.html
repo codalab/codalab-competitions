@@ -1,12 +1,13 @@
 {% extends 'emails/base_email.html' %}
+{% load i18n %}
 
 {% block content %}
-    <p>This is a message updating your access to the competition:</p>
+    <p>{% trans 'This is a message updating your access to the competition:'%}</p>
     <a href="http://{{ site.domain }}{{ competition.get_absolute_url }}">{{ competition }}</a>
 
-    <p>Your participation privileges have been suspended.</p>
+    <p>{% trans 'Your participation privileges have been suspended.'%}</p>
 
     {% if reason %}
-    <p><strong>Reason:</strong>{{ reason }}</p>
+    <p><strong>{% trans 'Reason:'%}</strong>{{ reason }}</p>
     {% endif %}
 {% endblock %}

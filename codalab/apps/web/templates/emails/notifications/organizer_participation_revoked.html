@@ -1,8 +1,10 @@
 {% extends 'emails/base_email.html' %}
+{% load i18n %}
 
 {% block content %}
-    <p>The user {{ participant.user }} was denied permission from your competition:</p>
+    <p>{% blocktrans %}The user {{ participant.user }} was denied permission from your competition:{% endblocktrans %}</p>
     <a href="http://{{ site.domain }}{{ competition.get_absolute_url }}">{{ competition }}</a>
 
-    <a href="http://{{ site.domain }}{% url 'my_competition_participants' competition_id=competition.pk %}">Manage participants</a>
+    <a href="http://{{ site.domain }}{% url 'my_competition_participants' competition_id=competition.pk %}">{% trans 'Manage participants'%}</a>
+
 {% endblock %}

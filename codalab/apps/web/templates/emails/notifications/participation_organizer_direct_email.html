@@ -1,13 +1,16 @@
 {% extends 'emails/base_email.html' %}
+{% load i18n %}
 
 {% block title %}
-    <p>This is a message from the organizer for the competition:</p>
+    <p>{% trans 'This is a message from the organizer for the competition:'%}</p>
     <a href="http://{{ site.domain }}{{ competition.get_absolute_url }}">{{ competition }}</a>
 
     <br><br>
 {% endblock %}
 
 {% block content %}
-    <h3>Message:</h3>
+    <h3>{% trans 'Message:'%}</h3>
+
     {{ body }}
+
 {% endblock %}

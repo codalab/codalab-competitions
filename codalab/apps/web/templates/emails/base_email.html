@@ -1,4 +1,5 @@
 {% load static %}
+{% load i18n %}
 
 <!DOCTYPE html>
 <html>
@@ -60,7 +61,7 @@
 -->
 
 <div id="header">
-    <h1>Hello {{ user.username }},</h1>
+    <h1>{% blocktrans %}Hello {{ user.username }},{% endblocktrans %}</h1>
 </div>
 
 {% block title %}
@@ -70,13 +71,13 @@
 {% endblock %}
 
 <div id="signature">
-    <p>Thanks,</p>
+    <p>{% trans 'Thanks,'%}</p>
 
-    <strong>CodaLab Team</strong>
+    <strong>{% trans 'CodaLab Team'%}</strong>
 </div>
 
 <div id="footer">
-    <p><a href="http://{{ site.domain }}{% url "user_settings" %}">Unsubscribe or manage notification settings</a> | <a href="http://codalab.github.io/codalab/notices.html">Privacy policy</a></p>
+    <p><a href="http://{{ site.domain }}{% url "user_settings" %}">{% trans 'Unsubscribe or manage notification settings'%}</a> | <a href="http://codalab.github.io/codalab/notices.html">{% trans 'Privacy policy'%}</a></p>
 </div>
 </body>
 </html>

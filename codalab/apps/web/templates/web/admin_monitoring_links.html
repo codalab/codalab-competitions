@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% load i18n %}
 {% load static %}
 
 {% block page_title %}Services Monitoring links{% endblock page_title %}
@@ -10,16 +10,16 @@
         <div class="col-md-5" style="background-color: rgba(0, 0, 0, 0.05); padding: 20px;">
             <a href="//{{ domain }}:{{ rabbit_port }}/" target="_blank">
                 <img class="img-responsive" src="{% static "img/monitoring_tool_rabbitmgmt.png" %}" style="max-height: 266px; margin: 0 auto;">
-                <h3>RabbitMQ</h3>
+                <h3>{% trans 'RabbitMQ'%}</h3>
             </a>
-            <p>This page allows admins to view connections, queued messages, message rates, channels, exchanges, and other administrative features relating to rabbitmq e.g creating users, adding v-hosts, and creating policies.</p>
+            <p>{% trans 'This page allows admins to view connections, queued messages, message rates, channels, exchanges, and other administrative features relating to rabbitmq e.g creating users, adding v-hosts, and creating policies.'%}</p>
         </div>
         <div class="col-md-6 col-md-offset-1" style="background-color: rgba(0, 0, 0, 0.05); padding: 20px;">
             <a href="//{{ domain }}:{{ flower_port }}/" target="_blank">
                 <img class="img-responsive" src="{% static "img/monitoring_tool_flower.png" %}" style="max-height: 266px; margin: 0 auto;">
-                <h3>Flower</h3>
+                <h3>{% trans 'Flower'%}</h3>
             </a>
-            <p>Flower is a powerful web based Celery monitoring tool designed to keep track of our tasks. Admins may view the state of which tasks were run, with what arguments, and many more features. Here you may also view which queues your celery workers are consuming, and the state of any tasks in them. At last, there is also a great monitoring page for viewing the systemic impact of your workers.</p>
+            <p>{% trans 'Flower is a powerful web based Celery monitoring tool designed to keep track of our tasks. Admins may view the state of which tasks were run, with what arguments, and many more features. Here you may also view which queues your celery workers are consuming, and the state of any tasks in them. At last, there is also a great monitoring page for viewing the systemic impact of your workers.'%}</p>
         </div>
     </div>
 {% endblock %}

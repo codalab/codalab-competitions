@@ -2,14 +2,14 @@
 {% block head_title %}Home{% endblock %}
 {% block nosubheader %} {% endblock nosubheader %}
 {% block title %}{% endblock title %}
-
+{% load i18n %}
 {% block hero_subheader %}
     <div class="jumbotron">
         <div class="container">
             <div class="row">
                 <div class="col-sm-12 col-md-8 col-md-offset-2">
                     <img src="{{STATIC_URL}}img/codalab-logo-onecolor-reverse.png" alt="CodaLab" class="img-responsive">
-                    <h4><b>Accelerating reproducible computational research.</b></h4>
+                    <h4><b>{% trans 'Accelerating reproducible computational research.'%}</b></h4>
                 </div>
             </div>
         </div>
@@ -22,9 +22,9 @@
 
         <div class="row">
           <div class="col-sm-6 competition-latest-list">
-            <h2 class="homepage_headers">Popular Competitions</h2>
+            <h2 class="homepage_headers">{% trans 'Popular Competitions'%}</h2>
             {% if not latest_competitions %}
-            <p><em>There are no competitions.</em></p>
+            <p><em>{% trans 'There are no competitions.'%}</em></p>
             {% else %}
                 {% for competition in latest_competitions %}
                     {% include "web/competition_latest.html" with competition=competition %}
@@ -32,9 +32,9 @@
             {% endif %}
           </div>
             <div class="col-sm-6 competition-latest-list">
-            <h2 class="homepage_headers">Featured Competitions</h2>
+            <h2 class="homepage_headers">{% trans 'Featured Competitions'%}</h2>
             {% if not latest_competitions %}
-            <p><em>There are no competitions.</em></p>
+            <p><em>{% trans 'There are no competitions.'%}</em></p>
             {% else %}
                 {% for competition in featured_competitions %}
                     {% include "web/competition_latest.html" with competition=competition %}

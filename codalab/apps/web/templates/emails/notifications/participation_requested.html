@@ -1,8 +1,9 @@
 {% extends 'emails/base_email.html' %}
+{% load i18n %}
 
 {% block content %}
-    <p>This is a message confirming you have requested access to the competition:</p>
+    <p>{% trans 'This is a message confirming you have requested access to the competition:'%}</p>
     <a href="http://{{ site.domain }}{{ competition.get_absolute_url }}">{{ competition }}</a>
 
-    <p>You will be notified if your participation status is approved or denied.</p>
+    <p>{% trans 'You will be notified if your participation status is approved or denied.'%}</p>
 {% endblock %}

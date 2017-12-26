@@ -2,23 +2,23 @@
 {% load static %}
 {% block head_title %}Search{% endblock head_title %}
 {% block page_title %}Search{% endblock page_title %}
-
+{% load i18n %}
 {% block content %}
     <form method="get" action=".">
         {% if query %}
-            <h2>Results</h2>
+            <h2>{% trans 'Results'%}</h2>
             {% for result in page.object_list %}
                 {% if result.content_type == "web.competition" %}
                     {% include "web/competitions/summary.html" with competition=result.object %}
                 {% endif %}
             {% empty %}
-                <p>No results found for query: {{ query }}.</p>
+                <p>{% blocktrans %}No results found for query: {{ query }}.{% endblocktrans %}</p>
             {% endfor %}
             {% if page.has_previous or page.has_next %}
                 <nav>
                     <ul class="pagination">
-                        {% if page.has_previous %}<li><a href="?q={{ query }}&amp;page={{ page.previous_page_number }}">{% endif %}&laquo; Previous{% if page.has_previous %}</a></li>{% endif %}
-                        {% if page.has_next %}<li><a href="?q={{ query }}&amp;page={{ page.next_page_number }}">{% endif %}Next &raquo;{% if page.has_next %}</a></li>{% endif %}
+                        {% if page.has_previous %}<li><a href="?q={{ query }}&amp;page={{ page.previous_page_number }}">{% endif %}&laquo; {% trans 'Previous'%}{% if page.has_previous %}</a></li>{% endif %}
+                        {% if page.has_next %}<li><a href="?q={{ query }}&amp;page={{ page.next_page_number }}">{% endif %}{% trans 'Next'%} &raquo;{% if page.has_next %}</a></li>{% endif %}
                     </ul>
                 </nav>
             {% endif %}
