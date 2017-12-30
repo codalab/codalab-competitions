@@ -1,9 +1,12 @@
+import sys
+
 import re
 
 import requests
 from django.conf import settings
 from django.core.files.storage import get_storage_class
-
+reload(sys)
+sys.setdefaultencoding('utf-8')
 
 
 StorageClass = get_storage_class(settings.DEFAULT_FILE_STORAGE)
