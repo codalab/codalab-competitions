@@ -26,7 +26,6 @@ def get_health_metrics():
     - **alert_threshold** Threshold number.
     """
     jobs_pending = Job.objects.filter(status=Job.PENDING)
-    # jobs_pending_count = len(jobs_pending)
 
     jobs_finished_in_last_2_days = Job.objects.filter(status=Job.FINISHED, created__gt=datetime.now() - timedelta(days=2))
     jobs_finished_in_last_2_days_count = len(jobs_finished_in_last_2_days)
