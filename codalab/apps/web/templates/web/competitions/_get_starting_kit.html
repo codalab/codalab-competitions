@@ -1,20 +1,20 @@
 {% load codalab_tags %}
-
+{% load i18n %}
 {#<h1>Files</h1>#}
 {% if competition.has_starting_kit_or_public_data %}
     <table style="border: 1px solid rgba(0,0,0,0.3)" class="table table-responsive">
         <thead>
         <th>
-            Download
+            {% trans 'Download' %}
         </th>
         <th>
-            Size (mb)
+            {% trans 'Size (mb)' %}
         </th>
         <th>
-            Filetype:
+            {% trans 'Filetype:' %}
         </th>
         <th>
-            Phase
+            {% trans 'Phase' %}
         </th>
         </thead>
         <tbody>
@@ -57,5 +57,5 @@
         </tbody>
     </table>
 {% else %}
-    <i>No files have been added for this competition yet.</i>
+    <i>{% trans 'No files have been added for this competition yet.' %}</i>
 {% endif %}

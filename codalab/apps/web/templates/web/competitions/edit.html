@@ -4,7 +4,7 @@
 
 {% block head_title %}Edit Competition{% endblock head_title %}
 {% block page_title %}Edit Competition{% endblock page_title %}
-
+{% load i18n %}
 {% block extra_headers %}
     <link rel="stylesheet" href="{{ STATIC_URL }}css/jquery.datetimepicker.css">
 {% endblock extra_headers %}
@@ -15,10 +15,10 @@
 
 {% block content %}
 <div class='container-fluid'>
-    <a href="{% url "competitions:view" pk=competition.pk %}" >Go Back to Competition Homepage</a>
-    <a class="pull-right" href="https://github.com/codalab/codalab/wiki/User_Competition-Roadmap" title="Get help with creating a competition" target="_blank"><span class="glyphicon glyphicon-question-sign"></span> Help</a>
+    <a href="{% url "competitions:view" pk=competition.pk %}" >{% trans 'Go Back to Competition Homepage' %}</a>
+    <a class="pull-right" href="https://github.com/codalab/codalab/wiki/User_Competition-Roadmap" title="Get help with creating a competition" target="_blank"><span class="glyphicon glyphicon-question-sign"></span> {% trans 'Help' %}</a>
 </div>
-<a class="btn btn-secondary" href="{% url 'competitions:download_yaml' competition_pk=competition.pk %}">Download original YAML file</a>
+<a class="btn btn-secondary" href="{% url 'competitions:download_yaml' competition_pk=competition.pk %}">{% trans 'Download original YAML file' %}</a>
 <form id="competition_edit_form" class="form-horizontal form-controller margin-top" data-abide enctype="multipart/form-data" method="POST">{% csrf_token %}
     <fieldset>
         <legend>General Information</legend>
@@ -61,7 +61,7 @@
                 <div class="panel panel-primary page">
                     <div class="panel-heading">
                         <h3 class="panel-title">
-                            Web Page
+                            {% trans 'Web Page' %}
                         </h3>
                     </div>
                     <div class="panel-body">
@@ -104,7 +104,7 @@
                 <div class="panel panel-default page">
                     <div class="panel-heading">
                         <h3 class="panel-title">
-                            Web Page
+                            {% trans 'Web Page' %}
                         </h3>
                     </div>
                     <div class="panel-body">
@@ -134,10 +134,10 @@
                 </li>
             {% endfor %}
         </ul>
-        <button type="button" class="button add-page btn btn-secondary pull-right">Add Page</button>
+        <button type="button" class="button add-page btn btn-secondary pull-right">{% trans 'Add Page' %}</button>
     </fieldset>
     <fieldset>
-        <legend>Phases</legend>
+        <legend>{% trans 'Phases' %}</legend>
         <ul id="phases" class="list-unstyled">
             {{ Phases.management_form }}
             {{ Phases.non_form_errors }}
@@ -145,7 +145,7 @@
                 <div class="phase panel panel-primary">
                     <div class="panel-heading">
                         <h3 class="panel-title">
-                            Phase
+                            {% trans 'Phase' %}
                         </h3>
                     </div>
                     <div class="panel-body">
@@ -184,7 +184,7 @@
                 <div class="phase panel panel-default">
                     <div class="panel-heading">
                         <h3 class="panel-title">
-                            Competition Phase
+                            {% trans 'Competition Phase' %}
                         </h3>
                     </div>
                     <div class="panel-body">
@@ -195,7 +195,7 @@
                                 {% if field.name == "starting_kit_organizer_dataset" %}
                                 <div class="form-group">
                                     <div class="col-sm-9 col-sm-offset-3">
-                                        <p>You can add, remove, and modify datasets in the <a href="{% url 'my_datasets' %}">My Datasets</a> section</p>
+                                        <p>{% trans 'You can add, remove, and modify datasets in the' %} <a href="{% url 'my_datasets' %}">{% trans 'My Datasets' %}</a> {% trans 'section' %}</p>
                                     </div>
                                 </div>
                                 {% endif %}
@@ -230,7 +230,7 @@
                 </li>
             {% endfor %}
         </ul>
-        <button type="button" class="medium blue button add-phase btn btn-secondary pull-right">Add Phase</button>
+        <button type="button" class="medium blue button add-phase btn btn-secondary pull-right">{% trans 'Add Phase' %}</button>
     </fieldset>
 
     <fieldset>
@@ -244,7 +244,7 @@
                 <div class="leaderboard panel panel-default">
                     <div class="panel-heading">
                         <h3 class="panel-title">
-                            Leaderboard
+                            {% trans 'Leaderboard' %}
                         </h3>
                     </div>
                     <div class="panel-body">
@@ -286,7 +286,7 @@
     <hr />
     <div class="row">
         <div class="col-sm-4 col-sm-offset-4">
-            <button type="submit" class="medium button blue btn btn-primary btn-block">Submit</button>
+            <button type="submit" class="medium button blue btn btn-primary btn-block">{% trans 'Submit' %}</button>
         </div>
     </div>
 </form>

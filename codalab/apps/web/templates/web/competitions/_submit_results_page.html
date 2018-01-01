@@ -1,8 +1,8 @@
 {% if phase == None %}
-
+{% load i18n %}
 {% elif phase.is_future %}
 
-    <p>This phase of the competition has not started yet. Please check back later.</p>
+    <p>{% trans 'This phase of the competition has not started yet. Please check back later.' %}</p>
 
 {% else %}
 
@@ -14,20 +14,20 @@
         <div id="disallow_leaderboard_modifying"></div>
     {% endif %}
     <div class="phase-description">
-        <h4>Phase description</h4>
+        <h4>{% trans 'Phase description' %}</h4>
         {% if phase.description %}
             <p>{{ phase.description }}</p>
         {% else %}
-            <p>None</p>
+            <p>{% trans 'None' %}</p>
         {% endif %}
 
-        <p><b>Max submissions per day: </b> {{ phase.max_submissions_per_day }}</p>
-        <p><b>Max submissions total: </b> {{ phase.max_submissions }}</p>
+        <p><b>{% trans 'Max submissions per day: ' %}</b> {{ phase.max_submissions_per_day }}</p>
+        <p><b>{% trans 'Max submissions total: ' %}</b> {{ phase.max_submissions }}</p>
     </div>
 
     {% if phase.is_active %}
         <div class="form-group">
-            <label class="control-label">Click the Submit button to upload a new submission.</label>
+            <label class="control-label">{% trans 'Click the Submit button to upload a new submission.' %}</label>
 
 {#            {% if not phase.is_scoring_only and not phase.disable_custom_docker_image %}#}
 {#                <div class="form-group">#}
@@ -38,13 +38,13 @@
             {% if not phase.competition.enable_per_submission_metadata %}
                 <textarea id="submission_description_textarea" class="form-control" placeholder="Optionally add more information about this submission"></textarea>
             {% else %}
-                <br><b>*Team name (20 characters max): </b><input id="submission_team_name" type="text" maxlength="20" class="form-control" placeholder="Team name" value="{{ last_submission_team_name|default_if_none:""|escape }}">
-                <br><b>*Method name (20 characters max): </b><input id="submission_method_name" type="text" maxlength="20" class="form-control" placeholder="Method name" value="{{ last_submission_method_name|default_if_none:""|escape }}">
-                <br><b>*Method description: </b><textarea id="submission_method_description" class="form-control" placeholder="Method description">{{ last_submission_method_description|default_if_none:""|escape }}</textarea>
-                <br><b>Project URL: </b><input id="submission_project_url" class="form-control" placeholder="Project URL" value="{{ last_submission_project_url|default_if_none:""|escape }}">
-                <br><b>Publication URL: </b><input id="submission_publication_url" class="form-control" placeholder="Publication URL" value="{{ last_submission_publication_url|default_if_none:""|escape }}">
-                <br><b>Bibtex: </b><textarea id="submission_bibtex" class="form-control" placeholder="Bibtex">{{ last_submission_bibtex|default_if_none:""|escape }}</textarea>
-                <br><b>Organization/affiliation: </b><input id="submission_organization_or_affiliation" class="form-control" placeholder="Organization or Affiliation" value="{{ last_submission_organization_or_affiliation|default_if_none:""|escape }}">
+                <br><b>{% trans '*Team name (20 characters max): ' %}</b><input id="submission_team_name" type="text" maxlength="20" class="form-control" placeholder="Team name" value="{{ last_submission_team_name|default_if_none:""|escape }}">
+                <br><b>{% trans '*Method name (20 characters max): ' %}</b><input id="submission_method_name" type="text" maxlength="20" class="form-control" placeholder="Method name" value="{{ last_submission_method_name|default_if_none:""|escape }}">
+                <br><b>{% trans '*Method description: ' %}</b><textarea id="submission_method_description" class="form-control" placeholder="Method description">{{ last_submission_method_description|default_if_none:""|escape }}</textarea>
+                <br><b>{% trans 'Project URL: ' %}</b><input id="submission_project_url" class="form-control" placeholder="Project URL" value="{{ last_submission_project_url|default_if_none:""|escape }}">
+                <br><b>{% trans 'Publication URL: ' %}</b><input id="submission_publication_url" class="form-control" placeholder="Publication URL" value="{{ last_submission_publication_url|default_if_none:""|escape }}">
+                <br><b>{% trans 'Bibtex: ' %}</b><textarea id="submission_bibtex" class="form-control" placeholder="Bibtex">{{ last_submission_bibtex|default_if_none:""|escape }}</textarea>
+                <br><b>{% trans 'Organization/affiliation: ' %}</b><input id="submission_organization_or_affiliation" class="form-control" placeholder="Organization or Affiliation" value="{{ last_submission_organization_or_affiliation|default_if_none:""|escape }}">
             {% endif %}
         </div>
 
@@ -55,28 +55,28 @@
                 <div id="s3-file-upload"
                         class="button btn btn-primary {% if not phase.reference_data %}disabled{% endif %}"
                         {% if not phase.reference_data %}disabled="disabled"{% endif %}>
-                    Submit
+                        {% trans 'Submit' %}
                 </div>
             </form>
         {% else %}
             <button id="fileUploadButton"
                     class="button btn btn-primary {% if not phase.reference_data %}disabled{% endif %}"
                     {% if not phase.reference_data %}disabled="disabled"{% endif %}>
-                Submit
+                    {% trans 'Submit' %}
             </button>
         {% endif %}
 
 
         {% if not phase.reference_data %}
-            <p><em>This phase doesn't have reference_data supplied yet, please add reference data before submissions may be uploaded!</em></p>
+            <p><em>{% trans 'This phase doesn't have reference_data supplied yet, please add reference data before submissions may be uploaded!' %}</em></p>
         {% endif %}
 
         <p id="details" class="submission_upload_details"></p>
 
-        <p>Here are your submissions to date
+        <p>{% trans 'Here are your submissions to date' %}
             <span class="small">(<span class="glyphicon glyphicon-ok"></span> indicates submission on leaderboard )</span>:</p>
     {% else %}
-        <p>This phase of the competition is closed. Here are the submissions you made:</p>
+        <p>{% trans 'This phase of the competition is closed. Here are the submissions you made:' %}</p>
     {% endif %}
     <div class="user_results">
     {% if phase.is_active and not phase.is_blind %}
@@ -89,18 +89,18 @@
             <table class="table resultsTable table-striped table-bordered" id="user_results">
                 <thead>
                 <tr>
-                    <th>#</th>
-                    <th>Score</th>
-                    <th>Filename</th>
-                    <th>Submission date</th>
-                    <th>Status</th>
+                    <th>{% trans '#' %}</th>
+                    <th>{% trans 'Score' %}</th>
+                    <th>{% trans 'Filename' %}</th>
+                    <th>{% trans 'Submission date' %}</th>
+                    <th>{% trans 'Status' %}</th>
                     <th class="text-center"><span class="glyphicon glyphicon-ok"></span></th>
                 </tr>
                 </thead>
                 <tbody>
                 {% if submission_info_list|length_is:"0" %}
                     <tr class="noData">
-                        <td class="tdDetails" colspan="7">No data available in table</td>
+                        <td class="tdDetails" colspan="7">{% trans 'No data available in table' %}</td>
                     </tr>
                 {% else %}
                     {% for submission_info in submission_info_list %}

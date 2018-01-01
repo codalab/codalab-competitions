@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% load i18n %}
 {% block head_title %}Create Competition{% endblock head_title %}
 {% block page_title %}Create Competition{% endblock page_title %}
 
@@ -8,7 +8,7 @@
         <div class="panel-body">
             <div class="row">
               <h3 class="center-block"  style="width:80%;">
-                To create a competition, upload a bundle with the definition of the new competition.
+                {% trans 'To create a competition, upload a bundle with the definition of the new competition.' %}
                 <a href="https://github.com/codalab/codalab/wiki/User_Competition-Roadmap"
                    title="Get help with creating a competition" target="_blank">
                     <span class="glyphicon glyphicon-question-sign"></span>
@@ -19,7 +19,7 @@
             <form id="s3_upload_form" action="" method="post">
                 {% csrf_token %}
                 <div class="form-group">
-                  <button type="button" id="submit-button" class="btn btn-primary">Upload Competition Bundle</button>
+                  <button type="button" id="submit-button" class="btn btn-primary">{% trans 'Upload Competition Bundle' %}</button>
                 </div>
                 <div class="row">
                   <div class="form-group center-block" style="width:50%; height: 10px;">

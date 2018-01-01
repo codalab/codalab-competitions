@@ -1,26 +1,27 @@
+{% load i18n %}
 {% if not public_submissions %}
     <i>No submissions have been made public!</i>
 {% else %}
 
-<h3>Filters</h3>
-<p><input type="checkbox" id="public_submission_filter_only_leaderboard"> Only show results currently on leaderboard</p>
+<h3>{% trans 'Filters' %}</h3>
+<p><input type="checkbox" id="public_submission_filter_only_leaderboard"> {% trans 'Only show results currently on leaderboard' %}</p>
 
 <table id="public_submission_table" class="table table-bordered table-striped tablesorter">
     <thead>
         <tr>
-            <th width="40" data-sort="int"><b>#</b></th>
-            <th width="40" data-sort="int"><b>Submission Id</b></th>
-            <th width="125" data-sort="string"><b>User</b></th>
-            <th width="75" data-sort="string"><b>Phase</b></th>
-            <th width="125" data-sort="string"><b>Date</b></th>
-            <th data-sort="string"><b>Description</b></th>
+            <th width="40" data-sort="int"><b>{% trans '#' %}</b></th>
+            <th width="40" data-sort="int"><b>{% trans 'Submission Id' %}</b></th>
+            <th width="125" data-sort="string"><b>{% trans 'User' %}</b></th>
+            <th width="75" data-sort="string"><b>{% trans 'Phase' %}</b></th>
+            <th width="125" data-sort="string"><b>{% trans 'Date' %}</b></th>
+            <th data-sort="string"><b>{% trans 'Description' %}</b></th>
             {% for label in competition.get_score_headers %}
                 <td width="100" data-sort="string"><b>{{ label }}</b></td>
             {% endfor %}
-            <th width="100" data-sort="string"><b>Likes</b></th>
-            <th width="125" data-sort="string"><b>Downloads</b></th>
+            <th width="100" data-sort="string"><b>{% trans 'Likes' %}</b></th>
+            <th width="125" data-sort="string"><b>{% trans 'Downloads' %}</b></th>
             {% if competition.enable_detailed_results %}
-                <th width="150" data-sort="string"><b>Detailed results?</b></th>
+                <th width="150" data-sort="string"><b>{% trans 'Detailed results?' %}</b></th>
             {% endif %}
         </tr>
     </thead>
@@ -76,27 +77,27 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">Submission details</h4>
+                <h4 class="modal-title">{% trans 'Submission details' %}</h4>
             </div>
             <div class="modal-body">
                 <ul class="download-list list-unstyled">
                     {# "1" in these urls gets replaced with the proper ID #}
-                    <li><a href="/my/competition/submission/1/input.zip">Download submission (<span class="download_count"></span> downloads)</a></li>
+                    <li><a href="/my/competition/submission/1/input.zip">{% trans 'Download submission' %} (<span class="download_count"></span> downloads)</a></li>
                     {% if not submission.phase.is_scoring_only %}
-                        <li><a href="/my/competition/submission/1/predict_stdout.txt" target="_blank">View predict output log</a></li>
-                        <li><a href="/my/competition/submission/1/predict_stderr.txt" target="_blank">View predict error log</a></li>
-                        <li><a href="/my/competition/submission/1/prediction-output.zip">Download evaluation output from prediction step</a></li>
+                        <li><a href="/my/competition/submission/1/predict_stdout.txt" target="_blank">{% trans 'View predict output log' %}</a></li>
+                        <li><a href="/my/competition/submission/1/predict_stderr.txt" target="_blank">{% trans 'View predict error log' %}</a></li>
+                        <li><a href="/my/competition/submission/1/prediction-output.zip">{% trans 'Download evaluation output from prediction step' %}</a></li>
                     {% endif %}
-                    <li><a href="/my/competition/submission/1/stdout.txt" target="_blank">View scoring output log</a></li>
-                    <li><a href="/my/competition/submission/1/stderr.txt" target="_blank">View scoring error log</a></li>
+                    <li><a href="/my/competition/submission/1/stdout.txt" target="_blank">{% trans 'View scoring output log' %}</a></li>
+                    <li><a href="/my/competition/submission/1/stderr.txt" target="_blank">{% trans 'View scoring error log' %}</a></li>
                     {% if submission.phase.competition.enable_detailed_results %}
-                        <li><a href="/my/competition/submission/1/detailed_results" target="_blank">View detailed results</a></li>
+                        <li><a href="/my/competition/submission/1/detailed_results" target="_blank">{% trans 'View detailed results' %}</a></li>
                     {% endif %}
-                    <li><a href="/my/competition/submission/1/output.zip">Download evaluation output from scoring step</a></li>
+                    <li><a href="/my/competition/submission/1/output.zip">{% trans 'Download evaluation output from scoring step' %}</a></li>
                 </ul>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">{% trans 'Close' %}</button>
             </div>
         </div>
     </div>

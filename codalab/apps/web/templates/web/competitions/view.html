@@ -5,7 +5,7 @@
 {% load tz %}
 {% block head_title %}Competition{% endblock %}
 {% block page_title %}Competition{% endblock page_title %}
-
+{% load i18n %}
 {% block extra_scripts %}
     <script src="{{ STATIC_URL }}js/vendor/readmore.min.js"></script>
 
@@ -21,19 +21,19 @@
 {% block content %}
 
 {% if request.user.is_staff %}
-    <a href="{% url "competitions:download" competition_pk=competition.pk %}" class="btn btn-primary">DOWNLOAD COMPETITION BUNDLE!</a>
+    <a href="{% url "competitions:download" competition_pk=competition.pk %}" class="btn btn-primary">{% trans 'DOWNLOAD COMPETITION BUNDLE!' %}</a>
 {% endif %}
 {% if is_admin_or_owner %}
     <h3>Admin features</h3>
-    <a href="{% url "competitions:edit" pk=competition.pk %}" class="btn btn-primary">Edit</a>
+    <a href="{% url "competitions:edit" pk=competition.pk %}" class="btn btn-primary">{% trans 'Edit' %}</a>
     <a href="{% url 'my_competition_participants' competition_id=competition.pk %}" class="btn btn-primary">
-        Participants
+        {% trans 'Participants' %}
         {% if comp_num_pending_teams > 0 %}
         <span class="glyphicon glyphicon-exclamation-sign" style="color:red">
         {% endif %}
     </a>
-    <a href="{% url 'my_competition_submissions' competition_id=competition.pk %}" class="btn btn-primary">Submissions</a>
-    <a href="{% url 'competitions:dumps' competition_pk=competition.pk %}" class="btn btn-primary">Dumps</a>
+    <a href="{% url 'my_competition_submissions' competition_id=competition.pk %}" class="btn btn-primary">{% trans 'Submissions' %}</a>
+    <a href="{% url 'competitions:dumps' competition_pk=competition.pk %}" class="btn btn-primary">{% trans 'Dumps' %}</a>
     <hr>
 {% endif %}
 <div class="competition-view">
@@ -74,7 +74,7 @@
                     {% if active_phase %}
                         <div class="col-sm-4">
                             <div class="phase current">
-                                <h4><span class="glyphicon glyphicon-play"></span> Current</h4>
+                                <h4><span class="glyphicon glyphicon-play"></span> {% trans 'Current' %}</h4>
                                 <span class="phase-label label phase-label-{% if active_phase.color %}{{ active_phase.color }}{% else %}default{% endif %}">{{active_phase.label}}</span>
                                 <div class="date">{{active_phase.start_date|utc}} UTC</div>
                             </div>
@@ -85,7 +85,7 @@
                     {% if not active_phase %}
                         <div class="col-sm-4">
                             <div class="phase">
-                                <h4>First phase</h4>
+                                <h4>{% trans 'First phase' %}</h4>
                                 <span class="phase-label label phase-label-{% if first_phase.color %}{{ first_phase.color }}{% else %}default{% endif %}">{{first_phase.label}}</span>
                                 <div class="date">{{first_phase.start_date|utc}} UTC</div>
                             </div>
@@ -95,7 +95,7 @@
                     {% if next_phase %}
                         <div class="col-sm-4">
                             <div class="phase">
-                                <h4>Next</h4>
+                                <h4>{% trans 'Next' %}</h4>
                                 <span class="phase-label label phase-label-{% if next_phase.color %}{{ next_phase.color }}{% else %}default{% endif %}">{{next_phase.label}}</span>
                                 <div class="date">{{next_phase.start_date|utc}} UTC</div>
                             </div>
@@ -103,8 +103,8 @@
                     {% else %}
                         <div class="col-sm-4">
                             <div class="phase">
-                                <h4>End</h4>
-                                <span class="phase-label label competition-end">Competition Ends</span>
+                                <h4>{% trans 'End' %}</h4>
+                                <span class="phase-label label competition-end">{% trans 'Competition Ends' %}</span>
                                 <div class="date">{% if competition.end_date %}{{competition.end_date|utc}} UTC{% else %}Never{% endif %}</div>
                             </div>
                         </div>
@@ -119,22 +119,22 @@
             {% for tab, contents in tabs.items %}
                 {% if tab.codename == "participate" %}
                     {# Put this before participate tab #}
-                    <li><a href="#phases" role="tab" data-toggle="tab">Phases</a></li>
+                    <li><a href="#phases" role="tab" data-toggle="tab">{% trans 'Phases' %}</a></li>
                 {% endif %}
                 <li><a href="#{{tab.codename|slugify}}" role="tab" data-toggle="tab">{{tab.name}}</a></li>
                 {% if tab.codename == "results" %}
                     {# Put this after results tab #}
                     {% if competition.allow_public_submissions %}
                     <!--<li><a href="#public_submissions" role="tab" data-toggle="tab">Public submissions</a></li>-->
-                    <li><a href="{% url 'competitions:public_submissions' pk=competition.pk%}">Public Submissions</a></li>
+                    <li><a href="{% url 'competitions:public_submissions' pk=competition.pk%}">{% trans 'Public Submissions' %}</a></li>
                     {% endif %}
                     {% if competition.enable_forum %}
-                    <li><a href="{% url 'forum_detail' forum_pk=competition.forum.pk %}">Forums <i class="glyphicon glyphicon-log-in"></i></a></li>
+                    <li><a href="{% url 'forum_detail' forum_pk=competition.forum.pk %}">{% trans 'Forums' %} <i class="glyphicon glyphicon-log-in"></i></a></li>
                     {% endif %}
                     {% if competition.enable_teams %}
                         {% if my_status == "approved" %}
                             <li>
-                                <a href="{% url 'team_detail' competition_pk=competition.pk %}">Team
+                                <a href="{% url 'team_detail' competition_pk=competition.pk %}">{% trans 'Team' %}
                                     <i class="glyphicon glyphicon-cog"></i>
                                     {% if new_team_submission > 0 %}
                                         <span class="label label-danger">{{new_team_submission}}</span>
@@ -171,7 +171,7 @@
                                 {% endfor %}
                                 <div class="phase-list-item panel phase-list-item-default phase-list-item-deadline">
                                 <div class="panel-heading">
-                                    <h3 class="panel-title"><strong>Competition Ends</strong></h3>
+                                    <h3 class="panel-title"><strong>{% trans 'Competition Ends' %}</strong></h3>
                                 </div>
                                 <div class="panel-body">
                                     <p> {% if competition.end_date %} <strong>{{competition.end_date}}</strong>
@@ -189,26 +189,26 @@
                     <div class="tab-inner">
                         {% if tab.codename == "participate" %}
                             {% if not user.is_authenticated %}
-                                <p>You must be logged in to participate in competitions.</p>
-                                <a href="{% url 'account_login' %}?next=/competitions/{{ competition.id }}%23participate-get-data" class="btn btn-primary">Sign In</a>
+                                <p>{% trans 'You must be logged in to participate in competitions.' %}</p>
+                                <a href="{% url 'account_login' %}?next=/competitions/{{ competition.id }}%23participate-get-data" class="btn btn-primary">{% trans 'Sign In' %}</a>
                             {% else %}
                                 {% if my_status == "unknown" %}
                                     <form id="participate_form">
                                         {% csrf_token %}
-                                        <p>You have not yet registered for this competition.</p>
-                                        <p>To participate in this competition, you must accept its specific terms and conditions. After you register, the competition organizer will review your application and notify you when your participation is approved.</p>
+                                        <p>{% trans 'You have not yet registered for this competition.' %}</p>
+                                        <p>{% trans 'To participate in this competition, you must accept its specific terms and conditions. After you register, the competition organizer will review your application and notify you when your participation is approved.' %}</p>
                                         <div class="checkbox">
                                             <label>
                                                 <input type="checkbox" name="agreed_terms" id="checkbox" required onclick="Competition.registationCanProceed();">
-                                                I accept the <a href="#learn_the_details-terms_and_conditions" target="_blank">terms and conditions</a> of the competition.
+                                                {% trans 'I accept the ' %}<a href="#learn_the_details-terms_and_conditions" target="_blank">{% trans 'terms and conditions' %}</a> {% trans 'of the competition.' %}
                                             </label>
                                         </div>
                                         <input type="submit" id="participateButton" class="disabledStatus btn btn-primary margin-top" value="Register" />
                                     </form>
                                 {% elif my_status == "pending" %}
-                                    <p>Your request to participate in this challenge has been received and a decision is pending.</p>
+                                    <p>{% trans 'Your request to participate in this challenge has been received and a decision is pending.' %}</p>
                                 {% elif my_status == "denied" %}
-                                    <p>Your request to participate in this competition was denied or your privileges have been suspended.</p>
+                                    <p>{% trans 'Your request to participate in this competition was denied or your privileges have been suspended.' %}</p>
                                     {% if my_participant.reason %}
                                         <p>Reason: {{my_participant.reason}}</p>
                                     {% endif %}
@@ -232,7 +232,7 @@
         <div class="col-md-4">
             {% if top_three_leaders %}
                 <div class="panel">
-                    <div class="panel-body"">
+                    <div class="panel-body">
                         <center><h4>Top Three</h4></center>
                         <table class="table table-responsive">
                             <thead>

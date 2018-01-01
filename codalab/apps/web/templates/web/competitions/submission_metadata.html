@@ -5,16 +5,16 @@
 
 {% block page_title %}Submissions Metadata{% endblock page_title %}
 {% block head_title %}Submissions Metadata{% endblock %}
-
+{% load i18n %}
 {% block content %}
 <div class="submissions">
     <div class="well submission-phase-select">
         <div class="row">
             <div class="col-md-6">
-                <h4>Phase</h4>
+                <h4>{% trans 'Phase' %}</h4>
             </div>
             <div class="col-md-6">
-                <a href="{% url "competitions:view" pk=competition.pk %}" class="pull-right" >Go Back to Competition Homepage</a>
+                <a href="{% url "competitions:view" pk=competition.pk %}" class="pull-right" >{% trans 'Go Back to Competition Homepage' %}</a>
             </div>
         </div>
         <select id="phase_selector" class="form-control">
@@ -24,28 +24,28 @@
         </select>
     </div>
 
-    <h4>Submissions</h4>
+    <h4>{% trans 'Submissions' %}</h4>
 
     {% if selected_phase.submissions.all %}
         <table class="table table-striped table-bordered">
             <thead>
                 <tr style="text-align: center; font-weight: bold;">
-                    <td>Submitted by</td>
-                    <td width="150">Date</td>
-                    <td>Compute worker</td>
-                    <td>Docker image</td>
-                    <td>Queue name</td>
-                    <td>Submission ID#</td>
-                    <td>Status</td>
-                    <td>Prediction/Scoring?</td>
-                    <td>Running processes (in temp dir)</td>
-                    <td>Ingestion program duration</td>
-                    <td>Start RAM</td>
-                    <td>End RAM</td>
-                    <td>Start CPU</td>
-                    <td>End CPU</td>
-                    <td>Start swap</td>
-                    <td>End swap</td>
+                    <td>{% trans 'Submitted by' %}</td>
+                    <td width="150">{% trans 'Date' %}</td>
+                    <td>{% trans 'Compute worker' %}</td>
+                    <td>{% trans 'Docker image' %}</td>
+                    <td>{% trans 'Queue name' %}</td>
+                    <td>{% trans 'Submission ID#' %}</td>
+                    <td>{% trans 'Status' %}</td>
+                    <td>{% trans 'Prediction/Scoring?' %}</td>
+                    <td>{% trans 'Running processes (in temp dir)' %}</td>
+                    <td>{% trans 'Ingestion program duration' %}</td>
+                    <td>{% trans 'Start RAM' %}</td>
+                    <td>{% trans 'End RAM' %}</td>
+                    <td>{% trans 'Start CPU' %}</td>
+                    <td>{% trans 'End CPU' %}</td>
+                    <td>{% trans 'Start swap' %}</td>
+                    <td>{% trans 'End swap' %}</td>
                 </tr>
             </thead>
             <tbody>
@@ -75,7 +75,7 @@
             </tbody>
         </table>
     {% else %}
-        <i>No submissions!</i>
+        <i>{% trans 'No submissions!' %}</i>
     {% endif %}
 </div>
 {% endblock %}
