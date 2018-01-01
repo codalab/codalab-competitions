@@ -77,6 +77,7 @@ class JobManager(models.Manager):
         getQueue(queue_name).send_message(job.create_json_message())
         return job
 
+
 class Job(models.Model):
     """
     Defines a job which will carry out a long running task.

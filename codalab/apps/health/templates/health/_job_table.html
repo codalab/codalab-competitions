@@ -1,0 +1,24 @@
+<table class="table table-bordered table-responsive">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Status</th>
+        <th>Created</th>
+        <th>Type</th>
+        <th>Info</th>
+        <th>Updated</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for job in jobs_list %}
+        <tr>
+            <td>{{ job.pk }}</td>
+            <td>{{ job.get_status_code_name }}</td>
+            <td>{{ job.created }}</td>
+            <td>{{ job.task_type }}</td>
+            <td>{{ job.task_info_json }}</td>
+            <td>{{ job.updated }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
