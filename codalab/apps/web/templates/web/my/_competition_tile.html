@@ -1,10 +1,10 @@
 {# This page accepts the following params: #}
 {#    competition: The competition to display #}
 {#    managed: True to display admin options #}
-
+{% load i18n %}
 {% load static %}
 {% load humanize %}
-{% load i18n %}
+
 <a href="{% url "competitions:view" pk=competition.pk %}">
     <div class="competition-tile full-width">
         <input id="competitionID" type="hidden" value="{{ competition.id }}"/>
@@ -26,10 +26,10 @@
             <div class="col-sm-4 col-md-4 right-panel">
                 {{ competition.get_start_date|date:"M d, Y" }}-{% if competition.end_date %}{{ competition.end_date|date:"M d, Y" }}{% else %}
                 <i>No end date</i>{% endif %}<br>
-                <b>{{ competition.get_participant_count }}</b> {% trans'participant'%}
+                <b>{{ competition.get_participant_count }}</b> {% trans 'participant'%}
                 {% if competition.get_participant_count > 1 %}s{% endif %}<br>
                 {% if competition.reward and competition.reward > 0 %}
-                {% trans'USD'%} <b>${{ competition.reward|intcomma }}</b> {% trans'reward'%}
+                {% trans 'USD'%} <b>${{ competition.reward|intcomma }}</b> {% trans 'reward'%}
                 {% endif %}
             </div>
 
@@ -42,12 +42,12 @@
                         {% if request.user == competition.creator %}
                             <a class="btn btn-sm btn-danger" id="competition-delete-button" href="{% url 'competitions:delete' pk=competition.pk %}">Delete</a>
                         {% endif %}
-                        <a class="btn btn-sm btn-primary" href="{% url 'competitions:edit' pk=competition.pk %}">{% trans'Edit'%}</a>
-                        <a class="btn btn-sm btn-success competition-publish-button {% if competition.published %}hide{% endif %}" href="{% url 'competition-publish' pk=competition.pk %}">{% trans'Publish'%}</a>
-                        <a class="btn btn-sm btn-warning competition-unpublish-button {% if not competition.published %}hide{% endif %}" href="{% url 'competition-unpublish' pk=competition.pk %}">{% trans'Unpublish'%}</a>
-                        <a class="btn btn-sm btn-primary" href="{% url 'my_competition_participants' competition_id=competition.pk %}">{% trans'Participants'%}</a>
-                        <a class="btn btn-sm btn-primary" href="{% url 'my_competition_submissions' competition_id=competition.pk %}">{% trans'Submissions'%}</a>
-                        <a class="btn btn-sm btn-primary" href="{% url 'competitions:dumps' competition_pk=competition.pk %}">{% trans'Dumps'%}</a>
+                        <a class="btn btn-sm btn-primary" href="{% url 'competitions:edit' pk=competition.pk %}">{% trans 'Edit'%}</a>
+                        <a class="btn btn-sm btn-success competition-publish-button {% if competition.published %}hide{% endif %}" href="{% url 'competition-publish' pk=competition.pk %}">{% trans 'Publish'%}</a>
+                        <a class="btn btn-sm btn-warning competition-unpublish-button {% if not competition.published %}hide{% endif %}" href="{% url 'competition-unpublish' pk=competition.pk %}">{% trans 'Unpublish'%}</a>
+                        <a class="btn btn-sm btn-primary" href="{% url 'my_competition_participants' competition_id=competition.pk %}">{% trans 'Participants'%}</a>
+                        <a class="btn btn-sm btn-primary" href="{% url 'my_competition_submissions' competition_id=competition.pk %}">{% trans 'Submissions'%}</a>
+                        <a class="btn btn-sm btn-primary" href="{% url 'competitions:dumps' competition_pk=competition.pk %}">{% trans 'Dumps'%}</a>
                     </div>
                 </div>
             {% endif %}

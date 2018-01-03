@@ -1,8 +1,9 @@
 ﻿{% extends 'base.html' %}
+{% load i18n %}
 {% load staticfiles %}
 {% load codalab_tags %}
 {% load tz %}
-{% load i18n %}
+
 {% block page_title %}User Settings{% endblock page_title %}
 {% block head_title %}User Settings{% endblock %}
 
@@ -15,13 +16,13 @@
     <h2>{{ user.username }}</h2>
     {% if errors %}
         <div class="alert alert-error">
-            {% trans'There were errors processing the form, please try reloading the page!'%}
+            {% trans 'There were errors processing the form, please try reloading the page!'%}
         </div>
     {% endif %}
 
     {% if saved_successfully %}
         <div class="alert alert-success">
-            {% trans'Saved successfully!'%}
+            {% trans 'Saved successfully!'%}
         </div>
     {% endif %}
 
@@ -33,26 +34,26 @@
         </div>
     {% endif %}
 
-    <h3><b>Basic settings {% if user.is_staff %}<span class="label label-info">Staff</span>{% endif %}{% if user.is_superuser %} <span class="label label-success">{% trans'Admin'%}</span>{% endif %}</b></h3>
+    <h3><b>Basic settings {% if user.is_staff %}<span class="label label-info">Staff</span>{% endif %}{% if user.is_superuser %} <span class="label label-success">{% trans 'Admin'%}</span>{% endif %}</b></h3>
 
     <div class="row">
         <div class="col-sm-12">
             <table class="table table-striped account">
                 <tbody>
                     <tr>
-                        <th>{% trans'First name'%}</th>
+                        <th>{% trans 'First name'%}</th>
                         <td>{{ form.first_name }}</td>
                     </tr>
                     <tr>
-                        <th>{% trans'Last name'%}</th>
+                        <th>{% trans 'Last name'%}</th>
                         <td>{{ form.last_name }}</td>
                     </tr>
                     <tr>
-                        <th>{% trans'Email'%}</th>
+                        <th>{% trans 'Email'%}</th>
                         <td>{{ form.email }}</td>
                     </tr>
                     <tr>
-                        <th>{% trans'Date joined'%}</th>
+                        <th>{% trans 'Date joined'%}</th>
                         <td>{{ user.date_joined }}</td>
                     </tr>
                 </tbody>
@@ -60,7 +61,7 @@
         </div>
     </div>
 
-    <h3><b>{% trans'Competition settings'%}</b></h3>
+    <h3><b>{% trans 'Competition settings'%}</b></h3>
 
     <div class="row">
         <div class="col-sm-12">
