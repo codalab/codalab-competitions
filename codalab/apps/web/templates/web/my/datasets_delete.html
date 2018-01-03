@@ -2,7 +2,7 @@
 {% load staticfiles %}
 {% load codalab_tags %}
 {% load tz %}
-
+{% load i18n %}
 {% block page_title %}Delete Dataset{% endblock page_title %}
 {% block head_title %}Delete Dataset{% endblock %}
 
@@ -13,24 +13,24 @@
 {% block content %}
 <form action="" method="post">{% csrf_token %}
     {% if competitions_in_use %}
-        <div class="alert alert-warning"><strong>WARNING</strong> DataSet currently in use by:
+        <div class="alert alert-warning"><strong>{% trans'WARNING'%}</strong> {% trans'DataSet currently in use by:'%}'
             <ul class="margin-top">
                 {% for competition in competitions_in_use %}
                     <li><a href="{{ competition.get_absolute_url }}">{{ competition }}</a></li>
                 {% endfor %}
             </ul>
         </div>
-        <p>Are you sure you want to delete "{{ object }}"?</p>
+        <p>{% trans'Are you sure you want to delete'%} "{{ object }}"?</p>
         <div class="checkbox">
             <label for="are-you-sure">
-                <input type="checkbox" id="are-you-sure"><strong>Yes</strong>, I am absolutely sure, even though competitions are using this, I want to delete it.
+                <input type="checkbox" id="are-you-sure"><strong>{% trans'Yes'%}</strong>{% trans', I am absolutely sure, even though competitions are using this, I want to delete it.'%}'
             </label>
         </div>
     {% else %}
-        <p>Are you sure you want to delete "{{ object }}"?</p>
+        <p>{% trans'Are you sure you want to delete'%} "{{ object }}"?</p>
     {% endif %}
     <input type="submit" value="Confirm" class="button btn btn-primary disabled confirm-button" disabled/>
-    <a href="{% url 'my_datasets' %}" class="button btn btn-default">Cancel</a>
+    <a href="{% url 'my_datasets' %}" class="button btn btn-default">{% trans'Cancel'%}</a>
 </form>
 {% endblock %}
 

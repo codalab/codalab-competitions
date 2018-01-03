@@ -1,6 +1,7 @@
 ﻿{% load static %}
+{% load i18n %}
 {% if not participations %}
-    <p><em>You are not participating in any competitions.</em></p>
+    <p><em>{% trans'You are not participating in any competitions.'%}</em></p>
 {% else %}
     {% for participation in participations %}
         {% include "web/my/_competition_tile.html" with competition=participation.competition %}

@@ -2,7 +2,7 @@
 {% load staticfiles %}
 {% load codalab_tags %}
 {% load tz %}
-
+{% load i18n %}
 {% block page_title %}Participants{% endblock page_title %}
 {% block head_title %}Participants{% endblock %}
 
@@ -12,10 +12,10 @@
 
 {% block content %}
 
-<a href="{% url "competitions:view" pk=competition_id %}" class="pull-right" >Go Back to Competition Homepage</a>
+<a href="{% url "competitions:view" pk=competition_id %}" class="pull-right" >{% trans'Go Back to Competition Homepage'%}</a>
 
 <div class="participants">
-    <h3>Teams</h3>
+    <h3>{% trans'Teams'%}</h3>
     {% if teams_enabled %}
         {% if pending_teams %}
             {% for item in pending_teams %}
@@ -46,16 +46,16 @@
                             <div class="row">
                                 <div class="col-sm-4">
                                     <div class="form-group">
-                                        <label for="status">Status:</label>
+                                        <label for="status">{% trans'Status:'%}</label>
                                         <select id="status" name="status" class="form-control">
-                                            <option value="approved">Approve</option>
-                                            <option value="denied">Deny</option>
+                                            <option value="approved">{% trans'Approve'%}</option>
+                                            <option value="denied">{% trans'Deny'%}</option>
                                         </select>
                                     </div>
                                 </div>
                                 <div class="col-sm-8">
                                     <div class="form-group">
-                                        <label for="reason">Reason:</label>
+                                        <label for="reason">{% trans'Reason:'%}</label>
                                         <textarea id="reason" name="reason" class="form-control"></textarea>
                                     </div>
                                 </div>
@@ -90,8 +90,8 @@
                                 <span class="label label-{{team|get_item:column.name}}">
                                     {{team|get_item:column.name}}
                                 </span>
-                                <button type="button" class="pull-right btn btn-danger btn-sm team_revoke_button button {% if team.status == "denied" %}hide{% endif %}" team_id="{{ team.pk }}">Revoke</button>
-                                <button type="button" class="pull-right btn btn-success btn-sm team_reinstate_button button {% if team.status == "approved" %}hide{% endif %}" team_id="{{ team.pk }}">Reinstate</button>
+                                <button type="button" class="pull-right btn btn-danger btn-sm team_revoke_button button {% if team.status == "denied" %}hide{% endif %}" team_id="{{ team.pk }}">{% trans'Revoke'%}</button>
+                                <button type="button" class="pull-right btn btn-success btn-sm team_reinstate_button button {% if team.status == "approved" %}hide{% endif %}" team_id="{{ team.pk }}">{% trans'Reinstate'%}</button>
                             {% else %}
                                 {{ team|get_item:column.name }}
                             {% endif %}
@@ -107,7 +107,7 @@
 <div class="participants">
     <h3>Participants</h3>
     {% if not object_list %}
-        <p><em>There are no participants.</em></p>
+        <p><em>{% trans'There are no participants.'%}</em></p>
     {% else %}
         {% for item in pending_participants %}
             <div class="panel panel-default competitionUserBlock competitionUserBlock_{{item.id}}">
@@ -128,23 +128,23 @@
                 </div>
                 <div class="panel-body">
                     {% if item.status.codename == 'denied' %}
-                        <p class="text-danger">Reason: {{ item.reason }}</p>
+                        <p class="text-danger">{% trans'Reason:'%} {{ item.reason }}</p>
                     {% endif %}
                     <form class="custom process_request" id="process_request_{{item.id}}">{% csrf_token %}
                         <input type="hidden" name="participant_id" value="{{item.id}}"/>
                         <div class="row">
                             <div class="col-sm-4">
                                 <div class="form-group">
-                                    <label for="status">Status:</label>
+                                    <label for="status">{% trans'Status:'%}</label>
                                     <select id="status" name="status" class="form-control">
-                                        <option value="approved">Approve</option>
-                                        <option value="denied">Deny</option>
+                                        <option value="approved">{% trans'Approve'%}</option>
+                                        <option value="denied">{% trans'Deny'%}</option>
                                     </select>
                                 </div>
                             </div>
                             <div class="col-sm-8">
                                 <div class="form-group">
-                                    <label for="reason">Reason:</label>
+                                    <label for="reason">{% trans'Reason:'%}</label>
                                     <textarea id="reason" name="reason" class="form-control"></textarea>
                                 </div>
                             </div>
@@ -155,7 +155,7 @@
             </div>
         {% endfor %}
 
-        <button type="button" data-toggle="modal" href="#message_all_modal" class="btn btn-primary">Send message to all participants?</button>
+        <button type="button" data-toggle="modal" href="#message_all_modal" class="btn btn-primary">{% trans'Send message to all participants?'%}</button>
 
         <table class="resultsTable dataTable table table-striped table-bordered">
             <thead>
@@ -178,8 +178,8 @@
                             <span class="label label-{{participant|get_item:column.name}}">
                                 {{participant|get_item:column.name}}
                             </span>
-                            <button type="button" class="pull-right btn btn-danger btn-sm revoke_button button {% if participant.status == "denied" %}hide{% endif %}" participant_id="{{ participant.pk }}">Revoke</button>
-                            <button type="button" class="pull-right btn btn-success btn-sm reinstate_button button {% if participant.status == "approved" %}hide{% endif %}" participant_id="{{ participant.pk }}">Reinstate</button>
+                            <button type="button" class="pull-right btn btn-danger btn-sm revoke_button button {% if participant.status == "denied" %}hide{% endif %}" participant_id="{{ participant.pk }}">{% trans'Revoke'%}</button>
+                            <button type="button" class="pull-right btn btn-success btn-sm reinstate_button button {% if participant.status == "approved" %}hide{% endif %}" participant_id="{{ participant.pk }}">{% trans'Reinstate'%}</button>
                         {% else %}
                             {{ participant|get_item:column.name }}
                         {% endif %}
@@ -197,7 +197,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title">Email Participants</h4>
+                <h4 class="modal-title">{% trans'Email Participants'%}</h4>
             </div>
             <div class="modal-body">
                 <form id="message-form">
@@ -205,23 +205,23 @@
                         <input id="subject_input" type="text" placeholder="Subject" class="form-control">
                             <div class="alert alert-danger" id="subject-alert" role="alert">
                               <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-                              <span class="sr-only">Error:</span>
-                              Enter subject.
+                              <span class="sr-only">{% trans'Error:'%}</span>
+                              {% trans'Enter subject.'%}
                             </div>
                     </div>
                     <div class="form-group">
                         <textarea id="message_textarea" placeholder="Message" class="form-control"></textarea>
                             <div class="alert alert-danger" role="alert" id="message-alert">
                               <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-                              <span class="sr-only">Error:</span>
-                              Enter message.
+                              <span class="sr-only">{% trans'Error:'%}</span>
+                              {% trans'Enter message.'%}
                             </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button id="direct_message_participants_button" class="btn btn-primary">Send</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">{% trans'Close'%}</button>
+                <button id="direct_message_participants_button" class="btn btn-primary">{% trans'Send'%}</button>
             </div>
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->

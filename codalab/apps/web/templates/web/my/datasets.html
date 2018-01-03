@@ -2,7 +2,7 @@
 {% load staticfiles %}
 {% load codalab_tags %}
 {% load tz %}
-
+{% load i18n %}
 {% block page_title %}Competitions (My Datasets){% endblock page_title %}
 {% block head_title %}Competitions (My Datasets){% endblock %}
 
@@ -13,16 +13,16 @@
 {% block content %}
 <ul class="nav nav-tabs" id="my_competition_tab_nav">
         <li>
-            <a href="/my/#competitions">Competitions</a>
+            <a href="/my/#competitions">{% trans'Competitions'%}</a>
         </li>
         <li>
-            <a href="/my/#my_participating">Competitions I'm In</a>
+            <a href="/my/#my_participating">{% trans'Competitions I'm In'%}</a>
         </li>
         <li>
-            <a href="/my/#my_managing">Competitions I'm Running</a>
+            <a href="/my/#my_managing">{% trans'Competitions I'm Running'%}</a>
         </li>
         <li class="active">
-            <a href="{% url 'my_datasets' %}">My Datasets</a>
+            <a href="{% url 'my_datasets' %}">{% trans'My Datasets'%}</a>
         </li>
     </ul>
     <div class="tab-content">
@@ -31,16 +31,16 @@
                 <div class="row">
                     <div class="col-sm-12 kill-newlines">
                         <div class="my-datasets">
-                            <a href="{% url 'my_datasets_create' %}" class="button btn btn-primary">Create Dataset</a>
+                            <a href="{% url 'my_datasets_create' %}" class="button btn btn-primary">{% trans'Create Dataset'%}</a>
                             <table class="table table-striped table-bordered">
                                 <thead>
                                     <tr>
-                                        <th>Name</th>
-                                        <th>Key</th>
-                                        <th>Description</th>
-                                        <th>Type</th>
-                                        <th width="180">Actions</th>
-                                        <th width="100">Multi-delete? <span class="label label-danger">(unsafe!)</span></th>
+                                        <th>{% trans'Name'%}</th>
+                                        <th>{% trans'Key'%}</th>
+                                        <th>{% trans'Description'%}</th>
+                                        <th>{% trans'Type'%}</th>
+                                        <th width="180">{% trans'Actions'%}</th>
+                                        <th width="100">{% trans'Multi-delete? '%}<span class="label label-danger">(unsafe!)</span></th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -51,21 +51,21 @@
                                             <td>{{ dataset.description }}</td>
                                             <td>{{ dataset.type }}</td>
                                             <td>
-                                                <a href="{% url 'datasets_download' dataset_key=dataset.key %}" class="button btn btn-default btn-sm">Download</a>
-                                                <a href="{% url 'my_datasets_delete' pk=dataset.pk %}" class="button btn btn-danger btn-sm delete">Delete</a>
+                                                <a href="{% url 'datasets_download' dataset_key=dataset.key %}" class="button btn btn-default btn-sm">{% trans'Download'%}</a>
+                                                <a href="{% url 'my_datasets_delete' pk=dataset.pk %}" class="button btn btn-danger btn-sm delete">{% trans'Delete'%}</a>
                                             </td>
                                             <td align="center"><input type="checkbox" name="delete_dataset" value="{{ dataset.pk }}"></td>
                                         </tr>
                                     {% empty %}
                                         <tr>
                                             <td colspan="6" class="text-center">
-                                                <i>No datasets added yet!</i>
+                                                <i>{% trans'No datasets added yet!'%}</i>
                                             </td>
                                         </tr>
                                     {% endfor %}
                                 </tbody>
                             </table>
-                            <button id="delete_multiple_datasets_button" class="button btn btn-danger pull-right">Delete multiple datasets?</button>
+                            <button id="delete_multiple_datasets_button" class="button btn btn-danger pull-right">{% trans'Delete multiple datasets?'%}</button>
                         </div>
                     </div>
                 </div>

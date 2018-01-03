@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
 {% load tz %}
-
+{% load i18n %}
 {% block page_title %}Delete Submission{% endblock page_title %}
 {% block head_title %}Delete Submission{% endblock %}
 
@@ -9,8 +9,8 @@
 
 <form action="" method="post">
     {% csrf_token %}
-    <p>Are you sure you want to delete this submission?</p>
+    <p>{% trans'Are you sure you want to delete this submission?'%}</p>
     <input type="submit" value="Confirm" class="button confirm-button btn btn-primary"/>
-    <a href="{% url "my_datasets" %}" class="button btn btn-default">Cancel</a>
+    <a href="{% url "my_datasets" %}" class="button btn btn-default">{% trans'Cancel'%}</a>
 </form>
 {% endblock %}

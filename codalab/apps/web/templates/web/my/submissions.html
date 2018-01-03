@@ -3,7 +3,7 @@
 {% load codalab_tags %}
 {% load tz %}
 {% load url from future %}
-
+{% load i18n %}
 {% block page_title %}Submissions{% endblock page_title %}
 {% block head_title %}Submissions{% endblock %}
 
@@ -12,11 +12,11 @@
         <div class="well submission-phase-select">
             <div class="row">
                 <div class="col-md-6">
-                    <h4>Phase</h4>
+                    <h4>{% trans'Phase'%}</h4>
                 </div>
                 <div class="col-md-6">
-                    <a href="{% url "competitions:view" pk=competition.pk %}" class="pull-right">Go Back to Competition
-                        Homepage</a>
+                    <a href="{% url "competitions:view" pk=competition.pk %}" class="pull-right">{% trans'Go Back to Competition
+                        Homepage'%}</a>
                 </div>
             </div>
             <select id="phase_selector" class="form-control">
@@ -29,17 +29,17 @@
         </div>
 
         {% if scoring_exception and bad_scores %}
-            <button class="btn btn-danger" data-toggle="collapse" data-target="#leaderboard-debug">Show Leaderboard Debug</button>
+            <button class="btn btn-danger" data-toggle="collapse" data-target="#leaderboard-debug">{% trans'Show Leaderboard Debug'%}</button>
 
             <div id="leaderboard-debug" class="collapse well">
                 <p>{{ scoring_exception }}</p>
-                <strong>Bad Scores:</strong>
+                <strong>{% trans'Bad Scores:'%}</strong>
                 <table class="table table-bordered table-responsive bg-warning">
                     <thead>
                     <tr>
-                        <th>Rank:</th>
-                        <th>Value:</th>
-                        <th>Column Name:</th>
+                        <th>{% trans'Rank:'%}</th>
+                        <th>{% trans'Value:'%}</th>
+                        <th>{% trans'Column Name:'%}</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -56,28 +56,28 @@
             <br>
         {% endif %}
 
-        <a href="{% url "competitions:competition_submissions_metadata" competition_id=competition.pk phase_id=selected_phase.id %}">View
-            all submission's metadata</a>
+        <a href="{% url "competitions:competition_submissions_metadata" competition_id=competition.pk phase_id=selected_phase.id %}">{% trans'View
+            all submission's metadata'%}</a>
 
-        <h4>Select phase description</h4>
+        <h4>{% trans'Select phase description'%}</h4>
         {% if phase.description %}
             <p>{{ phase.description }}</p>
         {% else %}
-            <p>None</p>
+            <p>{% trans'None'%}</p>
         {% endif %}
-        <p><b>Max submissions per day: </b> {{ phase.max_submissions_per_day }}</p>
-        <p><b>Max submissions total: </b> {{ phase.max_submissions }}</p>
+        <p><b>{% trans'Max submissions per day:'%} </b> {{ phase.max_submissions_per_day }}</p>
+        <p><b>{% trans'Max submissions total:'%} </b> {{ phase.max_submissions }}</p>
 
         <h4>Submissions</h4>
         {% if submission_info_list|length > 0 %}
             <a class="btn btn-default icon-excel"
-               href="{% url 'competitions:competition_results_complete_download' id=selected_phase.competition.id phase=selected_phase.id %}">Download
-                CSV</a>
-            <button class="btn btn-default re_run_all_submissions_button">Re-run all submissions in this phase</button>
+               href="{% url 'competitions:competition_results_complete_download' id=selected_phase.competition.id phase=selected_phase.id %}">{% trans'Download
+                CSV'%}</a>
+            <button class="btn btn-default re_run_all_submissions_button">{% trans'Re-run all submissions in this phase'%}</button>
         {% endif %}
 
         {% if not submission_info_list %}
-            <p>There are no submissions.</p>
+            <p>{% trans'There are no submissions.'%}</p>
         {% else %}
             <div class="table-responsive">
                 <table class="table resultsTable">
@@ -132,31 +132,31 @@
                                                   onclick="Competition.showOrHideSubmissionDetails(this)"><span
                                     class="glyphicon glyphicon-plus"></span></a></td>
                             <td align="center"><a class="btn btn-danger btn-xs"
-                                                  href="{% url "competitions:submission_delete" pk=submission.id %}">DEL</a>
+                                                  href="{% url "competitions:submission_delete" pk=submission.id %}">{% trans'DEL'%}</a>
                             </td>
                             <td align="center">
                                 <button class="btn btn-danger btn-xs hide_or_show_submission_button">
                                     {% if submission.is_in_leaderboard %}
-                                        HIDE
+                                    {% trans'HIDE'%}
                                     {% else %}
-                                        SHOW
+                                    {% trans'SHOW'%}
                                     {% endif %}
                                 </button>
                             </td>
                             <td align="center">
-                                <button class="btn btn-danger btn-xs mark_as_failed_button">FAILED</button>
+                                <button class="btn btn-danger btn-xs mark_as_failed_button">{% trans'FAILED'%}</button>
                             </td>
                             <td align="center">
-                                <button class="btn btn-danger btn-xs re_run_submission_button">RE-RUN</button>
+                                <button class="btn btn-danger btn-xs re_run_submission_button">{% trans'RE-RUN'%}</button>
                             </td>
                             {% if submission.is_in_leaderboard and next_phase %}
                                 {% if submission.is_migrated %}
                                     <td align="center">
-                                        <button class="btn btn-primary btn-xs">MIGRATED</button>
+                                        <button class="btn btn-primary btn-xs">{% trans'MIGRATED'%}</button>
                                     </td>
                                 {% else %}
                                     <td align="center">
-                                        <button class="btn btn-danger btn-xs submission_migrate_button">MIGRATE</button>
+                                        <button class="btn btn-danger btn-xs submission_migrate_button">{% trans'MIGRATE'%}</button>
                                     </td>
                                 {% endif %}
                             {% endif %}
