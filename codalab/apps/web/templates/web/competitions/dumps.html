@@ -1,23 +1,23 @@
 {% extends "base.html" %}
 {% block page_title %}Competition Dumps{% endblock %}
 {% block head_title %}Competition Dumps{% endblock %}
-
+{% load i18n %}
 {% block content %}
-    <a href="{% url "competitions:view" pk=competition.pk %}" >Go Back to Competition Homepage</a>
-    <i>Note: Refresh the page to view updates.</i>
+    <a href="{% url "competitions:view" pk=competition.pk %}" >{% trans 'Go Back to Competition Homepage' %}</a>
+    <i>{% trans 'Note: Refresh the page to view updates.' %}</i>
     <div class="panel">
         <div class="panel-body">
-            <button type="button" data-toggle="modal" href="#create_dump_modal" class="btn btn-primary">Create Dump</button>
-            <button id="refresh_page" class="btn btn-primary">Refresh the Page</button>
+            <button type="button" data-toggle="modal" href="#create_dump_modal" class="btn btn-primary">{% trans 'Create Dump' %}</button>
+            <button id="refresh_page" class="btn btn-primary">{% trans 'Refresh the Page' %}</button>
             {% if dumps %}
                 <h1>Dumps for: {{ competition.title }}</h1>
                 <table id="dump-table" class="table table-responsive">
                 <thead>
-                    <td width="100px"><h5><b>Download link</b></h5></td>
-                    <td width="100px"><h5><b>Status</b></h5></td>
-                    <td width="100px"><h5><b>Size</b></h5></td>
-                    <td width="400px"><h5><b>Publish Date</b></h5></td>
-                    <td width="400px"><h5><b>Delete</b></h5></td>
+                    <td width="100px"><h5><b>{% trans 'Download link' %}</b></h5></td>
+                    <td width="100px"><h5><b>{% trans 'Status' %}</b></h5></td>
+                    <td width="100px"><h5><b>{% trans 'Size' %}</b></h5></td>
+                    <td width="400px"><h5><b>{% trans 'Publish Date' %}</b></h5></td>
+                    <td width="400px"><h5><b>{% trans 'Delete' %}</b></h5></td>
                 </thead>
                     <tbody>
                         <tr id="dump-table-data">
@@ -25,7 +25,7 @@
                                 {% if forloop.counter0|divisibleby:1 %}<tr>{% endif %}
                                 <td>
                                     {% if dump.status == "Finished" %}
-                                        <a href="{{ dump.sassy_url }}">Download</a>
+                                        <a href="{{ dump.sassy_url }}">{% trans 'Download' %}</a>
                                     {% endif %}
                                 </td>
                                 <td>
@@ -40,7 +40,7 @@
                                     <i>{{ dump.timestamp }}</i>
                                 </td>
                                 <td>
-                                    <a href="{% url 'competitions:delete_dump' pk=dump.pk %}" class="btn btn-danger btn-xs">Delete</a>
+                                    <a href="{% url 'competitions:delete_dump' pk=dump.pk %}" class="btn btn-danger btn-xs">{% trans 'Delete' %}</a>
                                 </td>
                                 {% if forloop.counter|divisibleby:1 %}</tr>{% endif %}
                             {% endfor %}
@@ -49,7 +49,7 @@
                 </table>
             {% else %}
                 <br>
-                <i>No dumps found for the current competition.</i>
+                <i>{% trans 'No dumps found for the current competition.' %}</i>
             {% endif %}
         </div>
     </div>
@@ -59,20 +59,20 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4>Create Competition Dump</h4>
+                    <h4>{% trans 'Create Competition Dump' %}</h4>
                 </div>
                 <div class="modal-body">
                     <label class="custom-control custom-checkbox">
                         <input type="checkbox" id="exclude_datasets_flag" class="custom-control-input">
                         <span class="custom-control-indicator"></span>
-                        <span class="custom-control-description">URI Keys instead of files</span>
+                        <span class="custom-control-description">{% trans 'URI Keys instead of files' %}</span>
                         <hr>
-                        <i>Note: Using Keys instead of files makes a much smaller download!</i>
+                        <i>{% trans 'Note: Using Keys instead of files makes a much smaller download!' %}</i>
                     </label>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button id="make_dump" class="btn btn-primary">Create Competition Dump</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">{% trans 'Close' %}</button>
+                    <button id="make_dump" class="btn btn-primary">{% trans 'Create Competition Dump' %}</button>
                 </div>
             </div><!-- /.modal-content -->
         </div><!-- /.modal-dialog -->

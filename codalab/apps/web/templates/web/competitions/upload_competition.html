@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% load i18n %}
 {% block head_title %}Create Competition{% endblock head_title %}
 {% block page_title %}Create Competition{% endblock page_title %}
 
@@ -7,13 +7,13 @@
 <div id="create_competition" class="panel panel-default">
     <div class="panel-body">
         <p>
-            To create a competition, upload a bundle with the definition of the new competition.
+            {% trans 'To create a competition, upload a bundle with the definition of the new competition.' %}
             <a href="https://github.com/codalab/codalab/wiki/User_Competition-Roadmap"
                title="Get help with creating a competition" target="_blank">
                <span class="glyphicon glyphicon-question-sign"></span>
             </a>
         </p>
-        <button id="uploadButton" class="button btn btn-primary">Upload definition...</button>
+        <button id="uploadButton" class="button btn btn-primary">{% trans 'Upload definition...' %}</button>
         {% csrf_token %}
         <div id="details"></div>
     </div>

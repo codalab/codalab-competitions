@@ -1,6 +1,6 @@
 {% load codalab_tags %}
-
-{#<h1>Submit or view results</h1>#}
+{% load i18n %}
+{#<h1>{% trans 'Submit or view results' %}</h1>#}
 
 <div id="submissions_phase_buttons">
   {% for phase in competition.phases.all %}

@@ -1,3 +1,5 @@
+
+{% load i18n %}
 {% extends "base.html" %}
 {% block extra_scripts %}
     <script src="{{ STATIC_URL }}js/vendor/readmore.min.js"></script>
@@ -16,7 +18,7 @@
 {% block content %}
 <div class="row">
     <div class="col-md-6 pull-left">
-        <a href="{% url "competitions:view" pk=competition.pk %}">Go Back to Competition Homepage</a>
+        <a href="{% url "competitions:view" pk=competition.pk %}">{% trans 'Go Back to Competition Homepage' %}</a>
     </div>
 </div>
 <br>

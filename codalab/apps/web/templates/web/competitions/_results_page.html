@@ -1,36 +1,36 @@
 {% load codalab_tags %}
-
+{% load i18n %}
 {% if phase == None %}
 
 {% elif error %}
-    <p><strong>There is a problem with the leaderboard</strong></p>
-    <p>Are all of the leaderboard column names matched with scores saved in scores.txt?</p>
+    <p><strong>{% trans 'There is a problem with the leaderboard' %}</strong></p>
+    <p>{% trans 'Are all of the leaderboard column names matched with scores saved in scores.txt?' %}</p>
     <pre>{{ error }}</pre>
 
 {% elif phase.is_future and  block_leaderboard_view %}
-    <p>This phase has not started yet. The leaderboard is still hidden to participants but visible to organizers</p>
+        <p>{% trans 'This phase has not started yet. The leaderboard is still hidden to participants but visible to organizers' %}</p>
 {% elif phase.is_blind and not is_owner and not request.user in competition_admins %}
-    <p>Competition organizers have chosen to keep the leaderboard private. Please check back later.</p>
+        <p>{% trans 'Competition organizers have chosen to keep the leaderboard private. Please check back later.' %}</p>
 {% else %}
     {% if phase.is_blind and is_owner or phase.is_blind and request.user in competition_admins %}
-        <p>Competition organizers have chosen to keep the leaderboard private but as an organizer, you can access this page.</p>
+        <p>{% trans 'Competition organizers have chosen to keep the leaderboard private but as an organizer, you can access this page.' %}</p>
     {% endif %}
     <div class="phase-description">
-        <h4>Phase description</h4>
+        <h4>{% trans 'Phase description' %}</h4>
         {% if phase.description %}
             <p>{{ phase.description }}</p>
         {% else %}
-            <p>None</p>
+            <p>{% trans 'None' %}</p>
         {% endif %}
-        <p><b>Max submissions per day: </b> {{ phase.max_submissions_per_day }}</p>
-        <p><b>Max submissions total: </b> {{ phase.max_submissions }}</p>
+        <p><b>{% trans 'Max submissions per day:' %} </b> {{ phase.max_submissions_per_day }}</p>
+        <p><b>{% trans 'Max submissions total: ' %}</b> {{ phase.max_submissions }}</p>
     </div>
 
     {% if groups|length > 0 %}
-        <a class="icon-excel btn btn-default" href="/competitions/{{phase.competition.id}}/results/{{phase.id}}/data">Download CSV</a>
+        <a class="icon-excel btn btn-default" href="/competitions/{{phase.competition.id}}/results/{{phase.id}}/data">{% trans 'Download CSV' %}</a>
     {% endif %}
     {% if request.user == phase.competition.creator or request.user in phase.competition.admins.all %}
-        <a class="icon-download btn btn-default" href="{% url "competitions:download_leaderboard_results" competition_pk=phase.competition.pk phase_pk=phase.pk %}">Download all submissions on leaderboard</a>
+        <a class="icon-download btn btn-default" href="{% url "competitions:download_leaderboard_results" competition_pk=phase.competition.pk phase_pk=phase.pk %}">{% trans 'Download all submissions on leaderboard:' %}</a>
     {% endif %}
 
     <div class="leaderboard-result-table">
@@ -40,12 +40,12 @@
                     <th colspan="{{group.total_span|add:phase.competition.enable_medical_image_viewer|add:phase.competition.allow_teams|add:phase.competition.enable_detailed_results}}">{{group.label}}</th>
                 </tr>
                 <tr class="leaderboard-result-table-header">
-                    <th rowspan="2">#</th>
-                    <th rowspan="2">User</th>
-                    <th rowspan="2">Entries</th>
-                    <th rowspan="2">Date of Last Entry</th>
+                    <th rowspan="2">{% trans '#' %}</th>
+                    <th rowspan="2">{% trans 'User' %}</th>
+                    <th rowspan="2">{% trans 'Entries' %}</th>
+                    <th rowspan="2">{% trans 'Date of Last Entry' %}</th>
                     {% if phase.competition.allow_teams %}
-                    <th rowspan="2">Team Name</th>
+                    <th rowspan="2">{% trans 'Team Name' %}</th>
                     {% endif %}
                     {% for head in group.headers %}
                         {% if head.subs %}
@@ -57,10 +57,10 @@
                         {% endif %}
                     {% endfor %}
                     {% if phase.competition.enable_detailed_results %}
-                        <th style="padding: 4px 0;">Detailed Results</th>
+                        <th style="padding: 4px 0;">{% trans 'Detailed Results' %}</th>
                     {% endif %}
                     {% if phase.competition.enable_medical_image_viewer %}
-                        <th>Image Viewer</th>
+                        <th>{% trans 'Image Viewer' %}</th>
                     {% endif %}
                 </tr>
                 <tr>
@@ -76,7 +76,7 @@
                 </tr>
                 {% if group.scores.items|length_is:"0" %}
                     <tr class="noData">
-                        <td colspan="{{group.total_span|add:phase.competition.enable_medical_image_viewer|add:phase.competition.enable_detailed_results}}">No data available in table</td>
+                        <td colspan="{{group.total_span|add:phase.competition.enable_medical_image_viewer|add:phase.competition.enable_detailed_results}}">{% trans 'No data available in table' %}</td>
                     </tr>
                 {% else %}
                     {% for pk, scoredata in group.scores %}
@@ -91,9 +91,9 @@
                             <td>
                                 {% if phase.competition.anonymous_leaderboard %}
                                     {% if forloop.counter < 4 %}
-                                        <p class="leader-top3"><i>Anonymous</i></p><
+                                        <p class="leader-top3"><i>{% trans 'Anonymous' %}</i></p><
                                     {% else %}
-                                        <i>Anonymous</i>
+                                        <i>{% trans 'Anonymous' %}</i>
                                     {% endif %}
                                 {% else %}
                                     {% if forloop.counter < 4 %}
@@ -122,7 +122,7 @@
                             {% if phase.competition.enable_detailed_results %}
                                 <td>
                                     <a href="/my/competition/submission/{{scoredata.id}}/detailed_results" target="_blank">
-                                        View
+                                        {% trans 'View' %}
                                     </a></br>
                                 </td>
                             {% endif %}
