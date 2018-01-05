@@ -2,8 +2,8 @@
 {% extends 'base_account.html' %}
 {% load codalab_tags %}
 
-{% block head_title %}Detailed results of the participant {{ user }}{% endblock head_title %}
-{% block page_title %}Detailed results of the participant {{ user }}{% endblock page_title %}
+{% block head_title %}{% trans 'Detailed results of the participant '%}{{ user }}{% endblock head_title %}
+{% block page_title %}{% trans 'Detailed results of the participant '%}{{ user }}{% endblock page_title %}
 {% block content %}
     <a href="{% url "competitions:view" pk=submission.phase.competition.pk %}" >{% trans 'Go Back to Competition Homepage'%}</a>
     <div align="center">

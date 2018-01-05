@@ -4,8 +4,8 @@
 {% load codalab_tags %}
 {% load tz %}
 
-{% block page_title %}Dataset {% if "update" not in request.path %}Create{% else %}Update{% endif %}{% endblock page_title %}
-{% block head_title %}Dataset {% if "update" not in request.path %}Create{% else %}Update{% endif %}{% endblock %}
+{% block page_title %}{% trans 'Dataset'%} {% if "update" not in request.path %}{% trans 'Create'%}{% else %}{% trans 'Update'%}{% endif %}{% endblock page_title %}
+{% block head_title %}{% trans 'Dataset'%} {% if "update" not in request.path %}{% trans 'Create'%}{% else %}{% trans 'Update'%}{% endif %}{% endblock %}
 
 {% block content %}
 <div class="row">

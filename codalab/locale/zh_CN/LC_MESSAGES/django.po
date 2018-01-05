@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-01-03 08:48+0000\n"
+"POT-Creation-Date: 2018-01-05 12:42+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -756,6 +756,8 @@ msgstr "编辑"
 #: apps/web/templates/web/competitions/view.html:30
 #: apps/web/templates/web/my/_competition_tile.html:48
 #: apps/web/templates/web/my/_managed.html:34
+#: apps/web/templates/web/my/participants.html:7
+#: apps/web/templates/web/my/participants.html:8
 msgid "Participants"
 msgstr "参与成员"
 
@@ -959,6 +961,8 @@ msgstr "下载提交"
 #: apps/web/templates/web/competitions/view.html:35
 #: apps/web/templates/web/my/_competition_tile.html:49
 #: apps/web/templates/web/my/_managed.html:35
+#: apps/web/templates/web/my/submissions.html:7
+#: apps/web/templates/web/my/submissions.html:8
 msgid "Submissions"
 msgstr "提交"
 
@@ -1163,11 +1167,25 @@ msgstr "戴斯"
 msgid "Hausdorff"
 msgstr "豪斯道夫"
 
+#: apps/web/templates/web/my/datasets.html:7
+#: apps/web/templates/web/my/datasets.html:8
+msgid "Competitions (My Datasets)"
+msgstr "竞赛（我的数据集）"
+
 #: apps/web/templates/web/my/datasets.html:17
 #: apps/web/templates/web/my/index.html:12
 msgid "Competitions"
 msgstr "竞赛"
 
+#: apps/web/templates/web/my/datasets.html:20
+#: apps/web/templates/web/my/index.html:15
+msgid "Competitions I'm In"
+msgstr "我参加的竞赛"
+
+#: apps/web/templates/web/my/datasets.html:23
+#: apps/web/templates/web/my/index.html:18
+msgid "Competitions I'm Running"
+msgstr "我运行的竞赛"
 
 #: apps/web/templates/web/my/datasets.html:35
 msgid "Create Dataset"
@@ -1201,6 +1219,11 @@ msgstr "还没有添加数据集！"
 msgid "Delete multiple datasets?"
 msgstr "删除多个数据集？"
 
+#: apps/web/templates/web/my/datasets_delete.html:7
+#: apps/web/templates/web/my/datasets_delete.html:8
+msgid "Delete Dataset"
+msgstr "删除数据集"
+
 #: apps/web/templates/web/my/datasets_delete.html:17
 msgid "WARNING"
 msgstr "警告"
@@ -1229,17 +1252,23 @@ msgstr "我很确定，即使竞赛正在使用它，我想要删除它"
 msgid "Cancel"
 msgstr "取消"
 
+#: apps/web/templates/web/my/datasets_form.html:7
+#: apps/web/templates/web/my/datasets_form.html:8
+#: apps/web/templates/web/my/datasets_form.html:15
+msgid "Dataset"
+msgstr "数据集"
+
+#: apps/web/templates/web/my/datasets_form.html:7
+#: apps/web/templates/web/my/datasets_form.html:8
 #: apps/web/templates/web/my/datasets_form.html:15
 msgid "Create"
 msgstr "创建"
 
+#: apps/web/templates/web/my/datasets_form.html:7
+#: apps/web/templates/web/my/datasets_form.html:8
 #: apps/web/templates/web/my/datasets_form.html:15
 msgid "Update"
 msgstr "上传"
-
-#: apps/web/templates/web/my/datasets_form.html:15
-msgid "Dataset"
-msgstr "数据集"
 
 #: apps/web/templates/web/my/datasets_form.html:19
 msgid "Single new dataset"
@@ -1249,13 +1278,15 @@ msgstr "单个新的数据集"
 msgid "Many existing datasets bundled into one new dataset"
 msgstr "许多现有的数据集被绑定到一个新的数据集"
 
-#: apps/web/templates/web/my/index.html:15
-msgid "Competitions I'm In"
-msgstr "我参加的竞赛"
+#: apps/web/templates/web/my/detailed_results.html:5
+#: apps/web/templates/web/my/detailed_results.html:6
+msgid "Detailed results of the participant "
+msgstr "参与者的具体结果。"
 
-#: apps/web/templates/web/my/index.html:18
-msgid "Competitions I'm Running"
-msgstr "我运行的竞赛"
+#: apps/web/templates/web/my/index.html:5
+#: apps/web/templates/web/my/index.html:6
+msgid "Competitions (My CodaLab)"
+msgstr "竞赛(我的工作站)"
 
 #: apps/web/templates/web/my/index.html:57
 #: apps/web/templates/web/my/index.html:59
@@ -1320,6 +1351,11 @@ msgstr "进入消息"
 msgid "Send"
 msgstr "发送"
 
+#: apps/web/templates/web/my/settings.html:7
+#: apps/web/templates/web/my/settings.html:8
+msgid "User Settings"
+msgstr "用户设置"
+
 #: apps/web/templates/web/my/settings.html:19
 msgid "There were errors processing the form, please try reloading the page!"
 msgstr "处理表单时发生错误，请尝试重载页面！"
@@ -1327,6 +1363,14 @@ msgstr "处理表单时发生错误，请尝试重载页面！"
 #: apps/web/templates/web/my/settings.html:25
 msgid "Saved successfully!"
 msgstr "保存成功！"
+
+#: apps/web/templates/web/my/settings.html:37
+msgid "Basic settings"
+msgstr "基础设置"
+
+#: apps/web/templates/web/my/settings.html:37
+msgid "Staff"
+msgstr "职员"
 
 #: apps/web/templates/web/my/settings.html:37
 msgid "Admin"
@@ -1351,6 +1395,11 @@ msgstr "加入时间"
 #: apps/web/templates/web/my/settings.html:64
 msgid "Competition settings"
 msgstr "竞赛设置"
+
+#: apps/web/templates/web/my/submission_delete.html:6
+#: apps/web/templates/web/my/submission_delete.html:7
+msgid "Delete Submission"
+msgstr "删除提交"
 
 #: apps/web/templates/web/my/submission_delete.html:13
 msgid "Are you sure you want to delete this submission?"
