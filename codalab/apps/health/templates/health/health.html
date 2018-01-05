@@ -6,7 +6,9 @@
 {% block content %}
     <div class="row">
         <p class="title" data-section-title width="100%" height="100%">
-            <h1><a href="#health">Health</a></h1>
+        <h1>
+            <a href="#health">Health</a>
+        </h1>
         </p>
         <div class="content" data-slug="health" data-section-content>
             <div class="row">
@@ -43,8 +45,99 @@
                 </div>
             </div>
         </div>
+
+        <hr>
+
+        <div align="center">
+
+            <div class="btn-group" role="group" aria-label="Button Group">
+
+                <button class="btn btn-sm btn-primary" data-toggle="collapse" data-target="#jobs_from_today">
+                    Today's Jobs ({{ jobs_today_count }})
+                </button>
+
+                <button class="btn btn-sm btn-primary" data-toggle="collapse" data-target="#jobs_from_today_failed">
+                    Today's Failed Jobs ({{ jobs_today_failed_count }})
+                </button>
+
+                <button class="btn btn-sm btn-primary" data-toggle="collapse" data-target="#jobs_from_today_finished">
+                    Today's Finished Jobs ({{ jobs_today_finished_count }})
+                </button>
+
+                <button class="btn btn-sm btn-primary" data-toggle="collapse" data-target="#jobs_from_today_pending">
+                    Today's Pending Jobs ({{ jobs_today_pending_count }})
+                </button>
+
+                <button class="btn btn-sm btn-primary" data-toggle="collapse" data-target="#jobs_last_fifty">
+                    Last 50 Jobs
+                </button>
+
+                <button class="btn btn-sm btn-primary" data-toggle="collapse" data-target="#jobs_last_fifty_failed">
+                    Last 50 Jobs Failed
+                </button>
+
+                <button class="btn btn-sm btn-danger" data-toggle="collapse" data-target="#jobs_pending_stuck">
+                    Stuck Pending Jobs ({{ jobs_pending_stuck_count }})
+                </button>
+
+                <button class="btn btn-sm btn-danger" data-toggle="collapse" data-target="#jobs_running_stuck">
+                    Stuck Running Jobs ({{ jobs_running_stuck_count }})
+                </button>
+
+            </div>
+
+            <!-- Today's jobs collapsable well-->
+            <div id="jobs_from_today" class="collapse well">
+                <strong>All jobs from today:</strong>
+
+                {% include "health/_job_table.html" with jobs_list=jobs_today %}
+            </div>
+            <div id="jobs_from_today_failed" class="collapse well">
+                <strong>All jobs from today failed:</strong>
+                {% include "health/_job_table.html" with jobs_list=jobs_today_failed %}
+            </div>
+            <div id="jobs_from_today_finished" class="collapse well">
+                <strong>All jobs from today finished:</strong>
+                {% include "health/_job_table.html" with jobs_list=jobs_today_finished %}
+            </div>
+            <div id="jobs_from_today_pending" class="collapse well">
+                <strong>All jobs from today pending:</strong>
+                {% include "health/_job_table.html" with jobs_list=jobs_today_pending%}
+            </div>
+
+            <!-- Last 50 jobs collapsable well-->
+
+            <div id="jobs_last_fifty" class="collapse well">
+                <strong>Last 50 Jobs by update date</strong>
+
+                {% include "health/_job_table.html" with jobs_list=jobs_last_fifty_updated %}
+            </div>
+            <div id="jobs_last_fifty_failed" class="collapse well">
+                <strong>Last 50 failed jobs by update date</strong>
+
+                {% include "health/_job_table.html" with jobs_list=last_fifty_failed %}
+            </div>
+
+            <!-- Stuck jobs hidden well -->
+
+            <div id="jobs_pending_stuck" class="collapse well">
+                <strong>Pending jobs older than one day</strong>
+                <strong>Count: {{ jobs_pending_stuck_count }}</strong>
+                {% include "health/_job_table.html" with jobs_list=jobs_pending_stuck %}
+            </div>
+            <div id="jobs_running_stuck" class="collapse well">
+                <strong>Running jobs older than one day</strong>
+                <strong>Count: {{ jobs_running_stuck_count }}</strong>
+                {% include "health/_job_table.html" with jobs_list=jobs_running_stuck %}
+            </div>
+        </div>
+
+        <!-- End Job Tables -->
+
+        <hr>
+
         <p class="title" data-section-title width="100%" height="100%">
-            <h1><a href="#settings">Settings</a></h1>
+        <h1><a href="#settings">Settings</a></h1>
         </p>
         <div class="content" data-slug="settings" data-section-content>
             Stuck job threshold<br>
@@ -53,8 +146,10 @@
             <br><br>
 
             List of emails to notify on error, separated by commas<br>
-            <label for="email_settings_textarea">eg: eric.carmichael@tivix.com, francis@tivix.com, flavio.zhingri@tivix.com</label><br>
-            <textarea id="email_settings_textarea" name="email_settings_textarea" style="resize:vertical; display: block;">{{ alert_emails }}</textarea><br>
+            <label for="email_settings_textarea">eg: eric.carmichael@tivix.com, francis@tivix.com,
+                flavio.zhingri@tivix.com</label><br>
+            <textarea id="email_settings_textarea" name="email_settings_textarea"
+                      style="resize:vertical; display: block;">{{ alert_emails }}</textarea><br>
             <input id="email_settings_submit_button" type="submit" class="button" value="Save">
 
             <div id="email_settings_submit_status"></div>
@@ -63,38 +158,41 @@
     </div>
 {% endblock %}
 <script>
-{% block js %}
-    $(function () {
-        $("#email_settings_submit_button").click(function(){
-            $.post("{% url "health_status_email_settings" %}", {"alert_threshold": $("#alert_threshold").val(), "emails": $("#email_settings_textarea").val()})
-                .success(function() {
-                    $("#email_settings_submit_status").html("<p style='color: #258033;'>Settings saved successfully!</p>");
+    {% block js %}
+        $(function () {
+            $("#email_settings_submit_button").click(function () {
+                $.post("{% url "health_status_email_settings" %}", {
+                    "alert_threshold": $("#alert_threshold").val(),
+                    "emails": $("#email_settings_textarea").val()
                 })
-                .error(function() {
-                    alert("Couldn't save settings, something went wrong");
-                });
-        });
-
-        $('.meter').each(function() {
-            var gauge = new Gauge(this).setOptions({
-                colorStart: '#ffffff',   // Colors
-                colorStop: '#8FC0DA',    // just experiment with them
-                strokeColor: '#E0E0E0',  // to see which ones work best for you
-                generateGradient: false,
-                percentColors: [
-                    [ 0.0, "#5CB85C" ],
-                    [ 0.40, "#5CB85C" ],
-                    //[ 0.41, "#ccc" ],
-                    [ 0.5, "#5BC0DE" ],
-                    [ 0.8, "#F0AD4E" ],
-                    [ 1.0, "#D9534F" ]
-                ]
+                    .success(function () {
+                        $("#email_settings_submit_status").html("<p style='color: #258033;'>Settings saved successfully!</p>");
+                    })
+                    .error(function () {
+                        alert("Couldn't save settings, something went wrong");
+                    });
             });
-            gauge.maxValue = $(this).attr('data-max');
-            gauge.set(parseFloat($(this).attr('data-value')));
+
+            $('.meter').each(function () {
+                var gauge = new Gauge(this).setOptions({
+                    colorStart: '#ffffff',   // Colors
+                    colorStop: '#8FC0DA',    // just experiment with them
+                    strokeColor: '#E0E0E0',  // to see which ones work best for you
+                    generateGradient: false,
+                    percentColors: [
+                        [0.0, "#5CB85C"],
+                        [0.40, "#5CB85C"],
+                        //[ 0.41, "#ccc" ],
+                        [0.5, "#5BC0DE"],
+                        [0.8, "#F0AD4E"],
+                        [1.0, "#D9534F"]
+                    ]
+                });
+                gauge.maxValue = $(this).attr('data-max');
+                gauge.set(parseFloat($(this).attr('data-value')));
+            });
         });
-    });
-{% endblock %}
+    {% endblock %}
 </script>
 {% block extra_scripts %}
     <script src="{{ STATIC_URL }}js/vendor/gauge.min.js"></script>
