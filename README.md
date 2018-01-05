@@ -16,39 +16,25 @@ The CodaLab community forum is hosted on Google Groups.
 - [CodaLabDev Google Groups Forum](https://groups.google.com/forum/#!forum/codalabdev)
 
 
-## Compute worker
+## Quick installation (for Linux!)
 
-To start the compute worker under project directory:
+Install docker and add your user to the docker group, if you haven't already
 
-`docker-compose up worker`
+```
+$ wget -qO- https://get.docker.com/ | sh
 
-If for some reason you need to rebuild the image run:
+...
 
-`docker-compose up --build worker`
+$ sudo usermod -aG docker $USER
+```
 
+Clone this repo and get the default environment setup
+```
+$ git clone git@github.com:codalab/codalab-competitions.git
+$ cd codalab-competitions
+$ cp .env_sample .env
+$ pip install docker-compose
+$ docker-compose up -d
+```
 
-## Tests
-
-To run tests:
-
-
-```docker exec django py.test```
-
-To run tests as you change the code with a watcher:
-
-```docker exec django ptw -- --testmon```
-
-
-## Latest changes:
-###### November 21, 2016:
-New set of credentials to authenticate `BUS SERVICES`. Add the following to `local.py` script.
-Leave them empty if previous credentials are provided.
-- `SBS_SHARED_ACCESS_KEY_NAME = '<shared access key name>'`
-- `SBS_SHARED_ACCESS_KEY_VALUE = '<shared access key value>'`
-
-Add the following to worker config file under `azure-service-bus`
-- `shared-access-key-name: "<shared access key name>"`
-- `shared-access-key-value: "the key"`
-
-Those values should be available in the Azure dashboard.
-
+Now you should be able to access http://localhost/
