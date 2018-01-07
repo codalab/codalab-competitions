@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
 {% load codalab_tags %}
-
-{% block head_title %}Edit Competition{% endblock head_title %}
-{% block page_title %}Edit Competition{% endblock page_title %}
 {% load i18n %}
+{% block head_title %}{% trans "Edit Competition"%}{% endblock head_title %}
+{% block page_title %}{% trans "Edit Competition"%}{% endblock page_title %}
+
 {% block extra_headers %}
     <link rel="stylesheet" href="{{ STATIC_URL }}css/jquery.datetimepicker.css">
 {% endblock extra_headers %}

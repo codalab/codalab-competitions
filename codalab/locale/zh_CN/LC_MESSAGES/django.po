@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-01-05 12:42+0000\n"
+"POT-Creation-Date: 2018-01-07 07:03+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -29,6 +29,75 @@ msgstr "用户名无法被使用，请尝试注册其它用户名。"
 #: apps/authenz/adapter.py:40
 msgid "This username is already taken. Please choose another."
 msgstr "用户名已经被其他人注册，请尝试注册其它用户名"
+
+#: apps/queues/templates/queues/delete.html:3
+#: apps/queues/templates/queues/delete.html:4
+msgid "Queue delete"
+msgstr "删除工作队列"
+
+#: apps/queues/templates/queues/delete.html:11
+msgid "Are you sure you want to delete this queue?"
+msgstr "你确定要删除这个工作队列吗？"
+
+#: apps/queues/templates/queues/form.html:3
+#: apps/queues/templates/queues/form.html:4
+msgid "Queue form"
+msgstr "工作队列表单"
+
+#: apps/queues/templates/queues/list.html:3
+#: apps/queues/templates/queues/list.html:4
+msgid "Queues list"
+msgstr "工作队列表"
+
+#: apps/queues/templates/queues/list.html:8
+msgid "Read more about Worker Queues here."
+msgstr "点击这里了解更多相关工作队列的内容"
+
+#: apps/queues/templates/queues/list.html:11
+msgid "Add Queue"
+msgstr "增加工作队列"
+
+#: apps/queues/templates/queues/list.html:17
+#: apps/web/templates/web/my/datasets.html:39
+msgid "Name"
+msgstr "名称"
+
+#: apps/queues/templates/queues/list.html:18
+#, fuzzy
+msgid "Broker URL"
+msgstr "Broker URL"
+
+#: apps/queues/templates/queues/list.html:19
+msgid "Is public?"
+msgstr "是否公开?"
+
+#: apps/queues/templates/queues/list.html:20
+#: apps/web/templates/web/my/datasets.html:43
+msgid "Actions"
+msgstr "行动"
+
+#: apps/queues/templates/queues/list.html:30
+#: apps/web/templates/web/competitions/competition_summary.html:33
+#: apps/web/templates/web/competitions/summary.html:31
+#: apps/web/templates/web/competitions/view.html:29
+#: apps/web/templates/web/my/_competition_tile.html:45
+#: apps/web/templates/web/my/_managed.html:31
+msgid "Edit"
+msgstr "编辑"
+
+#: apps/queues/templates/queues/list.html:31
+#: apps/web/templates/web/competitions/competition_summary.html:32
+#: apps/web/templates/web/competitions/dumps.html:20
+#: apps/web/templates/web/competitions/dumps.html:43
+#: apps/web/templates/web/competitions/summary.html:30
+#: apps/web/templates/web/my/datasets.html:56
+msgid "Delete"
+msgstr "删除"
+
+#: apps/queues/templates/queues/list.html:37
+#, fuzzy
+msgid "No queues created, yet!"
+msgstr "还没有添加数据集！"
 
 #: apps/web/templates/base.html:65
 msgid "Toggle navigation"
@@ -86,7 +155,7 @@ msgstr "注册"
 #: apps/web/templates/account/login.html:8
 #: apps/web/templates/account/login.html:65
 #: apps/web/templates/account/password_reset_from_key.html:31
-#: apps/web/templates/web/competitions/view.html:193
+#: apps/web/templates/web/competitions/view.html:194
 msgid "Sign In"
 msgstr "登录"
 
@@ -140,7 +209,6 @@ msgstr "密码："
 #: apps/web/templates/account/login.html:54
 #: apps/web/templates/account/signup.html:33
 #: apps/web/templates/account/signup.html:37
-#, fuzzy
 msgid "Password"
 msgstr "密码："
 
@@ -173,7 +241,6 @@ msgstr "你确定要注销登录吗？"
 #: apps/web/templates/account/password_reset.html:8
 #: apps/web/templates/account/password_reset_done.html:6
 #: apps/web/templates/account/password_reset_done.html:7
-#, fuzzy
 msgid "Password Reset"
 msgstr "密码重置"
 
@@ -249,6 +316,8 @@ msgid "*Username:"
 msgstr "*用户名"
 
 #: apps/web/templates/account/signup.html:25
+#: apps/web/templates/web/competitions/view.html:242
+#: apps/web/templates/web/competitions/view.html:266
 #, fuzzy
 msgid "Username"
 msgstr "用户名"
@@ -373,7 +442,7 @@ msgid "Previous"
 msgstr "上一页"
 
 #: apps/web/templates/search/search.html:21
-#: apps/web/templates/web/competitions/view.html:98
+#: apps/web/templates/web/competitions/view.html:99
 msgid "Next"
 msgstr "下一页"
 
@@ -414,9 +483,9 @@ msgstr ""
 "最后，Flower也可以监控您的工作队列的系统性影响。"
 
 #: apps/web/templates/web/competition_latest.html:23
-#, python-format
-msgid "Organized by %(competition.creator)s"
-msgstr "由%(competition.creator)s组织"
+#: apps/web/templates/web/competitions/view.html:60
+msgid "Organized by"
+msgstr "竞赛组织者："
 
 #: apps/web/templates/web/index.html:12
 msgid "Accelerating reproducible computational research."
@@ -442,6 +511,8 @@ msgstr "版本号"
 
 #: apps/web/templates/web/user_detail.html:5
 #: apps/web/templates/web/user_detail.html:6
+#: apps/web/templates/web/competitions/view.html:7
+#: apps/web/templates/web/competitions/view.html:8
 #, fuzzy
 msgid "Competition"
 msgstr "我的竞赛"
@@ -642,7 +713,7 @@ msgid "Image Viewer"
 msgstr "图像浏览"
 
 #: apps/web/templates/web/competitions/_results_page.html:79
-#: apps/web/templates/web/competitions/_submit_results_page.html:103
+#: apps/web/templates/web/competitions/_submit_results_page.html:105
 msgid "No data available in table"
 msgstr "表中没有可用的数据"
 
@@ -717,43 +788,29 @@ msgid ""
 "This phase of the competition is closed. Here are the submissions you made:"
 msgstr "竞赛的该阶段已经关闭。这是你所做的提交"
 
-#: apps/web/templates/web/competitions/_submit_results_page.html:93
+#: apps/web/templates/web/competitions/_submit_results_page.html:94
+#: apps/web/templates/web/competitions/view.html:243
+#: apps/web/templates/web/competitions/view.html:267
 msgid "Score"
 msgstr "分数"
 
-#: apps/web/templates/web/competitions/_submit_results_page.html:94
+#: apps/web/templates/web/competitions/_submit_results_page.html:96
 msgid "Filename"
 msgstr "文件名"
 
-#: apps/web/templates/web/competitions/_submit_results_page.html:95
+#: apps/web/templates/web/competitions/_submit_results_page.html:97
 msgid "Submission date"
 msgstr "提交日期"
 
-#: apps/web/templates/web/competitions/_submit_results_page.html:96
+#: apps/web/templates/web/competitions/_submit_results_page.html:98
 #: apps/web/templates/web/competitions/dumps.html:17
 #: apps/web/templates/web/competitions/submission_metadata.html:39
 msgid "Status"
 msgstr "状态"
 
-#: apps/web/templates/web/competitions/competition_summary.html:32
-#: apps/web/templates/web/competitions/dumps.html:20
-#: apps/web/templates/web/competitions/dumps.html:43
-#: apps/web/templates/web/competitions/summary.html:30
-#: apps/web/templates/web/my/datasets.html:56
-msgid "Delete"
-msgstr "删除"
-
-#: apps/web/templates/web/competitions/competition_summary.html:33
-#: apps/web/templates/web/competitions/summary.html:31
-#: apps/web/templates/web/competitions/view.html:28
-#: apps/web/templates/web/my/_competition_tile.html:45
-#: apps/web/templates/web/my/_managed.html:31
-msgid "Edit"
-msgstr "编辑"
-
 #: apps/web/templates/web/competitions/competition_summary.html:34
 #: apps/web/templates/web/competitions/summary.html:34
-#: apps/web/templates/web/competitions/view.html:30
+#: apps/web/templates/web/competitions/view.html:31
 #: apps/web/templates/web/my/_competition_tile.html:48
 #: apps/web/templates/web/my/_managed.html:34
 #: apps/web/templates/web/my/participants.html:7
@@ -768,6 +825,12 @@ msgstr "你确定要删除这个竞赛仓库吗？"
 #: apps/web/templates/web/competitions/delete_dump_confirm.html:10
 msgid "Yes, I'm sure."
 msgstr "是的，我确定"
+
+#: apps/web/templates/web/competitions/dumps.html:2
+#: apps/web/templates/web/competitions/dumps.html:3
+#, fuzzy
+msgid "Competition Dumps"
+msgstr "竞赛"
 
 #: apps/web/templates/web/competitions/dumps.html:6
 #: apps/web/templates/web/competitions/edit.html:18
@@ -853,6 +916,12 @@ msgstr "最大提交数"
 msgid "Downloadable datasets"
 msgstr "可下载的数据集"
 
+#: apps/web/templates/web/competitions/edit.html:5
+#: apps/web/templates/web/competitions/edit.html:6
+#, fuzzy
+msgid "Edit Competition"
+msgstr "我的竞赛"
+
 #: apps/web/templates/web/competitions/edit.html:21
 msgid "Download original YAML file"
 msgstr "下载原始YAML文件"
@@ -867,7 +936,7 @@ msgid "Add Page"
 msgstr "添加页面"
 
 #: apps/web/templates/web/competitions/edit.html:140
-#: apps/web/templates/web/competitions/view.html:122
+#: apps/web/templates/web/competitions/view.html:123
 msgid "Phases"
 msgstr "阶段"
 
@@ -924,7 +993,7 @@ msgstr "在排行榜上只展示最近的结果"
 
 #: apps/web/templates/web/competitions/public_submissions_phase.html:13
 msgid "Submission Id"
-msgstr "提交Id"
+msgstr "提交ID"
 
 #: apps/web/templates/web/competitions/public_submissions_phase.html:16
 #: apps/web/templates/web/competitions/submission_metadata.html:34
@@ -958,7 +1027,7 @@ msgid "Download submission"
 msgstr "下载提交"
 
 #: apps/web/templates/web/competitions/submission_metadata.html:27
-#: apps/web/templates/web/competitions/view.html:35
+#: apps/web/templates/web/competitions/view.html:36
 #: apps/web/templates/web/my/_competition_tile.html:49
 #: apps/web/templates/web/my/_managed.html:35
 #: apps/web/templates/web/my/submissions.html:7
@@ -1047,53 +1116,61 @@ msgstr "上传定义中……"
 msgid "Upload Competition Bundle"
 msgstr "上传竞赛包"
 
-#: apps/web/templates/web/competitions/view.html:24
+#: apps/web/templates/web/competitions/view.html:25
 msgid "DOWNLOAD COMPETITION BUNDLE!"
 msgstr "下载竞赛包"
 
-#: apps/web/templates/web/competitions/view.html:36
+#: apps/web/templates/web/competitions/view.html:28
+msgid "Admin features"
+msgstr "管理您的竞赛"
+
+#: apps/web/templates/web/competitions/view.html:37
 #: apps/web/templates/web/my/_competition_tile.html:50
 msgid "Dumps"
 msgstr "仓库"
 
-#: apps/web/templates/web/competitions/view.html:77
+#: apps/web/templates/web/competitions/view.html:60
+msgid "Current server time:"
+msgstr "当前服务器时间："
+
+#: apps/web/templates/web/competitions/view.html:78
 msgid "Current"
 msgstr "最近的"
 
-#: apps/web/templates/web/competitions/view.html:88
+#: apps/web/templates/web/competitions/view.html:89
 msgid "First phase"
 msgstr "第一阶段"
 
-#: apps/web/templates/web/competitions/view.html:106
+#: apps/web/templates/web/competitions/view.html:107
 msgid "End"
 msgstr "结束"
 
-#: apps/web/templates/web/competitions/view.html:107
-#: apps/web/templates/web/competitions/view.html:174
+#: apps/web/templates/web/competitions/view.html:108
+#: apps/web/templates/web/competitions/view.html:175
 msgid "Competition Ends"
 msgstr "竞赛结束"
 
-#: apps/web/templates/web/competitions/view.html:129
+#: apps/web/templates/web/competitions/view.html:130
 msgid "Public Submissions"
 msgstr "公共提交"
 
-#: apps/web/templates/web/competitions/view.html:132
+#: apps/web/templates/web/competitions/view.html:133
 msgid "Forums"
 msgstr "论坛"
 
-#: apps/web/templates/web/competitions/view.html:137
+#: apps/web/templates/web/competitions/view.html:138
 msgid "Team"
 msgstr "团队"
 
-#: apps/web/templates/web/competitions/view.html:192
+#: apps/web/templates/web/competitions/view.html:193
 msgid "You must be logged in to participate in competitions."
 msgstr "你必须登录才能参加比赛"
 
-#: apps/web/templates/web/competitions/view.html:198
+#: apps/web/templates/web/competitions/view.html:199
 msgid "You have not yet registered for this competition."
 msgstr "你还没有报名参加这次竞赛"
 
-#: apps/web/templates/web/competitions/view.html:199
+#: apps/web/templates/web/competitions/view.html:200
 msgid ""
 "To participate in this competition, you must accept its specific terms and "
 "conditions. After you register, the competition organizer will review your "
@@ -1102,29 +1179,43 @@ msgstr ""
 "要参加这个比赛，你必须接受它的具体条款和条件。报名后，比赛主办方会评审你的申"
 "请并在你的申请被批准后通知你"
 
-#: apps/web/templates/web/competitions/view.html:203
+#: apps/web/templates/web/competitions/view.html:204
 msgid "I accept the "
 msgstr "我接受"
 
-#: apps/web/templates/web/competitions/view.html:203
+#: apps/web/templates/web/competitions/view.html:204
 msgid "terms and conditions"
 msgstr "条款和条件。"
 
-#: apps/web/templates/web/competitions/view.html:203
+#: apps/web/templates/web/competitions/view.html:204
 msgid "of the competition."
 msgstr "关于该比赛。"
 
-#: apps/web/templates/web/competitions/view.html:209
+#: apps/web/templates/web/competitions/view.html:210
 msgid ""
 "Your request to participate in this challenge has been received and a "
 "decision is pending."
 msgstr "你的参与这项竞赛的请求已被收到，申请正在核查中。"
 
-#: apps/web/templates/web/competitions/view.html:211
+#: apps/web/templates/web/competitions/view.html:212
 msgid ""
 "Your request to participate in this competition was denied or your "
 "privileges have been suspended."
 msgstr "你参与竞赛的申请被拒绝或你的参与权限已被停止"
+
+#: apps/web/templates/web/competitions/view.html:237
+#: apps/web/templates/web/competitions/view.html:261
+msgid "Top Three"
+msgstr "排名前三"
+
+#: apps/web/templates/web/competitions/view.html:241
+#: apps/web/templates/web/competitions/view.html:265
+msgid "Rank"
+msgstr "排名"
+
+#: apps/web/templates/web/competitions/view.html:272
+msgid "No data"
+msgstr "没有数据"
 
 #: apps/web/templates/web/my/_competition_tile.html:29
 msgid "participant"
@@ -1141,7 +1232,7 @@ msgstr "奖励"
 #: apps/web/templates/web/my/_competition_tile.html:47
 #: apps/web/templates/web/my/_managed.html:33
 msgid "Unpublish"
-msgstr "未发布"
+msgstr "撤回发布"
 
 #: apps/web/templates/web/my/_entered.html:5
 msgid "You are not participating in any competitions."
@@ -1191,10 +1282,6 @@ msgstr "我运行的竞赛"
 msgid "Create Dataset"
 msgstr "创建数据集"
 
-#: apps/web/templates/web/my/datasets.html:39
-msgid "Name"
-msgstr "名称"
-
 #: apps/web/templates/web/my/datasets.html:40
 msgid "Key"
 msgstr "键"
@@ -1202,10 +1289,6 @@ msgstr "键"
 #: apps/web/templates/web/my/datasets.html:42
 msgid "Type"
 msgstr "类型"
-
-#: apps/web/templates/web/my/datasets.html:43
-msgid "Actions"
-msgstr "行动"
 
 #: apps/web/templates/web/my/datasets.html:44
 msgid "Multi-delete? "
@@ -1395,6 +1478,38 @@ msgstr "加入时间"
 #: apps/web/templates/web/my/settings.html:64
 msgid "Competition settings"
 msgstr "竞赛设置"
+
+#: apps/web/templates/web/my/settings.html:71
+msgid "Team name"
+msgstr "团队名称"
+
+#: apps/web/templates/web/my/settings.html:75
+msgid "Team members"
+msgstr "团队成员"
+
+#: apps/web/templates/web/my/settings.html:75
+msgid "(each member on a new line)"
+msgstr "（每一个成员需占据一行）"
+
+#: apps/web/templates/web/my/settings.html:89
+msgid "Participation status updates"
+msgstr "参与成员状态更新提醒"
+
+#: apps/web/templates/web/my/settings.html:93
+msgid "Organizer status updates"
+msgstr "组织者状态更新提醒"
+
+#: apps/web/templates/web/my/settings.html:97
+msgid "Organizer direct message updates"
+msgstr "接受组织者直接发布的消息"
+
+#: apps/web/templates/web/my/settings.html:101
+msgid "Email on submission finished successfully"
+msgstr "提交成功得到email提醒"
+
+#: apps/web/templates/web/my/settings.html:109
+msgid "Save Changes "
+msgstr "保存修改"
 
 #: apps/web/templates/web/my/submission_delete.html:6
 #: apps/web/templates/web/my/submission_delete.html:7

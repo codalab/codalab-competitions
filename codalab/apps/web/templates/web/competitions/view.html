@@ -2,10 +2,11 @@
 {% load url from future %}
 {% load staticfiles %}
 {% load codalab_tags %}
-{% load tz %}
-{% block head_title %}Competition{% endblock %}
-{% block page_title %}Competition{% endblock page_title %}
 {% load i18n %}
+{% load tz %}
+{% block head_title %}{% trans 'Competition' %}{% endblock head_title %}
+{% block page_title %}{% trans 'Competition' %}{% endblock page_title %}
+
 {% block extra_scripts %}
     <script src="{{ STATIC_URL }}js/vendor/readmore.min.js"></script>
 
@@ -24,7 +25,7 @@
     <a href="{% url "competitions:download" competition_pk=competition.pk %}" class="btn btn-primary">{% trans 'DOWNLOAD COMPETITION BUNDLE!' %}</a>
 {% endif %}
 {% if is_admin_or_owner %}
-    <h3>Admin features</h3>
+    <h3>{% trans "Admin features"%}</h3>
     <a href="{% url "competitions:edit" pk=competition.pk %}" class="btn btn-primary">{% trans 'Edit' %}</a>
     <a href="{% url 'my_competition_participants' competition_id=competition.pk %}" class="btn btn-primary">
         {% trans 'Participants' %}
@@ -56,7 +57,7 @@
 
 
             {% endif %}
-            <div class="organizer">Organized by {{ competition.creator }} - Current server time: {{ current_server_time|utc }} UTC</div>
+            <div class="organizer">{% trans 'Organized by'%} {{ competition.creator }} - {% trans 'Current server time:'%} {{ current_server_time|utc }} UTC</div>
             <input type="hidden" id="competitionId" value="{{competition.id}}" />
             <input type="hidden" id="cstoken" value="{{csrf_token}}" />
             <div class="phase-container">
@@ -233,13 +234,13 @@
             {% if top_three_leaders and not active_phase.is_blind %}
                 <div class="panel">
                     <div class="panel-body">
-                        <center><h4>Top Three</h4></center>
+                        <center><h4>{% trans "Top Three"%}</h4></center>
                         <table class="table table-responsive">
                             <thead>
                                 <tr>
-                                    <th>Rank</th>
-                                    <th>Username</th>
-                                    <th>Score</th>
+                                    <th>{% trans "Rank"%}</th>
+                                    <th>{% trans "Username"%}</th>
+                                    <th>{% trans "Score"%}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -257,18 +258,18 @@
             {% else %}
                 <div class="panel">
                     <div class="panel-body"">
-                        <center><h4>Top Three</h4></center>
+                        <center><h4>{% trans "Top Three"%}</h4></center>
                         <table class="table table-responsive">
                             <thead>
                                 <tr>
-                                    <th>Rank</th>
-                                    <th>Username</th>
-                                    <th>Score</th>
+                                    <th>{% trans "Rank"%}</th>
+                                    <th>{% trans "Username"%}</th>
+                                    <th>{% trans "Score"%}</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td>No data</td>
+                                    <td>{% trans "No data"%}</td>
                                 </tr>
                             </tbody>
                         </table>

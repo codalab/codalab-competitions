@@ -1,23 +1,23 @@
 {% extends "queues/base_queues.html" %}
-
-{% block head_title %}Queues list{% endblock %}
-{% block page_title %}Queues list{% endblock page_title %}
+{% load i18n %}
+{% block head_title %}{% trans "Queues list"%}{% endblock %}
+{% block page_title %}{% trans "Queues list"%}{% endblock page_title %}
 
 {% block content %}
     <div class="panel-body">
-        <a href="https://github.com/codalab/codalab-competitions/wiki/Dev-Worker-Queues">Read more about Worker Queues here.</a>
+        <a href="https://github.com/codalab/codalab-competitions/wiki/Dev-Worker-Queues">{% trans "Read more about Worker Queues here."%}</a>
 
         <a href="{% url "queues:create" %}" class="btn btn-primary" style="float: right; margin: 10px 0 10px 10px;">
-            Add Queue
+        {% trans "Add Queue"%}
         </a>
 
         <table class="table table-bordered">
             <thead>
             <tr style="font-weight: bold;">
-                <td>Name</td>
-                <td>Broker URL</td>
-                <td width="100px;">Is public?</td>
-                <td width="150px;">Actions</td>
+                <td>{% trans "Name"%}</td>
+                <td>{% trans "Broker URL"%}</td>
+                <td width="100px;">{% trans "Is public?"%}</td>
+                <td width="150px;">{% trans "Actions"%}</td>
             </tr>
             </thead>
             <tbody>
@@ -27,14 +27,14 @@
                     <td>{{ queue.broker_url }}</td>
                     <td>{% if queue.is_public %}<i class="glyphicon glyphicon-ok"></i>{% endif %}</td>
                     <td>
-                        <a href="{% url "queues:update" pk=queue.pk %}" class="btn btn-default">Edit</a>
-                        <a href="{% url "queues:delete" pk=queue.pk %}" class="btn btn-danger">Delete</a>
+                        <a href="{% url "queues:update" pk=queue.pk %}" class="btn btn-default">{% trans "Edit"%}</a>
+                        <a href="{% url "queues:delete" pk=queue.pk %}" class="btn btn-danger">{% trans "Delete"%}</a>
                     </td>
                 </tr>
             {% empty %}
                 <tr>
                     <td colspan="4">
-                        <i style="display: block; padding: 20px; text-align: center;">No queues created, yet!</i>
+                        <i style="display: block; padding: 20px; text-align: center;">{% trans "No queues created, yet!"%}</i>
                     </td>
                 </tr>
             {% endfor %}

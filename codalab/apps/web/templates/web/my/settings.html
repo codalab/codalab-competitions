@@ -68,11 +68,11 @@
             <table class="table table-striped affiliation">
                 <tbody>
                     <tr>
-                        <th>{{ form.team_name.label }}</th>
+                        <th>{% trans "Team name"%}</th>
                         <td>{{ form.team_name }}</td>
                     </tr>
                     <tr>
-                        <th>{{ form.team_members.label }}<br><i style="font-weight: normal;">(each member on a new line)</i></th>
+                        <th>{% trans "Team members"%}<br><i style="font-weight: normal;">{% trans "(each member on a new line)"%}</i></th>
                         <td>{{ form.team_members }}</td>
                     </tr>
                 </tbody>
@@ -86,19 +86,19 @@
             <table class="table table-striped subscriptions">
                 <tbody>
                     <tr>
-                        <th>{{ form.participation_status_updates.label }}</th>
+                        <th>{% trans "Participation status updates"%}</th>
                         <td>{{ form.participation_status_updates }}</td>
                     </tr>
                     <tr>
-                        <th>{{ form.organizer_status_updates.label }}</th>
+                        <th>{% trans "Organizer status updates"%}</th>
                         <td>{{ form.organizer_status_updates}}</td>
                     </tr>
                     <tr>
-                        <th>{{ form.organizer_direct_message_updates.label }}</th>
+                        <th>{% trans "Organizer direct message updates"%}</th>
                         <td>{{ form.organizer_direct_message_updates }}</td>
                     </tr>
                     <tr>
-                        <th>{{ form.email_on_submission_finished_successfully.label }}</th>
+                        <th>{% trans "Email on submission finished successfully"%}</th>
                         <td>{{ form.email_on_submission_finished_successfully }}</td>
                     </tr>
                 </tbody>
@@ -106,7 +106,7 @@
         </div>
     </div>
 
-    <input type="submit" class="btn btn-primary margin-top" value="Save Changes">
+    <input type="submit" class="btn btn-primary margin-top" value="{%trans "Save Changes "%}">
 </form>
 {% endblock %}
 

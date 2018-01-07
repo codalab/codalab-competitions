@@ -1,6 +1,6 @@
 {% extends "base.html" %}
-{% block page_title %}Competition Dumps{% endblock %}
-{% block head_title %}Competition Dumps{% endblock %}
+{% block page_title %}{% trans "Competition Dumps"%}{% endblock %}
+{% block head_title %}{% trans "Competition Dumps"%}{% endblock %}
 {% load i18n %}
 {% block content %}
     <a href="{% url "competitions:view" pk=competition.pk %}" >{% trans 'Go Back to Competition Homepage' %}</a>
