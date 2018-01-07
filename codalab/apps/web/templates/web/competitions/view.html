@@ -230,7 +230,7 @@
     </section>
         <div class="row">
         <div class="col-md-4">
-            {% if top_three_leaders %}
+            {% if top_three_leaders and not active_phase.is_blind %}
                 <div class="panel">
                     <div class="panel-body">
                         <center><h4>Top Three</h4></center>

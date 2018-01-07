@@ -90,7 +90,9 @@
                 <thead>
                 <tr>
                     <th>{% trans '#' %}</th>
-                    <th>{% trans 'Score' %}</th>
+                    {% if not phase.is_blind %}
+                        <th>{% trans 'Score' %}</th>
+                    {% endif %}
                     <th>{% trans 'Filename' %}</th>
                     <th>{% trans 'Submission date' %}</th>
                     <th>{% trans 'Status' %}</th>
@@ -124,7 +126,9 @@
                                 <input type="hidden" name="state" value='0'/>
                             {% endif %}
                             <td>{{ forloop.counter }}</td>
-                            <td>{{ submission_info.score }}</td>
+                            {% if not phase.is_blind %}
+                                <td>{{ submission_info.score }}</td>
+                            {% endif %}
                             <td>{{ submission_info.filename }}</td>
                             <td>{{ submission_info.submitted_at|date:"m/d/Y H:i:s" }}</td>
                             <td class="statusName">{{ submission_info.status_name }}</td>
