@@ -1,24 +1,24 @@
 {% extends 'base.html' %}
-
+{% load i18n %}
 {% load static %}
 
-{% block head_title %}Competitions (My CodaLab){% endblock head_title %}
-{% block page_title %}Competitions (My CodaLab){% endblock page_title %}
+{% block head_title %}{% trans 'Competitions (My CodaLab)'%}{% endblock head_title %}
+{% block page_title %}{% trans 'Competitions (My CodaLab)'%}{% endblock page_title %}
 
 {% block content %}
 
     <ul class="nav nav-tabs" id="my_competition_tab_nav">
         <li class="active">
-            <a href="#competitions" role="tab" data-toggle="tab">Competitions</a>
+            <a href="#competitions" role="tab" data-toggle="tab">{% trans 'Competitions'%}</a>
         </li>
         <li>
-            <a href="#my_participating" role="tab" data-toggle="tab">Competitions I'm In</a>
+            <a href="#my_participating" role="tab" data-toggle="tab">{% trans "Competitions I'm In"%}</a>
         </li>
         <li>
-            <a href="#my_managing" role="tab" data-toggle="tab">Competitions I'm Running</a>
+            <a href="#my_managing" role="tab" data-toggle="tab">{% trans "Competitions I'm Running"%}</a>
         </li>
         <li>
-            <a href="{% url 'my_datasets' %}">My Datasets</a>
+            <a href="{% url 'my_datasets' %}">{% trans 'My Datasets'%}</a>
         </li>
     </ul>
 
@@ -28,7 +28,7 @@
                 <div class="row">
                     <div class="col-sm-12 kill-newlines">
                         {% if not published_competitions %}
-                            <p><em>There are no competitions.</em></p>
+                            <p><em>{% trans 'There are no competitions.'%}</em></p>
                         {% else %}
                             {% for competition in published_competitions %}
                                 {% include "web/my/_competition_tile.html" with competition=competition %}
@@ -54,9 +54,9 @@
                 <div class="row">
                     <div class="col-sm-12 kill-newlines">
                         {% if USE_AWS %}
-                            <a class="btn btn-primary" target="_self" href="{% url 'competitions:s3_create_competition' %}">Create Competition</a>
+                            <a class="btn btn-primary" target="_self" href="{% url 'competitions:s3_create_competition' %}">{% trans 'Create Competition'%}</a>
                         {% else %}
-                            <a class="btn btn-primary" target="_self" href="{% url 'competitions:create' %}">Create Competition</a>
+                            <a class="btn btn-primary" target="_self" href="{% url 'competitions:create' %}">{% trans 'Create Competition'%}</a>
                         {% endif %}
 
                         <br><br>

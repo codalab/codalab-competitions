@@ -1,6 +1,8 @@
-﻿{% load static %}
+﻿{% load i18n %}
+{% load static %}
+
 {% if not competitions %}
-    <p><em>You do not manage any competitions.</em></p>
+    <p><em>{% trans 'You do not manage any competitions.'%}</em></p>
 {% else %}
     {% for competition in competitions %}
         <div class="competition-tile full-width">
@@ -26,12 +28,12 @@
                     {% if request.user == competition.creator %}
                         <a class="btn btn-sm btn-danger" id="competition-delete-button" href="{% url 'competitions:delete' pk=competition.pk %}">Delete</a>
                     {% endif %}
-                    <a class="btn btn-sm btn-primary" href="{% url 'competitions:edit' pk=competition.pk %}">Edit</a>
-                    <a class="btn btn-sm btn-success" href="{% url 'competition-publish' pk=competition.pk %}" id="competition-publish-button">Publish</a>
-                    <a class="btn btn-sm btn-warning" href="{% url 'competition-unpublish' pk=competition.pk %}" id="competition-unpublish-button">Unpublish</a>
-                    <a class="btn btn-sm btn-primary" href="{% url 'my_competition_participants' competition_id=competition.pk %}">Participants</a>
-                    <a class="btn btn-sm btn-primary" href="{% url 'my_competition_submissions' competition_id=competition.pk %}">Submissions</a>
-                    <a class="btn btn-sm btn-primary" href="/competitions/{{competition.pk}}#results">Leaderboard</a>
+                    <a class="btn btn-sm btn-primary" href="{% url 'competitions:edit' pk=competition.pk %}">{% trans 'Edit'%}</a>
+                    <a class="btn btn-sm btn-success" href="{% url 'competition-publish' pk=competition.pk %}" id="competition-publish-button">{% trans 'Publish'%}</a>
+                    <a class="btn btn-sm btn-warning" href="{% url 'competition-unpublish' pk=competition.pk %}" id="competition-unpublish-button">{% trans 'Unpublish'%}</a>
+                    <a class="btn btn-sm btn-primary" href="{% url 'my_competition_participants' competition_id=competition.pk %}">{% trans 'Participants'%}</a>
+                    <a class="btn btn-sm btn-primary" href="{% url 'my_competition_submissions' competition_id=competition.pk %}">{% trans 'Submissions'%}</a>
+                    <a class="btn btn-sm btn-primary" href="/competitions/{{competition.pk}}#results">{% trans 'Leaderboard'%}</a>
                 </div>
             </div>
         </div>

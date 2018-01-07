@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-12-26 14:16+0000\n"
+"POT-Creation-Date: 2018-01-05 12:42+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -44,6 +44,7 @@ msgid "Search Competitions"
 msgstr "查询竞赛"
 
 #: apps/web/templates/base.html:109
+#: apps/web/templates/web/competitions/edit.html:19
 msgid "Help"
 msgstr "帮助"
 
@@ -85,6 +86,7 @@ msgstr "注册"
 #: apps/web/templates/account/login.html:8
 #: apps/web/templates/account/login.html:65
 #: apps/web/templates/account/password_reset_from_key.html:31
+#: apps/web/templates/web/competitions/view.html:193
 msgid "Sign In"
 msgstr "登录"
 
@@ -160,8 +162,8 @@ msgid ""
 "again to resend confirmation email.'); return false;\">Resend confirmation "
 "email</a>"
 msgstr ""
-"<a href=\"\" onclick=\"alert('请等待5分钟，然后再次尝试重新发送确认电子邮件'); return "
-"false;\">重新发送确认邮件</a>"
+"<a href=\"\" onclick=\"alert('请等待5分钟，然后再次尝试重新发送确认电子邮"
+"件'); return false;\">重新发送确认邮件</a>"
 
 #: apps/web/templates/account/logout.html:11
 msgid "Are you sure you want to sign out?"
@@ -329,6 +331,9 @@ msgstr "您的申请已被接受！"
 
 #: apps/web/templates/emails/notifications/participation_accepted.html:11
 #: apps/web/templates/emails/notifications/participation_revoked.html:11
+#: apps/web/templates/web/my/participants.html:59
+#: apps/web/templates/web/my/participants.html:132
+#: apps/web/templates/web/my/participants.html:148
 msgid "Reason:"
 msgstr "原因是："
 
@@ -368,6 +373,7 @@ msgid "Previous"
 msgstr "上一页"
 
 #: apps/web/templates/search/search.html:21
+#: apps/web/templates/web/competitions/view.html:98
 msgid "Next"
 msgstr "下一页"
 
@@ -421,6 +427,8 @@ msgid "Popular Competitions"
 msgstr "热门比赛"
 
 #: apps/web/templates/web/index.html:27 apps/web/templates/web/index.html:37
+#: apps/web/templates/web/competitions/index.html:53
+#: apps/web/templates/web/my/index.html:31
 msgid "There are no competitions."
 msgstr "当前没有比赛。"
 
@@ -447,66 +455,1016 @@ msgstr "查看 %(object)s 细节"
 msgid "Details are currently hidden"
 msgstr "当前的细节被隐藏"
 
-#: apps/web/templates/web/common/_submission_details_template.html:8
+#: apps/web/templates/web/common/_submission_details_template.html:9
 msgid "No description given."
 msgstr "没有关于提交的解释。"
 
-#: apps/web/templates/web/common/_submission_details_template.html:10
+#: apps/web/templates/web/common/_submission_details_template.html:11
 msgid "save description"
 msgstr "保存提交的解释"
 
-#: apps/web/templates/web/common/_submission_details_template.html:11
+#: apps/web/templates/web/common/_submission_details_template.html:12
 msgid "update description"
 msgstr "更新解释"
 
-#: apps/web/templates/web/common/_submission_details_template.html:25
+#: apps/web/templates/web/common/_submission_details_template.html:26
 msgid "Download your submission"
 msgstr "下载你的提交"
 
-#: apps/web/templates/web/common/_submission_details_template.html:27
+#: apps/web/templates/web/common/_submission_details_template.html:28
 msgid "View standard error log"
 msgstr "浏览错误信息"
 
-#: apps/web/templates/web/common/_submission_details_template.html:29
+#: apps/web/templates/web/common/_submission_details_template.html:30
+#: apps/web/templates/web/competitions/public_submissions_phase.html:91
 msgid "View scoring output log"
 msgstr "浏览分数信息"
 
-#: apps/web/templates/web/common/_submission_details_template.html:30
+#: apps/web/templates/web/common/_submission_details_template.html:31
+#: apps/web/templates/web/competitions/public_submissions_phase.html:92
 msgid "View scoring error log"
 msgstr "浏览评分错误信息"
 
-#: apps/web/templates/web/common/_submission_details_template.html:32
+#: apps/web/templates/web/common/_submission_details_template.html:33
+#: apps/web/templates/web/competitions/public_submissions_phase.html:87
 msgid "View predict output log"
 msgstr "浏览预测的输出结果"
 
-#: apps/web/templates/web/common/_submission_details_template.html:33
+#: apps/web/templates/web/common/_submission_details_template.html:34
+#: apps/web/templates/web/competitions/public_submissions_phase.html:88
 msgid "View predict error log"
 msgstr "浏览预测的错误信息"
 
-#: apps/web/templates/web/common/_submission_details_template.html:34
+#: apps/web/templates/web/common/_submission_details_template.html:35
+#: apps/web/templates/web/competitions/public_submissions_phase.html:89
 msgid "Download evaluation output from prediction step"
 msgstr "从预测阶段下载评估的结果"
 
-#: apps/web/templates/web/common/_submission_details_template.html:37
+#: apps/web/templates/web/common/_submission_details_template.html:38
+#: apps/web/templates/web/competitions/public_submissions_phase.html:94
 msgid "View detailed results"
 msgstr "浏览详细结果"
 
-#: apps/web/templates/web/common/_submission_details_template.html:39
+#: apps/web/templates/web/common/_submission_details_template.html:40
+#: apps/web/templates/web/competitions/public_submissions_phase.html:96
 msgid "Download evaluation output from scoring step"
 msgstr "从得分阶段下载评估结果"
 
-#: apps/web/templates/web/common/_submission_details_template.html:41
+#: apps/web/templates/web/common/_submission_details_template.html:42
 msgid "Download private output from scoring step"
 msgstr "从得分阶段下载私人输出结果"
 
-#: apps/web/templates/web/common/_submission_details_template.html:44
+#: apps/web/templates/web/common/_submission_details_template.html:45
 msgid "View ingestion output log"
 msgstr "浏览摄取程序输出结果"
 
-#: apps/web/templates/web/common/_submission_details_template.html:45
+#: apps/web/templates/web/common/_submission_details_template.html:46
 msgid "View ingestion error log"
 msgstr "浏览摄取程序的错误信息"
 
-#: apps/web/templates/web/common/_submission_details_template.html:55
+#: apps/web/templates/web/common/_submission_details_template.html:56
 msgid "Make your submission public"
 msgstr "公开提交结果"
+
+#: apps/web/templates/web/competitions/_get_starting_kit.html:8
+#: apps/web/templates/web/competitions/dumps.html:28
+#: apps/web/templates/web/my/datasets.html:55
+msgid "Download"
+msgstr "下载"
+
+#: apps/web/templates/web/competitions/_get_starting_kit.html:11
+msgid "Size (mb)"
+msgstr "大小(mb)"
+
+#: apps/web/templates/web/competitions/_get_starting_kit.html:14
+msgid "Filetype:"
+msgstr "文件类型"
+
+#: apps/web/templates/web/competitions/_get_starting_kit.html:17
+#: apps/web/templates/web/competitions/edit.html:148
+#: apps/web/templates/web/competitions/public_submissions_phase.html:15
+#: apps/web/templates/web/competitions/submission_metadata.html:14
+#: apps/web/templates/web/my/submissions.html:15
+msgid "Phase"
+msgstr "阶段"
+
+#: apps/web/templates/web/competitions/_get_starting_kit.html:60
+msgid "No files have been added for this competition yet."
+msgstr "这个竞赛还没有添加任何文件"
+
+#: apps/web/templates/web/competitions/_results_page.html:6
+msgid "There is a problem with the leaderboard"
+msgstr "排行榜出现问题"
+
+#: apps/web/templates/web/competitions/_results_page.html:7
+msgid ""
+"Are all of the leaderboard column names matched with scores saved in scores."
+"txt?"
+msgstr "所有排行榜上的列名是否与scores.txt中保存的得分相匹配？"
+
+#: apps/web/templates/web/competitions/_results_page.html:11
+msgid ""
+"This phase has not started yet. The leaderboard is still hidden to "
+"participants but visible to organizers"
+msgstr "此阶段还未开始。排行榜仅对组织者可见，对参与者不可见"
+
+#: apps/web/templates/web/competitions/_results_page.html:13
+msgid ""
+"Competition organizers have chosen to keep the leaderboard private. Please "
+"check back later."
+msgstr "竞赛组织者选择保持排行榜的私密性，请稍后核对"
+
+#: apps/web/templates/web/competitions/_results_page.html:16
+msgid ""
+"Competition organizers have chosen to keep the leaderboard private but as an "
+"organizer, you can access this page."
+msgstr "竞赛组织者选择保持排行榜的私密性，但作为组织者，你可以访问该页面"
+
+#: apps/web/templates/web/competitions/_results_page.html:19
+#: apps/web/templates/web/competitions/_submit_results_page.html:17
+msgid "Phase description"
+msgstr "阶段说明"
+
+#: apps/web/templates/web/competitions/_results_page.html:23
+#: apps/web/templates/web/competitions/_submit_results_page.html:21
+#: apps/web/templates/web/my/submissions.html:66
+msgid "None"
+msgstr "无"
+
+#: apps/web/templates/web/competitions/_results_page.html:25
+#: apps/web/templates/web/my/submissions.html:68
+msgid "Max submissions per day:"
+msgstr "每天最大提交数"
+
+#: apps/web/templates/web/competitions/_results_page.html:26
+#: apps/web/templates/web/competitions/_submit_results_page.html:25
+msgid "Max submissions total: "
+msgstr "总计最大提交数"
+
+#: apps/web/templates/web/competitions/_results_page.html:30
+msgid "Download CSV"
+msgstr "下载CSV文件"
+
+#: apps/web/templates/web/competitions/_results_page.html:33
+msgid "Download all submissions on leaderboard:"
+msgstr "下载排行榜上的所有提交"
+
+#: apps/web/templates/web/competitions/_results_page.html:43
+#: apps/web/templates/web/competitions/_submit_results_page.html:92
+#: apps/web/templates/web/competitions/public_submissions_phase.html:12
+msgid "#"
+msgstr "#"
+
+#: apps/web/templates/web/competitions/_results_page.html:44
+#: apps/web/templates/web/competitions/public_submissions_phase.html:14
+#, fuzzy
+msgid "User"
+msgstr "用户名"
+
+#: apps/web/templates/web/competitions/_results_page.html:45
+msgid "Entries"
+msgstr "登录"
+
+#: apps/web/templates/web/competitions/_results_page.html:46
+msgid "Date of Last Entry"
+msgstr "上次登录日期"
+
+#: apps/web/templates/web/competitions/_results_page.html:48
+msgid "Team Name"
+msgstr "团队名称"
+
+#: apps/web/templates/web/competitions/_results_page.html:60
+msgid "Detailed Results"
+msgstr "详细结果"
+
+#: apps/web/templates/web/competitions/_results_page.html:63
+msgid "Image Viewer"
+msgstr "图像浏览"
+
+#: apps/web/templates/web/competitions/_results_page.html:79
+#: apps/web/templates/web/competitions/_submit_results_page.html:103
+msgid "No data available in table"
+msgstr "表中没有可用的数据"
+
+#: apps/web/templates/web/competitions/_results_page.html:94
+#: apps/web/templates/web/competitions/_results_page.html:96
+msgid "Anonymous"
+msgstr "匿名"
+
+#: apps/web/templates/web/competitions/_results_page.html:125
+msgid "View"
+msgstr "查看"
+
+#: apps/web/templates/web/competitions/_submit_results_page.html:5
+msgid ""
+"This phase of the competition has not started yet. Please check back later."
+msgstr "竞赛的此阶段还未开始，请稍后核对"
+
+#: apps/web/templates/web/competitions/_submit_results_page.html:24
+msgid "Max submissions per day: "
+msgstr "每天最大提交数"
+
+#: apps/web/templates/web/competitions/_submit_results_page.html:30
+msgid "Click the Submit button to upload a new submission."
+msgstr "点击提交按钮上传一个新的提交"
+
+#: apps/web/templates/web/competitions/_submit_results_page.html:41
+msgid "*Team name (20 characters max): "
+msgstr "团队名称(最多20个字符)"
+
+#: apps/web/templates/web/competitions/_submit_results_page.html:42
+msgid "*Method name (20 characters max): "
+msgstr "方法名(最多20个字符)"
+
+#: apps/web/templates/web/competitions/_submit_results_page.html:43
+msgid "*Method description: "
+msgstr "方法说明"
+
+#: apps/web/templates/web/competitions/_submit_results_page.html:44
+msgid "Project URL: "
+msgstr "项目网址："
+
+#: apps/web/templates/web/competitions/_submit_results_page.html:45
+msgid "Publication URL: "
+msgstr "发布网址："
+
+#: apps/web/templates/web/competitions/_submit_results_page.html:46
+msgid "Bibtex: "
+msgstr "参考文献："
+
+#: apps/web/templates/web/competitions/_submit_results_page.html:47
+msgid "Organization/affiliation: "
+msgstr "组织者/联盟："
+
+#: apps/web/templates/web/competitions/_submit_results_page.html:58
+#: apps/web/templates/web/competitions/_submit_results_page.html:65
+#: apps/web/templates/web/competitions/edit.html:289
+msgid "Submit"
+msgstr "提交"
+
+#: apps/web/templates/web/competitions/_submit_results_page.html:71
+msgid ""
+"This phase doesn't have reference_data supplied yet, please add reference "
+"data before submissions may be uploaded!"
+msgstr "这个阶段还没有提供参考数据，请在提交可能被上传之前添加参考数据"
+
+#: apps/web/templates/web/competitions/_submit_results_page.html:76
+msgid "Here are your submissions to date"
+msgstr "这是目前为止你的提交"
+
+#: apps/web/templates/web/competitions/_submit_results_page.html:79
+msgid ""
+"This phase of the competition is closed. Here are the submissions you made:"
+msgstr "竞赛的该阶段已经关闭。这是你所做的提交"
+
+#: apps/web/templates/web/competitions/_submit_results_page.html:93
+msgid "Score"
+msgstr "分数"
+
+#: apps/web/templates/web/competitions/_submit_results_page.html:94
+msgid "Filename"
+msgstr "文件名"
+
+#: apps/web/templates/web/competitions/_submit_results_page.html:95
+msgid "Submission date"
+msgstr "提交日期"
+
+#: apps/web/templates/web/competitions/_submit_results_page.html:96
+#: apps/web/templates/web/competitions/dumps.html:17
+#: apps/web/templates/web/competitions/submission_metadata.html:39
+msgid "Status"
+msgstr "状态"
+
+#: apps/web/templates/web/competitions/competition_summary.html:32
+#: apps/web/templates/web/competitions/dumps.html:20
+#: apps/web/templates/web/competitions/dumps.html:43
+#: apps/web/templates/web/competitions/summary.html:30
+#: apps/web/templates/web/my/datasets.html:56
+msgid "Delete"
+msgstr "删除"
+
+#: apps/web/templates/web/competitions/competition_summary.html:33
+#: apps/web/templates/web/competitions/summary.html:31
+#: apps/web/templates/web/competitions/view.html:28
+#: apps/web/templates/web/my/_competition_tile.html:45
+#: apps/web/templates/web/my/_managed.html:31
+msgid "Edit"
+msgstr "编辑"
+
+#: apps/web/templates/web/competitions/competition_summary.html:34
+#: apps/web/templates/web/competitions/summary.html:34
+#: apps/web/templates/web/competitions/view.html:30
+#: apps/web/templates/web/my/_competition_tile.html:48
+#: apps/web/templates/web/my/_managed.html:34
+#: apps/web/templates/web/my/participants.html:7
+#: apps/web/templates/web/my/participants.html:8
+msgid "Participants"
+msgstr "参与成员"
+
+#: apps/web/templates/web/competitions/delete_dump_confirm.html:7
+msgid "Are you sure you wish to delete this Competition Dump?"
+msgstr "你确定要删除这个竞赛仓库吗？"
+
+#: apps/web/templates/web/competitions/delete_dump_confirm.html:10
+msgid "Yes, I'm sure."
+msgstr "是的，我确定"
+
+#: apps/web/templates/web/competitions/dumps.html:6
+#: apps/web/templates/web/competitions/edit.html:18
+#: apps/web/templates/web/competitions/public_submissions.html:21
+#: apps/web/templates/web/competitions/submission_metadata.html:17
+#: apps/web/templates/web/my/detailed_results.html:8
+#: apps/web/templates/web/my/participants.html:16
+msgid "Go Back to Competition Homepage"
+msgstr "返回竞赛主页"
+
+#: apps/web/templates/web/competitions/dumps.html:7
+msgid "Note: Refresh the page to view updates."
+msgstr "提示：刷新页面查看更新"
+
+#: apps/web/templates/web/competitions/dumps.html:10
+msgid "Create Dump"
+msgstr "创建仓库"
+
+#: apps/web/templates/web/competitions/dumps.html:11
+msgid "Refresh the Page"
+msgstr "刷新页面"
+
+#: apps/web/templates/web/competitions/dumps.html:16
+msgid "Download link"
+msgstr "下载链接"
+
+#: apps/web/templates/web/competitions/dumps.html:18
+msgid "Size"
+msgstr "大小"
+
+#: apps/web/templates/web/competitions/dumps.html:19
+msgid "Publish Date"
+msgstr "发布日期"
+
+#: apps/web/templates/web/competitions/dumps.html:52
+msgid "No dumps found for the current competition."
+msgstr "没有发现当前竞赛的仓库"
+
+#: apps/web/templates/web/competitions/dumps.html:62
+#: apps/web/templates/web/competitions/dumps.html:75
+msgid "Create Competition Dump"
+msgstr "创建比赛仓库"
+
+#: apps/web/templates/web/competitions/dumps.html:68
+msgid "URI Keys instead of files"
+msgstr "URI 码代替文件"
+
+#: apps/web/templates/web/competitions/dumps.html:70
+msgid "Note: Using Keys instead of files makes a much smaller download!"
+msgstr "提示：使用码代替文件可以减小下载量！"
+
+#: apps/web/templates/web/competitions/dumps.html:74
+#: apps/web/templates/web/competitions/public_submissions_phase.html:100
+#: apps/web/templates/web/my/participants.html:224
+msgid "Close"
+msgstr "关闭"
+
+#: apps/web/templates/web/competitions/edit-phase.html:3
+msgid "Phase 1"
+msgstr "阶段1"
+
+#: apps/web/templates/web/competitions/edit-phase.html:7
+msgid "Phase Title"
+msgstr "阶段标题"
+
+#: apps/web/templates/web/competitions/edit-phase.html:12
+msgid "Start date"
+msgstr "开始日期"
+
+#: apps/web/templates/web/competitions/edit-phase.html:16
+msgid "Upload score and dataset manifest file"
+msgstr "上传分数和数据集清单文件"
+
+#: apps/web/templates/web/competitions/edit-phase.html:17
+msgid "Upload"
+msgstr "上传"
+
+#: apps/web/templates/web/competitions/edit-phase.html:24
+msgid "Maximum Number of Submission"
+msgstr "最大提交数"
+
+#: apps/web/templates/web/competitions/edit-phase.html:30
+msgid "Downloadable datasets"
+msgstr "可下载的数据集"
+
+#: apps/web/templates/web/competitions/edit.html:21
+msgid "Download original YAML file"
+msgstr "下载原始YAML文件"
+
+#: apps/web/templates/web/competitions/edit.html:64
+#: apps/web/templates/web/competitions/edit.html:107
+msgid "Web Page"
+msgstr "网页"
+
+#: apps/web/templates/web/competitions/edit.html:137
+msgid "Add Page"
+msgstr "添加页面"
+
+#: apps/web/templates/web/competitions/edit.html:140
+#: apps/web/templates/web/competitions/view.html:122
+msgid "Phases"
+msgstr "阶段"
+
+#: apps/web/templates/web/competitions/edit.html:187
+msgid "Competition Phase"
+msgstr "竞赛阶段"
+
+#: apps/web/templates/web/competitions/edit.html:198
+msgid "You can add, remove, and modify datasets in the"
+msgstr "您可以添加、删除和修改数据集在"
+
+#: apps/web/templates/web/competitions/edit.html:198
+#: apps/web/templates/web/my/datasets.html:26
+#: apps/web/templates/web/my/index.html:21
+msgid "My Datasets"
+msgstr "我的数据集"
+
+#: apps/web/templates/web/competitions/edit.html:198
+msgid "section"
+msgstr "部分"
+
+#: apps/web/templates/web/competitions/edit.html:233
+msgid "Add Phase"
+msgstr "添加阶段"
+
+#: apps/web/templates/web/competitions/edit.html:247
+#: apps/web/templates/web/my/_managed.html:36
+msgid "Leaderboard"
+msgstr "排行榜"
+
+#: apps/web/templates/web/competitions/index.html:11
+msgid "Sort by:"
+msgstr "分类依据:"
+
+#: apps/web/templates/web/competitions/index.html:14
+msgid "Most Recent"
+msgstr "最近的"
+
+#: apps/web/templates/web/competitions/index.html:17
+msgid "Most Active"
+msgstr "最活跃的"
+
+#: apps/web/templates/web/competitions/index.html:61
+msgid "Learn how to create your own competition."
+msgstr "学习如何创建你自己的竞赛"
+
+#: apps/web/templates/web/competitions/public_submissions_phase.html:6
+msgid "Filters"
+msgstr "过滤"
+
+#: apps/web/templates/web/competitions/public_submissions_phase.html:7
+msgid "Only show results currently on leaderboard"
+msgstr "在排行榜上只展示最近的结果"
+
+#: apps/web/templates/web/competitions/public_submissions_phase.html:13
+msgid "Submission Id"
+msgstr "提交Id"
+
+#: apps/web/templates/web/competitions/public_submissions_phase.html:16
+#: apps/web/templates/web/competitions/submission_metadata.html:34
+#: apps/web/templates/web/my/_submission_results.html:8
+msgid "Date"
+msgstr "日期"
+
+#: apps/web/templates/web/competitions/public_submissions_phase.html:17
+#: apps/web/templates/web/my/datasets.html:41
+msgid "Description"
+msgstr "描述"
+
+#: apps/web/templates/web/competitions/public_submissions_phase.html:21
+msgid "Likes"
+msgstr "爱好"
+
+#: apps/web/templates/web/competitions/public_submissions_phase.html:22
+msgid "Downloads"
+msgstr "下载"
+
+#: apps/web/templates/web/competitions/public_submissions_phase.html:24
+msgid "Detailed results?"
+msgstr "详细结果"
+
+#: apps/web/templates/web/competitions/public_submissions_phase.html:80
+msgid "Submission details"
+msgstr "详细提交"
+
+#: apps/web/templates/web/competitions/public_submissions_phase.html:85
+msgid "Download submission"
+msgstr "下载提交"
+
+#: apps/web/templates/web/competitions/submission_metadata.html:27
+#: apps/web/templates/web/competitions/view.html:35
+#: apps/web/templates/web/my/_competition_tile.html:49
+#: apps/web/templates/web/my/_managed.html:35
+#: apps/web/templates/web/my/submissions.html:7
+#: apps/web/templates/web/my/submissions.html:8
+msgid "Submissions"
+msgstr "提交"
+
+#: apps/web/templates/web/competitions/submission_metadata.html:33
+msgid "Submitted by"
+msgstr "提交者"
+
+#: apps/web/templates/web/competitions/submission_metadata.html:35
+msgid "Compute worker"
+msgstr "工作机"
+
+#: apps/web/templates/web/competitions/submission_metadata.html:36
+msgid "Docker image"
+msgstr "docker镜像"
+
+#: apps/web/templates/web/competitions/submission_metadata.html:37
+msgid "Queue name"
+msgstr "队列名称"
+
+#: apps/web/templates/web/competitions/submission_metadata.html:38
+msgid "Submission ID#"
+msgstr "提交ID#"
+
+#: apps/web/templates/web/competitions/submission_metadata.html:40
+msgid "Prediction/Scoring?"
+msgstr "预测/评分？"
+
+#: apps/web/templates/web/competitions/submission_metadata.html:41
+msgid "Running processes (in temp dir)"
+msgstr "运行过程(在临时文件夹中)"
+
+#: apps/web/templates/web/competitions/submission_metadata.html:42
+msgid "Ingestion program duration"
+msgstr "提取程序持续时间"
+
+#: apps/web/templates/web/competitions/submission_metadata.html:43
+msgid "Start RAM"
+msgstr "开始时RAM"
+
+#: apps/web/templates/web/competitions/submission_metadata.html:44
+msgid "End RAM"
+msgstr "结束时RAM"
+
+#: apps/web/templates/web/competitions/submission_metadata.html:45
+msgid "Start CPU"
+msgstr "开始时CPU"
+
+#: apps/web/templates/web/competitions/submission_metadata.html:46
+msgid "End CPU"
+msgstr "结束时CPU"
+
+#: apps/web/templates/web/competitions/submission_metadata.html:47
+msgid "Start swap"
+msgstr "开始时swap"
+
+#: apps/web/templates/web/competitions/submission_metadata.html:48
+msgid "End swap"
+msgstr "结束时swap"
+
+#: apps/web/templates/web/competitions/submission_metadata.html:78
+msgid "No submissions!"
+msgstr "没有提交"
+
+#: apps/web/templates/web/competitions/summary.html:32
+#: apps/web/templates/web/my/_competition_tile.html:46
+#: apps/web/templates/web/my/_managed.html:32
+msgid "Publish"
+msgstr "发布"
+
+#: apps/web/templates/web/competitions/upload_competition.html:10
+#: apps/web/templates/web/competitions/upload_s3_competition.html:11
+msgid ""
+"To create a competition, upload a bundle with the definition of the new "
+"competition."
+msgstr "为了创建竞赛，上传一个新竞赛的定义包"
+
+#: apps/web/templates/web/competitions/upload_competition.html:16
+msgid "Upload definition..."
+msgstr "上传定义中……"
+
+#: apps/web/templates/web/competitions/upload_s3_competition.html:22
+msgid "Upload Competition Bundle"
+msgstr "上传竞赛包"
+
+#: apps/web/templates/web/competitions/view.html:24
+msgid "DOWNLOAD COMPETITION BUNDLE!"
+msgstr "下载竞赛包"
+
+#: apps/web/templates/web/competitions/view.html:36
+#: apps/web/templates/web/my/_competition_tile.html:50
+msgid "Dumps"
+msgstr "仓库"
+
+#: apps/web/templates/web/competitions/view.html:77
+msgid "Current"
+msgstr "最近的"
+
+#: apps/web/templates/web/competitions/view.html:88
+msgid "First phase"
+msgstr "第一阶段"
+
+#: apps/web/templates/web/competitions/view.html:106
+msgid "End"
+msgstr "结束"
+
+#: apps/web/templates/web/competitions/view.html:107
+#: apps/web/templates/web/competitions/view.html:174
+msgid "Competition Ends"
+msgstr "竞赛结束"
+
+#: apps/web/templates/web/competitions/view.html:129
+msgid "Public Submissions"
+msgstr "公共提交"
+
+#: apps/web/templates/web/competitions/view.html:132
+msgid "Forums"
+msgstr "论坛"
+
+#: apps/web/templates/web/competitions/view.html:137
+msgid "Team"
+msgstr "团队"
+
+#: apps/web/templates/web/competitions/view.html:192
+msgid "You must be logged in to participate in competitions."
+msgstr "你必须登录才能参加比赛"
+
+#: apps/web/templates/web/competitions/view.html:198
+msgid "You have not yet registered for this competition."
+msgstr "你还没有报名参加这次竞赛"
+
+#: apps/web/templates/web/competitions/view.html:199
+msgid ""
+"To participate in this competition, you must accept its specific terms and "
+"conditions. After you register, the competition organizer will review your "
+"application and notify you when your participation is approved."
+msgstr ""
+"要参加这个比赛，你必须接受它的具体条款和条件。报名后，比赛主办方会评审你的申"
+"请并在你的申请被批准后通知你"
+
+#: apps/web/templates/web/competitions/view.html:203
+msgid "I accept the "
+msgstr "我接受"
+
+#: apps/web/templates/web/competitions/view.html:203
+msgid "terms and conditions"
+msgstr "条款和条件。"
+
+#: apps/web/templates/web/competitions/view.html:203
+msgid "of the competition."
+msgstr "关于该比赛。"
+
+#: apps/web/templates/web/competitions/view.html:209
+msgid ""
+"Your request to participate in this challenge has been received and a "
+"decision is pending."
+msgstr "你的参与这项竞赛的请求已被收到，申请正在核查中。"
+
+#: apps/web/templates/web/competitions/view.html:211
+msgid ""
+"Your request to participate in this competition was denied or your "
+"privileges have been suspended."
+msgstr "你参与竞赛的申请被拒绝或你的参与权限已被停止"
+
+#: apps/web/templates/web/my/_competition_tile.html:29
+msgid "participant"
+msgstr "成员"
+
+#: apps/web/templates/web/my/_competition_tile.html:32
+msgid "USD"
+msgstr "USD"
+
+#: apps/web/templates/web/my/_competition_tile.html:32
+msgid "reward"
+msgstr "奖励"
+
+#: apps/web/templates/web/my/_competition_tile.html:47
+#: apps/web/templates/web/my/_managed.html:33
+msgid "Unpublish"
+msgstr "未发布"
+
+#: apps/web/templates/web/my/_entered.html:5
+msgid "You are not participating in any competitions."
+msgstr "你没有参与任何一个竞赛"
+
+#: apps/web/templates/web/my/_managed.html:5
+msgid "You do not manage any competitions."
+msgstr "你没有组织任何竞赛。"
+
+#: apps/web/templates/web/my/_submission_results.html:7
+msgid "Submission"
+msgstr "提交"
+
+#: apps/web/templates/web/my/_submission_results.html:9
+msgid "Labels"
+msgstr "标签"
+
+#: apps/web/templates/web/my/_submission_results.html:10
+msgid "Dice"
+msgstr "戴斯"
+
+#: apps/web/templates/web/my/_submission_results.html:11
+msgid "Hausdorff"
+msgstr "豪斯道夫"
+
+#: apps/web/templates/web/my/datasets.html:7
+#: apps/web/templates/web/my/datasets.html:8
+msgid "Competitions (My Datasets)"
+msgstr "竞赛（我的数据集）"
+
+#: apps/web/templates/web/my/datasets.html:17
+#: apps/web/templates/web/my/index.html:12
+msgid "Competitions"
+msgstr "竞赛"
+
+#: apps/web/templates/web/my/datasets.html:20
+#: apps/web/templates/web/my/index.html:15
+msgid "Competitions I'm In"
+msgstr "我参加的竞赛"
+
+#: apps/web/templates/web/my/datasets.html:23
+#: apps/web/templates/web/my/index.html:18
+msgid "Competitions I'm Running"
+msgstr "我运行的竞赛"
+
+#: apps/web/templates/web/my/datasets.html:35
+msgid "Create Dataset"
+msgstr "创建数据集"
+
+#: apps/web/templates/web/my/datasets.html:39
+msgid "Name"
+msgstr "名称"
+
+#: apps/web/templates/web/my/datasets.html:40
+msgid "Key"
+msgstr "键"
+
+#: apps/web/templates/web/my/datasets.html:42
+msgid "Type"
+msgstr "类型"
+
+#: apps/web/templates/web/my/datasets.html:43
+msgid "Actions"
+msgstr "行动"
+
+#: apps/web/templates/web/my/datasets.html:44
+msgid "Multi-delete? "
+msgstr "多个删除？"
+
+#: apps/web/templates/web/my/datasets.html:63
+msgid "No datasets added yet!"
+msgstr "还没有添加数据集！"
+
+#: apps/web/templates/web/my/datasets.html:69
+msgid "Delete multiple datasets?"
+msgstr "删除多个数据集？"
+
+#: apps/web/templates/web/my/datasets_delete.html:7
+#: apps/web/templates/web/my/datasets_delete.html:8
+msgid "Delete Dataset"
+msgstr "删除数据集"
+
+#: apps/web/templates/web/my/datasets_delete.html:17
+msgid "WARNING"
+msgstr "警告"
+
+#: apps/web/templates/web/my/datasets_delete.html:17
+msgid "DataSet currently in use by:"
+msgstr "最近正在使用的数据集"
+
+#: apps/web/templates/web/my/datasets_delete.html:24
+#: apps/web/templates/web/my/datasets_delete.html:31
+msgid "Are you sure you want to delete"
+msgstr "你确定要删除"
+
+#: apps/web/templates/web/my/datasets_delete.html:27
+msgid "Yes"
+msgstr "是的"
+
+#: apps/web/templates/web/my/datasets_delete.html:27
+msgid ""
+", I am absolutely sure, even though competitions are using this, I want to "
+"delete it."
+msgstr "我很确定，即使竞赛正在使用它，我想要删除它"
+
+#: apps/web/templates/web/my/datasets_delete.html:34
+#: apps/web/templates/web/my/submission_delete.html:15
+msgid "Cancel"
+msgstr "取消"
+
+#: apps/web/templates/web/my/datasets_form.html:7
+#: apps/web/templates/web/my/datasets_form.html:8
+#: apps/web/templates/web/my/datasets_form.html:15
+msgid "Dataset"
+msgstr "数据集"
+
+#: apps/web/templates/web/my/datasets_form.html:7
+#: apps/web/templates/web/my/datasets_form.html:8
+#: apps/web/templates/web/my/datasets_form.html:15
+msgid "Create"
+msgstr "创建"
+
+#: apps/web/templates/web/my/datasets_form.html:7
+#: apps/web/templates/web/my/datasets_form.html:8
+#: apps/web/templates/web/my/datasets_form.html:15
+msgid "Update"
+msgstr "上传"
+
+#: apps/web/templates/web/my/datasets_form.html:19
+msgid "Single new dataset"
+msgstr "单个新的数据集"
+
+#: apps/web/templates/web/my/datasets_form.html:20
+msgid "Many existing datasets bundled into one new dataset"
+msgstr "许多现有的数据集被绑定到一个新的数据集"
+
+#: apps/web/templates/web/my/detailed_results.html:5
+#: apps/web/templates/web/my/detailed_results.html:6
+msgid "Detailed results of the participant "
+msgstr "参与者的具体结果。"
+
+#: apps/web/templates/web/my/index.html:5
+#: apps/web/templates/web/my/index.html:6
+msgid "Competitions (My CodaLab)"
+msgstr "竞赛(我的工作站)"
+
+#: apps/web/templates/web/my/index.html:57
+#: apps/web/templates/web/my/index.html:59
+msgid "Create Competition"
+msgstr "创建比赛"
+
+#: apps/web/templates/web/my/participants.html:19
+msgid "Teams"
+msgstr "团队"
+
+#: apps/web/templates/web/my/participants.html:50
+#: apps/web/templates/web/my/participants.html:139
+msgid "Status:"
+msgstr "状态"
+
+#: apps/web/templates/web/my/participants.html:52
+#: apps/web/templates/web/my/participants.html:141
+msgid "Approve"
+msgstr "通过"
+
+#: apps/web/templates/web/my/participants.html:53
+#: apps/web/templates/web/my/participants.html:142
+msgid "Deny"
+msgstr "拒绝"
+
+#: apps/web/templates/web/my/participants.html:94
+#: apps/web/templates/web/my/participants.html:182
+msgid "Revoke"
+msgstr "撤回"
+
+#: apps/web/templates/web/my/participants.html:95
+#: apps/web/templates/web/my/participants.html:183
+msgid "Reinstate"
+msgstr "恢复"
+
+#: apps/web/templates/web/my/participants.html:111
+msgid "There are no participants."
+msgstr "没有参与者。"
+
+#: apps/web/templates/web/my/participants.html:159
+msgid "Send message to all participants?"
+msgstr "向所有参与者发送消息？"
+
+#: apps/web/templates/web/my/participants.html:201
+msgid "Email Participants"
+msgstr "电子邮件参与者"
+
+#: apps/web/templates/web/my/participants.html:209
+#: apps/web/templates/web/my/participants.html:217
+msgid "Error:"
+msgstr "错误："
+
+#: apps/web/templates/web/my/participants.html:210
+msgid "Enter subject."
+msgstr "进入主题"
+
+#: apps/web/templates/web/my/participants.html:218
+msgid "Enter message."
+msgstr "进入消息"
+
+#: apps/web/templates/web/my/participants.html:225
+msgid "Send"
+msgstr "发送"
+
+#: apps/web/templates/web/my/settings.html:7
+#: apps/web/templates/web/my/settings.html:8
+msgid "User Settings"
+msgstr "用户设置"
+
+#: apps/web/templates/web/my/settings.html:19
+msgid "There were errors processing the form, please try reloading the page!"
+msgstr "处理表单时发生错误，请尝试重载页面！"
+
+#: apps/web/templates/web/my/settings.html:25
+msgid "Saved successfully!"
+msgstr "保存成功！"
+
+#: apps/web/templates/web/my/settings.html:37
+msgid "Basic settings"
+msgstr "基础设置"
+
+#: apps/web/templates/web/my/settings.html:37
+msgid "Staff"
+msgstr "职员"
+
+#: apps/web/templates/web/my/settings.html:37
+msgid "Admin"
+msgstr "管理"
+
+#: apps/web/templates/web/my/settings.html:44
+msgid "First name"
+msgstr "姓"
+
+#: apps/web/templates/web/my/settings.html:48
+msgid "Last name"
+msgstr "名"
+
+#: apps/web/templates/web/my/settings.html:52
+msgid "Email"
+msgstr "电子邮箱"
+
+#: apps/web/templates/web/my/settings.html:56
+msgid "Date joined"
+msgstr "加入时间"
+
+#: apps/web/templates/web/my/settings.html:64
+msgid "Competition settings"
+msgstr "竞赛设置"
+
+#: apps/web/templates/web/my/submission_delete.html:6
+#: apps/web/templates/web/my/submission_delete.html:7
+msgid "Delete Submission"
+msgstr "删除提交"
+
+#: apps/web/templates/web/my/submission_delete.html:13
+msgid "Are you sure you want to delete this submission?"
+msgstr "你确定要删除这个提交吗？"
+
+#: apps/web/templates/web/my/submissions.html:32
+msgid "Show Leaderboard Debug"
+msgstr "展示排行榜 debug"
+
+#: apps/web/templates/web/my/submissions.html:36
+msgid "Bad Scores:"
+msgstr "不理想的分数："
+
+#: apps/web/templates/web/my/submissions.html:40
+msgid "Rank:"
+msgstr "排名："
+
+#: apps/web/templates/web/my/submissions.html:41
+msgid "Value:"
+msgstr "值："
+
+#: apps/web/templates/web/my/submissions.html:42
+msgid "Column Name:"
+msgstr "列名："
+
+#: apps/web/templates/web/my/submissions.html:62
+msgid "Select phase description"
+msgstr "选择阶段描述"
+
+#: apps/web/templates/web/my/submissions.html:69
+msgid "Max submissions total:"
+msgstr "总计最大提交数"
+
+#: apps/web/templates/web/my/submissions.html:76
+msgid "Re-run all submissions in this phase"
+msgstr "重新运行该阶段的所有提交"
+
+#: apps/web/templates/web/my/submissions.html:80
+msgid "There are no submissions."
+msgstr "没有提交。"
+
+#: apps/web/templates/web/my/submissions.html:135
+msgid "DEL"
+msgstr "删除"
+
+#: apps/web/templates/web/my/submissions.html:140
+msgid "HIDE"
+msgstr "隐藏"
+
+#: apps/web/templates/web/my/submissions.html:142
+msgid "SHOW"
+msgstr "展示"
+
+#: apps/web/templates/web/my/submissions.html:147
+msgid "FAILED"
+msgstr "失败"
+
+#: apps/web/templates/web/my/submissions.html:150
+msgid "RE-RUN"
+msgstr "重新运行"
+
+#: apps/web/templates/web/my/submissions.html:155
+msgid "MIGRATED"
+msgstr "已迁移的"
+
+#: apps/web/templates/web/my/submissions.html:159
+msgid "MIGRATE"
+msgstr "迁移"
