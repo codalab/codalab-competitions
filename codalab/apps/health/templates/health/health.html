@@ -77,11 +77,11 @@
                 </button>
 
                 <button class="btn btn-sm btn-danger" data-toggle="collapse" data-target="#jobs_pending_stuck">
-                    Stuck Pending Jobs ({{ jobs_pending_stuck_count }})
+                    Stuck Pending Jobs
                 </button>
 
                 <button class="btn btn-sm btn-danger" data-toggle="collapse" data-target="#jobs_running_stuck">
-                    Stuck Running Jobs ({{ jobs_running_stuck_count }})
+                    Stuck Running Jobs
                 </button>
 
             </div>
@@ -122,12 +122,10 @@
 
             <div id="jobs_pending_stuck" class="collapse well">
                 <strong>Pending jobs older than one day</strong>
-                <strong>Count: {{ jobs_pending_stuck_count }}</strong>
                 {% include "health/_job_table.html" with jobs_list=jobs_pending_stuck %}
             </div>
             <div id="jobs_running_stuck" class="collapse well">
                 <strong>Running jobs older than one day</strong>
-                <strong>Count: {{ jobs_running_stuck_count }}</strong>
                 {% include "health/_job_table.html" with jobs_list=jobs_running_stuck %}
             </div>
         </div>
