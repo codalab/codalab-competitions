@@ -68,7 +68,9 @@ class ChaHubSaveMixin(models.Model):
 
     def save(self, *args, **kwargs):
         data = json.dumps(self.get_chahub_data())
-        data_hash = hashlib.md5(data)
+        data_hash = hashlib.md5(data).hexdigest()
+
+        logger.info("self.sent_to_chahub: '{}' self.chahub_data_hash: '{}'".format(self.sent_to_chahub, self.chahub_data_hash))
 
         if not self.sent_to_chahub or self.chahub_data_hash != data_hash:
             resp = self.send_to_chahub(data)
