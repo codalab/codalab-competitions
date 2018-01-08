@@ -67,18 +67,19 @@ class ChaHubSaveMixin(models.Model):
         })
 
     def save(self, *args, **kwargs):
-        data = json.dumps(self.get_chahub_data())
-        data_hash = hashlib.md5(data).hexdigest()
+        if settings.CHAHUB_API_URL:
+            data = json.dumps(self.get_chahub_data())
+            data_hash = hashlib.md5(data).hexdigest()
 
-        logger.info("self.sent_to_chahub: '{}' self.chahub_data_hash: '{}'".format(self.sent_to_chahub, self.chahub_data_hash))
+            logger.info("self.sent_to_chahub: '{}' self.chahub_data_hash: '{}'".format(self.sent_to_chahub, self.chahub_data_hash))
 
-        if not self.sent_to_chahub or self.chahub_data_hash != data_hash:
-            resp = self.send_to_chahub(data)
+            if not self.sent_to_chahub or self.chahub_data_hash != data_hash:
+                resp = self.send_to_chahub(data)
 
-            logger.info("ChaHub :: Received response {} {}".format(resp.status_code, resp.content))
+                logger.info("ChaHub :: Received response {} {}".format(resp.status_code, resp.content))
 
-            if resp.status_code in (200, 201):
-                self.sent_to_chahub = timezone.now()
-                self.chahub_data_hash = data_hash
+                if resp.status_code in (200, 201):
+                    self.sent_to_chahub = timezone.now()
+                    self.chahub_data_hash = data_hash
 
         super(ChaHubSaveMixin, self).save(*args, **kwargs)
