@@ -75,8 +75,8 @@ def get_health_metrics():
     jobs_last_fifty_updated = Job.objects.all().order_by('-updated')[0:50]
     jobs_last_fifty_failed = Job.objects.filter(status=Job.FAILED).order_by('-updated')[0:50]
 
-    jobs_pending_stuck = Job.objects.filter(status=Job.PENDING, created__lt=datetime.now() + timedelta(days=1)).order_by('-updated')
-    jobs_running_stuck = Job.objects.filter(status=Job.RUNNING, created__lt=datetime.now() + timedelta(days=1)).order_by('-updated')
+    jobs_pending_stuck = Job.objects.filter(status=Job.PENDING, created__lt=datetime.now() + timedelta(days=1)).order_by('-updated')[0:100]
+    jobs_running_stuck = Job.objects.filter(status=Job.RUNNING, created__lt=datetime.now() + timedelta(days=1)).order_by('-updated')[0:100]
 
     context['jobs_today'] = jobs_today
     context['jobs_today_count'] = len(jobs_today)
