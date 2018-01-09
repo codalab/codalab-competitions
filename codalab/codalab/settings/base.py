@@ -15,6 +15,11 @@ import os, sys
 from os.path import abspath, basename, dirname, join, normpath
 
 
+# Set UTF8 encoding everywhere
+reload(sys)
+sys.setdefaultencoding('utf8')
+
+
 def _uuidpathext(filename, prefix):
     filename = basename(filename)
     filepath = join(prefix, str(uuid.uuid4()), filename)
