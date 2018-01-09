@@ -26,7 +26,6 @@ def get_health_metrics():
     - **alert_threshold** Threshold number.
     """
     jobs_pending = Job.objects.filter(status=Job.PENDING)
-    jobs_pending_count = len(jobs_pending)
 
     jobs_finished_in_last_2_days = Job.objects.filter(status=Job.FINISHED, created__gt=datetime.now() - timedelta(days=2))
     jobs_finished_in_last_2_days_count = len(jobs_finished_in_last_2_days)
@@ -51,9 +50,9 @@ def get_health_metrics():
 
     alert_emails = health_settings.emails if health_settings.emails else ""
 
-    return {
+    context = {
         "jobs_pending": jobs_pending,
-        "jobs_pending_count": jobs_pending_count,
+        "jobs_pending_count": len(jobs_pending),
         "jobs_finished_in_last_2_days_avg": jobs_finished_in_last_2_days_avg,
         "jobs_lasting_longer_than_10_minutes": jobs_lasting_longer_than_10_minutes,
         "jobs_failed": jobs_failed,
@@ -61,6 +60,43 @@ def get_health_metrics():
         "alert_emails": alert_emails,
         "alert_threshold": health_settings.threshold
     }
+
+    # Health page update Dec 22, 2017
+
+    # Today's jobs
+    jobs_today = Job.objects.filter(created__year=datetime.today().year,
+                                    created__day=datetime.today().day,
+                                    created__month=datetime.today().month)
+    jobs_today_failed = jobs_today.filter(status=Job.FAILED)
+    jobs_today_finished = jobs_today.filter(status=Job.FINISHED)
+    jobs_today_pending = jobs_today.filter(status=Job.PENDING)
+
+    jobs_last_fifty = Job.objects.all().order_by('-created')[0:50]
+    jobs_last_fifty_updated = Job.objects.all().order_by('-updated')[0:50]
+    jobs_last_fifty_failed = Job.objects.filter(status=Job.FAILED).order_by('-updated')[0:50]
+
+    jobs_pending_stuck = Job.objects.filter(status=Job.PENDING, created__lt=datetime.now() + timedelta(days=1)).order_by('-updated')[0:100]
+    jobs_running_stuck = Job.objects.filter(status=Job.RUNNING, created__lt=datetime.now() + timedelta(days=1)).order_by('-updated')[0:100]
+
+    context['jobs_today'] = jobs_today
+    context['jobs_today_count'] = len(jobs_today)
+    context['jobs_today_failed'] = jobs_today_failed
+    context['jobs_today_failed_count'] = len(jobs_today_failed)
+    context['jobs_today_finished'] = jobs_today_finished
+    context['jobs_today_finished_count'] = len(jobs_today_finished)
+    context['jobs_today_pending'] = jobs_today_pending
+    context['jobs_today_pending_count'] = len(jobs_today_pending)
+
+    context['jobs_last_fifty'] = jobs_last_fifty
+    context['jobs_last_fifty_updated'] = jobs_last_fifty_updated
+    context['jobs_last_fifty_failed'] = jobs_last_fifty_failed
+    context['jobs_pending_stuck'] = jobs_pending_stuck
+    context['jobs_pending_stuck_count'] = len(jobs_pending_stuck)
+    context['jobs_running_stuck'] = jobs_running_stuck
+    context['jobs_running_stuck_count'] = len(jobs_running_stuck)
+    context['jobs_all_stuck_count'] = len(jobs_running_stuck) + len(jobs_pending_stuck)
+
+    return context
 
 
 @login_required

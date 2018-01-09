@@ -1808,7 +1808,7 @@ class CompetitionDefBundle(models.Model):
                         phase.scoring_program = data_set.data_file.file.name
                         phase.scoring_program_organizer_dataset = data_set
                     except OrganizerDataSet.DoesNotExist:
-                        assert False, "OrganizerDataSet (%s) could not be found" % phase_spec["scoring_program"]
+                        assert False, "Invalid file-type or could not find file {} for scoring_program".format(phase_spec['scoring_program'])
 
             if hasattr(phase, 'reference_data') and phase.reference_data:
                 if phase_spec["reference_data"].endswith(".zip"):
@@ -1831,7 +1831,7 @@ class CompetitionDefBundle(models.Model):
                         phase.reference_data = data_set.data_file.file.name
                         phase.reference_data_organizer_dataset = data_set
                     except OrganizerDataSet.DoesNotExist:
-                        assert False, "OrganizerDataSet (%s) could not be found" % phase_spec["reference_data"]
+                        assert False, "Invalid file-type or could not find file {} for reference_data".format(phase_spec['reference_data'])
 
             if hasattr(phase, 'ingestion_program') and phase.ingestion_program:
                 if phase_spec["ingestion_program"].endswith(".zip"):
@@ -1856,7 +1856,8 @@ class CompetitionDefBundle(models.Model):
                         phase.ingestion_program = data_set.data_file.file.name
                         phase.ingestion_program_organizer_dataset = data_set
                     except OrganizerDataSet.DoesNotExist:
-                        assert False, "OrganizerDataSet (%s) could not be found" % phase_spec["ingestion_program"]
+                        assert False, "Invalid file-type or could not find file {} for ingestion_program".format(phase_spec['ingestion_program'])
+
 
             # Begin unpack starting_kit
             if hasattr(phase, 'starting_kit') and phase.starting_kit:
@@ -1880,7 +1881,7 @@ class CompetitionDefBundle(models.Model):
                         phase.starting_kit = data_set.data_file.file.name
                         phase.starting_kit_organizer_dataset = data_set
                     except OrganizerDataSet.DoesNotExist:
-                        assert False, "OrganizerDataSet (%s) could not be found" % phase_spec["starting_kit"]
+                        assert False, "Invalid file-type or could not find file {} for starting_kit".format(phase_spec['starting_kit'])
                         # End unpack starting kit
 
             # Begin unpack public data
@@ -1908,8 +1909,7 @@ class CompetitionDefBundle(models.Model):
                         phase.public_data = data_set.data_file.file.name
                         phase.public_data_organizer_dataset = data_set
                     except OrganizerDataSet.DoesNotExist:
-                        assert False, "OrganizerDataSet (%s) could not be found" % phase_spec[
-                            "public_data"]
+                        assert False, "Invalid file-type or could not find file {} for public_data".format(phase_spec['public_data'])
                         # End unpack public data
 
             if 'input_data' in phase_spec:
@@ -1933,7 +1933,7 @@ class CompetitionDefBundle(models.Model):
                         phase.input_data = data_set.data_file.file.name
                         phase.input_data_organizer_dataset = data_set
                     except OrganizerDataSet.DoesNotExist:
-                        assert False, "OrganizerDataSet (%s) could not be found" % phase_spec["input_data"]
+                        assert False, "Invalid file-type or could not find file {} for input_data.".format(phase_spec['input_data'])
 
             phase.auto_migration = bool(phase_spec.get('auto_migration', False))
             phase.save()
