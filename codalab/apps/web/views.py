@@ -1153,11 +1153,6 @@ class MyCompetitionSubmissionOutput(View):
             if (competition.creator != request.user and request.user not in competition.admins.all()) and \
                             request.user != submission.participant.user:
                 raise Http404()
-        else:
-            # Make sure user exists in case we detach users from submissions, otherwise any submission
-            # not attached to a user may potentially be downloaded
-            if not request.user:
-                raise Http404()
 
         try:
             file, file_type, file_name = submission.get_file_for_download(
