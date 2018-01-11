@@ -71,9 +71,9 @@ class CompetitionSubmissionDownloadTests(TestCase):
         resp = self.client.get(self.url)
         self.assertEquals(resp.status_code, 404)
 
-    def test_submission_info_download_when_non_logged_in_returns_200(self):
+    def test_submission_info_download_when_non_logged_in_returns_302(self):
         resp = self.client.get(self.url)
-        self.assertEquals(resp.status_code, 200)
+        self.assertEquals(resp.status_code, 302)
 
     def test_submission_info_download_returns_proper_data(self):
         self.client.login(username="participant", password="pass")
