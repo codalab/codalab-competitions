@@ -2,7 +2,8 @@ import os
 
 from django import forms
 from django.core.files.base import ContentFile
-from django.contrib.contenttypes.models import ContentType
+# from django.contrib.contenttypes.models import ContentType
+from django.contrib import contenttypes as ContentType
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 from s3direct.widgets import S3DirectWidget
