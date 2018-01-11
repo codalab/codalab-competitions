@@ -1151,7 +1151,7 @@ class MyCompetitionSubmissionOutput(View):
 
         filetype = kwargs.get('filetype')
         try:
-            file, file_type, file_name = submission.get_file_for_download(filetype, request.user)
+            file, file_type, file_name = submission.get_file_for_download(filetype, request.user, override_permissions=True)
         except PermissionDenied:
             return HttpResponse(status=403)
         except ValueError:
