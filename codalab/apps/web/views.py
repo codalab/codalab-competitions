@@ -1134,7 +1134,7 @@ class MyCompetitionSubmissionToggleMakePublic(LoginRequiredMixin, View):
             raise Http404()
 
 
-class MyCompetitionSubmissionOutput(LoginRequiredMixin, View):
+class MyCompetitionSubmissionOutput(View):
     """
     This view serves the files associated with a submission.
     """
@@ -1143,7 +1143,8 @@ class MyCompetitionSubmissionOutput(LoginRequiredMixin, View):
         competition = submission.phase.competition
 
         # Check competition admin permissions or user permissions
-        if not submission.is_public:
+        published_to_leaderboard = models.PhaseLeaderBoardEntry.objects.filter(result=submission).exists()
+        if not submission.is_public and not published_to_leaderboard:
             if (competition.creator != request.user and request.user not in competition.admins.all()) and \
                             request.user != submission.participant.user:
                 raise Http404()
