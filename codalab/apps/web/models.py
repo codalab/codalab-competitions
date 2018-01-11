@@ -1412,13 +1412,16 @@ class CompetitionSubmission(models.Model):
             self.save()
         return self.readable_filename
 
-    def get_file_for_download(self, key, requested_by):
+    def get_file_for_download(self, key, requested_by, override_permissions=False):
         """
         Returns the FileField object for the file that is to be downloaded by the given user.
 
         :param key: A name identifying the file to download.
 
         :param requested_by: A user object identifying the user making the request to access the file.
+
+        :param override_permissions: Overrides basic permissions (unless private output) useful for certain situations,
+        like detailed_results
 
            - ValueError exception for improper arguments.
            - PermissionDenied exception when access to the file cannot be granted.
@@ -1446,17 +1449,21 @@ class CompetitionSubmission(models.Model):
         file_attr, file_ext, file_has_restricted_access = downloadable_files[key]
 
         competition = self.phase.competition
-        if competition.creator == requested_by or requested_by in competition.admins.all():
-            pass
-        elif not self.is_public:
-            # If the user requesting access is the owner, access granted
-            if self.participant.competition.creator.id != requested_by.id:
-                # User making request must be owner of this submission and be granted
-                # download privilege by the competition owners.
-                if self.participant.user.id != requested_by.id:
-                    raise PermissionDenied()
-                if file_has_restricted_access and self.phase.is_blind:
-                    raise PermissionDenied()
+
+        if not override_permissions:
+            if competition.creator == requested_by or requested_by in competition.admins.all():
+                pass
+
+            elif not self.is_public:
+                # If the user requesting access is the owner, access granted
+                if self.participant.competition.creator.id != requested_by.id:
+                    # User making request must be owner of this submission and be granted
+                    # download privilege by the competition owners.
+                    if self.participant.user.id != requested_by.id:
+                        raise PermissionDenied()
+                    if file_has_restricted_access and self.phase.is_blind:
+                        raise PermissionDenied()
+
 
         if key == 'private_output.zip':
             if self.participant.competition.creator.id != requested_by.id:
