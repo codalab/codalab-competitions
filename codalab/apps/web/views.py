@@ -1141,17 +1141,30 @@ class MyCompetitionSubmissionOutput(View):
     def get(self, request, *args, **kwargs):
         submission = models.CompetitionSubmission.objects.get(pk=kwargs.get('submission_id'))
         competition = submission.phase.competition
+        filetype = kwargs.get('filetype')
 
         # Check competition admin permissions or user permissions
-        published_to_leaderboard = models.PhaseLeaderBoardEntry.objects.filter(result=submission).exists()
+        if filetype == "detailed_results.html":
+            published_to_leaderboard = models.PhaseLeaderBoardEntry.objects.filter(result=submission).exists()
+        else:
+            published_to_leaderboard = False
+
         if not submission.is_public and not published_to_leaderboard:
             if (competition.creator != request.user and request.user not in competition.admins.all()) and \
                             request.user != submission.participant.user:
                 raise Http404()
+        else:
+            # Make sure user exists in case we detach users from submissions, otherwise any submission
+            # not attached to a user may potentially be downloaded
+            if not request.user:
+                raise Http404()
 
-        filetype = kwargs.get('filetype')
         try:
-            file, file_type, file_name = submission.get_file_for_download(filetype, request.user, override_permissions=True)
+            file, file_type, file_name = submission.get_file_for_download(
+                filetype,
+                request.user,
+                override_permissions=published_to_leaderboard
+            )
         except PermissionDenied:
             return HttpResponse(status=403)
         except ValueError:
