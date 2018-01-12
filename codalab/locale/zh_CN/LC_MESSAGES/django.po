@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-01-12 06:12+0000\n"
+"POT-Creation-Date: 2018-01-12 06:54+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -90,6 +90,7 @@ msgstr "编辑"
 #: apps/web/templates/web/competitions/dumps.html:20
 #: apps/web/templates/web/competitions/dumps.html:43
 #: apps/web/templates/web/competitions/summary.html:30
+#: apps/web/templates/web/my/_competition_tile.html:43
 #: apps/web/templates/web/my/datasets.html:56
 msgid "Delete"
 msgstr "删除"
@@ -1257,6 +1258,10 @@ msgstr "排名"
 #: apps/web/templates/web/competitions/view.html:272
 msgid "No data"
 msgstr "没有数据"
+
+#: apps/web/templates/web/my/_competition_tile.html:28
+msgid "No end date"
+msgstr "永不结束"
 
 #: apps/web/templates/web/my/_competition_tile.html:29
 msgid "participant"
