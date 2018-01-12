@@ -20,14 +20,14 @@
             </div>
             <div class="col-sm-6 col-md-6">
                 <h3>{{ competition.title }}</h3>
-                <p class="organizer">Organized by {{ competition.creator }}</p>
+                <p class="organizer"> {% trans 'Organized by' %} {{ competition.creator }}</p>
                 <p>{{ competition.description|safe|truncatewords_html:20 }}</p>
             </div>
             <div class="col-sm-4 col-md-4 right-panel">
                 {{ competition.get_start_date|date:"M d, Y" }}-{% if competition.end_date %}{{ competition.end_date|date:"M d, Y" }}{% else %}
                 <i>{ % trans 'No end date' %}</i>{% endif %}<br>
                 <b>{{ competition.get_participant_count }}</b> {% trans 'participant'%}
-                {% if competition.get_participant_count > 1 %}s{% endif %}<br>
+                {% if competition.get_participant_count > 1 %}{% endif %}<br>
                 {% if competition.reward and competition.reward > 0 %}
                 {% trans 'USD'%} <b>${{ competition.reward|intcomma }}</b> {% trans 'reward'%}
                 {% endif %}
@@ -40,7 +40,7 @@
                 <div class="competition-actions" published="{{ competition.published }}" class="columns cursor-default myCompetitionButtons">
                     <div class="btn-group btn-group-justified">
                         {% if request.user == competition.creator %}
-                            <a class="btn btn-sm btn-danger" id="competition-delete-button" href="{% url 'competitions:delete' pk=competition.pk %}">Delete</a>
+                            <a class="btn btn-sm btn-danger" id="competition-delete-button" href="{% url 'competitions:delete' pk=competition.pk %}">{ % trans 'Delete' %}</a>
                         {% endif %}
                         <a class="btn btn-sm btn-primary" href="{% url 'competitions:edit' pk=competition.pk %}">{% trans 'Edit'%}</a>
                         <a class="btn btn-sm btn-success competition-publish-button {% if competition.published %}hide{% endif %}" href="{% url 'competition-publish' pk=competition.pk %}">{% trans 'Publish'%}</a>

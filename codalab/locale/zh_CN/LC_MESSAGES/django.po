@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-01-07 07:03+0000\n"
+"POT-Creation-Date: 2018-01-12 06:12+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -98,6 +98,32 @@ msgstr "删除"
 #, fuzzy
 msgid "No queues created, yet!"
 msgstr "还没有添加数据集！"
+
+#: apps/web/static/error/503.html:15 static/error/503.html:15
+msgid "The CodaLab site is being upgraded..."
+msgstr "网站正在更新维护：）"
+
+#: apps/web/static/error/503.html:16 static/error/503.html:16
+msgid ""
+"Sorry, the page you are looking for is currently unavailable because the "
+"site is undergoing maintenance."
+msgstr "抱歉，因为网站正在维护，您要登录的页面暂时无法访问。"
+
+#: apps/web/static/error/503.html:17 static/error/503.html:17
+msgid "Please try again later. Thank you."
+msgstr "请过段时间再尝试，感谢配合！"
+
+#: apps/web/static/error/50x.html:15 static/error/50x.html:15
+msgid "The CodaLab site is currently unavailable."
+msgstr "网站正在更新维护：）"
+
+#: apps/web/static/error/50x.html:16 static/error/50x.html:16
+msgid "Sorry, the page you are looking for is currently unavailable."
+msgstr "抱歉，因为网站正在维护，您要登录的页面暂时无法访问。"
+
+#: apps/web/static/error/50x.html:17 static/error/50x.html:17
+msgid "Please try again later."
+msgstr "请过段时间再尝试，感谢配合！"
 
 #: apps/web/templates/base.html:65
 msgid "Toggle navigation"
@@ -484,6 +510,7 @@ msgstr ""
 
 #: apps/web/templates/web/competition_latest.html:23
 #: apps/web/templates/web/competitions/view.html:60
+#: apps/web/templates/web/my/_competition_tile.html:23
 msgid "Organized by"
 msgstr "竞赛组织者："
 
@@ -496,7 +523,7 @@ msgid "Popular Competitions"
 msgstr "热门比赛"
 
 #: apps/web/templates/web/index.html:27 apps/web/templates/web/index.html:37
-#: apps/web/templates/web/competitions/index.html:53
+#: apps/web/templates/web/competitions/index.html:54
 #: apps/web/templates/web/my/index.html:31
 msgid "There are no competitions."
 msgstr "当前没有比赛。"
@@ -828,7 +855,6 @@ msgstr "是的，我确定"
 
 #: apps/web/templates/web/competitions/dumps.html:2
 #: apps/web/templates/web/competitions/dumps.html:3
-#, fuzzy
 msgid "Competition Dumps"
 msgstr "竞赛"
 
@@ -967,19 +993,34 @@ msgstr "添加阶段"
 msgid "Leaderboard"
 msgstr "排行榜"
 
-#: apps/web/templates/web/competitions/index.html:11
+#: apps/web/templates/web/competitions/index.html:3
+#: apps/web/templates/web/competitions/index.html:4
+#: apps/web/templates/web/my/datasets.html:17
+#: apps/web/templates/web/my/index.html:12
+msgid "Competitions"
+msgstr "竞赛"
+
+#: apps/web/templates/web/competitions/index.html:12
 msgid "Sort by:"
 msgstr "分类依据:"
 
-#: apps/web/templates/web/competitions/index.html:14
+#: apps/web/templates/web/competitions/index.html:15
 msgid "Most Recent"
 msgstr "最近的"
 
-#: apps/web/templates/web/competitions/index.html:17
+#: apps/web/templates/web/competitions/index.html:18
 msgid "Most Active"
 msgstr "最活跃的"
 
-#: apps/web/templates/web/competitions/index.html:61
+#: apps/web/templates/web/competitions/index.html:25
+msgid "Search..."
+msgstr "查找竞赛"
+
+#: apps/web/templates/web/competitions/index.html:27
+msgid "Search"
+msgstr "查找"
+
+#: apps/web/templates/web/competitions/index.html:62
 msgid "Learn how to create your own competition."
 msgstr "学习如何创建你自己的竞赛"
 
@@ -1262,11 +1303,6 @@ msgstr "豪斯道夫"
 #: apps/web/templates/web/my/datasets.html:8
 msgid "Competitions (My Datasets)"
 msgstr "竞赛（我的数据集）"
-
-#: apps/web/templates/web/my/datasets.html:17
-#: apps/web/templates/web/my/index.html:12
-msgid "Competitions"
-msgstr "竞赛"
 
 #: apps/web/templates/web/my/datasets.html:20
 #: apps/web/templates/web/my/index.html:15

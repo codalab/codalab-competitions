@@ -1,7 +1,8 @@
 <!DOCTYPE html>
+{% load i18n %}
 <html>
 <head>
-    <title>CodaLab</title>
+    <title>BuaaDataLab</title>
     <style>
         body {
             width: 50em;
@@ -11,8 +12,8 @@
     </style>
 </head>
 <body>
-    <h1>The CodaLab site is being upgraded...</h1>
-    <p>Sorry, the page you are looking for is currently unavailable because the site is undergoing maintenance.</p>
-    <p>Please try again later. Thank you.</p>
+<h1>{% trans "The CodaLab site is being upgraded..."%}</h1>
+<p>{% trans "Sorry, the page you are looking for is currently unavailable because the site is undergoing maintenance."%}</p>
+<p>{% trans "Please try again later. Thank you."%}</p>
 </body>
 </html>

@@ -1,8 +1,9 @@
 {% extends 'base.html' %}
-{% block head_title %}Competitions{% endblock head_title %}
-{% block page_title %}Competitions{% endblock page_title %}
-{% block content %}
 {% load i18n %}
+{% block head_title %}{% trans 'Competitions'%}{% endblock head_title %}
+{% block page_title %}{% trans 'Competitions'%}{% endblock page_title %}
+{% block content %}
+
 {% load static %}
 <div class="row">
     <div class="col-md-6">
@@ -21,9 +22,9 @@
         {% endcomment %}
         <form id="search_form" action="." method="GET">
             <div class="input-group margin-bottom">
-                <input id="search_query_input" class="form-control" type="search" name="q" placeholder="Search...">
+                <input id="search_query_input" class="form-control" type="search" name="q" placeholder="{% trans "Search..." %}">
                 <span class="input-group-btn">
-                    <input class="btn btn-primary" type="submit" value="Search">
+                    <input class="btn btn-primary" type="submit" value="{% trans "Search" %}">
                 </span>
             </div>
             <!--
