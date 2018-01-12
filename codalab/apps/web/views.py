@@ -250,6 +250,7 @@ class LeaderboardInline(InlineFormSet):
 class CompetitionUpload(LoginRequiredMixin, CreateView):
     model = models.CompetitionDefBundle
     template_name = 'web/competitions/upload_competition.html'
+    fields = {}
 
 
 class CompetitionS3Upload(LoginRequiredMixin, FormView):

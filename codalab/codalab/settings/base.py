@@ -350,22 +350,26 @@ class Base(Configuration):
     # =========================================================================
     DEFAULT_FILE_STORAGE = os.environ.get('DEFAULT_FILE_STORAGE', 'django.core.files.storage.FileSystemStorage')
 
-    # S3 from AWS
-    USE_AWS = DEFAULT_FILE_STORAGE == 'storages.backends.s3boto.S3BotoStorage'
-    AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
-    AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
-    AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
-    AWS_STORAGE_PRIVATE_BUCKET_NAME = os.environ.get('AWS_STORAGE_PRIVATE_BUCKET_NAME')
-    AWS_S3_CALLING_FORMAT = os.environ.get('AWS_S3_CALLING_FORMAT', 'boto.s3.connection.OrdinaryCallingFormat')
-    AWS_S3_HOST = os.environ.get('AWS_S3_HOST', 's3-us-west-2.amazonaws.com')
-    AWS_QUERYSTRING_AUTH = os.environ.get(
-        # This stops signature/auths from appearing in saved URLs
-        'AWS_QUERYSTRING_AUTH',
-        False
-    )
-    if isinstance(AWS_QUERYSTRING_AUTH, str) and 'false' in AWS_QUERYSTRING_AUTH.lower():
-        AWS_QUERYSTRING_AUTH = False  # Was set to string, convert to bool
+    # # S3 from AWS
+    # # USE_AWS = DEFAULT_FILE_STORAGE == 'storages.backends.s3boto.S3BotoStorage'
+    # AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+    # AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+    # AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
+    # AWS_STORAGE_PRIVATE_BUCKET_NAME = os.environ.get('AWS_STORAGE_PRIVATE_BUCKET_NAME')
+    # AWS_S3_CALLING_FORMAT = os.environ.get('AWS_S3_CALLING_FORMAT', 'boto.s3.connection.OrdinaryCallingFormat')
+    # AWS_S3_HOST = os.environ.get('AWS_S3_HOST', 's3-us-west-2.amazonaws.com')
+    # AWS_QUERYSTRING_AUTH = os.environ.get(
+    #     # This stops signature/auths from appearing in saved URLs
+    #     'AWS_QUERYSTRING_AUTH',
+    #     False
+    # )
+    # if isinstance(AWS_QUERYSTRING_AUTH, str) and 'false' in AWS_QUERYSTRING_AUTH.lower():
+    #     AWS_QUERYSTRING_AUTH = False  # Was set to string, convert to bool
 
+    USE_AWS = DEFAULT_FILE_STORAGE == 'storages.backends.gcloud.GoogleCloudStorage'
+    GS_PUBLIC_BUCKET_NAME = os.environ.get('GS_PUBLIC_BUCKET_NAME')
+    GS_PRIVATE_BUCKET_NAME = os.environ.get('GS_PRIVATE_BUCKET_NAME')
+    GS_CREDENTIALS = os.environ.get('GS_CREDENTIALS')
     # Azure
     AZURE_ACCOUNT_NAME = os.environ.get('AZURE_ACCOUNT_NAME')
     AZURE_ACCOUNT_KEY = os.environ.get('AZURE_ACCOUNT_KEY')
@@ -378,21 +382,21 @@ class Base(Configuration):
     # =========================================================================
     # S3Direct (S3 uploads)
     # =========================================================================
-    S3DIRECT_REGION = os.environ.get('S3DIRECT_REGION', 'us-west-2')
-    S3DIRECT_DESTINATIONS = {
-        'competitions': {
-            'key': lambda f: _uuidpathext(f, 'uploads/competitions/'),
-            'auth': lambda u: u.is_authenticated(),
-            'bucket': AWS_STORAGE_PRIVATE_BUCKET_NAME,
-            'allowed': ['application/zip', 'application/octet-stream', 'application/x-zip-compressed']
-        },
-        'submissions': {
-            'key': lambda f: _uuidpathext(f, 'uploads/submissions/'),
-            'auth': lambda u: u.is_authenticated(),
-            'bucket': AWS_STORAGE_PRIVATE_BUCKET_NAME,
-            'allowed': ['application/zip', 'application/octet-stream', 'application/x-zip-compressed']
-        }
-    }
+    # S3DIRECT_REGION = os.environ.get('S3DIRECT_REGION', 'us-west-2')
+    # S3DIRECT_DESTINATIONS = {
+    #     'competitions': {
+    #         'key': lambda f: _uuidpathext(f, 'uploads/competitions/'),
+    #         'auth': lambda u: u.is_authenticated(),
+    #         'bucket': AWS_STORAGE_PRIVATE_BUCKET_NAME,
+    #         'allowed': ['application/zip', 'application/octet-stream', 'application/x-zip-compressed']
+    #     },
+    #     'submissions': {
+    #         'key': lambda f: _uuidpathext(f, 'uploads/submissions/'),
+    #         'auth': lambda u: u.is_authenticated(),
+    #         'bucket': AWS_STORAGE_PRIVATE_BUCKET_NAME,
+    #         'allowed': ['application/zip', 'application/octet-stream', 'application/x-zip-compressed']
+    #     }
+    # }
 
 
     # =========================================================================

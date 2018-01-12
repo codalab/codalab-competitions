@@ -20,7 +20,7 @@ from decimal import Decimal
 from django.conf import settings
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
-# from django.contrib import contenttypes as ContentType
+
 from django.core.cache import cache
 from django.core.exceptions import PermissionDenied
 from django.core.files import File
@@ -861,11 +861,16 @@ class CompetitionPhase(models.Model):
         return _make_url_sassy(self.starting_kit_organizer_dataset.data_file.name)
 
     def get_starting_kit_size_mb(self):
-        size = float(self.starting_kit_organizer_dataset.data_file.size)
+        size = float(0)
+
         if self.starting_kit_organizer_dataset.sub_data_files and len(self.starting_kit_organizer_dataset.sub_data_files.all()) > 0:
             size = float(0)
             for sub_data in self.starting_kit_organizer_dataset.sub_data_files.all():
                 size += float(sub_data.data_file.size)
+        elif settings.USE_AWS:
+            size = float(self.starting_kit_organizer_dataset.data_file.file.size)
+        else:
+            size = float(self.starting_kit_organizer_dataset.data_file.size)
         return size * 0.00000095367432
 
     def get_public_data(self):
@@ -873,11 +878,16 @@ class CompetitionPhase(models.Model):
         return _make_url_sassy(self.public_data_organizer_dataset.data_file.name)
 
     def get_public_data_size_mb(self):
-        size = float(self.public_data_organizer_dataset.data_file.size)
+        size = float(0)
+
         if self.public_data_organizer_dataset.sub_data_files and len(self.public_data_organizer_dataset.sub_data_files.all()) > 0:
             size = float(0)
             for sub_data in self.public_data_organizer_dataset.sub_data_files.all():
                 size += float(sub_data.data_file.size)
+        elif settings.USE_AWS:
+            size = float(self.public_data_organizer_dataset.data_file.file.size)
+        else:
+            size = float(self.public_data_organizer_dataset.data_file.size)
         return size * 0.00000095367432
 
     class Meta:
@@ -1578,7 +1588,6 @@ class CompetitionDefBundle(models.Model):
             dt = utc.localize(dt)
         return dt
 
-    #@transaction.commit_on_success
     @transaction.atomic()
     def unpack(self):
         """
@@ -2324,13 +2333,22 @@ class CompetitionDump(models.Model):
 
     def get_size_mb(self):
         if self.status == "Finished":
-            return float(self.data_file.size) * 0.00000095367432
+            if settings.USE_AWS:
+                return float(self.data_file.file.size) * 0.00000095367432
+            else:
+                return float(self.data_file.size) * 0.00000095367432
         else:
             return 0
 
     def sassy_url(self):
         from apps.web.tasks import _make_url_sassy
-        return _make_url_sassy(self.data_file.name)
+        if settings.USE_AWS:
+            return _make_url_sassy(self.data_file.file.name)
+        else:
+            return _make_url_sassy(self.data_file.name)
 
     def filename(self):
-        return os.path.basename(self.data_file.name)
+        if settings.USE_AWS:
+            return os.path.basename(self.data_file.file.name)
+        else:
+            return os.path.basename(self.data_file.name)
