@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-01-12 06:54+0000\n"
+"POT-Creation-Date: 2018-01-12 08:05+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -114,15 +114,15 @@ msgstr "抱歉，因为网站正在维护，您要登录的页面暂时无法访
 msgid "Please try again later. Thank you."
 msgstr "请过段时间再尝试，感谢配合！"
 
-#: apps/web/static/error/50x.html:15 static/error/50x.html:15
+#: apps/web/static/error/50x.html:16 static/error/50x.html:18
 msgid "The CodaLab site is currently unavailable."
 msgstr "网站正在更新维护：）"
 
-#: apps/web/static/error/50x.html:16 static/error/50x.html:16
+#: apps/web/static/error/50x.html:17 static/error/50x.html:19
 msgid "Sorry, the page you are looking for is currently unavailable."
 msgstr "抱歉，因为网站正在维护，您要登录的页面暂时无法访问。"
 
-#: apps/web/static/error/50x.html:17 static/error/50x.html:17
+#: apps/web/static/error/50x.html:18 static/error/50x.html:20
 msgid "Please try again later."
 msgstr "请过段时间再尝试，感谢配合！"
 
@@ -854,8 +854,8 @@ msgstr "你确定要删除这个竞赛仓库吗？"
 msgid "Yes, I'm sure."
 msgstr "是的，我确定"
 
-#: apps/web/templates/web/competitions/dumps.html:2
 #: apps/web/templates/web/competitions/dumps.html:3
+#: apps/web/templates/web/competitions/dumps.html:4
 msgid "Competition Dumps"
 msgstr "竞赛"
 
