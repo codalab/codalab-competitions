@@ -25,7 +25,7 @@
             </div>
             <div class="col-sm-4 col-md-4 right-panel">
                 {{ competition.get_start_date|date:"M d, Y" }}-{% if competition.end_date %}{{ competition.end_date|date:"M d, Y" }}{% else %}
-                <i>No end date</i>{% endif %}<br>
+                <i>{ % trans 'No end date' %}</i>{% endif %}<br>
                 <b>{{ competition.get_participant_count }}</b> {% trans 'participant'%}
                 {% if competition.get_participant_count > 1 %}s{% endif %}<br>
                 {% if competition.reward and competition.reward > 0 %}

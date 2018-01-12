@@ -74,7 +74,7 @@ msgstr "是否公开?"
 #: apps/queues/templates/queues/list.html:20
 #: apps/web/templates/web/my/datasets.html:43
 msgid "Actions"
-msgstr "行动"
+msgstr "操作"
 
 #: apps/queues/templates/queues/list.html:30
 #: apps/web/templates/web/competitions/competition_summary.html:33
@@ -1276,7 +1276,7 @@ msgstr "我参加的竞赛"
 #: apps/web/templates/web/my/datasets.html:23
 #: apps/web/templates/web/my/index.html:18
 msgid "Competitions I'm Running"
-msgstr "我运行的竞赛"
+msgstr "我举办的竞赛"
 
 #: apps/web/templates/web/my/datasets.html:35
 msgid "Create Dataset"
