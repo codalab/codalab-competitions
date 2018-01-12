@@ -2,11 +2,13 @@ from rest_framework import serializers
 from apps.web import models as webmodels
 import django_filters
 
+
 class ContentCategorySerial(serializers.ModelSerializer):
     visibility = serializers.SlugField(source='visibility.codename')
 
     class Meta:
         model = webmodels.ContentCategory
+
 
 class DefaultContentSerial(serializers.ModelSerializer):
     category_codename = serializers.SlugField(source='category.codename')
@@ -14,6 +16,7 @@ class DefaultContentSerial(serializers.ModelSerializer):
     initial_visibility = serializers.SlugField(source='initial_visibility.codename')
     class Meta:
         model = webmodels.DefaultContentItem
+
 
 class PageSerial(serializers.ModelSerializer):
     container = serializers.RelatedField(required=False)
@@ -28,6 +31,7 @@ class PageSerial(serializers.ModelSerializer):
             attr['container'] = self.context['container']
         return attr
 
+
 class CompetitionDatasetSerial(serializers.ModelSerializer):
     dataset_id = serializers.IntegerField()
     source_url = serializers.URLField()
@@ -40,9 +44,11 @@ class CompetitionDatasetSerial(serializers.ModelSerializer):
             attr[source] = None
         return attr
 
+
 class CompetitionParticipantSerial(serializers.ModelSerializer):
     class Meta:
         model = webmodels.CompetitionParticipant
+
 
 class CompetitionSubmissionSerial(serializers.ModelSerializer):
     status = serializers.SlugField(source="status.codename", read_only=True)
@@ -52,12 +58,14 @@ class CompetitionSubmissionSerial(serializers.ModelSerializer):
         fields = ('id','status','status_details','submitted_at','submission_number', 'file', 'filename', 'exception_details', 'description')
         read_only_fields = ('participant', 'phase', 'id','status_details','submitted_at','submission_number', 'exception_details')
 
+
 class PhaseSerial(serializers.ModelSerializer):
     start_date = serializers.DateField(format='%Y-%m-%d')
 
     class Meta:
         model = webmodels.CompetitionPhase
         read_only_fields = ['datasets']
+
 
 class CompetitionPhaseSerial(serializers.ModelSerializer):
     end_date = serializers.DateField(format='%Y-%m-%d')
@@ -67,16 +75,19 @@ class CompetitionPhaseSerial(serializers.ModelSerializer):
         model = webmodels.Competition
         fields = ['end_date','phases']
 
+
 class LeaderBoardSerial(serializers.ModelSerializer):
     entries =  CompetitionSubmissionSerial(read_only=True, source='submissions')
     class Meta:
         model = webmodels.PhaseLeaderBoard
+
 
 class CompetitionDataSerial(serializers.ModelSerializer):
     image_url = serializers.URLField(source='image.url', read_only=True)
     phases = serializers.RelatedField(many=True)
     class Meta:
         model = webmodels.Competition
+
 
 class PhaseRel(serializers.RelatedField):
 
@@ -101,6 +112,7 @@ class PhaseRel(serializers.RelatedField):
         else:
             raise Exception(o.errors)
 
+
 class CompetitionSerial(serializers.ModelSerializer):
     phases = PhaseRel(many=True,read_only=False)
     image_url = serializers.CharField(source='image_url',read_only=True)
@@ -110,15 +122,18 @@ class CompetitionSerial(serializers.ModelSerializer):
         model = webmodels.Competition
         read_only_fields = ['image_url_base']
 
+
 class CompetitionFilter(django_filters.FilterSet):
     creator = django_filters.CharFilter(name="creator__username")
     class Meta:
         model = webmodels.Competition
         fields = ['creator']
 
+
 class ScoreSerial(serializers.ModelSerializer):
     class Meta:
         model = webmodels.SubmissionScore
+
 
 class CompetitionScoresSerial(serializers.ModelSerializer):
     competition_id = serializers.IntegerField(source='phase.competition.pk')

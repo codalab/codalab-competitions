@@ -10,7 +10,8 @@ from django.utils.text import slugify
 if not importer.installed:
     importer.install()
 
-from configurations import Settings
+# from configurations import Settings
+from configurations import Configuration
 import os, sys
 from os.path import abspath, basename, dirname, join, normpath
 
@@ -26,7 +27,7 @@ def _uuidpathext(filename, prefix):
     return filepath
 
 
-class Base(Settings):
+class Base(Configuration):
     SETTINGS_DIR = os.path.dirname(os.path.abspath(__file__))
     PROJECT_APP_DIR = os.path.dirname(SETTINGS_DIR)
     PROJECT_DIR = os.path.dirname(PROJECT_APP_DIR)
@@ -171,7 +172,7 @@ class Base(Settings):
         os.path.join(PROJECT_DIR,'templates'),
     )
 
-    TEMPLATE_CONTEXT_PROCESSORS = Settings.TEMPLATE_CONTEXT_PROCESSORS + (
+    TEMPLATE_CONTEXT_PROCESSORS = Configuration.TEMPLATE_CONTEXT_PROCESSORS + (
         "allauth.account.context_processors.account",
         "allauth.socialaccount.context_processors.socialaccount",
         "codalab.context_processors.app_version_proc",
@@ -216,7 +217,7 @@ class Base(Settings):
         's3direct',
 
         # Migration app
-        'south',
+        #'south',
 
         # Django Nose !!Important!! This needs to come after South.
         'django_nose',

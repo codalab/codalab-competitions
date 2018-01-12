@@ -19,8 +19,8 @@ from os.path import split
 from decimal import Decimal
 from django.conf import settings
 from django.contrib.contenttypes import generic
-# from django.contrib.contenttypes.models import ContentType
-from django.contrib import contenttypes as ContentType
+from django.contrib.contenttypes.models import ContentType
+# from django.contrib import contenttypes as ContentType
 from django.core.cache import cache
 from django.core.exceptions import PermissionDenied
 from django.core.files import File
@@ -1578,7 +1578,8 @@ class CompetitionDefBundle(models.Model):
             dt = utc.localize(dt)
         return dt
 
-    @transaction.commit_on_success
+    #@transaction.commit_on_success
+    @transaction.atomic()
     def unpack(self):
         """
         This method unpacks a competition bundle and creates a competition from

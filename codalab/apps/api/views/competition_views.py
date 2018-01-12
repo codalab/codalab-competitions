@@ -15,8 +15,8 @@ from rest_framework.response import Response
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-# from django.contrib.contenttypes.models import ContentType
-from django.contrib import contenttypes as ContentType
+from django.contrib.contenttypes.models import ContentType
+# from django.contrib import contenttypes as ContentType
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import PermissionDenied as DjangoPermissionDenied

@@ -140,7 +140,7 @@ def _set_submission_status(submission_id, status_codename):
     status_codename: New status codename.
     """
     status = CompetitionSubmissionStatus.objects.get(codename=status_codename)
-    with transaction.commit_on_success():
+    with transaction.atomic():
         submission = CompetitionSubmission.objects.select_for_update().get(pk=submission_id)
         old_status_codename = submission.status.codename
         if old_status_codename not in _FINAL_STATES:

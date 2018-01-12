@@ -203,11 +203,13 @@ def my_index(request):
         denied = -1
 
     my_competitions = models.Competition.objects.filter(Q(creator=request.user) | Q(admins__in=[request.user])).order_by('-pk').select_related('creator').distinct()
-    published_competitions = models.Competition.objects.filter(published=True).select_related('creator', 'participants')
+    # published_competitions = models.Competition.objects.filter(published=True).select_related('creator', 'participants')
+    published_competitions = models.Competition.objects.filter(published=True).select_related('creator')
     published_competitions = reversed(sorted(published_competitions, key=lambda c: c.get_start_date))
     context_dict = {
         'my_competitions': my_competitions,
-        'competitions_im_in': list(request.user.participation.all().exclude(status=denied).select_related('creator')),
+        # 'competitions_im_in': list(request.user.participation.all().exclude(status=denied).select_related('creator')),
+        'competitions_im_in': list(request.user.participation.all().exclude(status=denied)),
         'published_competitions': published_competitions,
     }
     return HttpResponse(template.render(RequestContext(request, context_dict)))

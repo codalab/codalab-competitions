@@ -25,7 +25,7 @@ importer.install()
 
 from django.core.files import File
 from django.contrib.auth import get_user_model
-# from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.models import ContentType
 
 from apps.web.models import *
 
