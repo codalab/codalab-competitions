@@ -146,10 +146,10 @@ class Base(Configuration):
     SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', "a-hidden-secret")
 
     # List of callables that know how to import templates from various sources.
-    TEMPLATE_LOADERS = (
-        'django.template.loaders.filesystem.Loader',
-        'django.template.loaders.app_directories.Loader',
-    )
+    # TEMPLATE_LOADERS = (
+    #     'django.template.loaders.filesystem.Loader',
+    #     'django.template.loaders.app_directories.Loader',
+    # )
 
     MIDDLEWARE_CLASSES = (
         'apps.web.middleware.SingleCompetitionMiddleware',
@@ -165,20 +165,52 @@ class Base(Configuration):
     # Python dotted path to the WSGI application used by Django's runserver.
     WSGI_APPLICATION = 'codalab.wsgi.application'
 
-    TEMPLATE_DIRS = (
-        # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
-        # Always use forward slashes, even on Windows.
-        # Don't forget to use absolute paths, not relative paths.
-        os.path.join(PROJECT_DIR,'templates'),
-    )
+    # TEMPLATE_DIRS = (
+    #     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
+    #     # Always use forward slashes, even on Windows.
+    #     # Don't forget to use absolute paths, not relative paths.
+    #     os.path.join(PROJECT_DIR,'templates'),
+    # )
+    #
+    # TEMPLATE_CONTEXT_PROCESSORS = Configuration.TEMPLATE_CONTEXT_PROCESSORS + (
+    #     "allauth.account.context_processors.account",
+    #     "allauth.socialaccount.context_processors.socialaccount",
+    #     "codalab.context_processors.app_version_proc",
+    #     "django.core.context_processors.request",
+    #     "codalab.context_processors.common_settings",
+    # )
 
-    TEMPLATE_CONTEXT_PROCESSORS = Configuration.TEMPLATE_CONTEXT_PROCESSORS + (
-        "allauth.account.context_processors.account",
-        "allauth.socialaccount.context_processors.socialaccount",
-        "codalab.context_processors.app_version_proc",
-        "django.core.context_processors.request",
-        "codalab.context_processors.common_settings",
-    )
+    SEARCH_TEMPLATES = os.path.join(PROJECT_DIR,'templates')
+
+    TEMPLATES = [
+        {
+            'BACKEND': 'django.template.backends.django.DjangoTemplates',
+            'DIRS': [
+                SEARCH_TEMPLATES,
+            ],
+            'OPTIONS': {
+                'context_processors': [
+                    # Insert your TEMPLATE_CONTEXT_PROCESSORS here or use this
+                    "codalab.context_processors.app_version_proc",
+                    "codalab.context_processors.common_settings",
+                    # list if you haven't customized them:
+                    'django.contrib.auth.context_processors.auth',
+                    'django.template.context_processors.debug',
+                    'django.template.context_processors.i18n',
+                    'django.template.context_processors.media',
+                    'django.template.context_processors.static',
+                    'django.template.context_processors.tz',
+                    'django.contrib.messages.context_processors.messages',
+                    'django.template.context_processors.request',
+                ],
+                'loaders': [
+                    # insert your TEMPLATE_LOADERS here
+                    'django.template.loaders.filesystem.Loader',
+                    'django.template.loaders.app_directories.Loader',
+                ]
+            },
+        },
+    ]
 
     AUTHENTICATION_BACKENDS = (
         "django.contrib.auth.backends.ModelBackend",

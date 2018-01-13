@@ -206,12 +206,13 @@ class ParticipantStatus(models.Model):
 
 def _uuidify(directory):
     """Helper to generate UUID's in file names while maintaining their extension"""
-    def wrapped_uuidify(obj, filename):
-        name, extension = os.path.splitext(filename)
-        truncated_uuid = str(uuid.uuid4())[0:5]
-        truncated_name = name[0:35]
-        return os.path.join(directory, str(obj.pk), truncated_uuid, "{0}{1}".format(truncated_name, extension))
-    return wrapped_uuidify
+    # def wrapped_uuidify(obj, filename):
+    # name, extension = os.path.splitext(filename)
+    # truncated_uuid = str(uuid.uuid4())[0:5]
+    # truncated_name = name[0:35]
+    # return os.path.join(directory, str(obj.pk), truncated_uuid, "{0}{1}".format(truncated_name, extension))
+    return directory
+    # return wrapped_uuidify
 
 
 class Competition(models.Model):

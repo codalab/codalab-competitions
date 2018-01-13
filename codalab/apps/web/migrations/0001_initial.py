@@ -1,25 +1,578 @@
 # -*- coding: utf-8 -*-
-import datetime
-from south.db import db
-from south.v2 import SchemaMigration
-from django.db import models
+from __future__ import unicode_literals
+
+from django.db import migrations, models
+import django_extensions.db.fields
+import mptt.fields
+import storages.backends.gcloud
+import django.db.models.deletion
+from django.conf import settings
+import s3direct.fields
 
 
-class Migration(SchemaMigration):
+class Migration(migrations.Migration):
 
-    depends_on = (
-        ("queues", "0001_initial"),
-    )
+    dependencies = [
+        ('queues', '0001_initial'),
+        ('contenttypes', '0002_remove_content_type_name'),
+        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
+        ('teams', '0001_initial'),
+    ]
 
-
-    def forwards(self, orm):
-        pass
-
-    def backwards(self, orm):
-        pass
-
-    models = {
-        
-    }
-
-    complete_apps = ['web']
+    operations = [
+        migrations.CreateModel(
+            name='Competition',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('title', models.CharField(max_length=100)),
+                ('description', models.TextField(null=True, blank=True)),
+                ('image', models.FileField(storage=storages.backends.gcloud.GoogleCloudStorage(bucket_name=b'codalab-test'), upload_to=b'logos', null=True, verbose_name=b'Logo', blank=True)),
+                ('image_url_base', models.CharField(max_length=255)),
+                ('has_registration', models.BooleanField(default=False, verbose_name=b'Registration Required')),
+                ('start_date', models.DateTimeField(null=True, verbose_name=b'Start Date (UTC)', blank=True)),
+                ('end_date', models.DateTimeField(null=True, verbose_name=b'End Date (UTC)', blank=True)),
+                ('last_modified', models.DateTimeField(auto_now_add=True)),
+                ('published', models.BooleanField(default=False, verbose_name=b'Publicly Available')),
+                ('last_phase_migration', models.PositiveIntegerField(default=1)),
+                ('is_migrating', models.BooleanField(default=False)),
+                ('force_submission_to_leaderboard', models.BooleanField(default=False)),
+                ('disallow_leaderboard_modifying', models.BooleanField(default=False)),
+                ('secret_key', django_extensions.db.fields.UUIDField(editable=False, blank=True)),
+                ('enable_medical_image_viewer', models.BooleanField(default=False)),
+                ('enable_detailed_results', models.BooleanField(default=False)),
+                ('original_yaml_file', models.TextField(default=b'', null=True, blank=True)),
+                ('show_datasets_from_yaml', models.BooleanField(default=True)),
+                ('reward', models.PositiveIntegerField(null=True, blank=True)),
+                ('is_migrating_delayed', models.BooleanField(default=False)),
+                ('allow_teams', models.BooleanField(default=False)),
+                ('enable_per_submission_metadata', models.BooleanField(default=False, help_text=b'(Team name, Method name, Method description, etc.)')),
+                ('allow_public_submissions', models.BooleanField(default=False, verbose_name=b'Allow sharing of public submissions')),
+                ('enable_forum', models.BooleanField(default=False)),
+                ('anonymous_leaderboard', models.BooleanField(default=False)),
+                ('enable_teams', models.BooleanField(default=False, verbose_name=b'Enable Competition level teams')),
+                ('require_team_approval', models.BooleanField(default=True, verbose_name=b'Organizers need to approve the new teams')),
+                ('competition_docker_image', models.CharField(default=b'', max_length=128, blank=True)),
+                ('admins', models.ManyToManyField(related_name='competition_admins', null=True, to=settings.AUTH_USER_MODEL, blank=True)),
+                ('creator', models.ForeignKey(related_name='competitioninfo_creator', to=settings.AUTH_USER_MODEL)),
+                ('modified_by', models.ForeignKey(related_name='competitioninfo_modified_by', to=settings.AUTH_USER_MODEL)),
+                ('queue', models.ForeignKey(related_name='competitions', on_delete=django.db.models.deletion.SET_NULL, blank=True, to='queues.Queue', help_text=b"(don't change this unless you have a reason to, default/empty is fine)", null=True)),
+                ('teams', models.ManyToManyField(related_name='competition_teams', null=True, to='teams.Team', blank=True)),
+            ],
+            options={
+                'ordering': ['end_date'],
+                'permissions': (('is_owner', 'Owner'), ('can_edit', 'Edit')),
+            },
+        ),
+        migrations.CreateModel(
+            name='CompetitionDefBundle',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('config_bundle', models.FileField(storage=storages.backends.gcloud.GoogleCloudStorage(bucket_name=b'codalab-test'), null=True, upload_to=b'competition-bundles', blank=True)),
+                ('s3_config_bundle', s3direct.fields.S3DirectField(null=True, blank=True)),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('owner', models.ForeignKey(related_name='owner', to=settings.AUTH_USER_MODEL)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='CompetitionDump',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('timestamp', models.DateTimeField(auto_now_add=True)),
+                ('status', models.CharField(default=b'Starting', max_length=64)),
+                ('data_file', models.FileField(storage=storages.backends.gcloud.GoogleCloudStorage(bucket_name=b'codalab-test'), upload_to=b'competition_dump', null=True, verbose_name=b'Data file', blank=True)),
+                ('competition', models.ForeignKey(related_name='dumps', to='web.Competition')),
+            ],
+        ),
+        migrations.CreateModel(
+            name='CompetitionParticipant',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('reason', models.CharField(max_length=100, null=True, blank=True)),
+                ('competition', models.ForeignKey(related_name='participants', to='web.Competition')),
+            ],
+        ),
+        migrations.CreateModel(
+            name='CompetitionPhase',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('description', models.CharField(max_length=1000, null=True, blank=True)),
+                ('phasenumber', models.PositiveIntegerField(verbose_name=b'Number')),
+                ('label', models.CharField(max_length=50, verbose_name=b'Name', blank=True)),
+                ('start_date', models.DateTimeField(verbose_name=b'Start Date (UTC)')),
+                ('max_submissions', models.PositiveIntegerField(default=100, verbose_name=b'Maximum Submissions (per User)')),
+                ('max_submissions_per_day', models.PositiveIntegerField(default=999, verbose_name=b'Max Submissions (per User) per day')),
+                ('is_scoring_only', models.BooleanField(default=True, verbose_name=b'Results Scoring Only')),
+                ('scoring_program', models.FileField(storage=storages.backends.gcloud.GoogleCloudStorage(bucket_name=b'codalab-test'), upload_to=b'phase_scoring_program_file', null=True, verbose_name=b'Scoring Program', blank=True)),
+                ('reference_data', models.FileField(storage=storages.backends.gcloud.GoogleCloudStorage(bucket_name=b'codalab-test'), upload_to=b'phase_reference_data_file', null=True, verbose_name=b'Reference Data', blank=True)),
+                ('input_data', models.FileField(storage=storages.backends.gcloud.GoogleCloudStorage(bucket_name=b'codalab-test'), upload_to=b'phase_input_data_file', null=True, verbose_name=b'Input Data', blank=True)),
+                ('leaderboard_management_mode', models.CharField(default=b'default', max_length=50, verbose_name=b'Leaderboard Mode')),
+                ('force_best_submission_to_leaderboard', models.BooleanField(default=False, verbose_name=b'If submission beats old score, put submission on leaderboard')),
+                ('auto_migration', models.BooleanField(default=False)),
+                ('is_migrated', models.BooleanField(default=False)),
+                ('execution_time_limit', models.PositiveIntegerField(default=300, verbose_name=b'Execution time limit (in seconds)')),
+                ('color', models.CharField(blank=True, max_length=24, null=True, choices=[(b'white', b'White'), (b'orange', b'Orange'), (b'yellow', b'Yellow'), (b'green', b'Green'), (b'blue', b'Blue'), (b'purple', b'Purple')])),
+                ('phase_never_ends', models.BooleanField(default=False)),
+                ('scoring_program_docker_image', models.CharField(default=b'', max_length=128, blank=True)),
+                ('default_docker_image', models.CharField(default=b'', max_length=128, blank=True)),
+                ('disable_custom_docker_image', models.BooleanField(default=True)),
+                ('starting_kit', models.FileField(storage=storages.backends.gcloud.GoogleCloudStorage(bucket_name=b'codalab-test'), upload_to=b'starting_kit', null=True, verbose_name=b'Starting Kit', blank=True)),
+                ('public_data', models.FileField(storage=storages.backends.gcloud.GoogleCloudStorage(bucket_name=b'codalab-test'), upload_to=b'public_data', null=True, verbose_name=b'Public Data', blank=True)),
+                ('ingestion_program', models.FileField(storage=storages.backends.gcloud.GoogleCloudStorage(bucket_name=b'codalab-test'), null=True, upload_to=b'ingestion_program', blank=True)),
+                ('ingestion_program_docker_image', models.CharField(default=b'', max_length=128, blank=True)),
+                ('competition', models.ForeignKey(related_name='phases', to='web.Competition')),
+            ],
+            options={
+                'ordering': ['phasenumber'],
+            },
+        ),
+        migrations.CreateModel(
+            name='CompetitionSubmission',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('secret', models.CharField(default=b'', max_length=128, blank=True)),
+                ('docker_image', models.CharField(default=b'', max_length=128, blank=True)),
+                ('file', models.FileField(storage=storages.backends.gcloud.GoogleCloudStorage(bucket_name=b'codalab-test'), null=True, upload_to=b'submission_file_name', blank=True)),
+                ('s3_file', s3direct.fields.S3DirectField(null=True, blank=True)),
+                ('file_url_base', models.CharField(max_length=2000, blank=True)),
+                ('readable_filename', models.TextField(null=True, blank=True)),
+                ('description', models.CharField(max_length=256, blank=True)),
+                ('inputfile', models.FileField(storage=storages.backends.gcloud.GoogleCloudStorage(bucket_name=b'codalab-test'), null=True, upload_to=b'submission_inputfile', blank=True)),
+                ('runfile', models.FileField(storage=storages.backends.gcloud.GoogleCloudStorage(bucket_name=b'codalab-test'), null=True, upload_to=b'submission_runfile', blank=True)),
+                ('submitted_at', models.DateTimeField(auto_now_add=True)),
+                ('started_at', models.DateTimeField(null=True, blank=True)),
+                ('completed_at', models.DateTimeField(null=True, blank=True)),
+                ('execution_key', models.TextField(default=b'', blank=True)),
+                ('status_details', models.CharField(max_length=100, null=True, blank=True)),
+                ('submission_number', models.PositiveIntegerField(default=0)),
+                ('output_file', models.FileField(storage=storages.backends.gcloud.GoogleCloudStorage(bucket_name=b'codalab-test'), null=True, upload_to=b'submission_output', blank=True)),
+                ('private_output_file', models.FileField(storage=storages.backends.gcloud.GoogleCloudStorage(bucket_name=b'codalab-test'), null=True, upload_to=b'submission_private_output', blank=True)),
+                ('stdout_file', models.FileField(storage=storages.backends.gcloud.GoogleCloudStorage(bucket_name=b'codalab-test'), null=True, upload_to=b'submission_stdout', blank=True)),
+                ('stderr_file', models.FileField(storage=storages.backends.gcloud.GoogleCloudStorage(bucket_name=b'codalab-test'), null=True, upload_to=b'submission_stderr', blank=True)),
+                ('history_file', models.FileField(storage=storages.backends.gcloud.GoogleCloudStorage(bucket_name=b'codalab-test'), null=True, upload_to=b'submission_history', blank=True)),
+                ('scores_file', models.FileField(storage=storages.backends.gcloud.GoogleCloudStorage(bucket_name=b'codalab-test'), null=True, upload_to=b'submission_scores', blank=True)),
+                ('coopetition_file', models.FileField(storage=storages.backends.gcloud.GoogleCloudStorage(bucket_name=b'codalab-test'), null=True, upload_to=b'submission_coopetition', blank=True)),
+                ('detailed_results_file', models.FileField(storage=storages.backends.gcloud.GoogleCloudStorage(bucket_name=b'codalab-test'), null=True, upload_to=b'submission_detailed_results', blank=True)),
+                ('prediction_runfile', models.FileField(storage=storages.backends.gcloud.GoogleCloudStorage(bucket_name=b'codalab-test'), null=True, upload_to=b'submission_prediction_runfile', blank=True)),
+                ('prediction_output_file', models.FileField(storage=storages.backends.gcloud.GoogleCloudStorage(bucket_name=b'codalab-test'), null=True, upload_to=b'submission_prediction_output', blank=True)),
+                ('exception_details', models.TextField(null=True, blank=True)),
+                ('prediction_stdout_file', models.FileField(storage=storages.backends.gcloud.GoogleCloudStorage(bucket_name=b'codalab-test'), null=True, upload_to=b'predict_submission_stdout', blank=True)),
+                ('prediction_stderr_file', models.FileField(storage=storages.backends.gcloud.GoogleCloudStorage(bucket_name=b'codalab-test'), null=True, upload_to=b'predict_submission_stderr', blank=True)),
+                ('ingestion_program_stdout_file', models.FileField(storage=storages.backends.gcloud.GoogleCloudStorage(bucket_name=b'codalab-test'), null=True, upload_to=b'predict_submission_stdout', blank=True)),
+                ('ingestion_program_stderr_file', models.FileField(storage=storages.backends.gcloud.GoogleCloudStorage(bucket_name=b'codalab-test'), null=True, upload_to=b'predict_submission_stderr', blank=True)),
+                ('method_name', models.CharField(max_length=20, null=True, blank=True)),
+                ('method_description', models.TextField(null=True, blank=True)),
+                ('project_url', models.URLField(null=True, blank=True)),
+                ('publication_url', models.URLField(null=True, blank=True)),
+                ('bibtex', models.TextField(null=True, blank=True)),
+                ('organization_or_affiliation', models.CharField(max_length=255, null=True, blank=True)),
+                ('team_name', models.CharField(max_length=64, null=True, blank=True)),
+                ('is_public', models.BooleanField(default=False)),
+                ('when_made_public', models.DateTimeField(null=True, blank=True)),
+                ('when_unmade_public', models.DateTimeField(null=True, blank=True)),
+                ('download_count', models.IntegerField(default=0)),
+                ('like_count', models.IntegerField(default=0)),
+                ('dislike_count', models.IntegerField(default=0)),
+                ('is_migrated', models.BooleanField(default=False)),
+                ('queue_name', models.TextField(null=True, blank=True)),
+                ('participant', models.ForeignKey(related_name='submissions', to='web.CompetitionParticipant')),
+                ('phase', models.ForeignKey(related_name='submissions', to='web.CompetitionPhase')),
+            ],
+        ),
+        migrations.CreateModel(
+            name='CompetitionSubmissionMetadata',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('is_predict', models.BooleanField(default=False)),
+                ('is_scoring', models.BooleanField(default=False)),
+                ('hostname', models.CharField(max_length=255, null=True, blank=True)),
+                ('processes_running_in_temp_dir', models.TextField(null=True, blank=True)),
+                ('ingestion_program_duration', models.TextField(null=True, blank=True)),
+                ('beginning_virtual_memory_usage', models.TextField(null=True, blank=True)),
+                ('beginning_swap_memory_usage', models.TextField(null=True, blank=True)),
+                ('beginning_cpu_usage', models.TextField(null=True, blank=True)),
+                ('end_virtual_memory_usage', models.TextField(null=True, blank=True)),
+                ('end_swap_memory_usage', models.TextField(null=True, blank=True)),
+                ('end_cpu_usage', models.TextField(null=True, blank=True)),
+                ('submission', models.ForeignKey(related_name='metadatas', to='web.CompetitionSubmission')),
+            ],
+        ),
+        migrations.CreateModel(
+            name='CompetitionSubmissionStatus',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('name', models.CharField(max_length=20)),
+                ('codename', models.SlugField(unique=True, max_length=20)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='ContentCategory',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('name', models.CharField(max_length=100)),
+                ('codename', models.SlugField(unique=True, max_length=100)),
+                ('is_menu', models.BooleanField(default=True)),
+                ('content_limit', models.PositiveIntegerField(default=1)),
+                ('lft', models.PositiveIntegerField(editable=False, db_index=True)),
+                ('rght', models.PositiveIntegerField(editable=False, db_index=True)),
+                ('tree_id', models.PositiveIntegerField(editable=False, db_index=True)),
+                ('level', models.PositiveIntegerField(editable=False, db_index=True)),
+                ('parent', mptt.fields.TreeForeignKey(related_name='children', blank=True, to='web.ContentCategory', null=True)),
+            ],
+            options={
+                'abstract': False,
+            },
+        ),
+        migrations.CreateModel(
+            name='ContentVisibility',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('name', models.CharField(max_length=20)),
+                ('codename', models.SlugField(unique=True, max_length=20)),
+                ('classname', models.CharField(max_length=30, null=True, blank=True)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Dataset',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('name', models.CharField(max_length=50)),
+                ('description', models.TextField()),
+                ('number', models.PositiveIntegerField(default=1)),
+                ('creator', models.ForeignKey(related_name='datasets', to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+                'ordering': ['number'],
+            },
+        ),
+        migrations.CreateModel(
+            name='DefaultContentItem',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('label', models.CharField(max_length=100)),
+                ('codename', models.SlugField(unique=True, max_length=100)),
+                ('rank', models.IntegerField(default=0)),
+                ('required', models.BooleanField(default=False)),
+                ('category', mptt.fields.TreeForeignKey(to='web.ContentCategory')),
+                ('initial_visibility', models.ForeignKey(to='web.ContentVisibility')),
+            ],
+        ),
+        migrations.CreateModel(
+            name='ExternalFile',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('name', models.CharField(max_length=100)),
+                ('source_url', models.URLField()),
+                ('source_address_info', models.CharField(max_length=200, blank=True)),
+                ('creator', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='ExternalFileSource',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('name', models.CharField(max_length=50)),
+                ('codename', models.SlugField(unique=True)),
+                ('service_url', models.URLField(null=True, blank=True)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='ExternalFileType',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('name', models.CharField(max_length=20)),
+                ('codename', models.SlugField(unique=True, max_length=20)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='OrganizerDataSet',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('name', models.CharField(max_length=255)),
+                ('full_name', models.TextField(default=b'')),
+                ('type', models.CharField(default=b'None', max_length=64, choices=[(b'Reference Data', b'Reference Data'), (b'Scoring Program', b'Scoring Program'), (b'Input Data', b'Input Data'), (b'Ingestion Program', b'Ingestion Program'), (b'Starting Kit', b'Starting Kit'), (b'Public Data', b'Public Data'), (b'None', b'None')])),
+                ('description', models.TextField(null=True, blank=True)),
+                ('data_file', models.FileField(storage=storages.backends.gcloud.GoogleCloudStorage(bucket_name=b'codalab-test'), upload_to=b'dataset_data_file', null=True, verbose_name=b'Data file', blank=True)),
+                ('key', django_extensions.db.fields.UUIDField(editable=False, blank=True)),
+                ('sub_data_files', models.ManyToManyField(to='web.OrganizerDataSet', null=True, verbose_name=b'Bundle of data files', blank=True)),
+                ('uploaded_by', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Page',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('codename', models.SlugField(max_length=100)),
+                ('title', models.CharField(max_length=100, null=True, blank=True)),
+                ('label', models.CharField(max_length=100, verbose_name=b'Title')),
+                ('rank', models.IntegerField(default=0, verbose_name=b'Order')),
+                ('visibility', models.BooleanField(default=True, verbose_name=b'Visible')),
+                ('markup', models.TextField(blank=True)),
+                ('html', models.TextField(verbose_name=b'Content', blank=True)),
+                ('category', mptt.fields.TreeForeignKey(to='web.ContentCategory')),
+                ('competition', models.ForeignKey(related_name='pages', to='web.Competition', null=True)),
+            ],
+            options={
+                'ordering': ['category', 'rank'],
+            },
+        ),
+        migrations.CreateModel(
+            name='PageContainer',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('name', models.CharField(max_length=200, blank=True)),
+                ('object_id', models.PositiveIntegerField(db_index=True)),
+                ('content_type', models.ForeignKey(to='contenttypes.ContentType')),
+            ],
+        ),
+        migrations.CreateModel(
+            name='ParticipantStatus',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('name', models.CharField(max_length=30)),
+                ('codename', models.CharField(unique=True, max_length=30)),
+                ('description', models.CharField(max_length=50)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='PhaseLeaderBoard',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('phase', models.OneToOneField(related_name='board', to='web.CompetitionPhase')),
+            ],
+        ),
+        migrations.CreateModel(
+            name='PhaseLeaderBoardEntry',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('board', models.ForeignKey(related_name='entries', to='web.PhaseLeaderBoard')),
+                ('result', models.ForeignKey(related_name='leaderboard_entry_result', to='web.CompetitionSubmission')),
+            ],
+        ),
+        migrations.CreateModel(
+            name='SubmissionComputedScore',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('operation', models.CharField(max_length=10, choices=[(b'Max', b'Max'), (b'Avg', b'Average')])),
+            ],
+        ),
+        migrations.CreateModel(
+            name='SubmissionComputedScoreField',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('computed', models.ForeignKey(related_name='fields', to='web.SubmissionComputedScore')),
+            ],
+        ),
+        migrations.CreateModel(
+            name='SubmissionResultGroup',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('key', models.CharField(max_length=50)),
+                ('label', models.CharField(max_length=50)),
+                ('ordering', models.PositiveIntegerField(default=1)),
+                ('competition', models.ForeignKey(to='web.Competition')),
+            ],
+            options={
+                'ordering': ['ordering'],
+            },
+        ),
+        migrations.CreateModel(
+            name='SubmissionResultGroupPhase',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('group', models.ForeignKey(to='web.SubmissionResultGroup')),
+                ('phase', models.ForeignKey(to='web.CompetitionPhase')),
+            ],
+        ),
+        migrations.CreateModel(
+            name='SubmissionScore',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('value', models.DecimalField(max_digits=20, decimal_places=10)),
+                ('result', models.ForeignKey(related_name='scores', to='web.CompetitionSubmission')),
+            ],
+        ),
+        migrations.CreateModel(
+            name='SubmissionScoreDef',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('key', models.SlugField()),
+                ('label', models.CharField(max_length=50)),
+                ('sorting', models.SlugField(default=b'asc', max_length=20, choices=[(b'asc', b'Ascending'), (b'desc', b'Descending')])),
+                ('numeric_format', models.CharField(max_length=20, null=True, blank=True)),
+                ('show_rank', models.BooleanField(default=False)),
+                ('selection_default', models.IntegerField(default=0)),
+                ('computed', models.BooleanField(default=False)),
+                ('ordering', models.PositiveIntegerField(default=1)),
+                ('competition', models.ForeignKey(to='web.Competition')),
+            ],
+        ),
+        migrations.CreateModel(
+            name='SubmissionScoreDefGroup',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('group', models.ForeignKey(to='web.SubmissionResultGroup')),
+                ('scoredef', models.ForeignKey(to='web.SubmissionScoreDef')),
+            ],
+        ),
+        migrations.CreateModel(
+            name='SubmissionScoreSet',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('key', models.CharField(max_length=50)),
+                ('label', models.CharField(max_length=50)),
+                ('ordering', models.PositiveIntegerField(default=1)),
+                ('lft', models.PositiveIntegerField(editable=False, db_index=True)),
+                ('rght', models.PositiveIntegerField(editable=False, db_index=True)),
+                ('tree_id', models.PositiveIntegerField(editable=False, db_index=True)),
+                ('level', models.PositiveIntegerField(editable=False, db_index=True)),
+                ('competition', models.ForeignKey(to='web.Competition')),
+                ('parent', mptt.fields.TreeForeignKey(related_name='children', blank=True, to='web.SubmissionScoreSet', null=True)),
+                ('scoredef', models.ForeignKey(blank=True, to='web.SubmissionScoreDef', null=True)),
+            ],
+        ),
+        migrations.AddField(
+            model_name='submissionscoredef',
+            name='groups',
+            field=models.ManyToManyField(to='web.SubmissionResultGroup', through='web.SubmissionScoreDefGroup'),
+        ),
+        migrations.AddField(
+            model_name='submissionscore',
+            name='scoredef',
+            field=models.ForeignKey(to='web.SubmissionScoreDef'),
+        ),
+        migrations.AddField(
+            model_name='submissionresultgroup',
+            name='phases',
+            field=models.ManyToManyField(to='web.CompetitionPhase', through='web.SubmissionResultGroupPhase'),
+        ),
+        migrations.AddField(
+            model_name='submissioncomputedscorefield',
+            name='scoredef',
+            field=models.ForeignKey(to='web.SubmissionScoreDef'),
+        ),
+        migrations.AddField(
+            model_name='submissioncomputedscore',
+            name='scoredef',
+            field=models.OneToOneField(related_name='computed_score', to='web.SubmissionScoreDef'),
+        ),
+        migrations.AddField(
+            model_name='page',
+            name='container',
+            field=models.ForeignKey(related_name='pages', verbose_name=b'Page Container', to='web.PageContainer'),
+        ),
+        migrations.AddField(
+            model_name='page',
+            name='defaults',
+            field=models.ForeignKey(blank=True, to='web.DefaultContentItem', null=True),
+        ),
+        migrations.AddField(
+            model_name='externalfile',
+            name='type',
+            field=models.ForeignKey(to='web.ExternalFileType'),
+        ),
+        migrations.AddField(
+            model_name='dataset',
+            name='datafile',
+            field=models.ForeignKey(to='web.ExternalFile'),
+        ),
+        migrations.AddField(
+            model_name='contentcategory',
+            name='visibility',
+            field=models.ForeignKey(to='web.ContentVisibility'),
+        ),
+        migrations.AddField(
+            model_name='competitionsubmission',
+            name='status',
+            field=models.ForeignKey(to='web.CompetitionSubmissionStatus'),
+        ),
+        migrations.AddField(
+            model_name='competitionsubmission',
+            name='team',
+            field=models.ForeignKey(related_name='team', blank=True, to='teams.Team', null=True),
+        ),
+        migrations.AddField(
+            model_name='competitionphase',
+            name='datasets',
+            field=models.ManyToManyField(related_name='phase', to='web.Dataset', blank=True),
+        ),
+        migrations.AddField(
+            model_name='competitionphase',
+            name='ingestion_program_organizer_dataset',
+            field=models.ForeignKey(related_name='ingestion_program_organizer_dataset', on_delete=django.db.models.deletion.SET_NULL, blank=True, to='web.OrganizerDataSet', null=True),
+        ),
+        migrations.AddField(
+            model_name='competitionphase',
+            name='input_data_organizer_dataset',
+            field=models.ForeignKey(related_name='input_data_organizer_dataset', on_delete=django.db.models.deletion.SET_NULL, verbose_name=b'Input Data', blank=True, to='web.OrganizerDataSet', null=True),
+        ),
+        migrations.AddField(
+            model_name='competitionphase',
+            name='public_data_organizer_dataset',
+            field=models.ForeignKey(related_name='public_data_organizer_dataset', on_delete=django.db.models.deletion.SET_NULL, verbose_name=b'Public Data', blank=True, to='web.OrganizerDataSet', null=True),
+        ),
+        migrations.AddField(
+            model_name='competitionphase',
+            name='reference_data_organizer_dataset',
+            field=models.ForeignKey(related_name='reference_data_organizer_dataset', on_delete=django.db.models.deletion.SET_NULL, verbose_name=b'Reference Data', blank=True, to='web.OrganizerDataSet', null=True),
+        ),
+        migrations.AddField(
+            model_name='competitionphase',
+            name='scoring_program_organizer_dataset',
+            field=models.ForeignKey(related_name='scoring_program_organizer_dataset', on_delete=django.db.models.deletion.SET_NULL, verbose_name=b'Scoring Program', blank=True, to='web.OrganizerDataSet', null=True),
+        ),
+        migrations.AddField(
+            model_name='competitionphase',
+            name='starting_kit_organizer_dataset',
+            field=models.ForeignKey(related_name='starting_kit_organizer_dataset', on_delete=django.db.models.deletion.SET_NULL, verbose_name=b'Starting Kit', blank=True, to='web.OrganizerDataSet', null=True),
+        ),
+        migrations.AddField(
+            model_name='competitionparticipant',
+            name='status',
+            field=models.ForeignKey(to='web.ParticipantStatus'),
+        ),
+        migrations.AddField(
+            model_name='competitionparticipant',
+            name='user',
+            field=models.ForeignKey(related_name='participation', to=settings.AUTH_USER_MODEL),
+        ),
+        migrations.AlterUniqueTogether(
+            name='submissionscoreset',
+            unique_together=set([('key', 'competition')]),
+        ),
+        migrations.AlterUniqueTogether(
+            name='submissionscoredefgroup',
+            unique_together=set([('scoredef', 'group')]),
+        ),
+        migrations.AlterUniqueTogether(
+            name='submissionscoredef',
+            unique_together=set([('key', 'competition')]),
+        ),
+        migrations.AlterUniqueTogether(
+            name='submissionscore',
+            unique_together=set([('result', 'scoredef')]),
+        ),
+        migrations.AlterUniqueTogether(
+            name='submissionresultgroupphase',
+            unique_together=set([('group', 'phase')]),
+        ),
+        migrations.AlterUniqueTogether(
+            name='phaseleaderboardentry',
+            unique_together=set([('board', 'result')]),
+        ),
+        migrations.AlterUniqueTogether(
+            name='pagecontainer',
+            unique_together=set([('object_id', 'content_type')]),
+        ),
+        migrations.AlterUniqueTogether(
+            name='page',
+            unique_together=set([('label', 'category', 'container')]),
+        ),
+        migrations.AlterUniqueTogether(
+            name='competitionsubmission',
+            unique_together=set([('submission_number', 'phase', 'participant')]),
+        ),
+        migrations.AlterUniqueTogether(
+            name='competitionparticipant',
+            unique_together=set([('user', 'competition')]),
+        ),
+    ]

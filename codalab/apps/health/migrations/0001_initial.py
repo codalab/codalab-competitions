@@ -1,32 +1,21 @@
 # -*- coding: utf-8 -*-
-from south.utils import datetime_utils as datetime
-from south.db import db
-from south.v2 import SchemaMigration
-from django.db import models
+from __future__ import unicode_literals
+
+from django.db import migrations, models
 
 
-class Migration(SchemaMigration):
+class Migration(migrations.Migration):
 
-    def forwards(self, orm):
-        # Adding model 'HealthSettings'
-        db.create_table(u'health_healthsettings', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('emails', self.gf('django.db.models.fields.TextField')()),
-        ))
-        db.send_create_signal(u'health', ['HealthSettings'])
+    dependencies = [
+    ]
 
-
-    def backwards(self, orm):
-        # Deleting model 'HealthSettings'
-        db.delete_table(u'health_healthsettings')
-
-
-    models = {
-        u'health.healthsettings': {
-            'Meta': {'object_name': 'HealthSettings'},
-            'emails': ('django.db.models.fields.TextField', [], {}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'})
-        }
-    }
-
-    complete_apps = ['health']
+    operations = [
+        migrations.CreateModel(
+            name='HealthSettings',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('emails', models.TextField(null=True, blank=True)),
+                ('threshold', models.PositiveIntegerField(default=25, null=True, blank=True)),
+            ],
+        ),
+    ]

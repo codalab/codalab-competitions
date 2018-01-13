@@ -60,10 +60,10 @@ def insert_data():
     # Site info
     #
 
-    site, created = Site.objects.get_or_create(pk=settings.SITE_ID)
-    site.domain = settings.CODALAB_SITE_DOMAIN
-    site.name = settings.CODALAB_SITE_NAME
-    site.save()
+    # site, created = Site.objects.get_or_create(pk=settings.SITE_ID)
+    # site.domain = settings.CODALAB_SITE_DOMAIN
+    # site.name = settings.CODALAB_SITE_NAME
+    # site.save()
 
     if ContentCategory.objects.all().count() > 0:
         print "Initial data has been detected in the database: skipping all inserts. Running data migration..."
