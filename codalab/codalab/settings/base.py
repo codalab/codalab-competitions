@@ -369,7 +369,14 @@ class Base(Configuration):
     USE_AWS = DEFAULT_FILE_STORAGE == 'storages.backends.gcloud.GoogleCloudStorage'
     GS_PUBLIC_BUCKET_NAME = os.environ.get('GS_PUBLIC_BUCKET_NAME')
     GS_PRIVATE_BUCKET_NAME = os.environ.get('GS_PRIVATE_BUCKET_NAME')
-    GS_CREDENTIALS = os.environ.get('GS_CREDENTIALS')
+    #GS_CREDENTIALS = os.environ.get('GS_CREDENTIALS')
+    #GS_APPLICATION_CREDENTIALS = os.environ.get('GS_APPLICATION_CREDENTIALS')
+    # GS_CREDENTIALS = 'goMLh86iVt2OxbfIN9W67exk'
+    # from google.cloud import datastore
+    # client = datastore.Client()
+    GS_PROJECT_ID = '297322048366'
+    GOOGLE_APPLICATION_CREDENTIALS = os.environ.get('GS_APPLICATION_CREDENTIALS')
+    GS_CREDENTIALS = os.environ.get('GS_APPLICATION_CREDENTIALS')
     # Azure
     AZURE_ACCOUNT_NAME = os.environ.get('AZURE_ACCOUNT_NAME')
     AZURE_ACCOUNT_KEY = os.environ.get('AZURE_ACCOUNT_KEY')

@@ -17,7 +17,8 @@ npm run build-css
 python manage.py collectstatic --noinput
 
 # migrate db, so we have the latest db schema
-python manage.py syncdb --migrate
+# python manage.py syncdb --migrate
+python manage.py syncdb
 
 # Insert initial data into the database
 python scripts/initialize.py
