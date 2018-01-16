@@ -2340,7 +2340,10 @@ def get_first_previous_active_and_next_phases(competition):
                 active_phase = phase
             elif not phase.phase_never_ends:
                 active_phase = phase
-                next_phase = next(phase_iterator)
+                try:
+                    next_phase = next(phase_iterator)
+                except StopIteration:
+                    pass
                 break
 
         # Hold this to store "previous phase"
