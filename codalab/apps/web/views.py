@@ -49,8 +49,8 @@ from apps.coopetitions.models import Like, Dislike
 from apps.forums.models import Forum
 from apps.common.competition_utils import get_most_popular_competitions, get_featured_competitions
 from apps.web.exceptions import ScoringException
-from apps.web.forms import CompetitionS3UploadForm, SubmissionS3UploadForm
-from apps.web.models import SubmissionScore, SubmissionScoreDef, get_current_phase
+from apps.web.forms import CompetitionS3UploadForm, SubmissionS3UploadForm, CompetitionGCSUploadForm
+from apps.web.models import SubmissionScore, SubmissionScoreDef, get_current_phase, CompetitionDefBundle
 
 from tasks import evaluate_submission, re_run_all_submissions_in_phase, create_competition, _make_url_sassy, \
     make_modified_bundle
@@ -264,6 +264,52 @@ class CompetitionS3Upload(LoginRequiredMixin, FormView):
         job = Job.objects.create_job('create_competition', {'comp_def_id': competition_def_bundle.pk})
         create_competition.apply_async((job.pk, competition_def_bundle.pk,))
         return HttpResponse(json.dumps({'token': job.pk}), status=201, content_type="application/json")
+
+
+class CompetitionGCSUpload(LoginRequiredMixin, CreateView):
+    form_class = CompetitionGCSUploadForm
+    template_name = 'web/competitions/upload_gcs_competition.html'
+
+    def form_valid(self, form):
+        print("Doing bullshit here.")
+        for k,v in form.fields.iteritems():
+            print(k,v)
+        competition_def_bundle = CompetitionDefBundle(config_bundle=form.cleaned_data['config_bundle'], owner=self.request.user)
+        # competition_def_bundle = form.cleaned_data['config_bundle']
+        # competition_def_bundle.owner = self.request.user
+        competition_def_bundle.save()
+        job = Job.objects.create_job('create_competition', {'comp_def_id': competition_def_bundle.pk})
+        create_competition.apply_async((job.pk, competition_def_bundle.pk,))
+        return HttpResponse(json.dumps({'token': job.pk}), status=201, content_type="application/json")
+
+    def post(self, request, *args, **kwargs):
+        print(request.FILES)
+        # # We're posting data, cool beans
+        # my_data = request.POST.get("form")
+        # print(my_data)
+        #
+        # r = super(CompetitionGCSUpload, self).post(request, *args, **kwargs)
+        # return r
+        if request.method == 'POST':
+            form = CompetitionGCSUploadForm(request.POST)
+            if form.is_valid():
+                # Do something with the data
+                # print("Yay valid")
+                # data = form.cleaned_data
+                # field = data['config_bundle']
+                # for field in form.cleaned_data:
+                #     print("My field {}".format(field))
+                # for key, val in form.cleaned_data.iteritems():
+                #     print(key, val)
+                # for key, val in request.FILES.iteritems():
+                #     print(key, val)
+                #     print(request.FILES)
+                pass
+        else:
+            form = CompetitionGCSUploadForm()
+            # Rest of your view follows
+        r = super(CompetitionGCSUpload, self).post(request, *args, **kwargs)
+        return r
 
 
 class CompetitionEdit(LoginRequiredMixin, NamedFormsetsMixin, UpdateWithInlinesView):

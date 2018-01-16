@@ -282,6 +282,20 @@ class CompetitionS3UploadForm(forms.ModelForm):
         self.fields['s3_config_bundle'].required = True
 
 
+class CompetitionGCSUploadForm(forms.ModelForm):
+
+    class Meta:
+        model = models.CompetitionDefBundle
+        fields = ('config_bundle',)
+
+    # def __init__(self, *args, **kwargs):
+    #     # Call constructor before fields are built
+    #     super(CompetitionGCSUploadForm, self).__init__(*args, **kwargs)
+    #
+    #     self.fields['s3_config_bundle'].required = True
+    #     # self.fields['s3_config_bundle'].hidden = True
+
+
 class SubmissionS3UploadForm(forms.ModelForm):
 
     class Meta:

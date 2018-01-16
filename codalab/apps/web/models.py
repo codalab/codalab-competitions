@@ -1248,8 +1248,9 @@ class CompetitionSubmission(models.Model):
     phase = models.ForeignKey(CompetitionPhase, related_name='submissions')
     secret = models.CharField(max_length=128, default='', blank=True)
     docker_image = models.CharField(max_length=128, default='', blank=True)
-    file = models.FileField(upload_to=_uuidify('submission_file_name'), storage=BundleStorage, null=True, blank=True)
-    s3_file = S3DirectField(dest='submissions', null=True, blank=True)
+    file = models.FileField(storage=BundleStorage, null=True, blank=True)
+    # s3_file = S3DirectField(dest='submissions', null=True, blank=True)
+    s3_file = models.FileField(null=True, blank=True)
     file_url_base = models.CharField(max_length=2000, blank=True)
     readable_filename = models.TextField(null=True, blank=True)
     description = models.CharField(max_length=256, blank=True)
@@ -1569,8 +1570,10 @@ class SubmissionScoreDef(models.Model):
 
 class CompetitionDefBundle(models.Model):
     """Defines a competition bundle."""
-    config_bundle = models.FileField(upload_to=_uuidify('competition-bundles'), storage=BundleStorage, null=True, blank=True)
-    s3_config_bundle = S3DirectField(dest='competitions', null=True, blank=True)
+    # config_bundle = models.FileField(upload_to=_uuidify('competition-bundles'), storage=BundleStorage, null=True, blank=True)
+    config_bundle = models.FileField(storage=BundleStorage, null=True, blank=True)
+    # s3_config_bundle = S3DirectField(dest='competitions', null=True, blank=True)
+    s3_config_bundle = models.FileField(null=True, blank=True)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='owner')
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -1599,16 +1602,16 @@ class CompetitionDefBundle(models.Model):
         """
         # Get the bundle data, which is stored as a zipfile
         logger.info("CompetitionDefBundle::unpack begins (pk=%s)", self.pk)
-        if settings.USE_AWS:
-            from apps.web.tasks import _make_url_sassy
-            url = _make_url_sassy(self.s3_config_bundle)
-            logger.info("CompetitionDefBundle::unpacking url=%s", url)
-            competition_def_data = urllib.urlopen(
-                url
-            ).read()
-            zf = zipfile.ZipFile(io.BytesIO(competition_def_data))
-        else:
-            zf = zipfile.ZipFile(self.config_bundle)
+        # if settings.USE_AWS:
+        #     from apps.web.tasks import _make_url_sassy
+        #     url = _make_url_sassy(self.s3_config_bundle)
+        #     logger.info("CompetitionDefBundle::unpacking url=%s", url)
+        #     competition_def_data = urllib.urlopen(
+        #         url
+        #     ).read()
+        #     zf = zipfile.ZipFile(io.BytesIO(competition_def_data))
+        # else:
+        zf = zipfile.ZipFile(self.config_bundle)
         logger.debug("CompetitionDefBundle::unpack creating base competition (pk=%s)", self.pk)
         comp_spec_file = [x for x in zf.namelist() if ".yaml" in x][0]
         yaml_contents = zf.open(comp_spec_file).read()
