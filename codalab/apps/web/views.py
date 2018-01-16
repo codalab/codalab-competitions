@@ -50,7 +50,8 @@ from apps.forums.models import Forum
 from apps.common.competition_utils import get_most_popular_competitions, get_featured_competitions
 from apps.web.exceptions import ScoringException
 from apps.web.forms import CompetitionS3UploadForm, SubmissionS3UploadForm
-from apps.web.models import SubmissionScore, SubmissionScoreDef, get_current_phase
+from apps.web.models import SubmissionScore, SubmissionScoreDef, get_current_phase, \
+    get_first_previous_active_and_next_phases
 
 from tasks import evaluate_submission, re_run_all_submissions_in_phase, create_competition, _make_url_sassy, \
     make_modified_bundle
@@ -512,7 +513,7 @@ class CompetitionDetailView(DetailView):
         context['site'] = Site.objects.get_current()
         context['current_server_time'] = datetime.now()
 
-        context['active_phase'] = get_current_phase(competition)
+        context["first_phase"], context["previous_phase"], context['active_phase'], context["next_phase"] = get_first_previous_active_and_next_phases(competition)
 
         # Top 3 Leaderboard
         # Get the month from submitted_at
@@ -547,26 +548,6 @@ class CompetitionDetailView(DetailView):
         submissions = dict()
 
         try:
-            context["previous_phase"] = None
-            context["next_phase"] = None
-            context["first_phase"] = None
-            phase_iterator = iter(all_phases)
-            for phase in phase_iterator:
-                if context["first_phase"] is None:
-                    # Set the first phase if it hasn't been saved yet
-                    context["first_phase"] = phase
-
-                if phase.is_active:
-                    context['active_phase'] = phase
-                    # Set next phase if available
-                    try:
-                        context["next_phase"] = next(phase_iterator)
-                    except StopIteration:
-                        pass
-                elif "active_phase" not in context:
-                    # Set trailing phase since active one hasn't been found yet
-                    context["previous_phase"] = phase
-
             all_participants = competition.participants.all().select_related('user')
 
             if self.request.user.is_authenticated() and self.request.user in [x.user for x in all_participants]:

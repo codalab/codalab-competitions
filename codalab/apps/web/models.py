@@ -778,7 +778,7 @@ class CompetitionPhase(models.Model):
         ('purple', 'Purple'),
     )
 
-    competition = models.ForeignKey(Competition,related_name='phases')
+    competition = models.ForeignKey(Competition, related_name='phases')
     description = models.CharField(max_length=1000, null=True, blank=True)
     # Is this 0 based or 1 based?
     phasenumber = models.PositiveIntegerField(verbose_name="Number")
@@ -2309,10 +2309,43 @@ def get_current_phase(competition):
     phase_iterator = iter(all_phases)
     active_phase = None
     for phase in phase_iterator:
+        # Get an active phase that isn't also never-ending, unless we don't have any active_phases
         if phase.is_active:
-            active_phase = phase
-            break
+            if active_phase is None:
+                active_phase = phase
+            elif not phase.phase_never_ends:
+                active_phase = phase
+                break
     return active_phase
+
+
+def get_first_previous_active_and_next_phases(competition):
+    first_phase = None
+    previous_phase = None
+    active_phase = None
+    next_phase = None
+
+    all_phases = competition.phases.all().order_by('start_date')
+    phase_iterator = iter(all_phases)
+    trailing_phase_holder = None
+
+    for phase in phase_iterator:
+        if not first_phase:
+            first_phase = phase
+
+        # Get an active phase that isn't also never-ending, unless we don't have any active_phases
+        if phase.is_active:
+            previous_phase = trailing_phase_holder
+            if active_phase is None:
+                active_phase = phase
+            elif not phase.phase_never_ends:
+                active_phase = phase
+                next_phase = next(phase_iterator)
+                break
+
+        # Hold this to store "previous phase"
+        trailing_phase_holder = phase
+    return first_phase, previous_phase, active_phase, next_phase
 
 
 class CompetitionDump(models.Model):
