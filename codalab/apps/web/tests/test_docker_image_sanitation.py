@@ -18,6 +18,7 @@ class DockerImageSanitationTests(TestCase):
         self._sanitize("continuumio/anaconda:4.3.0 && ls -all || ls.txt", "continuumio/anaconda:4.3.0")
         self._sanitize("continuumio/ anaconda:4.3.0", "continuumio/")
         self._sanitize("continuumio/anaconda:4.3.0", "continuumio/anaconda:4.3.0")
+        self._sanitize("continuumio/anaconda-test:4.3.0", "continuumio/anaconda-test:4.3.0")
         self._sanitize("'sudo bash'", "sudo")
 
         # Handles empties
