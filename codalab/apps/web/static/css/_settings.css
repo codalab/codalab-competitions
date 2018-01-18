@@ -127,7 +127,7 @@ div.CompetitionsDetailContainer div.section-container section.active div.content
 
 /* line 187, ../sass/_settings.scss */
 td > i, td > a > i {
-  color: #739cb9;
+  color: #0D3F76;
 }
 
 /* line 191, ../sass/_settings.scss */
@@ -233,7 +233,7 @@ a > i {
 /* line 276, ../sass/_settings.scss */
 .competition-label {
   height: 100px;
-  background: #739cb9;
+  background: #0D3F76;
   color: white;
   padding-right: 0px;
   padding-left: 0px;
@@ -298,7 +298,7 @@ a > i {
 /* line 333, ../sass/_settings.scss */
 #footer, #footer a, #footer a:hover {
   font-size: small;
-  background: #739cb9;
+  background: #0D3F76;
   color: white;
 }
 
@@ -572,7 +572,7 @@ div.pending-approval-select.columns {
 
 /* line 562, ../sass/_settings.scss */
 .competitionUserBlock h3 {
-  color: #739cb9;
+  color: #0D3F76;
   margin-bottom: 2px;
 }
 

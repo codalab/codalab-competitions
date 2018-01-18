@@ -192,7 +192,7 @@ div.CompetitionsDetailContainer div.section-container section.active div.content
 
 /* line 187, ../sass/_settings.scss */
 td > i, td > a > i {
-  color: #739cb9;
+  color: #0D3F76;
 }
 
 /* line 191, ../sass/_settings.scss */
@@ -298,7 +298,7 @@ a > i {
 /* line 276, ../sass/_settings.scss */
 .competition-label {
   height: 100px;
-  background: #739cb9;
+  background: #0D3F76;
   color: white;
   padding-right: 0px;
   padding-left: 0px;
@@ -363,7 +363,7 @@ a > i {
 /* line 333, ../sass/_settings.scss */
 #footer, #footer a, #footer a:hover {
   font-size: small;
-  background: #739cb9;
+  background: #0D3F76;
   color: white;
 }
 
@@ -644,7 +644,7 @@ div.pending-approval-select.columns {
 
 /* line 568, ../sass/_settings.scss */
 .competitionUserBlock h3 {
-  color: #739cb9;
+  color: #0D3F76;
   margin-bottom: 2px;
 }
 
@@ -2413,7 +2413,7 @@ a {
 }
 /* line 158, ../sass/foundation/components/_type.scss */
 a:hover, a:focus {
-  color: #739cb9;
+  color: #0D3F76;
 }
 /* line 160, ../sass/foundation/components/_type.scss */
 a img {
@@ -2863,7 +2863,7 @@ button.secondary:hover, button.secondary:focus, .button.secondary:hover, .button
 }
 /* line 178, ../sass/foundation/components/_buttons.scss */
 button.success, .button.success {
-  background-color: #739cb9;
+  background-color: #0D3F76;
   border-color: #5384a6;
   color: white;
 }
@@ -2931,7 +2931,7 @@ button.right-align, .button.right-align {
 }
 /* line 189, ../sass/foundation/components/_buttons.scss */
 button.disabled, button[disabled], .button.disabled, .button[disabled] {
-  background-color: #739cb9;
+  background-color: #0D3F76;
   border-color: #5384a6;
   color: white;
   cursor: default;
@@ -2949,7 +2949,7 @@ button.disabled:hover, button.disabled:focus, button[disabled]:hover, button[dis
 }
 /* line 147, ../sass/foundation/components/_buttons.scss */
 button.disabled:hover, button.disabled:focus, button[disabled]:hover, button[disabled]:focus, .button.disabled:hover, .button.disabled:focus, .button[disabled]:hover, .button[disabled]:focus {
-  background-color: #739cb9;
+  background-color: #0D3F76;
 }
 /* line 190, ../sass/foundation/components/_buttons.scss */
 button.disabled.secondary, button[disabled].secondary, .button.disabled.secondary, .button[disabled].secondary {
@@ -2975,7 +2975,7 @@ button.disabled.secondary:hover, button.disabled.secondary:focus, button[disable
 }
 /* line 191, ../sass/foundation/components/_buttons.scss */
 button.disabled.success, button[disabled].success, .button.disabled.success, .button[disabled].success {
-  background-color: #739cb9;
+  background-color: #0D3F76;
   border-color: #5384a6;
   color: white;
   cursor: default;
@@ -2993,7 +2993,7 @@ button.disabled.success:hover, button.disabled.success:focus, button[disabled].s
 }
 /* line 147, ../sass/foundation/components/_buttons.scss */
 button.disabled.success:hover, button.disabled.success:focus, button[disabled].success:hover, button[disabled].success:focus, .button.disabled.success:hover, .button.disabled.success:focus, .button[disabled].success:hover, .button[disabled].success:focus {
-  background-color: #739cb9;
+  background-color: #0D3F76;
 }
 /* line 192, ../sass/foundation/components/_buttons.scss */
 button.disabled.alert, button[disabled].alert, .button.disabled.alert, .button[disabled].alert {
@@ -5029,7 +5029,7 @@ label.error {
 /* line 128, ../sass/foundation/components/_top-bar.scss */
 .top-bar .name h1 a {
   font-weight: normal;
-  color: #739cb9;
+  color: #0D3F76;
   width: 50%;
   display: block;
   padding: 0 16.33333px;
@@ -5042,7 +5042,7 @@ label.error {
 }
 /* line 144, ../sass/foundation/components/_top-bar.scss */
 .top-bar .toggle-topbar a {
-  color: #739cb9;
+  color: #0D3F76;
   text-transform: uppercase;
   font-size: 0.8125em;
   font-weight: normal;
@@ -5066,7 +5066,7 @@ label.error {
   height: 34px;
   line-height: 33px;
   padding: 0;
-  color: #739cb9;
+  color: #0D3F76;
 }
 /* line 171, ../sass/foundation/components/_top-bar.scss */
 .top-bar .toggle-topbar.menu-icon a span {
@@ -5075,8 +5075,8 @@ label.error {
   display: block;
   width: 16px;
   height: 0;
-  -webkit-box-shadow: 0 10px 0 1px #739cb9, 0 16px 0 1px #739cb9, 0 22px 0 1px #739cb9;
-  box-shadow: 0 10px 0 1px #739cb9, 0 16px 0 1px #739cb9, 0 22px 0 1px #739cb9;
+  -webkit-box-shadow: 0 10px 0 1px #0D3F76, 0 16px 0 1px #0D3F76, 0 22px 0 1px #0D3F76;
+  box-shadow: 0 10px 0 1px #0D3F76, 0 16px 0 1px #0D3F76, 0 22px 0 1px #0D3F76;
 }
 /* line 192, ../sass/foundation/components/_top-bar.scss */
 .top-bar.expanded {
@@ -5128,7 +5128,7 @@ label.error {
 .top-bar-section ul li > a {
   display: block;
   width: 100%;
-  color: #739cb9;
+  color: #0D3F76;
   padding: 12px 0 12px 0;
   padding-left: 16.33333px;
   font-size: 100%;
@@ -5137,7 +5137,7 @@ label.error {
 }
 /* line 253, ../sass/foundation/components/_top-bar.scss */
 .top-bar-section ul li > a.button {
-  background: #739cb9;
+  background: #0D3F76;
   font-size: 100%;
 }
 /* line 256, ../sass/foundation/components/_top-bar.scss */
@@ -5154,7 +5154,7 @@ label.error {
 }
 /* line 266, ../sass/foundation/components/_top-bar.scss */
 .top-bar-section ul li > a.button.success {
-  background: #739cb9;
+  background: #0D3F76;
 }
 /* line 268, ../sass/foundation/components/_top-bar.scss */
 .top-bar-section ul li > a.button.success.hover {
@@ -5176,8 +5176,8 @@ label.error {
 }
 /* line 289, ../sass/foundation/components/_top-bar.scss */
 .top-bar-section ul li.active > a {
-  color: #739cb9;
-  border-top: 4px #739cb9 solid;
+  color: #0D3F76;
+  border-top: 4px #0D3F76 solid;
 }
 /* line 297, ../sass/foundation/components/_top-bar.scss */
 .top-bar-section .has-form {
@@ -5238,7 +5238,7 @@ label.error {
 }
 /* line 342, ../sass/foundation/components/_top-bar.scss */
 .top-bar-section .dropdown li.title h5 a {
-  color: #739cb9;
+  color: #0D3F76;
   line-height: 24.5px;
   display: block;
 }
@@ -5396,7 +5396,7 @@ label.error {
   }
   /* line 472, ../sass/foundation/components/_top-bar.scss */
   .top-bar-section .dropdown li a {
-    color: #739cb9;
+    color: #0D3F76;
     line-height: 1;
     white-space: nowrap;
     padding: 7px 16.33333px;
@@ -5446,7 +5446,7 @@ label.error {
   /* line 532, ../sass/foundation/components/_top-bar.scss */
   .no-js .top-bar-section ul li:active > a {
     background: #676278;
-    color: #739cb9;
+    color: #0D3F76;
   }
   /* line 540, ../sass/foundation/components/_top-bar.scss */
   .no-js .top-bar-section .has-dropdown:hover > .dropdown {
@@ -6316,7 +6316,7 @@ label.error {
   position: relative;
   padding: 0.6875em 1.3125em 0.75em 0.6875em;
   font-size: 0.875em;
-  background-color: #739cb9;
+  background-color: #0D3F76;
   border-color: #5384a6;
   color: white;
 }
@@ -6347,7 +6347,7 @@ label.error {
 }
 /* line 102, ../sass/foundation/components/_alert-boxes.scss */
 .alert-box.success {
-  background-color: #739cb9;
+  background-color: #0D3F76;
   border-color: #5384a6;
   color: white;
 }
@@ -6394,7 +6394,7 @@ label.error {
 .breadcrumbs > * a,
 .breadcrumbs > * span {
   text-transform: uppercase;
-  color: #739cb9;
+  color: #0D3F76;
 }
 /* line 69, ../sass/foundation/components/_breadcrumbs.scss */
 .breadcrumbs > *.current {
@@ -6736,7 +6736,7 @@ kbd {
   position: relative;
   padding: 0.1875em 0.625em 0.25em;
   font-size: 0.875em;
-  background-color: #739cb9;
+  background-color: #0D3F76;
   color: white;
 }
 /* line 77, ../sass/foundation/components/_labels.scss */
@@ -6756,7 +6756,7 @@ kbd {
 }
 /* line 81, ../sass/foundation/components/_labels.scss */
 .label.success {
-  background-color: #739cb9;
+  background-color: #0D3F76;
   color: white;
 }
 /* line 82, ../sass/foundation/components/_labels.scss */
@@ -6823,14 +6823,14 @@ ul.pagination li.unavailable:hover a, ul.pagination li.unavailable a:focus {
 }
 /* line 57, ../sass/foundation/components/_pagination.scss */
 ul.pagination li.current a {
-  background: #739cb9;
+  background: #0D3F76;
   color: white;
   font-weight: bold;
   cursor: default;
 }
 /* line 64, ../sass/foundation/components/_pagination.scss */
 ul.pagination li.current a:hover, ul.pagination li.current a:focus {
-  background: #739cb9;
+  background: #0D3F76;
 }
 /* line 110, ../sass/foundation/components/_pagination.scss */
 ul.pagination li {
@@ -6888,7 +6888,7 @@ ul.pagination li {
   border-color: #5384a6;
   margin-bottom: 0px;
   padding: 1.25em;
-  background: #739cb9;
+  background: #0D3F76;
   -webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) inset;
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) inset;
 }
@@ -6988,7 +6988,7 @@ ul.pagination li {
 }
 /* line 54, ../sass/foundation/components/_progress-bars.scss */
 .progress .meter {
-  background: #739cb9;
+  background: #0D3F76;
   height: 100%;
   display: block;
 }
@@ -7000,7 +7000,7 @@ ul.pagination li {
 }
 /* line 58, ../sass/foundation/components/_progress-bars.scss */
 .progress.success .meter {
-  background: #739cb9;
+  background: #0D3F76;
   height: 100%;
   display: block;
 }
@@ -7048,7 +7048,7 @@ ul.pagination li {
 /* line 43, ../sass/foundation/components/_side-nav.scss */
 .side-nav li a {
   display: block;
-  color: #739cb9;
+  color: #0D3F76;
 }
 /* line 47, ../sass/foundation/components/_side-nav.scss */
 .side-nav li a.active {
@@ -7099,7 +7099,7 @@ ul.pagination li {
   -webkit-border-radius: 4px;
   border-radius: 4px;
   font-weight: bold;
-  background: #739cb9;
+  background: #0D3F76;
   padding: 0.5em 0.75em;
   cursor: default;
   color: white;
@@ -7443,7 +7443,7 @@ a.th {
 /* line 36, ../sass/foundation/components/_tooltips.scss */
 .has-tip:hover, .has-tip:focus {
   border-bottom: 0px;
-  color: #739cb9;
+  color: #0D3F76;
 }
 /* line 42, ../sass/foundation/components/_tooltips.scss */
 .has-tip.tip-left, .has-tip.tip-right {
@@ -7463,7 +7463,7 @@ a.th {
   left: 50%;
   width: 100%;
   color: white;
-  background: #739cb9;
+  background: #0D3F76;
   -webkit-border-radius: 3px;
   border-radius: 3px;
 }
@@ -7475,12 +7475,12 @@ a.th {
   width: 0;
   height: 0;
   border: solid 5px;
-  border-color: transparent transparent #739cb9 transparent;
+  border-color: transparent transparent #0D3F76 transparent;
   top: -10px;
 }
 /* line 71, ../sass/foundation/components/_tooltips.scss */
 .tooltip.opened {
-  color: #739cb9 !important;
+  color: #0D3F76 !important;
   border-bottom: 0px !important;
 }
 
@@ -7495,12 +7495,12 @@ a.th {
 @media only screen and (min-width: 768px) {
   /* line 86, ../sass/foundation/components/_tooltips.scss */
   .tooltip > .nub {
-    border-color: transparent transparent #739cb9 transparent;
+    border-color: transparent transparent #0D3F76 transparent;
     top: -10px;
   }
   /* line 90, ../sass/foundation/components/_tooltips.scss */
   .tooltip.tip-top > .nub {
-    border-color: #739cb9 transparent transparent transparent;
+    border-color: #0D3F76 transparent transparent transparent;
     top: auto;
     bottom: -10px;
   }
@@ -7510,7 +7510,7 @@ a.th {
   }
   /* line 99, ../sass/foundation/components/_tooltips.scss */
   .tooltip.tip-left > .nub {
-    border-color: transparent transparent transparent #739cb9;
+    border-color: transparent transparent transparent #0D3F76;
     right: -10px;
     left: auto;
     top: 50%;
@@ -7518,7 +7518,7 @@ a.th {
   }
   /* line 106, ../sass/foundation/components/_tooltips.scss */
   .tooltip.tip-right > .nub {
-    border-color: transparent #739cb9 transparent transparent;
+    border-color: transparent #0D3F76 transparent transparent;
     right: auto;
     left: -10px;
     top: 50%;
