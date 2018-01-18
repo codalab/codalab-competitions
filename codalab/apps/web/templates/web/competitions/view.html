@@ -276,8 +276,12 @@
                 </div>
             {% endif %}
         </div>
-        <div class="col-md-8">
-            {% include "web/competitions/_chart.html" %}
+        <div align="center" class="col-md-8">
+            {% if active_phase.is_blind %}
+                <i>This phase is blind</i>
+            {% else %}
+                {% include "web/competitions/_chart.html" %}
+            {% endif %}
         </div>
     </div>
 </div>
