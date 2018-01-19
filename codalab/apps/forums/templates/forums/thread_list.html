@@ -1,5 +1,5 @@
 {% extends "forums/base_forum.html" %}
-
+{% load i18n %}
 {% load url from future %}
 
 {% block content %}
@@ -8,19 +8,19 @@
         <thead>
             <tr>
                 <td width="500px">
-                    Title
+                    {% trans 'Title' %}
                 </td>
                 <td>
-                    Started by
+                    {% trans 'Started by' %}
                 </td>
                 <td>
-                    Date created
+                    {% trans 'Date created' %}
                 </td>
                 <td>
-                    Latest post
+                    {% trans 'Latest post' %}
                 </td>
                 <td>
-                    Posts
+                    {% trans 'Posts' %}
                 </td>
             </tr>
         </thead>
@@ -37,6 +37,6 @@
         </tbody>
     </table>
     {% else %}
-        <i>No topics started yet, <a href="{% url 'forum_new_thread' forum_pk=forum.pk %}">start one now</a>!</i>
+        <i>{% trans 'No topics started yet,' %} <a href="{% url 'forum_new_thread' forum_pk=forum.pk %}">{% trans 'start one now' %}</a>!</i>
     {% endif %}
 {% endblock %}

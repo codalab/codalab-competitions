@@ -548,7 +548,6 @@ msgstr "版本号"
 #: apps/web/templates/web/user_detail.html:6
 #: apps/web/templates/web/competitions/view.html:7
 #: apps/web/templates/web/competitions/view.html:8
-#, fuzzy
 msgid "Competition"
 msgstr "我的竞赛"
 
@@ -952,9 +951,8 @@ msgstr "可下载的数据集"
 
 #: apps/web/templates/web/competitions/edit.html:5
 #: apps/web/templates/web/competitions/edit.html:6
-#, fuzzy
 msgid "Edit Competition"
-msgstr "我的竞赛"
+msgstr "编辑竞赛"
 
 #: apps/web/templates/web/competitions/edit.html:21
 msgid "Download original YAML file"
