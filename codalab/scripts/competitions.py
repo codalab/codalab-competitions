@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: UTF-8 -*-
 # Run this with the python from the CodaLab virtual environment
 #
 
@@ -8,6 +9,7 @@ import os
 import random
 import datetime
 from django.utils import timezone
+from django.utils.translation import ugettext as _
 # This is a really, really long way around saying that if the script is in
 # codalab\scripts\users.py, we need to add, ../../../codalab to the
 # sys.path to find the settings
@@ -51,7 +53,7 @@ brats12_description = """
 brats2012, _ = Competition.objects.get_or_create(
     title=brats12_name, creator=guest1, modified_by=guest1, defaults=dict(description=brats12_description))
 details_category = ContentCategory.objects.get(name="Learn the Details")
-participate_category = ContentCategory.objects.get(name="Participate")
+participate_category = ContentCategory.objects.get(name=_("Participate"))
 pc, _ = PageContainer.objects.get_or_create(
     object_id=brats2012.id, content_type=ContentType.objects.get_for_model(Competition))
 brats2012.save()

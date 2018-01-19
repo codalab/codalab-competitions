@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 import csv
 import datetime
 import exceptions
@@ -33,6 +34,7 @@ from django.db.models import Max
 from django.db.models.signals import post_save
 from django.utils.dateparse import parse_datetime
 from django.utils.timezone import now
+from django.utils.translation import ugettext as _
 
 from mptt.models import MPTTModel, TreeForeignKey
 
@@ -1704,7 +1706,7 @@ class CompetitionDefBundle(models.Model):
                     html=zf.read(page_data)
                 )
 
-        participate_category = ContentCategory.objects.get(name="Participate")
+        participate_category = ContentCategory.objects.get(name=_("Participate"))
         Page.objects.create(
             category=participate_category,
             container=pc,

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: UTF-8 -*-
 # Run this script from the CodaLab virtual environment to insert
 # initial data required by the web app into the database.
 
@@ -24,6 +25,7 @@ from apps.web.models import (CompetitionSubmissionStatus,
 from apps.web.models import (Page)
 from django.conf import settings
 from apps.teams.models import TeamStatus, TeamMembershipStatus
+from django.utils.translation import ugettext as _
 
 def migrate_data():
     """
@@ -93,13 +95,13 @@ def insert_data():
               'is_menu' : True,
               'content_limit' : 1 },
             { 'parent' : None,
-              'name' : "Participate",
+              'name' : _("Participate"),
               'codename' : "participate",
               'visibility' : content_visibility_items['visible'],
               'is_menu' : True,
               'content_limit' : 1 },
             { 'parent' : None,
-              'name' : "Results",
+              'name' : _("Results"),
               'codename' : "results",
               'visibility' : content_visibility_items['visible'],
               'is_menu' : True,

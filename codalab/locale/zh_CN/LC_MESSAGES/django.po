@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-01-12 08:05+0000\n"
+"POT-Creation-Date: 2018-01-19 06:40+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -99,6 +99,14 @@ msgstr "删除"
 #, fuzzy
 msgid "No queues created, yet!"
 msgstr "还没有添加数据集！"
+
+#: apps/web/models.py:1686 scripts/competitions.py:54 scripts/initialize.py:92
+msgid "Learn the Details"
+msgstr "比赛细则"
+
+#: apps/web/models.py:1708 scripts/competitions.py:55 scripts/initialize.py:98
+msgid "Participate"
+msgstr "参与竞赛"
 
 #: apps/web/static/error/503.html:15 static/error/503.html:15
 msgid "The CodaLab site is being upgraded..."
@@ -345,7 +353,6 @@ msgstr "*用户名"
 #: apps/web/templates/account/signup.html:25
 #: apps/web/templates/web/competitions/view.html:242
 #: apps/web/templates/web/competitions/view.html:266
-#, fuzzy
 msgid "Username"
 msgstr "用户名"
 
@@ -455,9 +462,9 @@ msgstr "不论竞赛参与者被接受或是拒绝，您都将会收到通知"
 msgid "Your participation privileges have been suspended."
 msgstr "你的参与权限已被停止"
 
-#: apps/web/templates/search/search.html:9
+#: apps/web/templates/search/search.html:9 scripts/initialize.py:104
 msgid "Results"
-msgstr "搜索结果"
+msgstr "比赛结果"
 
 #: apps/web/templates/search/search.html:15
 #, python-format
@@ -597,7 +604,7 @@ msgstr "浏览预测的错误信息"
 #: apps/web/templates/web/common/_submission_details_template.html:35
 #: apps/web/templates/web/competitions/public_submissions_phase.html:89
 msgid "Download evaluation output from prediction step"
-msgstr "从预测阶段下载评估的结果"
+msgstr "下载你代码的运行结果"
 
 #: apps/web/templates/web/common/_submission_details_template.html:38
 #: apps/web/templates/web/competitions/public_submissions_phase.html:94
@@ -607,7 +614,7 @@ msgstr "浏览详细结果"
 #: apps/web/templates/web/common/_submission_details_template.html:40
 #: apps/web/templates/web/competitions/public_submissions_phase.html:96
 msgid "Download evaluation output from scoring step"
-msgstr "从得分阶段下载评估结果"
+msgstr "下载你的得分结果"
 
 #: apps/web/templates/web/common/_submission_details_template.html:42
 msgid "Download private output from scoring step"
@@ -1143,6 +1150,15 @@ msgstr "没有提交"
 msgid "Publish"
 msgstr "发布"
 
+#: apps/web/templates/web/competitions/upload_competition.html:3
+#: apps/web/templates/web/competitions/upload_competition.html:4
+#: apps/web/templates/web/competitions/upload_s3_competition.html:3
+#: apps/web/templates/web/competitions/upload_s3_competition.html:4
+#: apps/web/templates/web/my/index.html:57
+#: apps/web/templates/web/my/index.html:59
+msgid "Create Competition"
+msgstr "创建比赛"
+
 #: apps/web/templates/web/competitions/upload_competition.html:10
 #: apps/web/templates/web/competitions/upload_s3_competition.html:11
 msgid ""
@@ -1411,11 +1427,6 @@ msgstr "参与者的具体结果。"
 #: apps/web/templates/web/my/index.html:6
 msgid "Competitions (My CodaLab)"
 msgstr "竞赛(我的工作站)"
-
-#: apps/web/templates/web/my/index.html:57
-#: apps/web/templates/web/my/index.html:59
-msgid "Create Competition"
-msgstr "创建比赛"
 
 #: apps/web/templates/web/my/participants.html:19
 msgid "Teams"
