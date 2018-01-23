@@ -6,9 +6,8 @@
     <h2 class="thread_title"> > {{ thread.title }}</h2>
     {% for post in ordered_posts %}
         {{ post.content|linebreaks }}
-
-        <span class="posted_by">{% trans 'Posted by:' %} {{ post.posted_by }} @ {{ post.date_created }}</span>
-
+        
+        <span class="posted_by">{% trans "Posted by:" %}{{ post.posted_by }} @ {{ post.date_created }}</span>
         {% if not forloop.last %}
             <hr>
         {% endif %}
