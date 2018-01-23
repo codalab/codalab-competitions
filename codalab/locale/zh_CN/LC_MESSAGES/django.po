@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-01-23 01:21+0000\n"
+"POT-Creation-Date: 2018-01-23 05:51+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -87,6 +87,15 @@ msgstr "最后提交"
 msgid "Posts"
 msgstr "提交"
 
+#: apps/forums/templates/forums/thread_list.html:40
+msgid "No topics started yet,"
+msgstr ""
+
+#: apps/forums/templates/forums/thread_list.html:40
+#, fuzzy
+msgid "start one now"
+msgstr "创建新话题"
+
 #: apps/queues/templates/queues/delete.html:3
 #: apps/queues/templates/queues/delete.html:4
 msgid "Queue delete"
@@ -156,11 +165,7 @@ msgstr "删除"
 msgid "No queues created, yet!"
 msgstr "还没有创建队列！"
 
-#: apps/web/models.py:1686 scripts/competitions.py:54 scripts/initialize.py:92
-msgid "Learn the Details"
-msgstr "比赛细则"
-
-#: apps/web/models.py:1708 scripts/competitions.py:55 scripts/initialize.py:98
+#: apps/web/models.py:1709 scripts/competitions.py:56 scripts/initialize.py:98
 msgid "Participate"
 msgstr "参与竞赛"
 
@@ -178,15 +183,15 @@ msgstr "抱歉，因为网站正在维护，您要登录的页面暂时无法访
 msgid "Please try again later. Thank you."
 msgstr "请过段时间再尝试，感谢配合！"
 
-#: apps/web/static/error/50x.html:16 static/error/50x.html:16
+#: apps/web/static/error/50x.html:16 static/error/50x.html:18
 msgid "The CodaLab site is currently unavailable."
 msgstr "网站正在更新维护"
 
-#: apps/web/static/error/50x.html:17 static/error/50x.html:17
+#: apps/web/static/error/50x.html:17 static/error/50x.html:19
 msgid "Sorry, the page you are looking for is currently unavailable."
 msgstr "抱歉，因为网站正在维护，您要登录的页面暂时无法访问。"
 
-#: apps/web/static/error/50x.html:18 static/error/50x.html:18
+#: apps/web/static/error/50x.html:18 static/error/50x.html:20
 msgid "Please try again later."
 msgstr "请过段时间再尝试，感谢配合！"
 
@@ -328,14 +333,18 @@ msgstr ""
 msgid "Are you sure you want to sign out?"
 msgstr "你确定要注销登录吗？"
 
-#: apps/web/templates/account/password_reset.html:7
-#: apps/web/templates/account/password_reset.html:8
+#: apps/web/templates/account/password_reset.html:10
+#: apps/web/templates/account/password_reset.html:11
 #: apps/web/templates/account/password_reset_done.html:6
 #: apps/web/templates/account/password_reset_done.html:7
 msgid "Password Reset"
 msgstr "密码重置"
 
-#: apps/web/templates/account/password_reset.html:14
+#: apps/web/templates/account/password_reset.html:17
+msgid "Note: you are already logged as"
+msgstr "注意：你现在使用的账号名是"
+
+#: apps/web/templates/account/password_reset.html:18
 msgid ""
 "Forgot your password? Enter your e-mail address below, and we'll send you an "
 "e-mail allowing you to reset it."
@@ -343,7 +352,7 @@ msgstr ""
 "如果你忘记密码的话，请在下方填写你的注册邮件，我们将向你发送认证邮件以帮助你"
 "找回密码。"
 
-#: apps/web/templates/account/password_reset.html:23
+#: apps/web/templates/account/password_reset.html:27
 msgid "Reset My Password"
 msgstr "密码重置"
 
@@ -748,12 +757,12 @@ msgstr "阶段说明"
 
 #: apps/web/templates/web/competitions/_results_page.html:23
 #: apps/web/templates/web/competitions/_submit_results_page.html:21
-#: apps/web/templates/web/my/submissions.html:66
+#: apps/web/templates/web/my/submissions.html:64
 msgid "None"
 msgstr "无"
 
 #: apps/web/templates/web/competitions/_results_page.html:25
-#: apps/web/templates/web/my/submissions.html:68
+#: apps/web/templates/web/my/submissions.html:66
 msgid "Max submissions per day:"
 msgstr "每天最大提交数"
 
@@ -763,6 +772,7 @@ msgid "Max submissions total: "
 msgstr "总计最大提交数"
 
 #: apps/web/templates/web/competitions/_results_page.html:30
+#: apps/web/templates/web/my/submissions.html:72
 msgid "Download CSV"
 msgstr "下载CSV文件"
 
@@ -778,7 +788,6 @@ msgstr "#"
 
 #: apps/web/templates/web/competitions/_results_page.html:44
 #: apps/web/templates/web/competitions/public_submissions_phase.html:14
-#, fuzzy
 msgid "User"
 msgstr "用户名"
 
@@ -831,7 +840,7 @@ msgstr "点击提交按钮上传一个新的提交"
 
 #: apps/web/templates/web/competitions/_submit_results_page.html:39
 msgid "Optionally add more information about this submission"
-msgstr ""
+msgstr "可以自愿在此补充一些提交信息"
 
 #: apps/web/templates/web/competitions/_submit_results_page.html:41
 msgid "*Team name (20 characters max): "
@@ -872,7 +881,6 @@ msgid "Here are your submissions to date"
 msgstr "这是目前为止你的提交"
 
 #: apps/web/templates/web/competitions/_submit_results_page.html:77
-#, fuzzy
 msgid "indicates submission on leaderboard"
 msgstr "下载排行榜上的所有提交"
 
@@ -943,6 +951,7 @@ msgstr "竞赛"
 #: apps/web/templates/web/competitions/submission_metadata.html:17
 #: apps/web/templates/web/my/detailed_results.html:8
 #: apps/web/templates/web/my/participants.html:16
+#: apps/web/templates/web/my/submissions.html:18
 msgid "Go Back to Competition Homepage"
 msgstr "返回竞赛主页"
 
@@ -1151,6 +1160,7 @@ msgstr "下载提交"
 #: apps/web/templates/web/my/_managed.html:35
 #: apps/web/templates/web/my/submissions.html:7
 #: apps/web/templates/web/my/submissions.html:8
+#: apps/web/templates/web/my/submissions.html:69
 msgid "Submissions"
 msgstr "提交"
 
@@ -1638,66 +1648,70 @@ msgstr "删除提交"
 msgid "Are you sure you want to delete this submission?"
 msgstr "你确定要删除这个提交吗？"
 
-#: apps/web/templates/web/my/submissions.html:32
+#: apps/web/templates/web/my/submissions.html:31
 msgid "Show Leaderboard Debug"
 msgstr "展示排行榜 debug"
 
-#: apps/web/templates/web/my/submissions.html:36
+#: apps/web/templates/web/my/submissions.html:35
 msgid "Bad Scores:"
 msgstr "不理想的分数："
 
-#: apps/web/templates/web/my/submissions.html:40
+#: apps/web/templates/web/my/submissions.html:39
 msgid "Rank:"
 msgstr "排名："
 
-#: apps/web/templates/web/my/submissions.html:41
+#: apps/web/templates/web/my/submissions.html:40
 msgid "Value:"
 msgstr "值："
 
-#: apps/web/templates/web/my/submissions.html:42
+#: apps/web/templates/web/my/submissions.html:41
 msgid "Column Name:"
 msgstr "列名："
 
-#: apps/web/templates/web/my/submissions.html:62
+#: apps/web/templates/web/my/submissions.html:58
+msgid "View all submission's metadata"
+msgstr "浏览所有提交的元命令"
+
+#: apps/web/templates/web/my/submissions.html:60
 msgid "Select phase description"
 msgstr "选择阶段描述"
 
-#: apps/web/templates/web/my/submissions.html:69
+#: apps/web/templates/web/my/submissions.html:67
 msgid "Max submissions total:"
 msgstr "总计最大提交数"
 
-#: apps/web/templates/web/my/submissions.html:76
+#: apps/web/templates/web/my/submissions.html:73
 msgid "Re-run all submissions in this phase"
 msgstr "重新运行该阶段的所有提交"
 
-#: apps/web/templates/web/my/submissions.html:80
+#: apps/web/templates/web/my/submissions.html:77
 msgid "There are no submissions."
 msgstr "没有提交。"
 
-#: apps/web/templates/web/my/submissions.html:135
+#: apps/web/templates/web/my/submissions.html:132
 msgid "DEL"
 msgstr "删除"
 
-#: apps/web/templates/web/my/submissions.html:140
+#: apps/web/templates/web/my/submissions.html:137
 msgid "HIDE"
 msgstr "隐藏"
 
-#: apps/web/templates/web/my/submissions.html:142
+#: apps/web/templates/web/my/submissions.html:139
 msgid "SHOW"
 msgstr "展示"
 
-#: apps/web/templates/web/my/submissions.html:147
+#: apps/web/templates/web/my/submissions.html:144
 msgid "FAILED"
 msgstr "失败"
 
-#: apps/web/templates/web/my/submissions.html:150
+#: apps/web/templates/web/my/submissions.html:147
 msgid "RE-RUN"
 msgstr "重新运行"
 
-#: apps/web/templates/web/my/submissions.html:155
+#: apps/web/templates/web/my/submissions.html:152
 msgid "MIGRATED"
 msgstr "已迁移的"
 
-#: apps/web/templates/web/my/submissions.html:159
+#: apps/web/templates/web/my/submissions.html:156
 msgid "MIGRATE"
 msgstr "迁移"

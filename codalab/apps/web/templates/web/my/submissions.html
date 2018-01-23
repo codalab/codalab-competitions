@@ -15,8 +15,7 @@
                     <h4>{% trans 'Phase'%}</h4>
                 </div>
                 <div class="col-md-6">
-                    <a href="{% url "competitions:view" pk=competition.pk %}" class="pull-right">{% trans 'Go Back to Competition
-                        Homepage'%}</a>
+                    <a href="{% url "competitions:view" pk=competition.pk %}" class="pull-right">{% trans 'Go Back to Competition Homepage' %}</a>
                 </div>
             </div>
             <select id="phase_selector" class="form-control">
@@ -56,8 +55,7 @@
             <br>
         {% endif %}
 
-        <a href="{% url "competitions:competition_submissions_metadata" competition_id=competition.pk phase_id=selected_phase.id %}">{% trans 'View
-            all submission's metadata'%}</a>
+        <a href="{% url "competitions:competition_submissions_metadata" competition_id=competition.pk phase_id=selected_phase.id %}">{% trans "View all submission's metadata" %}</a>
 
         <h4>{% trans 'Select phase description'%}</h4>
         {% if phase.description %}
@@ -68,11 +66,10 @@
         <p><b>{% trans 'Max submissions per day:'%} </b> {{ phase.max_submissions_per_day }}</p>
         <p><b>{% trans 'Max submissions total:'%} </b> {{ phase.max_submissions }}</p>
 
-        <h4>Submissions</h4>
+        <h4>{% trans 'Submissions'%}</h4>
         {% if submission_info_list|length > 0 %}
             <a class="btn btn-default icon-excel"
-               href="{% url 'competitions:competition_results_complete_download' id=selected_phase.competition.id phase=selected_phase.id %}">{% trans 'Download
-                CSV'%}</a>
+               href="{% url 'competitions:competition_results_complete_download' id=selected_phase.competition.id phase=selected_phase.id %}">{% trans 'Download CSV' %}</a>
             <button class="btn btn-default re_run_all_submissions_button">{% trans 'Re-run all submissions in this phase'%}</button>
         {% endif %}
 
