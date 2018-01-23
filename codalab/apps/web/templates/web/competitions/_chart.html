@@ -1,5 +1,5 @@
 {% load codalab_tags %}
-
+<meta charset="UTF-8">
 <canvas id="chart" width="400" height="200"></canvas>
 <script>
     var ctx = document.getElementById("chart");
@@ -11,7 +11,7 @@
             datasets: [
                 {
                     type: 'line',
-                    label: 'High Score',
+                    label: '当日最高分',
                     yAxisID: 'score',
                     data: [{% for high_score in graph.high_scores %}{{ high_score|floatformat }}, {% endfor %}],
                     borderColor: 'rgba(255, 99, 132, 1)',
@@ -19,7 +19,7 @@
                 },
                 {
                     type: 'bar',
-                    label: 'Total Daily Submissions',
+                    label: '每日提交次数',
                     yAxisID: 'count',
                     data: [{% for count in graph.counts %}{{ count }}, {% endfor %}]
                 }
@@ -32,7 +32,7 @@
                     position: "left",
                     scaleLabel: {
                         display: true,
-                        labelString: 'Submission count'
+                        labelString: '提交次数'
                     },
                     ticks: {
                         beginAtZero: true,
@@ -44,7 +44,7 @@
                     position: "right",
                     scaleLabel: {
                         display: true,
-                        labelString: 'Submission score',
+                        labelString: '提交得分',
                         fontColor: 'rgba(255,99,132,1)',
                     },
                     ticks: {
@@ -52,7 +52,7 @@
                         suggestedMin: -0.1,
                         suggestedMax: 1.2,
                         // Reverse the score axis if we're doing descending (1 is better than 0)
-                        reverse: "{{ graph.sorting }}" !== "asc"
+                        reverse: "{{ graph.sorting }}" !== "desc"
                     }
                 }]
             }

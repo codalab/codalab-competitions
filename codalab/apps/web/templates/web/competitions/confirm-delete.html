@@ -1,15 +1,15 @@
 {% extends "base.html" %}
-
-{% block head_title %}Delete Competition{% endblock head_title %}
-{% block page_title %}Delete Competition{% endblock page_title %}
+{% load i18n %}
+{% block head_title %}{% trans 'Delete Competition' %}{% endblock head_title %}
+{% block page_title %}{% trans 'Delete Competition' %}{% endblock page_title %}
 
 {% block content %}
 <div class="row">
     <div class="large-12 columns">
-        <p>Really delete {{ competition }}?</p>
+        <p>{% trans 'Really delete' %} {{ competition }}?</p>
         <form class="wide" method="POST" action="{% url 'competitions:delete' pk=competition.id %}" >
             {% csrf_token %}
-            <input type="submit" class="submit small secondary button" value="Yes, delete the competition.">
+            <input type="submit" class="submit small secondary button" value="{% trans "Yes, delete the competition." %}">
         </form>
     </div>
 </div>

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-01-12 08:05+0000\n"
+"POT-Creation-Date: 2018-01-23 01:21+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -29,6 +29,63 @@ msgstr "用户名无法被使用，请尝试注册其它用户名。"
 #: apps/authenz/adapter.py:40
 msgid "This username is already taken. Please choose another."
 msgstr "用户名已经被其他人注册，请尝试注册其它用户名"
+
+#: apps/forums/templates/forums/base_forum.html:5
+#: apps/web/templates/web/competitions/view.html:133
+msgid "Forums"
+msgstr "论坛"
+
+#: apps/forums/templates/forums/base_forum.html:15
+msgid "Forum"
+msgstr "论坛"
+
+#: apps/forums/templates/forums/base_forum.html:16
+msgid "Go back to competition"
+msgstr "返回竞赛主页"
+
+#: apps/forums/templates/forums/base_forum.html:18
+msgid "Back to thread list"
+msgstr "返回话题列表"
+
+#: apps/forums/templates/forums/base_forum.html:22
+msgid "Start a new topic"
+msgstr "创建新话题"
+
+#: apps/forums/templates/forums/base_forum.html:24
+#: apps/forums/templates/forums/base_forum.html:38
+msgid "Post in this thread"
+msgstr "在列表中展示话题"
+
+#: apps/forums/templates/forums/post_form.html:13
+#: apps/web/templates/web/competitions/_submit_results_page.html:58
+#: apps/web/templates/web/competitions/_submit_results_page.html:65
+#: apps/web/templates/web/competitions/edit.html:289
+msgid "Submit"
+msgstr "提交"
+
+#: apps/forums/templates/forums/thread_detail.html:10
+msgid "Posted by:"
+msgstr "分类依据:"
+
+#: apps/forums/templates/forums/thread_list.html:11
+msgid "Title"
+msgstr "标题"
+
+#: apps/forums/templates/forums/thread_list.html:14
+msgid "Started by"
+msgstr "创建者："
+
+#: apps/forums/templates/forums/thread_list.html:17
+msgid "Date created"
+msgstr "创建的时间"
+
+#: apps/forums/templates/forums/thread_list.html:20
+msgid "Latest post"
+msgstr "最后提交"
+
+#: apps/forums/templates/forums/thread_list.html:23
+msgid "Posts"
+msgstr "提交"
 
 #: apps/queues/templates/queues/delete.html:3
 #: apps/queues/templates/queues/delete.html:4
@@ -96,9 +153,8 @@ msgid "Delete"
 msgstr "删除"
 
 #: apps/queues/templates/queues/list.html:37
-#, fuzzy
 msgid "No queues created, yet!"
-msgstr "还没有添加数据集！"
+msgstr "还没有创建队列！"
 
 #: apps/web/static/error/503.html:15 static/error/503.html:15
 msgid "The CodaLab site is being upgraded..."
@@ -114,15 +170,15 @@ msgstr "抱歉，因为网站正在维护，您要登录的页面暂时无法访
 msgid "Please try again later. Thank you."
 msgstr "请过段时间再尝试，感谢配合！"
 
-#: apps/web/static/error/50x.html:16 static/error/50x.html:18
+#: apps/web/static/error/50x.html:16 static/error/50x.html:16
 msgid "The CodaLab site is currently unavailable."
-msgstr "网站正在更新维护：）"
+msgstr "网站正在更新维护"
 
-#: apps/web/static/error/50x.html:17 static/error/50x.html:19
+#: apps/web/static/error/50x.html:17 static/error/50x.html:17
 msgid "Sorry, the page you are looking for is currently unavailable."
 msgstr "抱歉，因为网站正在维护，您要登录的页面暂时无法访问。"
 
-#: apps/web/static/error/50x.html:18 static/error/50x.html:20
+#: apps/web/static/error/50x.html:18 static/error/50x.html:18
 msgid "Please try again later."
 msgstr "请过段时间再尝试，感谢配合！"
 
@@ -345,7 +401,6 @@ msgstr "*用户名"
 #: apps/web/templates/account/signup.html:25
 #: apps/web/templates/web/competitions/view.html:242
 #: apps/web/templates/web/competitions/view.html:266
-#, fuzzy
 msgid "Username"
 msgstr "用户名"
 
@@ -767,6 +822,10 @@ msgstr "每天最大提交数"
 msgid "Click the Submit button to upload a new submission."
 msgstr "点击提交按钮上传一个新的提交"
 
+#: apps/web/templates/web/competitions/_submit_results_page.html:39
+msgid "Optionally add more information about this submission"
+msgstr ""
+
 #: apps/web/templates/web/competitions/_submit_results_page.html:41
 msgid "*Team name (20 characters max): "
 msgstr "团队名称(最多20个字符)"
@@ -795,12 +854,6 @@ msgstr "参考文献："
 msgid "Organization/affiliation: "
 msgstr "组织者/联盟："
 
-#: apps/web/templates/web/competitions/_submit_results_page.html:58
-#: apps/web/templates/web/competitions/_submit_results_page.html:65
-#: apps/web/templates/web/competitions/edit.html:289
-msgid "Submit"
-msgstr "提交"
-
 #: apps/web/templates/web/competitions/_submit_results_page.html:71
 msgid ""
 "This phase doesn't have reference_data supplied yet, please add reference "
@@ -810,6 +863,11 @@ msgstr "这个阶段还没有提供参考数据，请在提交可能被上传之
 #: apps/web/templates/web/competitions/_submit_results_page.html:76
 msgid "Here are your submissions to date"
 msgstr "这是目前为止你的提交"
+
+#: apps/web/templates/web/competitions/_submit_results_page.html:77
+#, fuzzy
+msgid "indicates submission on leaderboard"
+msgstr "下载排行榜上的所有提交"
 
 #: apps/web/templates/web/competitions/_submit_results_page.html:79
 msgid ""
@@ -845,6 +903,19 @@ msgstr "状态"
 #: apps/web/templates/web/my/participants.html:8
 msgid "Participants"
 msgstr "参与成员"
+
+#: apps/web/templates/web/competitions/confirm-delete.html:3
+#: apps/web/templates/web/competitions/confirm-delete.html:4
+msgid "Delete Competition"
+msgstr "删除竞赛"
+
+#: apps/web/templates/web/competitions/confirm-delete.html:9
+msgid "Really delete"
+msgstr "确认删除"
+
+#: apps/web/templates/web/competitions/confirm-delete.html:12
+msgid "Yes, delete the competition."
+msgstr "是的确认删除"
 
 #: apps/web/templates/web/competitions/delete_dump_confirm.html:7
 msgid "Are you sure you wish to delete this Competition Dump?"
@@ -1143,6 +1214,15 @@ msgstr "没有提交"
 msgid "Publish"
 msgstr "发布"
 
+#: apps/web/templates/web/competitions/upload_competition.html:3
+#: apps/web/templates/web/competitions/upload_competition.html:4
+#: apps/web/templates/web/competitions/upload_s3_competition.html:3
+#: apps/web/templates/web/competitions/upload_s3_competition.html:4
+#: apps/web/templates/web/my/index.html:57
+#: apps/web/templates/web/my/index.html:59
+msgid "Create Competition"
+msgstr "创建比赛"
+
 #: apps/web/templates/web/competitions/upload_competition.html:10
 #: apps/web/templates/web/competitions/upload_s3_competition.html:11
 msgid ""
@@ -1195,10 +1275,6 @@ msgstr "竞赛结束"
 #: apps/web/templates/web/competitions/view.html:130
 msgid "Public Submissions"
 msgstr "公共提交"
-
-#: apps/web/templates/web/competitions/view.html:133
-msgid "Forums"
-msgstr "论坛"
 
 #: apps/web/templates/web/competitions/view.html:138
 msgid "Team"
@@ -1411,11 +1487,6 @@ msgstr "参与者的具体结果。"
 #: apps/web/templates/web/my/index.html:6
 msgid "Competitions (My CodaLab)"
 msgstr "竞赛(我的工作站)"
-
-#: apps/web/templates/web/my/index.html:57
-#: apps/web/templates/web/my/index.html:59
-msgid "Create Competition"
-msgstr "创建比赛"
 
 #: apps/web/templates/web/my/participants.html:19
 msgid "Teams"

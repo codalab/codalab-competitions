@@ -1,5 +1,5 @@
 {% extends "forums/base_forum.html" %}
-
+{% load i18n %}
 {% load url from future %}
 
 {% block content %}
@@ -7,7 +7,7 @@
     {% for post in ordered_posts %}
         {{ post.content|linebreaks }}
 
-        <span class="posted_by">Posted by: {{ post.posted_by }} @ {{ post.date_created }}</span>
+        <span class="posted_by">{% trans "Posted by:" %}{{ post.posted_by }} @ {{ post.date_created }}</span>
 
         {% if not forloop.last %}
             <hr>

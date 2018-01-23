@@ -31,12 +31,12 @@
 
 {#            {% if not phase.is_scoring_only and not phase.disable_custom_docker_image %}#}
 {#                <div class="form-group">#}
-{#                    <input maxLength="128" class="form-control" id="submission_docker_image" placeholder="Optional docker image name, eg codalab/default">#}
+{#                    <input maxLength="128" class="form-control" id="submission_docker_image" placeholder="{% trans "Optional docker image name, eg codalab/default" %}">#}
 {#                </div>#}
 {#            {% endif %}#}
 
             {% if not phase.competition.enable_per_submission_metadata %}
-                <textarea id="submission_description_textarea" class="form-control" placeholder="Optionally add more information about this submission"></textarea>
+                <textarea id="submission_description_textarea" class="form-control" placeholder="{% trans "Optionally add more information about this submission" %}"></textarea>
             {% else %}
                 <br><b>{% trans '*Team name (20 characters max): ' %}</b><input id="submission_team_name" type="text" maxlength="20" class="form-control" placeholder="Team name" value="{{ last_submission_team_name|default_if_none:""|escape }}">
                 <br><b>{% trans '*Method name (20 characters max): ' %}</b><input id="submission_method_name" type="text" maxlength="20" class="form-control" placeholder="Method name" value="{{ last_submission_method_name|default_if_none:""|escape }}">
@@ -74,7 +74,7 @@
         <p id="details" class="submission_upload_details"></p>
 
         <p>{% trans 'Here are your submissions to date' %}
-            <span class="small">(<span class="glyphicon glyphicon-ok"></span> indicates submission on leaderboard )</span>:</p>
+            <span class="small">(<span class="glyphicon glyphicon-ok"></span> {% trans 'indicates submission on leaderboard' %} )</span>:</p>
     {% else %}
         <p>{% trans 'This phase of the competition is closed. Here are the submissions you made:' %}</p>
     {% endif %}

@@ -1,5 +1,5 @@
 {% extends 'forums/base_forum.html' %}
-
+{% load i18n %}
 {% load bootstrap %}
 
 {% block content %}
@@ -10,7 +10,7 @@
         <div class="form-group">
             <div class="row">
                 <div class="col-sm-4">
-                    <button type="submit" class="btn btn-primary btn-block">Submit</button>
+                    <button type="submit" class="btn btn-primary btn-block">{% trans 'Submit' %}</button>
                 </div>
             </div>
         </div>
