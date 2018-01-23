@@ -83,6 +83,18 @@ def compute_worker_update():
     compute_worker_run()
 
 
+def compute_worker_docker_restart():
+    """Restarts docker
+
+    Meant to be used with `hosts` like so:
+        fab hosts:prod_workers compute_worker_docker_restart
+    """
+    # sudo('/etc/init.d/docker restart')
+
+    # If above doesn't work, this does
+    sudo('systemctl restart docker')
+
+
 def compute_worker_kill():
     """Kills compute worker
 
@@ -91,8 +103,10 @@ def compute_worker_kill():
     """
     with warn_only():
         # Error if compute_worker isn't already running
-        run('docker kill $(docker ps -a -q)')
-        run('docker rm $(docker ps -a -q)')
+        # run('docker stop $(docker ps -a -q)')
+        run('docker stop $(docker ps -a -q)')
+        run('docker kill -s SIGKILL $(docker ps -a -q)')
+        run('docker rm -f $(docker ps -a -q)')
 
 
 def compute_worker_restart():
@@ -126,7 +140,7 @@ def compute_worker_status():
     Meant to be used with `hosts` like so:
         fab hosts:prod_workers compute_worker_status
     """
-    run('docker ps')
+    run('docker ps -a')
 
 
 ###############################################################################
