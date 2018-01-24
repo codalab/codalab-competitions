@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 import os
 
 from django import forms
@@ -145,7 +146,7 @@ class PageForm(forms.ModelForm):
         if instance.pk is None:
             instance.codename = self.cleaned_data['label']
             page_container,_ = PageContainer.objects.get_or_create(object_id=instance.competition.id, content_type=ContentType.objects.get_for_model(instance.competition))
-            details_category = ContentCategory.objects.get(name="Learn the Details")
+            details_category = ContentCategory.objects.get(name="比赛细则")
             instance.category = details_category
             instance.container = page_container
 

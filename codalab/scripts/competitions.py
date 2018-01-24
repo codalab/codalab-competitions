@@ -9,7 +9,7 @@ import os
 import random
 import datetime
 from django.utils import timezone
-from django.utils.translation import ugettext as _
+
 # This is a really, really long way around saying that if the script is in
 # codalab\scripts\users.py, we need to add, ../../../codalab to the
 # sys.path to find the settings
@@ -52,23 +52,23 @@ brats12_description = """
         """
 brats2012, _ = Competition.objects.get_or_create(
     title=brats12_name, creator=guest1, modified_by=guest1, defaults=dict(description=brats12_description))
-details_category = ContentCategory.objects.get(name="Learn the Details")
-participate_category = ContentCategory.objects.get(name=_("Participate"))
+details_category = ContentCategory.objects.get(name="比赛细则")
+participate_category = ContentCategory.objects.get(name="参与比赛")
 pc, _ = PageContainer.objects.get_or_create(
     object_id=brats2012.id, content_type=ContentType.objects.get_for_model(Competition))
 brats2012.save()
 
 Page.objects.get_or_create(
     category=details_category, container=pc,  codename="overview",
-    defaults=dict(label="Overview", rank=0,
+    defaults=dict(label="规则综述", rank=0,
                   html=open(os.path.join(os.path.dirname(__file__), "brats2012_overview.html")).read()))
 Page.objects.get_or_create(
     category=details_category, container=pc,  codename="evaluation",
-    defaults=dict(label="Evaluation", rank=1,
+    defaults=dict(label="评分准则", rank=1,
                   html=open(os.path.join(os.path.dirname(__file__), "brats2012_evaluation.html")).read()))
 Page.objects.get_or_create(
     category=details_category, container=pc,  codename="terms_and_conditions",
-    defaults=dict(rank=2, label="Terms and Conditions", html=open(os.path.join(os.path.dirname(__file__), "brats2012_terms_and_conditions.html")).read()))
+    defaults=dict(rank=2, label="比赛条款", html=open(os.path.join(os.path.dirname(__file__), "brats2012_terms_and_conditions.html")).read()))
 
 Page.objects.get_or_create(
     category=details_category, container=pc,  codename="faq",
@@ -84,7 +84,7 @@ Page.objects.get_or_create(
     category=participate_category, container=pc,  codename="get_data",
     defaults=dict(label="Get Data", rank=0, html=open(os.path.join(os.path.dirname(__file__), "brats2012_data.html")).read()))
 Page.objects.get_or_create(category=participate_category, container=pc,
-                           codename="submit_results", html="", defaults=dict(label="Submit / View Results", rank=1))
+                           codename="submit_results", html="", defaults=dict(label="提交结果/查看提交", rank=1))
 
 # Logo
 brats2012.image = File(
@@ -301,8 +301,8 @@ spine, created = Competition.objects.get_or_create(
     title=spine_name, creator=guest1, modified_by=guest1,
     description=spine_description, has_registration=True)
 
-details_category = ContentCategory.objects.get(name="Learn the Details")
-participate_category = ContentCategory.objects.get(name="Participate")
+details_category = ContentCategory.objects.get(name="比赛细则")
+participate_category = ContentCategory.objects.get(name="参与比赛")
 pc, _ = PageContainer.objects.get_or_create(
     object_id=spine.id, content_type=ContentType.objects.get_for_model(Competition))
 spine.save()

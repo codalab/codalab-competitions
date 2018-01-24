@@ -25,7 +25,6 @@ from apps.web.models import (CompetitionSubmissionStatus,
 from apps.web.models import (Page)
 from django.conf import settings
 from apps.teams.models import TeamStatus, TeamMembershipStatus
-from django.utils.translation import ugettext as _
 
 def migrate_data():
     """
@@ -33,21 +32,91 @@ def migrate_data():
     """
 
     # For https://github.com/codalab/codalab/issues/322
-
+    #print ContentCategory.objects.filter(codename='learn_the_details')
     categories = ContentCategory.objects.filter(codename='participate')
-    for category in categories:
+    nav_learn = ContentCategory.objects.filter(codename='learn_the_details')
+    nav_result = ContentCategory.objects.filter(codename='results')
+    sub_nav = DefaultContentItem.objects.all()
 
-        dcitems = DefaultContentItem.objects.filter(category=category, rank=1, required=True)
-        for dcitem in dcitems:
-            if dcitem.label == "Submit Results":
-                dcitem.label = "Submit / View Results"
-                dcitem.save()
+    if settings.LANGUAGE_CODE == "zh_CN":
+        i = 0
+        
+        for c1 in nav_learn:
+            c1.name = "比赛细则"
+            c1.save()
+        for c2 in categories:
+            c2.name = "参与比赛"
+            c2.save()
+        for c3 in nav_result:
+            c3.name = "查看成绩"
+            c3.save()
+        for subitems in sub_nav:
+            i = i + 1
+            if i == 1:
+                subitems.label = "规则综述"
+            elif i == 2:
+                subitems.label = "评分准则"
+            elif i == 3:
+                subitems.label = "比赛条款"
+            elif i == 4:
+                subitems.label = "获取数据"
+            elif i == 5:
+                subitems.label = "提交结果/查看提交"
+                i=0
+            subitems.save()
 
-        pages = Page.objects.filter(category=category, rank=1)
-        for page in pages:
-            if page.label == "Submit Results":
-                page.label = "Submit / View Results"
-                page.save()
+        for category in categories:
+            dcitems = DefaultContentItem.objects.filter(category=category, rank=1, required=True)
+            for dcitem in dcitems:
+                if dcitem.label == "Submit Results":
+                    dcitem.label = "提交结果/查看提交"
+                    dcitem.save()
+
+
+            pages = Page.objects.filter(category=category, rank=1)
+            for page in pages:
+                if page.label == "Submit Results":
+                    page.label = "提交结果/查看提交"
+                    page.save()
+    else:
+        i = 0
+        for c1 in nav_learn:
+            c1.name = "Learn the Details"
+            c1.save()
+        for c2 in categories:
+            c2.name = "Participate"
+            c2.save()
+        for c3 in nav_result:
+            c3.name = "submit_results"
+            c3.save()
+        for subitems in sub_nav:
+            i = i + 1
+            if i == 1:
+                subitems.label = "Overview"
+            elif i == 2:
+                subitems.label = "Evaluate"
+            elif i == 3:
+                subitems.label = "Terms and Conditions"
+            elif i == 4:
+                subitems.label = "Get data"
+            elif i == 5:
+                subitems.label = "Submit / View Results"
+                i=0
+            subitems.save()
+
+        for category in categories:
+            dcitems = DefaultContentItem.objects.filter(category=category, rank=1, required=True)
+            for dcitem in dcitems:
+                if dcitem.label == "Submit Results":
+                    dcitem.label = "Submit / View Results"
+                    dcitem.save()
+
+
+            pages = Page.objects.filter(category=category, rank=1)
+            for page in pages:
+                if page.label == "Submit Results":
+                    page.label = "Submit / View Results"
+                    page.save()
 
 def insert_data():
     """
@@ -89,19 +158,19 @@ def insert_data():
 
 
     ccs = [ { 'parent' : None,
-              'name' : "Learn the Details",
+              'name' : "比赛细则",
               'codename' : "learn_the_details",
               'visibility' : content_visibility_items['visible'],
               'is_menu' : True,
               'content_limit' : 1 },
             { 'parent' : None,
-              'name' : _("Participate"),
+              'name' : "参与比赛",
               'codename' : "participate",
               'visibility' : content_visibility_items['visible'],
               'is_menu' : True,
               'content_limit' : 1 },
             { 'parent' : None,
-              'name' : _("Results"),
+              'name' : "查看成绩",
               'codename' : "results",
               'visibility' : content_visibility_items['visible'],
               'is_menu' : True,
@@ -120,31 +189,31 @@ def insert_data():
               'required' : True,
               'rank' : 0,
               'codename' : "overview",
-              'label' : "Overview" },
+              'label' : "规则综述" },
             { 'category' : content_categories['learn_the_details'],
               'initial_visibility' : content_visibility_items['visible'],
               'required' : True,
               'rank' : 1,
               'codename' : "evaluate",
-              'label' : "Evaluate" },
+              'label' : "评分准则" },
             { 'category' : content_categories['learn_the_details'],
               'initial_visibility' : content_visibility_items['visible'],
               'required' : True,
               'rank' : 2,
               'codename' : "terms_and_conditions",
-              'label' : "Terms and Conditions" },
+              'label' : "比赛条款" },
             { 'category' : content_categories['participate'],
               'initial_visibility' : content_visibility_items['visible'],
               'required' : True,
               'rank' : 0,
               'codename' : "get_data",
-              'label' : "Get Data" },
+              'label' : "获取数据" },
             { 'category' : content_categories['participate'],
               'initial_visibility' : content_visibility_items['visible'],
               'required' : True,
               'rank' : 1,
               'codename' : 'submit_results',
-              'label' : "Submit / View Results" } ]
+              'label' : "提交结果/查看提交" } ]
 
     for dci in cis:
         dcii, _ = DefaultContentItem.objects.get_or_create(category=dci['category'], label=dci['label'],

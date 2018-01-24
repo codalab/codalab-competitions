@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-01-23 05:51+0000\n"
+"POT-Creation-Date: 2018-01-24 01:22+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -165,10 +165,6 @@ msgstr "删除"
 msgid "No queues created, yet!"
 msgstr "还没有创建队列！"
 
-#: apps/web/models.py:1709 scripts/competitions.py:56 scripts/initialize.py:98
-msgid "Participate"
-msgstr "参与竞赛"
-
 #: apps/web/static/error/503.html:15 static/error/503.html:15
 msgid "The CodaLab site is being upgraded..."
 msgstr "网站正在更新维护：）"
@@ -183,15 +179,15 @@ msgstr "抱歉，因为网站正在维护，您要登录的页面暂时无法访
 msgid "Please try again later. Thank you."
 msgstr "请过段时间再尝试，感谢配合！"
 
-#: apps/web/static/error/50x.html:16 static/error/50x.html:18
+#: apps/web/static/error/50x.html:16 static/error/50x.html:16
 msgid "The CodaLab site is currently unavailable."
 msgstr "网站正在更新维护"
 
-#: apps/web/static/error/50x.html:17 static/error/50x.html:19
+#: apps/web/static/error/50x.html:17 static/error/50x.html:17
 msgid "Sorry, the page you are looking for is currently unavailable."
 msgstr "抱歉，因为网站正在维护，您要登录的页面暂时无法访问。"
 
-#: apps/web/static/error/50x.html:18 static/error/50x.html:20
+#: apps/web/static/error/50x.html:18 static/error/50x.html:18
 msgid "Please try again later."
 msgstr "请过段时间再尝试，感谢配合！"
 
@@ -527,7 +523,7 @@ msgstr "不论竞赛参与者被接受或是拒绝，您都将会收到通知"
 msgid "Your participation privileges have been suspended."
 msgstr "你的参与权限已被停止"
 
-#: apps/web/templates/search/search.html:9 scripts/initialize.py:104
+#: apps/web/templates/search/search.html:9
 msgid "Results"
 msgstr "比赛结果"
 
@@ -916,6 +912,7 @@ msgstr "状态"
 #: apps/web/templates/web/my/_managed.html:34
 #: apps/web/templates/web/my/participants.html:7
 #: apps/web/templates/web/my/participants.html:8
+#: apps/web/templates/web/my/participants.html:109
 msgid "Participants"
 msgstr "参与成员"
 
@@ -966,6 +963,11 @@ msgstr "创建仓库"
 #: apps/web/templates/web/competitions/dumps.html:11
 msgid "Refresh the Page"
 msgstr "刷新页面"
+
+#: apps/web/templates/web/competitions/dumps.html:13
+#, fuzzy
+msgid "Dumps for:"
+msgstr "仓库"
 
 #: apps/web/templates/web/competitions/dumps.html:16
 msgid "Download link"
@@ -1038,6 +1040,10 @@ msgstr "编辑竞赛"
 #: apps/web/templates/web/competitions/edit.html:21
 msgid "Download original YAML file"
 msgstr "下载原始YAML文件"
+
+#: apps/web/templates/web/competitions/edit.html:24
+msgid "General Information"
+msgstr "信息概述"
 
 #: apps/web/templates/web/competitions/edit.html:64
 #: apps/web/templates/web/competitions/edit.html:107
@@ -1686,7 +1692,7 @@ msgstr "重新运行该阶段的所有提交"
 
 #: apps/web/templates/web/my/submissions.html:77
 msgid "There are no submissions."
-msgstr "没有提交。"
+msgstr "没有任何提交"
 
 #: apps/web/templates/web/my/submissions.html:132
 msgid "DEL"

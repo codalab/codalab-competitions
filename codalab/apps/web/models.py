@@ -34,7 +34,7 @@ from django.db.models import Max
 from django.db.models.signals import post_save
 from django.utils.dateparse import parse_datetime
 from django.utils.timezone import now
-from django.utils.translation import ugettext as _
+
 
 from mptt.models import MPTTModel, TreeForeignKey
 
@@ -82,7 +82,7 @@ class ContentCategory(MPTTModel):
     .. note::
 
         Three defaults content category:
-            - Learn the Details.
+            - 比赛细则.
             - Participate.
             - Results.
     """
@@ -1684,13 +1684,13 @@ class CompetitionDefBundle(models.Model):
 
         # Populate competition pages
         pc,_ = PageContainer.objects.get_or_create(object_id=comp.id, content_type=ContentType.objects.get_for_model(comp))
-        details_category = ContentCategory.objects.get(name="Learn the Details")
+        details_category = ContentCategory.objects.get(name="比赛细则")
         Page.objects.create(category=details_category, container=pc,  codename="overview", competition=comp,
-                                   label="Overview", rank=0, html=zf.read(comp_spec['html']['overview']))
+                                   label="规则综述", rank=0, html=zf.read(comp_spec['html']['overview']))
         Page.objects.create(category=details_category, container=pc,  codename="evaluation", competition=comp,
-                                   label="Evaluation", rank=1, html=zf.read(comp_spec['html']['evaluation']))
+                                   label="评分准则", rank=1, html=zf.read(comp_spec['html']['evaluation']))
         Page.objects.create(category=details_category, container=pc,  codename="terms_and_conditions", competition=comp,
-                                   label="Terms and Conditions", rank=2, html=zf.read(comp_spec['html']['terms']))
+                                   label="比赛条款", rank=2, html=zf.read(comp_spec['html']['terms']))
 
         default_pages = ('overview', 'evaluation', 'terms', 'data')
 
@@ -1706,13 +1706,13 @@ class CompetitionDefBundle(models.Model):
                     html=zf.read(page_data)
                 )
 
-        participate_category = ContentCategory.objects.get(name=_("Participate"))
+        participate_category = ContentCategory.objects.get(name="参与比赛")
         Page.objects.create(
             category=participate_category,
             container=pc,
             codename="get_data",
             competition=comp,
-            label="Get Data",
+            label="获取数据",
             rank=0,
             html=zf.read(comp_spec['html']['data'])
         )
@@ -1721,7 +1721,7 @@ class CompetitionDefBundle(models.Model):
             container=pc,
             codename="get_starting_kit",
             competition=comp,
-            label="Files",
+            label="比赛附件",
             rank=1,
             html=""
         )
@@ -1729,7 +1729,7 @@ class CompetitionDefBundle(models.Model):
             category=participate_category,
             container=pc,
             codename="submit_results",
-            label="Submit / View Results",
+            label="提交结果/查看提交",
             rank=2,
             html=""
         )

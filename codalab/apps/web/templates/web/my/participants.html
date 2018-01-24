@@ -4,8 +4,8 @@
 {% load codalab_tags %}
 {% load tz %}
 
-{% block page_title %}{% trans 'Participants'%}{% endblock page_title %}
-{% block head_title %}{% trans 'Participants'%}{% endblock %}
+{% block page_title %}{% trans 'Participants' %}{% endblock page_title %}
+{% block head_title %}{% trans 'Participants' %}{% endblock %}
 
 {% block extra_head %}
     <script src="{% static 'js/foundation/vendor/jquery.validate.min.js' %}"></script>
@@ -106,7 +106,7 @@
     {% endif %}
 </div>
 <div class="participants">
-    <h3>Participants</h3>
+    <h3>{% trans 'Participants'%}</h3>
     {% if not object_list %}
         <p><em>{% trans 'There are no participants.'%}</em></p>
     {% else %}

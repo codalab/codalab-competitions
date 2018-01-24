@@ -21,7 +21,7 @@
 <a class="btn btn-secondary" href="{% url 'competitions:download_yaml' competition_pk=competition.pk %}">{% trans 'Download original YAML file' %}</a>
 <form id="competition_edit_form" class="form-horizontal form-controller margin-top" data-abide enctype="multipart/form-data" method="POST">{% csrf_token %}
     <fieldset>
-        <legend>General Information</legend>
+        <legend>{% trans "General Information" %}</legend>
         {% for field in form %}
             <div class="fieldWrapper form-group {% field_type field %}">
                 {% if field|is_checkbox %}
