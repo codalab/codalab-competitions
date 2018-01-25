@@ -57,7 +57,7 @@
 
 
             {% endif %}
-            <div class="organizer">{% trans 'Organized by'%} {{ competition.creator }} - {% trans 'Current server time:'%} {{ current_server_time|utc }} UTC</div>
+            <div class="organizer">{% trans 'Organized by'%} {{ competition.creator }} - {% trans 'Current server time:'%} {{ current_server_time|timezone:"Asia/Shanghai" }} {% trans 'UTC' %} </div>
             <input type="hidden" id="competitionId" value="{{competition.id}}" />
             <input type="hidden" id="cstoken" value="{{csrf_token}}" />
             <div class="phase-container">
@@ -67,7 +67,7 @@
                             <div class="phase">
                                 <h4>Previous</h4>
                                 <span class="phase-label label phase-label-{% if previous_phase.color %}{{ previous_phase.color }}{% else %}default{% endif %}">{{previous_phase.label}}</span>
-                                <div class="date">{{previous_phase.start_date|utc}} UTC</div>
+                                <div class="date">{{previous_phase.start_date|timezone:"Asia/Shanghai" }} {% trans 'UTC' %}</div>
                             </div>
                         </div>
                     {% endif %}
@@ -77,7 +77,7 @@
                             <div class="phase current">
                                 <h4><span class="glyphicon glyphicon-play"></span> {% trans 'Current' %}</h4>
                                 <span class="phase-label label phase-label-{% if active_phase.color %}{{ active_phase.color }}{% else %}default{% endif %}">{{active_phase.label}}</span>
-                                <div class="date">{{active_phase.start_date|utc}} UTC</div>
+                                <div class="date">{{active_phase.start_date|timezone:"Asia/Shanghai" }} {% trans 'UTC' %}</div>
                             </div>
                         </div>
                     {% endif %}
@@ -88,7 +88,7 @@
                             <div class="phase">
                                 <h4>{% trans 'First phase' %}</h4>
                                 <span class="phase-label label phase-label-{% if first_phase.color %}{{ first_phase.color }}{% else %}default{% endif %}">{{first_phase.label}}</span>
-                                <div class="date">{{first_phase.start_date|utc}} UTC</div>
+                                <div class="date">{{first_phase.start_date|timezone:"Asia/Shanghai" }} {% trans 'UTC' %}</div>
                             </div>
                         </div>
                     {% endif %}
@@ -98,7 +98,7 @@
                             <div class="phase">
                                 <h4>{% trans 'Next' %}</h4>
                                 <span class="phase-label label phase-label-{% if next_phase.color %}{{ next_phase.color }}{% else %}default{% endif %}">{{next_phase.label}}</span>
-                                <div class="date">{{next_phase.start_date|utc}} UTC</div>
+                                <div class="date">{{next_phase.start_date|timezone:"Asia/Shanghai" }} {% trans 'UTC' %}</div>
                             </div>
                         </div>
                     {% else %}
@@ -106,7 +106,7 @@
                             <div class="phase">
                                 <h4>{% trans 'End' %}</h4>
                                 <span class="phase-label label competition-end">{% trans 'Competition Ends' %}</span>
-                                <div class="date">{% if competition.end_date %}{{competition.end_date|utc}} UTC{% else %}Never{% endif %}</div>
+                                <div class="date">{% if competition.end_date %}{{competition.end_date|timezone:"Asia/Shanghai" }} {% trans 'UTC' %}{% else %}{% trans 'Never' %}{% endif %}</div>
                             </div>
                         </div>
                     {% endif %}
@@ -204,7 +204,7 @@
                                                 {% trans 'I accept the ' %}<a href="#learn_the_details-terms_and_conditions" target="_blank">{% trans 'terms and conditions' %}</a> {% trans 'of the competition.' %}
                                             </label>
                                         </div>
-                                        <input type="submit" id="participateButton" class="disabledStatus btn btn-primary margin-top" value="Register" />
+                                        <input type="submit" id="participateButton" class="disabledStatus btn btn-primary margin-top" value="{% trans "Register" %}" />
                                     </form>
                                 {% elif my_status == "pending" %}
                                     <p>{% trans 'Your request to participate in this challenge has been received and a decision is pending.' %}</p>

@@ -21,7 +21,7 @@
             <select id="phase_selector" class="form-control">
                 {% for phase in competition.phases.all %}
                     <option {% if phase.id == selected_phase_id %}selected{% endif %}
-                            value="{{ phase.id }}">{{ phase.label }} - {{ phase.start_date|utc }} UTC
+                            value="{{ phase.id }}">{{ phase.label }} - {{ current_server_time|timezone:"Asia/Shanghai" }} {% trans 'UTC' %}
                     </option>
                 {% endfor %}
             </select>

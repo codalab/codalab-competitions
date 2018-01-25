@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-01-24 01:22+0000\n"
+"POT-Creation-Date: 2018-01-25 02:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -67,7 +67,7 @@ msgstr "提交"
 msgid "Posted by:"
 msgstr "分类依据:"
 
-#: apps/forums/templates/forums/thread_list.html:11
+#: apps/forums/templates/forums/thread_list.html:11 apps/web/models.py:572
 msgid "Title"
 msgstr "标题"
 
@@ -123,7 +123,7 @@ msgstr "点击这里了解更多相关工作队列的内容"
 msgid "Add Queue"
 msgstr "增加工作队列"
 
-#: apps/queues/templates/queues/list.html:17
+#: apps/queues/templates/queues/list.html:17 apps/web/models.py:787
 #: apps/web/templates/web/my/datasets.html:39
 msgid "Name"
 msgstr "名称"
@@ -164,6 +164,97 @@ msgstr "删除"
 #: apps/queues/templates/queues/list.html:37
 msgid "No queues created, yet!"
 msgstr "还没有创建队列！"
+
+#: apps/teams/templates/teams/team_info.html:91
+#: apps/teams/templates/teams/team_info.html:219
+#: apps/teams/templates/teams/tiles/pending_teams.html:48
+#: apps/web/templates/web/my/participants.html:64
+msgid "Process"
+msgstr "确认处理"
+
+#: apps/web/models.py:226
+msgid "don't change this unless you have a reason to, default/empty is fine"
+msgstr "如果没有理由请不要轻易变动此设置！"
+
+#: apps/web/models.py:231
+msgid "Logo"
+msgstr "Logo"
+
+#: apps/web/models.py:233
+msgid "Registration Required"
+msgstr "要求选手必须注册比赛方可参加"
+
+#: apps/web/models.py:234
+msgid "Start Date"
+msgstr "开始日期"
+
+#: apps/web/models.py:235
+msgid "End Date"
+msgstr "结束日期"
+
+#: apps/web/models.py:241
+msgid "Publicly Available"
+msgstr "编辑完成后即发布比赛"
+
+#: apps/web/models.py:256
+msgid "Allow sharing of public submissions"
+msgstr "允许分享公开的提交"
+
+#: apps/web/models.py:259
+msgid "Enable Competition level teams"
+msgstr "允许团队之间竞争"
+
+#: apps/web/models.py:260
+msgid "Organizers need to approve the new teams"
+msgstr "组队要征得组织者批准"
+
+#: apps/web/models.py:570
+msgid "Page Container"
+msgstr "页面内容"
+
+#: apps/web/models.py:574
+msgid "Visible"
+msgstr "可见性"
+
+#: apps/web/models.py:576
+msgid "Content"
+msgstr "内容"
+
+#: apps/web/models.py:786
+msgid "Number"
+msgstr "阶段编号"
+
+#: apps/web/models.py:789
+msgid "Maximum Submissions for per User"
+msgstr "本竞赛每位选手允许提交的总次数"
+
+#: apps/web/models.py:790
+msgid "Max Submissions for per User per day"
+msgstr "本竞赛每天允许的最大提交数"
+
+#: apps/web/models.py:792 apps/web/models.py:805
+msgid "Scoring Program"
+msgstr "评分器"
+
+#: apps/web/models.py:793 apps/web/models.py:804
+msgid "Reference Data"
+msgstr "参考数据包"
+
+#: apps/web/models.py:794 apps/web/models.py:803
+msgid "Input Data"
+msgstr "输入数据包"
+
+#: apps/web/models.py:796
+msgid "Leaderboard Mode"
+msgstr "积分榜选项"
+
+#: apps/web/models.py:797
+msgid "If submission beats old score, put submission on leaderboard"
+msgstr "如果最新提交的成绩优于先前的提交，直接将提交结果公布在积分榜上"
+
+#: apps/web/models.py:800
+msgid "Execution time limit in seconds"
+msgstr "程序执行时间的限制（单位秒）"
 
 #: apps/web/static/error/503.html:15 static/error/503.html:15
 msgid "The CodaLab site is being upgraded..."
@@ -448,11 +539,11 @@ msgstr "你好 %(user.username)s,"
 
 #: apps/web/templates/emails/base_email.html:74
 msgid "Thanks,"
-msgstr "感谢"
+msgstr "非常感谢"
 
 #: apps/web/templates/emails/base_email.html:76
 msgid "CodaLab Team"
-msgstr "团队"
+msgstr "北航数据工作站团队"
 
 #: apps/web/templates/emails/base_email.html:80
 msgid "Unsubscribe or manage notification settings"
@@ -512,12 +603,12 @@ msgstr "消息内容："
 #: apps/web/templates/emails/notifications/participation_requested.html:5
 msgid ""
 "This is a message confirming you have requested access to the competition:"
-msgstr "这是确认您已经申请参加比赛的信息"
+msgstr "这是确认您已经申请参加比赛的邮件"
 
 #: apps/web/templates/emails/notifications/participation_requested.html:8
 msgid ""
 "You will be notified if your participation status is approved or denied."
-msgstr "不论竞赛参与者被接受或是拒绝，您都将会收到通知"
+msgstr "如果竞赛者处理了您的竞赛请求您会得到通知"
 
 #: apps/web/templates/emails/notifications/participation_revoked.html:8
 msgid "Your participation privileges have been suspended."
@@ -1065,7 +1156,7 @@ msgstr "竞赛阶段"
 
 #: apps/web/templates/web/competitions/edit.html:198
 msgid "You can add, remove, and modify datasets in the"
-msgstr "您可以添加、删除和修改数据集在"
+msgstr "您可以对"
 
 #: apps/web/templates/web/competitions/edit.html:198
 #: apps/web/templates/web/my/datasets.html:26
@@ -1075,7 +1166,7 @@ msgstr "我的数据集"
 
 #: apps/web/templates/web/competitions/edit.html:198
 msgid "section"
-msgstr "部分"
+msgstr "进行编辑"
 
 #: apps/web/templates/web/competitions/edit.html:233
 msgid "Add Phase"
@@ -1159,6 +1250,17 @@ msgstr "详细提交"
 #: apps/web/templates/web/competitions/public_submissions_phase.html:85
 msgid "Download submission"
 msgstr "下载提交"
+
+#: apps/web/templates/web/competitions/submission_metadata.html:22
+#: apps/web/templates/web/competitions/view.html:60
+#: apps/web/templates/web/competitions/view.html:70
+#: apps/web/templates/web/competitions/view.html:80
+#: apps/web/templates/web/competitions/view.html:91
+#: apps/web/templates/web/competitions/view.html:101
+#: apps/web/templates/web/competitions/view.html:109
+#: apps/web/templates/web/my/submissions.html:24
+msgid "UTC"
+msgstr "北京时间"
 
 #: apps/web/templates/web/competitions/submission_metadata.html:27
 #: apps/web/templates/web/competitions/view.html:36
@@ -1294,6 +1396,10 @@ msgstr "结束"
 msgid "Competition Ends"
 msgstr "竞赛结束"
 
+#: apps/web/templates/web/competitions/view.html:109
+msgid "Never"
+msgstr ""
+
 #: apps/web/templates/web/competitions/view.html:130
 msgid "Public Submissions"
 msgstr "公共提交"
@@ -1330,6 +1436,10 @@ msgstr "条款和条件。"
 #: apps/web/templates/web/competitions/view.html:204
 msgid "of the competition."
 msgstr "关于该比赛。"
+
+#: apps/web/templates/web/competitions/view.html:207
+msgid "Register"
+msgstr "申请参加"
 
 #: apps/web/templates/web/competitions/view.html:210
 msgid ""
@@ -1721,3 +1831,15 @@ msgstr "已迁移的"
 #: apps/web/templates/web/my/submissions.html:156
 msgid "MIGRATE"
 msgstr "迁移"
+
+#~ msgid "unknown"
+#~ msgstr "未知"
+
+#~ msgid "denied"
+#~ msgstr "拒绝"
+
+#~ msgid "approved"
+#~ msgstr "接受"
+
+#~ msgid "pending"
+#~ msgstr "未处理"
