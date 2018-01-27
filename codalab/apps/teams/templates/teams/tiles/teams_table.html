@@ -6,6 +6,7 @@
 {% load staticfiles %}
 {% load codalab_tags %}
 {% load tz %}
+{% load i18n %}
 
 
 <table class="resultsTable dataTable table table-striped table-bordered">
@@ -29,8 +30,8 @@
                     <span class="label label-{{team|get_item:column.name}}">
                         {{team|get_item:column.name}}
                     </span>
-                    <button type="button" class="pull-right btn btn-danger btn-sm team_revoke_button button {% if team.status == "denied" %}hide{% endif %}" team_id="{{ team.pk }}">Revoke</button>
-                    <button type="button" class="pull-right btn btn-success btn-sm team_reinstate_button button {% if team.status == "approved" %}hide{% endif %}" team_id="{{ team.pk }}">Reinstate</button>
+                    <button type="button" class="pull-right btn btn-danger btn-sm team_revoke_button button {% if team.status == "denied" %}hide{% endif %}" team_id="{{ team.pk }}">{% trans 'Revoke'%}</button>
+                    <button type="button" class="pull-right btn btn-success btn-sm team_reinstate_button button {% if team.status == "approved" %}hide{% endif %}" team_id="{{ team.pk }}">{% trans 'Reinstate'%}</button>
                 {% else %}
                     {{ team|get_item:column.name }}
                 {% endif %}

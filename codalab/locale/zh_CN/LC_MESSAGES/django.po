@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-01-27 02:37+0000\n"
+"POT-Creation-Date: 2018-01-27 09:33+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,10 +17,6 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-
-#: apps/authenz/adapter.py:25
-msgid "Usernames can only contain letters, digits and ./-/_ "
-msgstr "用户名注册异常"
 
 #: apps/authenz/adapter.py:31
 msgid "Username can not be used. Please use other username."
@@ -57,6 +53,8 @@ msgid "Post in this thread"
 msgstr "在列表中展示话题"
 
 #: apps/forums/templates/forums/post_form.html:13
+#: apps/teams/templates/teams/edit.html:62
+#: apps/teams/templates/teams/request.html:65
 #: apps/web/templates/web/competitions/_submit_results_page.html:58
 #: apps/web/templates/web/competitions/_submit_results_page.html:65
 #: apps/web/templates/web/competitions/edit.html:289
@@ -137,11 +135,14 @@ msgid "Is public?"
 msgstr "是否公开?"
 
 #: apps/queues/templates/queues/list.html:20
+#: apps/teams/templates/teams/team_info.html:109
+#: apps/teams/templates/teams/team_info.html:141
 #: apps/web/templates/web/my/datasets.html:43
 msgid "Actions"
 msgstr "操作"
 
 #: apps/queues/templates/queues/list.html:30
+#: apps/teams/templates/teams/tiles/team_details.html:44
 #: apps/web/templates/web/competitions/competition_summary.html:33
 #: apps/web/templates/web/competitions/summary.html:31
 #: apps/web/templates/web/competitions/view.html:29
@@ -151,6 +152,7 @@ msgid "Edit"
 msgstr "编辑"
 
 #: apps/queues/templates/queues/list.html:31
+#: apps/teams/templates/teams/tiles/team_details.html:41
 #: apps/web/templates/web/competitions/competition_summary.html:32
 #: apps/web/templates/web/competitions/dumps.html:20
 #: apps/web/templates/web/competitions/dumps.html:43
@@ -164,12 +166,274 @@ msgstr "删除"
 msgid "No queues created, yet!"
 msgstr "还没有创建队列！"
 
-#: apps/teams/templates/teams/team_info.html:91
-#: apps/teams/templates/teams/team_info.html:219
-#: apps/teams/templates/teams/tiles/pending_teams.html:48
-#: apps/web/templates/web/my/participants.html:64
-msgid "Process"
-msgstr "确认处理"
+#: apps/teams/templates/teams/edit.html:31
+#: apps/teams/templates/teams/request.html:30
+#: apps/web/templates/web/my/settings.html:19
+msgid "There were errors processing the form, please try reloading the page!"
+msgstr "处理表单时发生错误，请尝试重载页面！"
+
+#: apps/teams/templates/teams/edit.html:37
+#: apps/teams/templates/teams/request.html:36
+#: apps/web/templates/web/my/settings.html:25
+msgid "Saved successfully!"
+msgstr "保存成功！"
+
+#: apps/teams/templates/teams/edit.html:48
+#: apps/teams/templates/teams/request.html:47
+#, fuzzy
+msgid "Team Information"
+msgstr "信息概述"
+
+#: apps/teams/templates/teams/request.html:23
+msgid "Go back"
+msgstr "返回"
+
+#: apps/teams/templates/teams/team_info.html:16
+#: apps/web/templates/web/competitions/dumps.html:6
+#: apps/web/templates/web/competitions/edit.html:18
+#: apps/web/templates/web/competitions/public_submissions.html:21
+#: apps/web/templates/web/competitions/submission_metadata.html:17
+#: apps/web/templates/web/my/detailed_results.html:8
+#: apps/web/templates/web/my/participants.html:16
+#: apps/web/templates/web/my/submissions.html:18
+msgid "Go Back to Competition Homepage"
+msgstr "返回竞赛主页"
+
+#: apps/teams/templates/teams/team_info.html:29
+msgid ""
+"You are not in any team for this competition. You can create a new team or "
+"request enrollment to an existing team"
+msgstr "你不在竞赛的任何一个团队中。你可以自己创建一个新的团队或者向一个已经存在的团队发出登记请求"
+
+#: apps/teams/templates/teams/team_info.html:34
+#, fuzzy
+msgid "Create new Team"
+msgstr "创建新的团队"
+
+#: apps/teams/templates/teams/team_info.html:40
+msgid "Waiting for organizers approval"
+msgstr "等待组织者的批准"
+
+#: apps/teams/templates/teams/team_info.html:47
+msgid "Invitations from other teams"
+msgstr "来自其他团队的邀请"
+
+#: apps/teams/templates/teams/team_info.html:56
+msgid "Invitation rejected"
+msgstr "拒绝的邀请"
+
+#: apps/teams/templates/teams/team_info.html:58
+msgid "Invitation approved"
+msgstr "接受的邀请"
+
+#: apps/teams/templates/teams/team_info.html:60
+msgid "Invitation pending"
+msgstr "处理中的邀请"
+
+#: apps/teams/templates/teams/team_info.html:62
+msgid "Invitation canceled"
+msgstr "取消的邀请"
+
+#: apps/teams/templates/teams/team_info.html:64
+#: apps/teams/templates/teams/team_info.html:192
+#: apps/teams/templates/teams/tiles/pending_teams.html:21
+#, fuzzy
+msgid "Unknown Status"
+msgstr "状态"
+
+#: apps/teams/templates/teams/team_info.html:71
+#: apps/teams/templates/teams/team_info.html:87
+#: apps/teams/templates/teams/team_info.html:199
+#: apps/teams/templates/teams/team_info.html:215
+#: apps/teams/templates/teams/tiles/pending_teams.html:28
+#: apps/teams/templates/teams/tiles/pending_teams.html:44
+#: apps/web/templates/emails/notifications/participation_accepted.html:11
+#: apps/web/templates/emails/notifications/participation_revoked.html:11
+#: apps/web/templates/web/my/participants.html:59
+#: apps/web/templates/web/my/participants.html:132
+#: apps/web/templates/web/my/participants.html:148
+msgid "Reason:"
+msgstr "原因是："
+
+#: apps/teams/templates/teams/team_info.html:78
+#: apps/teams/templates/teams/team_info.html:206
+#: apps/teams/templates/teams/tiles/pending_teams.html:35
+#: apps/web/templates/web/my/participants.html:50
+#: apps/web/templates/web/my/participants.html:139
+msgid "Status:"
+msgstr "状态"
+
+#: apps/teams/templates/teams/team_info.html:80
+#: apps/teams/templates/teams/team_info.html:208
+#: apps/teams/templates/teams/tiles/pending_teams.html:37
+#: apps/web/templates/web/my/participants.html:52
+#: apps/web/templates/web/my/participants.html:141
+msgid "Approve"
+msgstr "通过"
+
+#: apps/teams/templates/teams/team_info.html:81
+#: apps/teams/templates/teams/team_info.html:122
+#: apps/teams/templates/teams/team_info.html:209
+msgid "Reject"
+msgstr "拒绝"
+
+#: apps/teams/templates/teams/team_info.html:106
+#: apps/teams/templates/teams/team_info.html:138
+#: apps/web/templates/web/competitions/view.html:138
+msgid "Team"
+msgstr "团队"
+
+#: apps/teams/templates/teams/team_info.html:107
+#: apps/teams/templates/teams/team_info.html:139
+#, fuzzy
+msgid "Message"
+msgstr "消息内容："
+
+#: apps/teams/templates/teams/team_info.html:108
+#: apps/teams/templates/teams/team_info.html:140
+#: apps/web/templates/web/competitions/public_submissions_phase.html:16
+#: apps/web/templates/web/competitions/submission_metadata.html:34
+#: apps/web/templates/web/my/_submission_results.html:8
+msgid "Date"
+msgstr "日期"
+
+#: apps/teams/templates/teams/team_info.html:121
+msgid "Accept"
+msgstr "接受"
+
+#: apps/teams/templates/teams/team_info.html:132
+msgid "Requests to other teams"
+msgstr "给其他团队的请求"
+
+#: apps/teams/templates/teams/team_info.html:153
+#: apps/web/templates/web/my/datasets_delete.html:34
+#: apps/web/templates/web/my/submission_delete.html:15
+msgid "Cancel"
+msgstr "取消"
+
+#: apps/teams/templates/teams/team_info.html:175
+msgid "Requests from users"
+msgstr "来自用户的请求"
+
+#: apps/teams/templates/teams/team_info.html:184
+msgid "Request rejected"
+msgstr "拒绝的请求"
+
+#: apps/teams/templates/teams/team_info.html:186
+#, fuzzy
+msgid "Request approved"
+msgstr "接受的请求"
+
+#: apps/teams/templates/teams/team_info.html:188
+#, fuzzy
+msgid "Request pending"
+msgstr "未处理的请求"
+
+#: apps/teams/templates/teams/team_info.html:190
+msgid "Request canceled"
+msgstr "取消的请求"
+
+#: apps/teams/templates/teams/team_info.html:230
+#, fuzzy
+msgid "Members"
+msgstr "团队成员"
+
+#: apps/teams/templates/teams/team_info.html:233
+#, fuzzy
+msgid "There are no members."
+msgstr "当前没有成员。"
+
+#: apps/teams/templates/teams/team_info.html:268
+#: apps/teams/templates/teams/tiles/teams_table.html:33
+#: apps/web/templates/web/my/participants.html:94
+#: apps/web/templates/web/my/participants.html:182
+msgid "Revoke"
+msgstr "撤回"
+
+#: apps/teams/templates/teams/team_info.html:269
+#: apps/teams/templates/teams/tiles/teams_table.html:34
+#: apps/web/templates/web/my/participants.html:95
+#: apps/web/templates/web/my/participants.html:183
+msgid "Reinstate"
+msgstr "恢复"
+
+#: apps/teams/templates/teams/team_info.html:272
+msgid "owner"
+msgstr "拥有者"
+
+#: apps/teams/templates/teams/team_info.html:289
+#: apps/web/templates/web/competitions/submission_metadata.html:27
+#: apps/web/templates/web/competitions/view.html:36
+#: apps/web/templates/web/my/_competition_tile.html:49
+#: apps/web/templates/web/my/_managed.html:35
+#: apps/web/templates/web/my/submissions.html:7
+#: apps/web/templates/web/my/submissions.html:8
+#: apps/web/templates/web/my/submissions.html:69
+msgid "Submissions"
+msgstr "提交"
+
+#: apps/teams/templates/teams/team_info.html:295
+#: apps/web/templates/web/competitions/_results_page.html:44
+#: apps/web/templates/web/competitions/public_submissions_phase.html:14
+msgid "User"
+msgstr "用户名"
+
+#: apps/teams/templates/teams/team_info.html:296
+#: apps/web/templates/web/competitions/_submit_results_page.html:97
+msgid "Submission date"
+msgstr "提交日期"
+
+#: apps/teams/templates/teams/team_info.html:297
+#: apps/web/templates/web/competitions/_submit_results_page.html:98
+#: apps/web/templates/web/competitions/dumps.html:17
+#: apps/web/templates/web/competitions/submission_metadata.html:39
+msgid "Status"
+msgstr "状态"
+
+#: apps/teams/templates/teams/team_info.html:304
+#: apps/web/templates/web/competitions/_results_page.html:79
+#: apps/web/templates/web/competitions/_submit_results_page.html:105
+msgid "No data available in table"
+msgstr "表中没有可用的数据"
+
+#: apps/teams/templates/teams/tiles/pending_teams.html:13
+msgid "Team pending approval"
+msgstr "团队等待批准"
+
+#: apps/teams/templates/teams/tiles/pending_teams.html:15
+#, fuzzy
+msgid "Team approved"
+msgstr "接受的团队"
+
+#: apps/teams/templates/teams/tiles/pending_teams.html:17
+#, fuzzy
+msgid "Team denied"
+msgstr "拒绝的团队"
+
+#: apps/teams/templates/teams/tiles/pending_teams.html:19
+#, fuzzy
+msgid "Team deleted"
+msgstr "删除团队"
+
+#: apps/teams/templates/teams/tiles/pending_teams.html:38
+#: apps/web/templates/web/my/participants.html:53
+#: apps/web/templates/web/my/participants.html:142
+msgid "Deny"
+msgstr "拒绝"
+
+#: apps/teams/templates/teams/tiles/team_details.html:26
+#, fuzzy
+msgid "Created by"
+msgstr "创建"
+
+#: apps/teams/templates/teams/tiles/team_details.html:31
+#, fuzzy
+msgid "member"
+msgstr "成员"
+
+#: apps/teams/templates/teams/tiles/team_details.html:49
+msgid "Request enrolment"
+msgstr "报名请求"
 
 #: apps/web/models.py:226
 msgid "don't change this unless you have a reason to, default/empty is fine"
@@ -269,15 +533,15 @@ msgstr "抱歉，因为网站正在维护，您要登录的页面暂时无法访
 msgid "Please try again later. Thank you."
 msgstr "请过段时间再尝试，感谢配合！"
 
-#: apps/web/static/error/50x.html:16 static/error/50x.html:18
+#: apps/web/static/error/50x.html:16 static/error/50x.html:16
 msgid "The CodaLab site is currently unavailable."
 msgstr "网站正在更新维护"
 
-#: apps/web/static/error/50x.html:17 static/error/50x.html:19
+#: apps/web/static/error/50x.html:17 static/error/50x.html:17
 msgid "Sorry, the page you are looking for is currently unavailable."
 msgstr "抱歉，因为网站正在维护，您要登录的页面暂时无法访问。"
 
-#: apps/web/static/error/50x.html:18 static/error/50x.html:20
+#: apps/web/static/error/50x.html:18 static/error/50x.html:18
 msgid "Please try again later."
 msgstr "请过段时间再尝试，感谢配合！"
 
@@ -583,14 +847,6 @@ msgstr "这是更新您竞赛信息的一条消息："
 msgid "Your status has been accepted!"
 msgstr "您的申请已被接受！"
 
-#: apps/web/templates/emails/notifications/participation_accepted.html:11
-#: apps/web/templates/emails/notifications/participation_revoked.html:11
-#: apps/web/templates/web/my/participants.html:59
-#: apps/web/templates/web/my/participants.html:132
-#: apps/web/templates/web/my/participants.html:148
-msgid "Reason:"
-msgstr "原因是："
-
 #: apps/web/templates/emails/notifications/participation_organizer_direct_email.html:5
 msgid "This is a message from the organizer for the competition:"
 msgstr "这是来自竞赛组织者的一条消息："
@@ -891,11 +1147,6 @@ msgstr "下载排行榜上的所有提交"
 msgid "#"
 msgstr "#"
 
-#: apps/web/templates/web/competitions/_results_page.html:44
-#: apps/web/templates/web/competitions/public_submissions_phase.html:14
-msgid "User"
-msgstr "用户名"
-
 #: apps/web/templates/web/competitions/_results_page.html:45
 msgid "Entries"
 msgstr "登录"
@@ -915,11 +1166,6 @@ msgstr "详细结果"
 #: apps/web/templates/web/competitions/_results_page.html:63
 msgid "Image Viewer"
 msgstr "图像浏览"
-
-#: apps/web/templates/web/competitions/_results_page.html:79
-#: apps/web/templates/web/competitions/_submit_results_page.html:105
-msgid "No data available in table"
-msgstr "表中没有可用的数据"
 
 #: apps/web/templates/web/competitions/_results_page.html:94
 #: apps/web/templates/web/competitions/_results_page.html:96
@@ -1004,16 +1250,6 @@ msgstr "分数"
 msgid "Filename"
 msgstr "文件名"
 
-#: apps/web/templates/web/competitions/_submit_results_page.html:97
-msgid "Submission date"
-msgstr "提交日期"
-
-#: apps/web/templates/web/competitions/_submit_results_page.html:98
-#: apps/web/templates/web/competitions/dumps.html:17
-#: apps/web/templates/web/competitions/submission_metadata.html:39
-msgid "Status"
-msgstr "状态"
-
 #: apps/web/templates/web/competitions/competition_summary.html:34
 #: apps/web/templates/web/competitions/summary.html:34
 #: apps/web/templates/web/competitions/view.html:31
@@ -1050,16 +1286,6 @@ msgstr "是的，我确定"
 #: apps/web/templates/web/competitions/dumps.html:4
 msgid "Competition Dumps"
 msgstr "竞赛"
-
-#: apps/web/templates/web/competitions/dumps.html:6
-#: apps/web/templates/web/competitions/edit.html:18
-#: apps/web/templates/web/competitions/public_submissions.html:21
-#: apps/web/templates/web/competitions/submission_metadata.html:17
-#: apps/web/templates/web/my/detailed_results.html:8
-#: apps/web/templates/web/my/participants.html:16
-#: apps/web/templates/web/my/submissions.html:18
-msgid "Go Back to Competition Homepage"
-msgstr "返回竞赛主页"
 
 #: apps/web/templates/web/competitions/dumps.html:7
 msgid "Note: Refresh the page to view updates."
@@ -1238,12 +1464,6 @@ msgstr "在排行榜上只展示最近的结果"
 msgid "Submission Id"
 msgstr "提交ID"
 
-#: apps/web/templates/web/competitions/public_submissions_phase.html:16
-#: apps/web/templates/web/competitions/submission_metadata.html:34
-#: apps/web/templates/web/my/_submission_results.html:8
-msgid "Date"
-msgstr "日期"
-
 #: apps/web/templates/web/competitions/public_submissions_phase.html:17
 #: apps/web/templates/web/my/datasets.html:41
 msgid "Description"
@@ -1279,16 +1499,6 @@ msgstr "下载提交"
 #: apps/web/templates/web/my/submissions.html:24
 msgid "UTC"
 msgstr "北京时间"
-
-#: apps/web/templates/web/competitions/submission_metadata.html:27
-#: apps/web/templates/web/competitions/view.html:36
-#: apps/web/templates/web/my/_competition_tile.html:49
-#: apps/web/templates/web/my/_managed.html:35
-#: apps/web/templates/web/my/submissions.html:7
-#: apps/web/templates/web/my/submissions.html:8
-#: apps/web/templates/web/my/submissions.html:69
-msgid "Submissions"
-msgstr "提交"
 
 #: apps/web/templates/web/competitions/submission_metadata.html:33
 msgid "Submitted by"
@@ -1421,10 +1631,6 @@ msgstr "永不结束"
 #: apps/web/templates/web/competitions/view.html:130
 msgid "Public Submissions"
 msgstr "公共提交"
-
-#: apps/web/templates/web/competitions/view.html:138
-msgid "Team"
-msgstr "团队"
 
 #: apps/web/templates/web/competitions/view.html:193
 msgid "You must be logged in to participate in competitions."
@@ -1585,11 +1791,6 @@ msgid ""
 "delete it."
 msgstr "我很确定，即使竞赛正在使用它，我想要删除它"
 
-#: apps/web/templates/web/my/datasets_delete.html:34
-#: apps/web/templates/web/my/submission_delete.html:15
-msgid "Cancel"
-msgstr "取消"
-
 #: apps/web/templates/web/my/datasets_form.html:7
 #: apps/web/templates/web/my/datasets_form.html:8
 #: apps/web/templates/web/my/datasets_form.html:15
@@ -1630,30 +1831,9 @@ msgstr "竞赛(我的工作站)"
 msgid "Teams"
 msgstr "团队"
 
-#: apps/web/templates/web/my/participants.html:50
-#: apps/web/templates/web/my/participants.html:139
-msgid "Status:"
-msgstr "状态"
-
-#: apps/web/templates/web/my/participants.html:52
-#: apps/web/templates/web/my/participants.html:141
-msgid "Approve"
-msgstr "通过"
-
-#: apps/web/templates/web/my/participants.html:53
-#: apps/web/templates/web/my/participants.html:142
-msgid "Deny"
-msgstr "拒绝"
-
-#: apps/web/templates/web/my/participants.html:94
-#: apps/web/templates/web/my/participants.html:182
-msgid "Revoke"
-msgstr "撤回"
-
-#: apps/web/templates/web/my/participants.html:95
-#: apps/web/templates/web/my/participants.html:183
-msgid "Reinstate"
-msgstr "恢复"
+#: apps/web/templates/web/my/participants.html:64
+msgid "Process"
+msgstr "确认处理"
 
 #: apps/web/templates/web/my/participants.html:111
 msgid "There are no participants."
@@ -1688,14 +1868,6 @@ msgstr "发送"
 #: apps/web/templates/web/my/settings.html:8
 msgid "User Settings"
 msgstr "用户设置"
-
-#: apps/web/templates/web/my/settings.html:19
-msgid "There were errors processing the form, please try reloading the page!"
-msgstr "处理表单时发生错误，请尝试重载页面！"
-
-#: apps/web/templates/web/my/settings.html:25
-msgid "Saved successfully!"
-msgstr "保存成功！"
 
 #: apps/web/templates/web/my/settings.html:37
 msgid "Basic settings"
@@ -1838,14 +2010,8 @@ msgstr "已迁移的"
 msgid "MIGRATE"
 msgstr "迁移"
 
+#~ msgid "Usernames can only contain letters, digits and ./-/_ "
+#~ msgstr "用户名注册异常"
+
 #~ msgid "unknown"
 #~ msgstr "未知"
-
-#~ msgid "denied"
-#~ msgstr "拒绝"
-
-#~ msgid "approved"
-#~ msgstr "接受"
-
-#~ msgid "pending"
-#~ msgstr "未处理"

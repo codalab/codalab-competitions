@@ -2,6 +2,7 @@
 {#    pending_teams: The list of teams pending to be accepted/rejected #}
 {% load static %}
 {% load humanize %}
+{% load i18n %}
 
 {% for item in pending_teams %}
     <div class="panel panel-default competitionUserBlock teamUserBlock_{{item.id}}">
@@ -9,43 +10,43 @@
             <h3 class="panel-title">{{ item.name }}
                 <span class="participationStatus label label-{{ item.status.codename }}">
                     {% if item.status.codename == 'pending' %}
-                        Team pending approval
+                        {% trans 'Team pending approval'%}
                     {% elif item.status.codename == 'approved' %}
-                        Team approved
+                        {% trans 'Team approved'%}
                     {% elif item.status.codename == 'denied' %}
-                        Team denied
+                        {% trans 'Team denied'%}
                     {% elif item.status.codename == 'deleted' %}
-                        Team deleted
+                        {% trans 'Team deleted'%}
                     {% else %}
-                        Unknown Status
+                        {% trans 'Unknown Status'%}
                     {% endif %}
                 </span>
             </h3>
         </div>
         <div class="panel-body">
             {% if item.status.codename == 'denied' %}
-                <p class="text-danger">Reason: {{ item.reason }}</p>
+                <p class="text-danger">{% trans 'Reason:'%} {{ item.reason }}</p>
             {% endif %}
             <form class="custom process_request" id="team_request_{{item.id}}">{% csrf_token %}
                 <input type="hidden" name="team_id" value="{{item.id}}"/>
                 <div class="row">
                     <div class="col-sm-4">
                         <div class="form-group">
-                            <label for="status">Status:</label>
+                            <label for="status">{% trans 'Status:'%}</label>
                             <select id="status" name="status" class="form-control">
-                                <option value="approved">Approve</option>
-                                <option value="denied">Deny</option>
+                                <option value="approved">{% trans 'Approve'%}</option>
+                                <option value="denied">{% trans 'Deny'%}</option>
                             </select>
                         </div>
                     </div>
                     <div class="col-sm-8">
                         <div class="form-group">
-                            <label for="reason">Reason:</label>
+                            <label for="reason">{% trans 'Reason:'%}</label>
                             <textarea id="reason" name="reason" class="form-control"></textarea>
                         </div>
                     </div>
                 </div>
-                <input type="submit" class="btn btn-primary pull-right" value="{% trans "Process" %}"/>
+                <input type="submit" class="btn btn-primary pull-right" value="Process" />
             </form>
         </div>
     </div>

@@ -4,6 +4,7 @@
 {% load team_tags %}
 {% load tz %}
 {% load url from future %}
+{% load i18n %}
 
 {% block page_title %}Team Management{% endblock page_title %}
 
@@ -12,7 +13,7 @@
     <link rel="stylesheet" href="{{ STATIC_URL }}teams/teams.css">
 {% endblock %}
 {% block content %}
-    <a href="{% url "competitions:view" pk=competition.pk %}" class="pull-right" >Go Back to Competition Homepage</a>
+    <a href="{% url "competitions:view" pk=competition.pk %}" class="pull-right" >{% trans 'Go Back to Competition Homepage'%}</a>
     <div class="container-fluid">
         <div class="row">
             <div class="col-lg-12">
@@ -25,25 +26,25 @@
             {% if not team %}
                 {% if not pending_teams %}
                     <div class="alert alert-error">
-                        You are not in any team for this competition. You can create a new team or request enrollment to an existing team
+                        {% trans 'You are not in any team for this competition. You can create a new team or request enrollment to an existing team'%}
                     </div>
                     <div class="container-fluid">
                         <div class="row">
                             <div class="col-lg-12">
-                                <a href="{% url 'team_new' competition_pk=competition.pk %}" class="btn btn-default pull-left">Create new Team</a>
+                                <a href="{% url 'team_new' competition_pk=competition.pk %}" class="btn btn-default pull-left">{% trans 'Create new Team'%}</a>
                             </div>
                         </div>
                     </div>
                 {% else %}
                     <div class="alert alert-error">
-                        Waiting for organizers approval
+                        {% trans 'Waiting for organizers approval'%}
                     </div>
                     <div class="teamDetails">
                         {% include "teams/tiles/team_details.html" with team=pending_teams %}
                     </div>
                 {% endif %}
 
-                <h3><b>Invitations from other teams</b></h3>
+                <h3><b>{% trans 'Invitations from other teams'%}</b></h3>
                 {% if requests %}
                     {% for item in requests %}
                         {% if item.is_invitation and item.is_active %}
@@ -52,43 +53,43 @@
                                     <h3 class="panel-title">{{ item.name }}
                                         <span class="participationStatus label label-{{ item.status.codename }}">
                                             {% if item.status.codename == 'rejected' %}
-                                                Invitation rejected
+                                                {% trans 'Invitation rejected'%}
                                             {% elif item.status.codename == 'approved' %}
-                                                Invitation approved
+                                                {% trans 'Invitation approved'%}
                                             {% elif item.status.codename == 'pending' %}
-                                                Invitation pending
+                                                {% trans 'Invitation pending'%}
                                             {% elif item.status.codename == 'canceled' %}
-                                                Invitation canceled
+                                                {% trans 'Invitation canceled'%}
                                             {% else %}
-                                                Unknown Status
+                                                {% trans 'Unknown Status'%}
                                             {% endif %}
                                         </span>
                                     </h3>
                                 </div>
                                 <div class="panel-body">
                                     {% if item.status.codename == 'rejected' %}
-                                        <p class="text-danger">Reason: {{ item.reason }}</p>
+                                        <p class="text-danger">{% trans 'Reason:'%} {{ item.reason }}</p>
                                     {% endif %}
                                     <form class="custom process_request" id="team_request_{{item.id}}">{% csrf_token %}
                                         <input type="hidden" name="team_id" value="{{item.id}}"/>
                                         <div class="row">
                                             <div class="col-sm-4">
                                                 <div class="form-group">
-                                                    <label for="status">Status:</label>
+                                                    <label for="status">{% trans 'Status:'%}</label>
                                                     <select id="status" name="status" class="form-control">
-                                                        <option value="approved">Approve</option>
-                                                        <option value="rejected">Reject</option>
+                                                        <option value="approved">{% trans 'Approve'%}</option>
+                                                        <option value="rejected">{% trans 'Reject'%}</option>
                                                     </select>
                                                 </div>
                                             </div>
                                             <div class="col-sm-8">
                                                 <div class="form-group">
-                                                    <label for="reason">Reason:</label>
+                                                    <label for="reason">{% trans 'Reason:'%}</label>
                                                     <textarea id="reason" name="reason" class="form-control"></textarea>
                                                 </div>
                                             </div>
                                         </div>
-                                        <input type="submit" class="btn btn-primary pull-right" value="{% trans "Process" %}"/>
+                                        <input type="submit" class="btn btn-primary pull-right" value="Process" />
                                     </form>
                                 </div>
                             </div>
@@ -102,10 +103,10 @@
                         <table class="table table-striped affiliation">
                             <thead>
                                 <tr class="leaderboard-result-table-header">
-                                    <th>Team</th>
-                                    <th>Message</th>
-                                    <th>Date</th>
-                                    <th>Actions</th>
+                                    <th>{% trans 'Team'%}</th>
+                                    <th>{% trans 'Message'%}</th>
+                                    <th>{% trans 'Date'%}</th>
+                                    <th>{% trans 'Actions'%}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -117,8 +118,8 @@
                                                 <td>{{ request.message }}</td>
                                                 <td>{{ request.start_date }}</td>
                                                 <td>
-                                                    <a href="{% url 'team_request_action' competition_pk=competition.pk request_pk=request.pk action="accept"%}" class="btn btn-default pull-left">Accept</a>
-                                                    <a href="{% url 'team_request_action' competition_pk=competition.pk request_pk=request.pk action="reject"%}" class="btn btn-default pull-left">Reject</a>
+                                                    <a href="{% url 'team_request_action' competition_pk=competition.pk request_pk=request.pk action="accept"%}" class="btn btn-default pull-left">{% trans 'Accept'%}</a>
+                                                    <a href="{% url 'team_request_action' competition_pk=competition.pk request_pk=request.pk action="reject"%}" class="btn btn-default pull-left">{% trans 'Reject'%}</a>
                                                 </td>
                                             </tr>
                                         {% endif %}
@@ -128,16 +129,16 @@
                         </table>
                     </div>
                 </div>
-                <h3><b>Requests to other teams</b></h3>
+                <h3><b>{% trans 'Requests to other teams'%}</b></h3>
                 <div class="row">
                     <div class="col-sm-12">
                         <table class="table table-striped affiliation">
                             <thead>
                                 <tr class="leaderboard-result-table-header">
-                                    <th>Team</th>
-                                    <th>Message</th>
-                                    <th>Date</th>
-                                    <th>Actions</th>
+                                    <th>{% trans 'Team'%}</th>
+                                    <th>{% trans 'Message'%}</th>
+                                    <th>{% trans 'Date'%}</th>
+                                    <th>{% trans 'Actions'%}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -149,7 +150,7 @@
                                                 <td>{{ request.message }}</td>
                                                 <td>{{ request.start_date }}</td>
                                                 <td>
-                                                    <a href="{% url 'team_request_action' competition_pk=competition.pk request_pk=request.pk action="cancel"%}" class="btn btn-default pull-left">Cancel</a>
+                                                    <a href="{% url 'team_request_action' competition_pk=competition.pk request_pk=request.pk action="cancel"%}" class="btn btn-default pull-left">{% trans 'Cancel'%}</a>
                                                 </td>
                                             </tr>
                                         {% endif %}
@@ -171,7 +172,7 @@
 
             {% else %}
                 {% if team_requests %}
-                    <h3>Requests from users</h3>
+                    <h3>{% trans 'Requests from users'%}</h3>
                     <div class="participants">
                         {% for item in team_requests %}
                             {% if item.is_request and item.is_active %}
@@ -180,43 +181,43 @@
                                         <h3 class="panel-title">{{ item.user.username }}
                                             <span class="participationStatus label label-{{ item.status.codename }}">
                                                 {% if item.status.codename == 'rejected' %}
-                                                    Request rejected
+                                                    {% trans 'Request rejected'%}
                                                 {% elif item.status.codename == 'approved' %}
-                                                    Request approved
+                                                    {% trans 'Request approved'%}
                                                 {% elif item.status.codename == 'pending' %}
-                                                    Request pending
+                                                    {% trans 'Request pending'%}
                                                 {% elif item.status.codename == 'canceled' %}
-                                                    Request canceled
+                                                    {% trans 'Request canceled'%}
                                                 {% else %}
-                                                    Unknown Status
+                                                    {% trans 'Unknown Status'%}
                                                 {% endif %}
                                             </span>
                                         </h3>
                                     </div>
                                     <div class="panel-body">
                                         {% if item.status.codename == 'rejected' %}
-                                            <p class="text-danger">Reason: {{ item.reason }}</p>
+                                            <p class="text-danger">{% trans 'Reason:'%} {{ item.reason }}</p>
                                         {% endif %}
                                         <form class="custom process_request" id="team_request_{{item.id}}" method="post">{% csrf_token %}
                                             <input type="hidden" name="request_id" value="{{item.id}}"/>
                                             <div class="row">
                                                 <div class="col-sm-4">
                                                     <div class="form-group">
-                                                        <label for="status">Status:</label>
+                                                        <label for="status">{% trans 'Status:'%}</label>
                                                         <select id="status" name="status" class="form-control">
-                                                            <option value="approved">Approve</option>
-                                                            <option value="rejected">Reject</option>
+                                                            <option value="approved">{% trans 'Approve'%}</option>
+                                                            <option value="rejected">{% trans 'Reject'%}</option>
                                                         </select>
                                                     </div>
                                                 </div>
                                                 <div class="col-sm-8">
                                                     <div class="form-group">
-                                                        <label for="reason">Reason:</label>
+                                                        <label for="reason">{% trans 'Reason:'%}</label>
                                                         <textarea id="reason" name="reason" class="form-control"></textarea>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <input type="submit" class="btn btn-primary pull-right" value="{% trans "Process" %}"/>
+                                            <input type="submit" class="btn btn-primary pull-right" value="Process" />
                                         </form>
                                     </div>
                                 </div>
@@ -226,10 +227,10 @@
                 {% endif %}
                 <div class="teamDetails" style="margin-top: 24px;">
                     {% include "teams/tiles/team_details.html" with team=team %}
-                    <h3>Members</h3>
+                    <h3>{% trans 'Members'%}</h3>
                     <div class="participants">
                         {% if not team_members %}
-                            <p><em>There are no members.</em></p>
+                            <p><em>{% trans 'There are no members.'%}</em></p>
                         {% else %}
                             <table class="resultsTable dataTable table table-striped table-bordered">
                                 <thead>
@@ -264,11 +265,11 @@
                                                             <span class="label label-{{member|get_item:column.name}}">
                                                                 {{member|get_item:column.name}}
                                                             </span>
-                                                            <button type="button" class="pull-right btn btn-danger btn-sm team_revoke_button button {% if member.status == "denied" %}hide{% endif %}" team_id="{{ team.pk }}">Revoke</button>
-                                                            <button type="button" class="pull-right btn btn-success btn-sm team_reinstate_button button {% if member.status == "approved" %}hide{% endif %}" team_id="{{ team.pk }}">Reinstate</button>
+                                                            <button type="button" class="pull-right btn btn-danger btn-sm team_revoke_button button {% if member.status == "denied" %}hide{% endif %}" team_id="{{ team.pk }}">{% trans 'Revoke'%}</button>
+                                                            <button type="button" class="pull-right btn btn-success btn-sm team_reinstate_button button {% if member.status == "approved" %}hide{% endif %}" team_id="{{ team.pk }}">{% trans 'Reinstate'%}</button>
                                                         {% else %}
                                                             <span class="label label-primary">
-                                                                owner
+                                                                {% trans 'owner'%}
                                                             </span>
                                                         {% endif %}
                                                     </td>
@@ -285,22 +286,22 @@
                             </table>
                         {% endif %}
                     </div>
-                    <h3>Submissions</h3>
+                    <h3>{% trans 'Submissions'%}</h3>
                     <div>
                         <table class="table resultsTable dataTable table-striped table-bordered" id="user_results">
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th>User</th>
-                                    <th>Submission date</th>
-                                    <th>Status</th>
+                                    <th>{% trans 'User'%}</th>
+                                    <th>{% trans 'Submission date'%}</th>
+                                    <th>{% trans 'Status'%}</th>
                                     <th class="text-center"><span class="glyphicon glyphicon-ok"></span></th>
                                 </tr>
                             </thead>
                             <tbody>
                             {% if submission_info_list|length_is:"0" %}
                                 <tr class="noData">
-                                    <td class="tdDetails" colspan="6">No data available in table</td>
+                                    <td class="tdDetails" colspan="6">{% trans 'No data available in table'%}</td>
                                 </tr>
                             {% else %}
                                 {% for submission_info in submission_info_list %}
