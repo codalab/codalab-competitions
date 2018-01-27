@@ -21,9 +21,9 @@ class CodalabAccountAdapter(DefaultAccountAdapter):
         Validates the username. You can hook into this if you want to
         (dynamically) restrict what usernames can be chosen.
         """
-        if not USERNAME_REGEX.match(username):
-            raise forms.ValidationError(_("Usernames can only contain "
-                                          "letters, digits and ./-/_ "))
+        #if not USERNAME_REGEX.match(username):
+        #    raise forms.ValidationError(_("Usernames can only contain "
+        #                                  "letters, digits and ./-/_ "))
 
         username_blacklist_lower = [ub.lower()
                                     for ub in app_settings.USERNAME_BLACKLIST]

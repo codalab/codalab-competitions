@@ -680,12 +680,12 @@ msgstr "位参与者"
 #: apps/web/templates/web/competition_latest.html:30
 #: apps/web/templates/web/my/_competition_tile.html:32
 msgid "USD"
-msgstr "奖金："
+msgstr "奖金"
 
 #: apps/web/templates/web/competition_latest.html:30
 #: apps/web/templates/web/my/_competition_tile.html:32
 msgid "$"
-msgstr ""
+msgstr "："
 
 #: apps/web/templates/web/competition_latest.html:30
 #: apps/web/templates/web/my/_competition_tile.html:32
