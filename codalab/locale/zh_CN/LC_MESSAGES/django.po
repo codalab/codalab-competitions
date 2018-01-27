@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-01-25 02:00+0000\n"
+"POT-Creation-Date: 2018-01-27 02:37+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -89,12 +89,11 @@ msgstr "提交"
 
 #: apps/forums/templates/forums/thread_list.html:40
 msgid "No topics started yet,"
-msgstr ""
+msgstr "目前还没有讨论的话题，"
 
 #: apps/forums/templates/forums/thread_list.html:40
-#, fuzzy
 msgid "start one now"
-msgstr "创建新话题"
+msgstr "现在创建一个新的话题吧！"
 
 #: apps/queues/templates/queues/delete.html:3
 #: apps/queues/templates/queues/delete.html:4
@@ -270,15 +269,15 @@ msgstr "抱歉，因为网站正在维护，您要登录的页面暂时无法访
 msgid "Please try again later. Thank you."
 msgstr "请过段时间再尝试，感谢配合！"
 
-#: apps/web/static/error/50x.html:16 static/error/50x.html:16
+#: apps/web/static/error/50x.html:16 static/error/50x.html:18
 msgid "The CodaLab site is currently unavailable."
 msgstr "网站正在更新维护"
 
-#: apps/web/static/error/50x.html:17 static/error/50x.html:17
+#: apps/web/static/error/50x.html:17 static/error/50x.html:19
 msgid "Sorry, the page you are looking for is currently unavailable."
 msgstr "抱歉，因为网站正在维护，您要登录的页面暂时无法访问。"
 
-#: apps/web/static/error/50x.html:18 static/error/50x.html:18
+#: apps/web/static/error/50x.html:18 static/error/50x.html:20
 msgid "Please try again later."
 msgstr "请过段时间再尝试，感谢配合！"
 
@@ -634,7 +633,6 @@ msgstr "下一页"
 
 #: apps/web/templates/web/admin_monitoring_links.html:5
 #: apps/web/templates/web/admin_monitoring_links.html:6
-#, fuzzy
 msgid "Services Monitoring links"
 msgstr "管理控制链接"
 
@@ -673,6 +671,26 @@ msgstr ""
 #: apps/web/templates/web/my/_competition_tile.html:23
 msgid "Organized by"
 msgstr "竞赛组织者："
+
+#: apps/web/templates/web/competition_latest.html:27
+#: apps/web/templates/web/my/_competition_tile.html:29
+msgid "participant"
+msgstr "位参与者"
+
+#: apps/web/templates/web/competition_latest.html:30
+#: apps/web/templates/web/my/_competition_tile.html:32
+msgid "USD"
+msgstr "奖金："
+
+#: apps/web/templates/web/competition_latest.html:30
+#: apps/web/templates/web/my/_competition_tile.html:32
+msgid "$"
+msgstr ""
+
+#: apps/web/templates/web/competition_latest.html:30
+#: apps/web/templates/web/my/_competition_tile.html:32
+msgid "reward"
+msgstr "元"
 
 #: apps/web/templates/web/index.html:12
 msgid "Accelerating reproducible computational research."
@@ -1398,7 +1416,7 @@ msgstr "竞赛结束"
 
 #: apps/web/templates/web/competitions/view.html:109
 msgid "Never"
-msgstr ""
+msgstr "永不结束"
 
 #: apps/web/templates/web/competitions/view.html:130
 msgid "Public Submissions"
@@ -1470,18 +1488,6 @@ msgstr "没有数据"
 #: apps/web/templates/web/my/_competition_tile.html:28
 msgid "No end date"
 msgstr "永不结束"
-
-#: apps/web/templates/web/my/_competition_tile.html:29
-msgid "participant"
-msgstr "成员"
-
-#: apps/web/templates/web/my/_competition_tile.html:32
-msgid "USD"
-msgstr "USD"
-
-#: apps/web/templates/web/my/_competition_tile.html:32
-msgid "reward"
-msgstr "奖励"
 
 #: apps/web/templates/web/my/_competition_tile.html:47
 #: apps/web/templates/web/my/_managed.html:33
