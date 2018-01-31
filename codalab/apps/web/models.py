@@ -1352,10 +1352,10 @@ class CompetitionSubmission(models.Model):
 
                 failed_count = CompetitionSubmission.objects.filter(phase=self.phase,
                                                                     participant=self.participant,
-                                                                    status__name=CompetitionSubmissionStatus.FAILED).count()
+                                                                    status__codename=CompetitionSubmissionStatus.FAILED).count()
 
                 print "This is submission number %d, and %d submissions have failed" % (self.submission_number, failed_count)
-                offset_submission_count = self.submission_number - failed_count
+                offset_submission_count = self.submission_number - failed_count - 1
 
                 if (offset_submission_count > self.phase.max_submissions):
                     print "Checking to see if the offset_submission_count (%d) is greater than the maximum allowed (%d)" % (offset_submission_count, self.phase.max_submissions)
