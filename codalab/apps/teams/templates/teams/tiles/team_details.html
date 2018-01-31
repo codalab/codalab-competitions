@@ -27,7 +27,7 @@
 		</div>
     	<div class="col-sm-4 col-md-4 right-panel">
 			{{ team.created_at|date:"M d, Y" }}<br>
-            <b>{{ team.active_members|length}}</b> member{% if team.active_members|length > 1 %}s{% endif %}<br>
+            <b>{{ team.active_members_count}}</b> member{% if team.active_members_count > 1 %}s{% endif %}<br>
         </div>
 
         <br><br>
