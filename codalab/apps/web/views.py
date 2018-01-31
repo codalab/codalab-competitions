@@ -520,7 +520,7 @@ class CompetitionDetailView(DetailView):
         try:
             truncate_date = connection.ops.date_trunc_sql('day', 'submitted_at')
             score_def = SubmissionScoreDef.objects.filter(competition=competition).order_by('ordering').first()
-            if score_def:
+            if score_def and not score_def.computed:
                 qs = SubmissionScore.objects.filter(result__phase__competition=competition, scoredef=score_def)
                 qs = qs.extra({'day': truncate_date}).values('day')
                 if score_def.sorting == 'asc':
