@@ -788,7 +788,7 @@ class CompetitionPhase(models.Model):
         ('purple', 'Purple'),
     )
 
-    competition = models.ForeignKey(Competition,related_name='phases')
+    competition = models.ForeignKey(Competition, related_name='phases')
     description = models.CharField(max_length=1000, null=True, blank=True)
     # Is this 0 based or 1 based?
     phasenumber = models.PositiveIntegerField(verbose_name="Number")
@@ -1422,13 +1422,16 @@ class CompetitionSubmission(models.Model):
             self.save()
         return self.readable_filename
 
-    def get_file_for_download(self, key, requested_by):
+    def get_file_for_download(self, key, requested_by, override_permissions=False):
         """
         Returns the FileField object for the file that is to be downloaded by the given user.
 
         :param key: A name identifying the file to download.
 
         :param requested_by: A user object identifying the user making the request to access the file.
+
+        :param override_permissions: Overrides basic permissions (unless private output) useful for certain situations,
+        like detailed_results
 
            - ValueError exception for improper arguments.
            - PermissionDenied exception when access to the file cannot be granted.
@@ -1456,17 +1459,21 @@ class CompetitionSubmission(models.Model):
         file_attr, file_ext, file_has_restricted_access = downloadable_files[key]
 
         competition = self.phase.competition
-        if competition.creator == requested_by or requested_by in competition.admins.all():
-            pass
-        elif not self.is_public:
-            # If the user requesting access is the owner, access granted
-            if self.participant.competition.creator.id != requested_by.id:
-                # User making request must be owner of this submission and be granted
-                # download privilege by the competition owners.
-                if self.participant.user.id != requested_by.id:
-                    raise PermissionDenied()
-                if file_has_restricted_access and self.phase.is_blind:
-                    raise PermissionDenied()
+
+        if not override_permissions:
+            if competition.creator == requested_by or requested_by in competition.admins.all():
+                pass
+
+            elif not self.is_public:
+                # If the user requesting access is the owner, access granted
+                if self.participant.competition.creator.id != requested_by.id:
+                    # User making request must be owner of this submission and be granted
+                    # download privilege by the competition owners.
+                    if self.participant.user.id != requested_by.id:
+                        raise PermissionDenied()
+                    if file_has_restricted_access and self.phase.is_blind:
+                        raise PermissionDenied()
+
 
         if key == 'private_output.zip':
             if self.participant.competition.creator.id != requested_by.id:
@@ -2308,14 +2315,50 @@ def add_submission_to_leaderboard(submission):
 
 
 def get_current_phase(competition):
-    all_phases = competition.phases.all()
+    all_phases = competition.phases.all().order_by('start_date')
     phase_iterator = iter(all_phases)
     active_phase = None
     for phase in phase_iterator:
+        # Get an active phase that isn't also never-ending, unless we don't have any active_phases
         if phase.is_active:
-            active_phase = phase
-            break
+            if active_phase is None:
+                active_phase = phase
+            elif not phase.phase_never_ends:
+                active_phase = phase
+                break
     return active_phase
+
+
+def get_first_previous_active_and_next_phases(competition):
+    first_phase = None
+    previous_phase = None
+    active_phase = None
+    next_phase = None
+
+    all_phases = competition.phases.all().order_by('start_date')
+    phase_iterator = iter(all_phases)
+    trailing_phase_holder = None
+
+    for phase in phase_iterator:
+        if not first_phase:
+            first_phase = phase
+
+        # Get an active phase that isn't also never-ending, unless we don't have any active_phases
+        if phase.is_active:
+            previous_phase = trailing_phase_holder
+            if active_phase is None:
+                active_phase = phase
+            elif not phase.phase_never_ends:
+                active_phase = phase
+                try:
+                    next_phase = next(phase_iterator)
+                except StopIteration:
+                    pass
+                break
+
+        # Hold this to store "previous phase"
+        trailing_phase_holder = phase
+    return first_phase, previous_phase, active_phase, next_phase
 
 
 class CompetitionDump(models.Model):
