@@ -1367,7 +1367,7 @@ class CompetitionSubmission(models.Model):
                                                                                participant=self.participant).exclude(
                     status__codename=CompetitionSubmissionStatus.FAILED).count()
 
-                if (offset_submission_count > self.phase.max_submissions):
+                if (offset_submission_count >= self.phase.max_submissions):
                     print "Checking to see if the offset_submission_count (%d) is greater than the maximum allowed (%d)" % (offset_submission_count, self.phase.max_submissions)
                     raise PermissionDenied("The maximum number of submissions has been reached.")
                 else:
