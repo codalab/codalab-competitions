@@ -280,7 +280,9 @@
             {% if active_phase.is_blind %}
                 <!-- Do nothing -->
             {% else %}
-                {% include "web/competitions/_chart.html" %}
+                {% if graph %}
+                    {% include "web/competitions/_chart.html" %}
+                {% endif %}
             {% endif %}
         </div>
     </div>
