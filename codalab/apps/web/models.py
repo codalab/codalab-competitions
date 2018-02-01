@@ -1356,19 +1356,14 @@ class CompetitionSubmission(models.Model):
 
                 all_count = CompetitionSubmission.objects.filter(phase=self.phase, participant=self.participant).count()
 
-                # print "This is submission number %d, and %d submissions have failed" % (self.submission_number, failed_count)
                 print "This is submission number %d, and %d submissions have failed" % (all_count, failed_count)
-
-                # all_count = CompetitionSubmission.objects.filter(phase=self.phase, participant=self.participant).count()
-
-                # offset_submission_count = self.submission_number - failed_count
 
                 offset_submission_count = CompetitionSubmission.objects.filter(phase=self.phase,
                                                                                participant=self.participant).exclude(
                     status__codename=CompetitionSubmissionStatus.FAILED).count()
 
                 if (offset_submission_count >= self.phase.max_submissions):
-                    print "Checking to see if the offset_submission_count (%d) is greater than the maximum allowed (%d)" % (offset_submission_count, self.phase.max_submissions)
+                    print "Checking to see if the submission_count (%d) is greater than the maximum allowed (%d)" % (offset_submission_count, self.phase.max_submissions)
                     raise PermissionDenied("The maximum number of submissions has been reached.")
                 else:
                     print "Submission number below maximum."
@@ -1376,17 +1371,12 @@ class CompetitionSubmission(models.Model):
                 if hasattr(self.phase, 'max_submissions_per_day'):
                     print 'Checking submissions per day count'
 
+                    # All submissions from today without those that failed
                     submissions_from_today_count = CompetitionSubmission.objects.filter(
-                        # phase__competition=self.phase.competition,
                         participant=self.participant,
                         phase=self.phase,
                         submitted_at__gte=datetime.date.today(),
-                        # status__codename=CompetitionSubmissionStatus.FINISHED,
                     ).exclude(status__codename=CompetitionSubmissionStatus.FAILED).count()
-
-                    print(self.participant)
-                    print(self.phase)
-                    print(datetime.date.today())
 
                     print 'Count is %s and maximum is %s' % (submissions_from_today_count, self.phase.max_submissions_per_day)
 
