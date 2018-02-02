@@ -286,9 +286,26 @@ class Competition(ChaHubSaveMixin, models.Model):
         return "competitions/"
 
     def get_chahub_data(self):
+        phase_data = []
+        for phase in self.phases.all():
+            phase_data.append({
+                "start": phase.start_date.isoformat(),
+                # "end": ,  # We don't have an end...
+                "index": phase.phasenumber,
+                "name": phase.label,
+                "description": phase.description,
+            })
+
+        http_or_https = "https" if settings.SSL_CERTIFICATE else "http"
+
         return {
             "remote_id": self.id,
-            "title": self.title
+            "title": self.title,
+            "created_by": str(self.creator),
+            "created_when": self.start_date.isoformat(),
+            "logo": self.image_url,
+            "url": "{}://{}{}".format(http_or_https, settings.CODALAB_SITE_DOMAIN, self.get_absolute_url()),
+            "phases": phase_data
         }
 
     def save(self, *args, **kwargs):
