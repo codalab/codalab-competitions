@@ -1215,7 +1215,7 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
             raise Http404()
 
         # find the active phase
-        if (phase_id != None):
+        if phase_id:
             context['selected_phase_id'] = int(phase_id)
             active_phase = competition.phases.filter(id=phase_id)[0]
         else:
