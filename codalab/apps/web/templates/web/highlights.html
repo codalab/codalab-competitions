@@ -21,8 +21,9 @@
             padding: 3em 1em;
         }
 
-        .masthead .logo.item img {
-            margin-right: 1em;
+        .masthead img {
+            margin: auto;
+            width: 500px;
         }
 
         .masthead .ui.menu .ui.button {
@@ -129,15 +130,10 @@
 <!-- Page Contents -->
 <div class="pusher">
     <div class="ui inverted vertical masthead center aligned segment">
-
         <div class="ui text container">
-            <h1 class="ui inverted header">
-                Imagine-a-Company
-            </h1>
-            <h2>Do whatever you want when you want to.</h2>
-            <div class="ui huge primary button">Get Started <i class="right arrow icon"></i></div>
+            <img src="{{STATIC_URL}}img/codalab-logo-onecolor-reverse.png">
+            <h2>Accelerating reproducible computational research.</h2>
         </div>
-
     </div>
 
     <!--
@@ -195,6 +191,31 @@
         </div>
     </div>
     -->
+
+    <div class="ui vertical stripe segment">
+        <div class="ui middle aligned stackable relaxed grid container">
+            <div class="three column row center aligned">
+                <div class="column">
+                    <i class="trophy massive icon"></i>
+                    <h3 class="ui header">Participate</h3>
+                    <a href="https://competitions.codalab.org/competitions/" target="_blank">Competition list</a>
+                </div>
+                <div class="column">
+                    <i class="comments outline massive icon green"></i>
+                    <h3 class="ui header">Organize</h3>
+                    <a href="https://chalab.lri.fr/" target="_blank">Wizard</a> |
+                    <a href="https://github.com/codalab/codalab-competitions/wiki/User_Competition-Roadmap" target="_blank">Roadmap</a>
+                </div>
+                <div class="column">
+                    <i class="code massive icon teal"></i>
+                    <h3 class="ui header">Develop</h3>
+                    <a href="https://github.com/codalab/codalab-competitions" target="_blank">Github</a> |
+                    <a href="https://codalab.slack.com/" target="_blank">Slack</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="ui vertical stripe segment">
         <div class="ui middle aligned stackable grid container">
             <div class="row">
