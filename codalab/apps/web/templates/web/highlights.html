@@ -113,6 +113,11 @@
             }
         }
 
+        h1 {
+            font-size: 4em !important;
+            padding-top: 100px;
+        }
+
         /* --------------------------------------------------------------------------------------
          Force the footer to stretch all the way to the bottom of viewport
          */
@@ -237,19 +242,16 @@
                 </div>
                 <div class="six wide column">
                     {#                    <img src="assets/images/wireframe/white-image.png" class="ui large bordered rounded image">#}
-{#                                        <i class="massive yellow help icon"></i>#}
+                    {#                                        <i class="massive yellow help icon"></i>#}
                     <div class="ui grid">
-                        <div class="ten wide left floated column">
+                        <div class="ten wide right floated column">
                             <i class="massive yellow help icon"></i>
-                        </div>
-                        <div class="six wide column">
-                            Some news?
                         </div>
                     </div>
                 </div>
             </div>
             <div class="row">
-                <div class="six wide left floated column">
+                <div class="four wide right floated column">
                     {#                    <img src="assets/images/wireframe/white-image.png" class="ui large bordered rounded image">#}
                     <i class="massive purple newspaper icon"></i>
                 </div>
@@ -278,8 +280,9 @@
                         profile challenges organized with Codalab include the <a href="https://web.see4c.eu/">2 million
                             Euro prize of the EU, organized
                             by the See.4C consortium</a>, the <a
-                                href="https://competitions.codalab.org/competitions/16652">CIKM AnalytiCup 2017</a>,
-                        which attracted 493 participants, <a href="https://competitions.codalab.org/competitions/3221">MSCOCO</a>
+                            href="https://competitions.codalab.org/competitions/16652">CIKM AnalytiCup 2017</a>,
+                        which attracted 493 participants,
+                        <a href="https://competitions.codalab.org/competitions/3221">MSCOCO</a>
                         (633 participants) and the <a href="https://competitions.codalab.org/competitions/2321">ChaLearn
                             AutoML challenge 2017</a> (687 participants).
                         Since 2016, Codalab offers the possibility of organizing machine learning challenges with code
@@ -300,7 +303,7 @@
                 </div>
             </div>
             <div class="row">
-                <div class="six wide left floated column">
+                <div class="four wide right floated column">
                     {#                    <img src="assets/images/wireframe/white-image.png" class="ui large bordered rounded image">#}
                     <i class="massive green student icon"></i>
                 </div>
@@ -315,7 +318,7 @@
                         answered. We developed a step-by-step wizard (ChaLab) to facilitate entering the challenge on
                         the platform, so the students can focus more on the scientific aspects. You can borrow the
                         student instructions if you want to use this in your class as well (<a
-                                href="https://www.dropbox.com/s/o34mfzanszwwzoq/Instructions_Projet_M2Info.pdf?dl=0">full
+                            href="https://www.dropbox.com/s/o34mfzanszwwzoq/Instructions_Projet_M2Info.pdf?dl=0">full
                             syllabus for 2018</a>;
                         <a href="https://www.dropbox.com/s/kr8um9djawdxo71/Starting_Kit_M2info.pdf?dl=0">instructions to
                             prepare a challenge</a>). We grade the master students using various aspects of
@@ -323,28 +326,77 @@
                         students solve the challenges in 12 weeks and are also graded similarly for their proposal,
                         submissions to the challenge, report, video, and presentations in class. More recently, Codalab
                         is also being used to <a
-                                href="https://codalab.lri.fr/competitions/134?secret_key=669495b4-175b-47fe-9aa4-ce1b50416f14">grade
+                            href="https://codalab.lri.fr/competitions/134?secret_key=669495b4-175b-47fe-9aa4-ce1b50416f14">grade
                             homework of a reinforcement learning class.</a></p>
                 </div>
             </div>
+
             <div class="ui divider"></div>
-            <div class="row">
-                <div class="center aligned column">
-                    {#                    <a class="ui huge button">Check Them Out</a>#}
-                    <div align="center">
-                        <h3 class="ui header">Our Partners:</h3>
-                        {#                        <div class="ui divider"></div>#}
-                        <img src="{% static "img/logo_collage.png" %}" class="ui medium image">
+
+            <div class="row centered" style="padding: 80px 0;">
+                <div class="eight wide center aligned  column">
+                    <h1 class="ui purple header">News</h1>
+
+                    <div style="padding-bottom: 50px;">
+                        <a href="https://web.see4c.eu/"><h3>See.4C</h3></a>
+                        <div class="ui divider"></div>
+                        <p><u>February 2018:</u> 2 million Euro Big Data EU prize powered by Codalab.</p>
+                    </div>
+
+                    <div style="padding-bottom: 50px;">
+                        <a href="https://sites.google.com/a/chalearn.org/saclay/"><h3>Student Projects</h3></a>
+                        <div class="ui divider"></div>
+                        <p><u>January 2018:</u> Paris-Saclay master students create challenges for L2 students.</p>
+                    </div>
+
+                    <div style="padding-bottom: 50px;">
+                        <a href="https://codalab.lri.fr/competitions/134?secret_key=669495b4-175b-47fe-9aa4-ce1b50416f14">
+                            <h3>Homework</h3></a>
+                        <div class="ui divider"></div>
+                        <p><u>January 2018:</u> Paris-Saclay instructors create reinforcement learning homework.</p>
+                    </div>
+
+                    <div style="padding-bottom: 50px;">
+                        <a href="https://competitions.codalab.org/"><h3>Homework</h3></a>
+                        <div class="ui divider"></div>
+                        <p><u>December 2017:</u> Codalab exceeds 10000 users with 480 competitions (145 public)</p>
+                    </div>
+
+                    <div style="padding-bottom: 50px;">
+                        <a href="http://ciml.chalearn.org/"><h3>CiML workshop</h3></a>
+                        <div class="ui divider"></div>
+                        <p>
+                            <u>December 2017:</u> Codalab presented at the Challenges in Machine Learning workshop [<a href="https://docs.google.com/a/chalearn.org/viewer?a=v&pid=sites&srcid=Y2hhbGVhcm4ub3JnfHdvcmtzaG9wfGd4OjVmY2U0NTk3M2RhYTRlZGY">slides</a>].
+                        </p>
+                    </div>
+
+                    <div style="padding-bottom: 50px;">
+                        <a href="https://github.com/codalab/codalab-competitions/wiki"><h3>Version 1.5 is out!</h3></a>
+                        <div class="ui divider"></div>
+                        <p>
+                            <u>November 2017:</u> Explore the new features: scale up your code submission competition with your own compute workers (full privacy, dockers); organize RL challenges and hook up simulators providing data on demand (with your own "ingestion program"); use the ChaLab wizard to create competitions in minutes.
+                        </p>
                     </div>
                 </div>
             </div>
-            <div class="row">
-                <div class="center aligned column">
-                    {#                    <a class="ui huge button">Check Them Out</a>#}
-                    <div align="center">
-                        <h3 class="ui header">Powered By:</h3>
-                        {#                        <div class="ui divider"></div>#}
-                        <img src="{% static "img/azure.png" %}" class="ui small image">
+
+
+            <div class="ui container grid centered">
+                <div class="row">
+                    <div class="center aligned column">
+                        <h1 class="ui ">Our Partners</h1>
+                        <div class="ui small images">
+                            <a href="https://www.stanford.edu/" target="_blank"><img src="{% static "img/highlights/stanford.png" %}" class="ui centered image"></a>
+                            <a href="http://www.chalearn.org/" target="_blank"><img src="{% static "img/highlights/chalearn.png" %}" class="ui centered image"></a>
+                            <a href="https://www.microsoft.com" target="_blank"><img src="{% static "img/highlights/microsoft.png" %}" class="ui centered image"></a>
+                            <a href="https://www.universite-paris-saclay.fr/" target="_blank"><img src="{% static "img/highlights/university_paris.png" %}" class="ui centered image"></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="center aligned column">
+                        <h1 class="ui ">Powered By</h1>
+                        <a href="https://www.azure.com/" target="_blank"><img src="{% static "img/highlights/azure.png" %}" class="ui small centered image"></a>
                     </div>
                 </div>
             </div>
@@ -353,30 +405,7 @@
 
     <div class="ui inverted vertical footer segment">
         <div class="ui container">
-            <div class="ui stackable inverted divided equal height stackable grid">
-                <div class="three wide column">
-                    <h4 class="ui inverted header">About</h4>
-                    <div class="ui inverted link list">
-                        <a href="#" class="item">Sitemap</a>
-                        <a href="#" class="item">Contact Us</a>
-                        <a href="#" class="item">Religious Ceremonies</a>
-                        <a href="#" class="item">Gazebo Plans</a>
-                    </div>
-                </div>
-                <div class="three wide column">
-                    <h4 class="ui inverted header">Services</h4>
-                    <div class="ui inverted link list">
-                        <a href="#" class="item">Banana Pre-Order</a>
-                        <a href="#" class="item">DNA FAQ</a>
-                        <a href="#" class="item">How To Access</a>
-                        <a href="#" class="item">Favorite X-Men</a>
-                    </div>
-                </div>
-                <div class="seven wide column">
-                    <h4 class="ui inverted header">Footer Header</h4>
-                    <p>Extra space for a call to action inside the footer that could help re-engage users.</p>
-                </div>
-            </div>
+            &nbsp; <!-- Blank for now -->
         </div>
     </div>
 </div>
@@ -385,7 +414,6 @@
 <script>
     $(document)
         .ready(function () {
-
             // fix menu when passed
             $('.masthead')
                 .visibility({
@@ -401,7 +429,6 @@
             // create sidebar and attach to menu open
             $('.ui.sidebar')
                 .sidebar('attach events', '.toc.item')
-
         })
 </script>
 </body>
