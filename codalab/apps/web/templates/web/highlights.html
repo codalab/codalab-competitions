@@ -18,6 +18,7 @@
         .ui.inverted.segment, .ui.primary.inverted.segment {
             background-color: #78124c !important;
         }
+
         .masthead.segment {
             padding: 3em 1em;
         }
@@ -120,6 +121,7 @@
             min-height: 100vh;
             flex-direction: column;
         }
+
         .pusher > .footer {
             flex: 1;
         }
@@ -132,7 +134,7 @@
 <div class="pusher">
     <div class="ui inverted vertical masthead center aligned segment">
         <div class="ui text container">
-            <img src="{{STATIC_URL}}img/codalab-logo-onecolor-reverse.png">
+            <img src="{{ STATIC_URL }}img/codalab-logo-onecolor-reverse.png">
             <h2>Accelerating reproducible computational research.</h2>
         </div>
     </div>
@@ -205,7 +207,8 @@
                     <i class="comments outline massive icon green"></i>
                     <h3 class="ui header">Organize</h3>
                     <a href="https://chalab.lri.fr/" target="_blank">Wizard</a> |
-                    <a href="https://github.com/codalab/codalab-competitions/wiki/User_Competition-Roadmap" target="_blank">Roadmap</a>
+                    <a href="https://github.com/codalab/codalab-competitions/wiki/User_Competition-Roadmap"
+                       target="_blank">Roadmap</a>
                 </div>
                 <div class="column">
                     <i class="code massive icon teal"></i>
@@ -232,14 +235,22 @@
                         scoring program must return a numeric score, which is displayed on a leaderboard where the
                         performances of participants are compared.</p>
                 </div>
-                <div class="six wide right floated column">
-{#                    <img src="assets/images/wireframe/white-image.png" class="ui large bordered rounded image">#}
-                    <i class="massive yellow help icon"></i>
+                <div class="six wide column">
+                    {#                    <img src="assets/images/wireframe/white-image.png" class="ui large bordered rounded image">#}
+{#                                        <i class="massive yellow help icon"></i>#}
+                    <div class="ui grid">
+                        <div class="ten wide left floated column">
+                            <i class="massive yellow help icon"></i>
+                        </div>
+                        <div class="six wide column">
+                            Some news?
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="row">
                 <div class="six wide left floated column">
-{#                    <img src="assets/images/wireframe/white-image.png" class="ui large bordered rounded image">#}
+                    {#                    <img src="assets/images/wireframe/white-image.png" class="ui large bordered rounded image">#}
                     <i class="massive purple newspaper icon"></i>
                 </div>
                 <div class="eight wide column">
@@ -251,9 +262,11 @@
                         Worksheets capture complex research pipelines in a reproducible way and create "executable
                         papers". Some competitions have been organized using worksheets, but the competition platform
                         and the worksheet platform have both a large user base and can be used independently. In 2014,
-                        <a href="http://www.chalearn.org/">ChaLearn</a> joined to co-develop Codalab competitions. Since 2015, University Paris-Saclay is
+                        <a href="http://www.chalearn.org/">ChaLearn</a> joined to co-develop Codalab competitions. Since
+                        2015, University Paris-Saclay is
                         community lead of Codalab competitions, under the direction of Isabelle Guyon, professor of big
-                        data. Codalab is administered by CKCollab and the <a href="https://www.lri.fr/">LRI staff.</a></p>
+                        data. Codalab is administered by CKCollab and the <a href="https://www.lri.fr/">LRI staff.</a>
+                    </p>
                 </div>
             </div>
             <div class="row">
@@ -282,13 +295,13 @@
                         dedicated projects, Codalab can be customized since it is an open source project.</p>
                 </div>
                 <div class="six wide right floated column">
-{#                    <img src="assets/images/wireframe/white-image.png" class="ui large bordered rounded image">#}
+                    {#                    <img src="assets/images/wireframe/white-image.png" class="ui large bordered rounded image">#}
                     <i class="massive blue eyedropper icon"></i>
                 </div>
             </div>
             <div class="row">
                 <div class="six wide left floated column">
-{#                    <img src="assets/images/wireframe/white-image.png" class="ui large bordered rounded image">#}
+                    {#                    <img src="assets/images/wireframe/white-image.png" class="ui large bordered rounded image">#}
                     <i class="massive green student icon"></i>
                 </div>
                 <div class="eight wide column">
@@ -317,20 +330,20 @@
             <div class="ui divider"></div>
             <div class="row">
                 <div class="center aligned column">
-{#                    <a class="ui huge button">Check Them Out</a>#}
+                    {#                    <a class="ui huge button">Check Them Out</a>#}
                     <div align="center">
                         <h3 class="ui header">Our Partners:</h3>
-{#                        <div class="ui divider"></div>#}
+                        {#                        <div class="ui divider"></div>#}
                         <img src="{% static "img/logo_collage.png" %}" class="ui medium image">
                     </div>
                 </div>
             </div>
             <div class="row">
                 <div class="center aligned column">
-{#                    <a class="ui huge button">Check Them Out</a>#}
+                    {#                    <a class="ui huge button">Check Them Out</a>#}
                     <div align="center">
                         <h3 class="ui header">Powered By:</h3>
-{#                        <div class="ui divider"></div>#}
+                        {#                        <div class="ui divider"></div>#}
                         <img src="{% static "img/azure.png" %}" class="ui small image">
                     </div>
                 </div>
