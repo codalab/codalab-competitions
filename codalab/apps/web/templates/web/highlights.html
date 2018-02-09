@@ -111,6 +111,18 @@
                 margin-top: 0.5em;
                 font-size: 1.5em;
             }
+
+            .massive.icon {
+                /* Header icons */
+                text-align: center;
+            }
+        }
+
+        @media only screen and (max-width: 525px) {
+            .masthead img {
+                margin: auto;
+                width: 300px;
+            }
         }
 
         h1 {
@@ -240,14 +252,8 @@
                         scoring program must return a numeric score, which is displayed on a leaderboard where the
                         performances of participants are compared.</p>
                 </div>
-                <div class="six wide column">
-                    {#                    <img src="assets/images/wireframe/white-image.png" class="ui large bordered rounded image">#}
-                    {#                                        <i class="massive yellow help icon"></i>#}
-                    <div class="ui grid">
-                        <div class="ten wide right floated column">
-                            <i class="massive yellow help icon"></i>
-                        </div>
-                    </div>
+                <div class="six wide right floated column tablet only computer only">
+                    <i class="massive yellow help icon"></i>
                 </div>
             </div>
             <div class="row">
@@ -297,7 +303,7 @@
                         growth to big data competitions running at the expense of the organizers. For very special
                         dedicated projects, Codalab can be customized since it is an open source project.</p>
                 </div>
-                <div class="six wide right floated column">
+                <div class="six wide right floated column tablet only computer only">
                     {#                    <img src="assets/images/wireframe/white-image.png" class="ui large bordered rounded image">#}
                     <i class="massive blue eyedropper icon"></i>
                 </div>
@@ -334,7 +340,7 @@
             <div class="ui divider"></div>
 
             <div class="row centered" style="padding: 80px 0;">
-                <div class="eight wide center aligned  column">
+                <div class="eight wide center aligned column">
                     <h1 class="ui purple header">News</h1>
 
                     <div style="padding-bottom: 50px;">
