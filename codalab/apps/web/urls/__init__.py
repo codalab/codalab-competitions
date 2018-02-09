@@ -33,6 +33,9 @@ urlpatterns = patterns('',
     url(r'^(?i)ChalearnLAP_Action/?', RedirectView.as_view(url='https://www.codalab.org/competitions/2241')),
     url(r'^(?i)Age/?', RedirectView.as_view(url='https://www.codalab.org/competitions/4711')),
     url(r'^(?i)Caption/?', RedirectView.as_view(url='https://www.codalab.org/competitions/3221')),
+
+    # Static pages
+    url(r'^(?i)highlights/?', TemplateView.as_view(template_name='web/highlights.html'), name="highlights"),
 )
 
 
