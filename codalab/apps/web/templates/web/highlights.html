@@ -24,10 +24,18 @@
 
         .image-background {
             background-image: url("{% static "img/highlights/stanford_kackathon_banner.jpg" %}") !important;
-            background-size: contain;
+            background-color: #fff;
+            background-size: cover;
             background-repeat: no-repeat;
             background-position: top center;
             background-blend-mode: luminosity;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            right: 0;
+            left: 0;
+            max-height: 325px;
+            z-index: -1;
         }
 
         .column-bottom-padding {
@@ -120,6 +128,10 @@
         }
 
         @media only screen and (max-width: 700px) {
+            .image-background {
+                max-height: 285px;
+            }
+
             .ui.fixed.menu {
                 display: none !important;
             }
@@ -179,7 +191,9 @@
         }
     </style>
 </head>
-<body class="image-background">
+<body>
+
+<div class="image-background"></div>
 
 
 <!-- Page Contents -->
