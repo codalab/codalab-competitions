@@ -15,6 +15,18 @@
     <script src="https://cdn.jsdelivr.net/semantic-ui/2.2.10/semantic.min.js"></script>
 
     <style>
+        .image-background {
+            background-image: url("{% static "img/highlights/stanford_kackathon_banner.jpg" %}"); !important;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        .white-text {
+            color: white;
+            text-shadow: black; !important;
+        }
+
         .large_links {
             font-size: 20px; !important;
             font-weight: bolder;
@@ -154,10 +166,10 @@
 
 <!-- Page Contents -->
 <div class="pusher">
-    <div class="ui inverted vertical masthead center aligned segment">
+    <div class="ui vertical center aligned container image-background">
         <div class="ui text container">
-            <img src="{{ STATIC_URL }}img/codalab-logo-onecolor-reverse.png">
-            <h2>Open-Source platform with code submission</h2>
+            <img class="ui centered image" src="{{ STATIC_URL }}img/codalab-logo-onecolor-reverse.png">
+            <h2 class="white-text">Open-Source platform with code submission</h2>
         </div>
     </div>
 
