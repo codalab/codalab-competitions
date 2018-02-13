@@ -286,16 +286,16 @@ class CompetitionEdit(LoginRequiredMixin, NamedFormsetsMixin, UpdateWithInlinesV
         # inlines[0] = pages
         # inlines[1] = phases
         for phase_form in inlines[1]:
-            if phase_form.cleaned_data["input_data_organizer_dataset"]:
+            if phase_form.cleaned_data.get("input_data_organizer_dataset"):
                 phase_form.instance.input_data = phase_form.cleaned_data["input_data_organizer_dataset"].data_file.file.name
 
-            if phase_form.cleaned_data["reference_data_organizer_dataset"]:
+            if phase_form.cleaned_data.get("reference_data_organizer_dataset"):
                 phase_form.instance.reference_data = phase_form.cleaned_data["reference_data_organizer_dataset"].data_file.file.name
 
-            if phase_form.cleaned_data["scoring_program_organizer_dataset"]:
+            if phase_form.cleaned_data.get("scoring_program_organizer_dataset"):
                 phase_form.instance.scoring_program = phase_form.cleaned_data["scoring_program_organizer_dataset"].data_file.file.name
 
-            if phase_form.cleaned_data["ingestion_program_organizer_dataset"]:
+            if phase_form.cleaned_data.get("ingestion_program_organizer_dataset"):
                 phase_form.instance.ingestion_program = phase_form.cleaned_data["ingestion_program_organizer_dataset"].data_file.file.name
 
             phase_form.instance.save()
