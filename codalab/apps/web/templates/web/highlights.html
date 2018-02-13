@@ -26,7 +26,8 @@
             background-image: url("{% static "img/highlights/stanford_kackathon_banner.jpg" %}") !important;
             background-size: contain;
             background-repeat: no-repeat;
-            background-position: center;
+            background-position: top center;
+            background-blend-mode: luminosity;
         }
 
         .column-bottom-padding {
@@ -41,7 +42,7 @@
 
         .white-text {
             color: white;
-            text-shadow: black !important;
+            text-shadow: black 0 2px 2px;
         }
 
         .large_links {
@@ -178,12 +179,12 @@
         }
     </style>
 </head>
-<body>
+<body class="image-background">
 
 
 <!-- Page Contents -->
 <div class="pusher">
-    <div class="ui vertical center aligned container image-background">
+    <div class="ui vertical center aligned container">
         <div class="ui text container">
             <img class="ui centered image" src="{{ STATIC_URL }}img/codalab-logo-onecolor-reverse.png">
             <h2 class="white-text">Open-Source platform with code submission</h2>
