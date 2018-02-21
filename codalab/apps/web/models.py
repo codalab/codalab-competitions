@@ -42,6 +42,7 @@ from django_extensions.db.fields import UUIDField
 from django.utils.functional import cached_property
 from s3direct.fields import S3DirectField
 
+from apps.chahub.models import ChaHubSaveMixin
 from apps.forums.models import Forum
 from apps.coopetitions.models import DownloadRecord
 from apps.authenz.models import ClUser
@@ -213,7 +214,7 @@ def _uuidify(directory):
     return wrapped_uuidify
 
 
-class Competition(models.Model):
+class Competition(ChaHubSaveMixin, models.Model):
     """ Model representing a competition. """
     # compute_worker_vhost = models.CharField(max_length=128, null=True, blank=True, help_text="(don't edit unless you're instructed to, will break submissions -- only admins can see this!)")
     queue = models.ForeignKey(
@@ -260,6 +261,13 @@ class Competition(models.Model):
 
     competition_docker_image = models.CharField(max_length=128, default='', blank=True)
 
+    class Meta:
+        permissions = (
+            ('is_owner', 'Owner'),
+            ('can_edit', 'Edit'),
+            )
+        ordering = ['end_date']
+
     @property
     def pagecontent(self):
         items = list(self.pagecontainers.all())
@@ -268,18 +276,37 @@ class Competition(models.Model):
     def get_absolute_url(self):
         return reverse('competitions:view', kwargs={'pk':self.pk})
 
-    class Meta:
-        permissions = (
-            ('is_owner', 'Owner'),
-            ('can_edit', 'Edit'),
-            )
-        ordering = ['end_date']
-
     def __unicode__(self):
         return self.title
 
     def set_owner(self, user):
         return assign_perm('view_task', user, self)
+
+    def get_chahub_endpoint(self):
+        return "competitions/"
+
+    def get_chahub_data(self):
+        phase_data = []
+        for phase in self.phases.all():
+            phase_data.append({
+                "start": phase.start_date.isoformat(),
+                # "end": ,  # We don't have an end...
+                "index": phase.phasenumber,
+                "name": phase.label,
+                "description": phase.description,
+            })
+
+        http_or_https = "https" if settings.SSL_CERTIFICATE else "http"
+
+        return {
+            "remote_id": self.id,
+            "title": self.title,
+            "created_by": str(self.creator),
+            "created_when": self.start_date.isoformat(),
+            "logo": self.image_url,
+            "url": "{}://{}{}".format(http_or_https, settings.CODALAB_SITE_DOMAIN, self.get_absolute_url()),
+            "phases": phase_data
+        }
 
     def save(self, *args, **kwargs):
         # Make sure the image_url_base is set from the actual storage implementation
