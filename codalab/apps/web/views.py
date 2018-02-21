@@ -767,7 +767,7 @@ class CompetitionPublicSubmission(TemplateView):
             context['error'] = traceback.print_exc()
 
         # In case all phases are close, lets get last phase
-        if context['active_phase'] is None:
+        if context['active_phase'] is None and competition:
             context['active_phase'] = competition.phases.all().order_by("phasenumber").reverse()[0]
         return context
 
