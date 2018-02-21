@@ -15,6 +15,52 @@
     <script src="https://cdn.jsdelivr.net/semantic-ui/2.2.10/semantic.min.js"></script>
 
     <style>
+
+        p {
+            text-align: justify !important;
+            word-wrap: break-word !important;
+            line-heigh: 35px !important;
+        }
+
+        .image-background {
+            background-image: url("{% static "img/highlights/standofrd_hackathon_small.png" %}") !important;
+            background-color: #fff;
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: top center;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            right: 0;
+            left: 0;
+            max-height: 275px;
+            z-index: -1;
+        }
+
+        .column-bottom-padding {
+            margin-bottom: 3vh !important;
+            padding-bottom: 3vh !important;
+        }
+
+        .news-column-bottom-padding {
+            margin-bottom: 4vh !important;
+            padding-bottom: 4vh !important;
+        }
+
+        .white-text {
+            margin: 0 !important;
+            margin-top: -10px !important;
+            padding-bottom: 20px;
+            font-size: 1.0em !important;
+            color: white;
+            text-shadow: black 0 2px 2px;
+        }
+
+        .large_links {
+            font-size: 20px !important;
+            font-weight: bolder;
+        }
+
         .ui.inverted.segment, .ui.primary.inverted.segment {
             background-color: #78124c !important;
         }
@@ -43,7 +89,7 @@
         }
 
         .ui.vertical.stripe {
-            padding: 8em 0em;
+            padding: 5em 0em;
         }
 
         .ui.vertical.stripe h3 {
@@ -77,7 +123,8 @@
         }
 
         .footer.segment {
-            padding: 5em 0em;
+            padding: 1em 0em;
+            text-align: center;
         }
 
         .secondary.pointing.menu .toc.item {
@@ -85,6 +132,10 @@
         }
 
         @media only screen and (max-width: 700px) {
+            .image-background {
+                max-height: 250px;
+            }
+
             .ui.fixed.menu {
                 display: none !important;
             }
@@ -142,106 +193,189 @@
         .pusher > .footer {
             flex: 1;
         }
+
+        /* fix footer */
+        .footer-list {
+            list-style-type: none;
+        }
+        .footer-list a {
+            color: #efefef;
+        }
+        .footer-list a:hover {
+            color: #c0d8ef;
+        }
+
+        @media only screen and (min-width: 700px) {
+            .footer-list li {
+            display: inline-block;
+        }
+            .footer-list li:not(:first-child) {
+                margin-left: 20px;
+            }
+        }
     </style>
 </head>
 <body>
 
+<div class="image-background"></div>
+
 
 <!-- Page Contents -->
 <div class="pusher">
-    <div class="ui inverted vertical masthead center aligned segment">
+    <div class="ui vertical center aligned container">
         <div class="ui text container">
-            <img src="{{ STATIC_URL }}img/codalab-logo-onecolor-reverse.png">
-            <h2>Accelerating reproducible computational research.</h2>
+            <a href="https://competitions.codalab.org"><img class="ui centered image" src="{{ STATIC_URL }}img/codalab-logo-onecolor-reverse.png"></a>
+            <h2 class="white-text">an open source platform to learn, create, collaborate through challenges</h2>
         </div>
     </div>
-
-    <!--
-    <div class="ui vertical stripe segment">
-        <div class="ui middle aligned stackable grid container">
-            <div class="row">
-                <div class="eight wide column">
-                    <h3 class="ui header">We Help Companies and Companions</h3>
-                    <p>We can give your company superpowers to do things that they never thought possible. Let us delight your customers and empower your needs...through pure data analytics.</p>
-                    <h3 class="ui header">We Make Bananas That Can Dance</h3>
-                    <p>Yes that's right, you thought it was the stuff of dreams, but even bananas can be bioengineered.</p>
-                </div>
-                <div class="six wide right floated column">
-                    <img src="assets/images/wireframe/white-image.png" class="ui large bordered rounded image">
-                </div>
-            </div>
-            <div class="row">
-                <div class="center aligned column">
-                    <a class="ui huge button">Check Them Out</a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-    <div class="ui vertical stripe quote segment">
-        <div class="ui equal width stackable internally celled grid">
-            <div class="center aligned row">
-                <div class="column">
-                    <h3>"What a Company"</h3>
-                    <p>That is what they all say about us</p>
-                </div>
-                <div class="column">
-                    <h3>"I shouldn't have gone with their competitor."</h3>
-                    <p>
-                        <img src="assets/images/avatar/nan.jpg" class="ui avatar image">
-                        <b>Nan</b> Chief Fun Officer Acme Toys
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="ui vertical stripe segment">
-        <div class="ui text container">
-            <h3 class="ui header">Breaking The Grid, Grabs Your Attention</h3>
-            <p>Instead of focusing on content creation and hard work, we have learned how to master the art of doing nothing by providing massive amounts of whitespace and generic content that can seem massive, monolithic and worth your attention.</p>
-            <a class="ui large button">Read More</a>
-            <h4 class="ui horizontal header divider">
-                <a href="#">Case Studies</a>
-            </h4>
-            <h3 class="ui header">Did We Tell You About Our Bananas?</h3>
-            <p>Yes I know you probably disregarded the earlier boasts as non-sequitur filler content, but its really true. It took years of gene splicing and combinatory DNA research, but our bananas can really dance.</p>
-            <a class="ui large button">I'm Still Quite Interested</a>
-        </div>
-    </div>
-    -->
 
     <div class="ui vertical stripe segment">
         <div class="ui middle aligned stackable relaxed grid container">
             <div class="three column row center aligned">
                 <div class="column">
-                    <i class="trophy massive icon"></i>
+                    <i class="trophy massive yellow icon"></i>
                     <h3 class="ui header">Participate</h3>
-                    <a href="https://competitions.codalab.org/competitions/" target="_blank">Competition list</a>
+                    <a class="large_links" href="https://competitions.codalab.org/competitions/" target="_blank">Competition
+                        list</a>
                 </div>
                 <div class="column">
-                    <i class="comments outline massive icon green"></i>
+                    <i class="users massive icon purple"></i>
                     <h3 class="ui header">Organize</h3>
-                    <a href="https://chalab.lri.fr/" target="_blank">Wizard</a> |
-                    <a href="https://github.com/codalab/codalab-competitions/wiki/User_Competition-Roadmap"
+                    <a class="large_links" href="https://chalab.lri.fr/" target="_blank">Wizard</a> |
+                    <a class="large_links"
+                       href="https://github.com/codalab/codalab-competitions/wiki/User_Competition-Roadmap"
                        target="_blank">Roadmap</a>
                 </div>
                 <div class="column">
-                    <i class="code massive icon teal"></i>
+                    <i class="code massive icon"></i>
                     <h3 class="ui header">Develop</h3>
-                    <a href="https://github.com/codalab/codalab-competitions" target="_blank">Github</a> |
-                    <a href="https://codalab.slack.com/" target="_blank">Slack</a>
+                    <a class="large_links" href="https://github.com/codalab/codalab-competitions"
+                       target="_blank">Github</a> |
+                    <a class="large_links" href="https://codalab.slack.com/" target="_blank">Slack</a>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="ui vertical stripe segment">
-        <div class="ui middle aligned stackable grid container">
-            <div class="row">
+        <div class="ui middle center aligned stackable grid container">
+            <div class="eight wide left aligned column">
+                <div class="row column-bottom-padding">
+                    <h3 class="ui purple header">What is Codalab?</h3>
+                    <div class="ui divider"></div>
+                    <p>CodaLab Competitions is a powerful open source framework for running competitions that involve
+                        result or code submission. You can either participate in an existing competition or host a new
+                        competition.</p>
+                    <p>Most competitions hosted on Codalab are machine learning (data science)
+                        competitions, but Codalab is NOT limited to this application domain. It can accommodate any
+                        problem for which a solution can be provided in the form of a zip archive containing a number of
+                        files to be evaluated quantitatively by a scoring program (provided by the organizers). The
+                        scoring program must return a numeric score, which is displayed on a leaderboard where the
+                        performances of participants are compared.</p>
+                </div>
+
+                <div class="row column-bottom-padding">
+                    <h3 class="ui purple header">History of Codalab</h3>
+                    <div class="ui divider"></div>
+                    <p>Codalab was created in 2013 as a joint venture between Microsoft and Stanford University.
+                        Originally the vision was to create an ecosystem for conducting computational research in a more
+                        efficient, reproducible, and collaborative manner, combining worksheets and competitions.
+                        Worksheets capture complex research pipelines in a reproducible way and create "executable
+                        papers".</p>
+                    <p>Some competitions have been organized using worksheets, but the competition platform
+                        and the worksheet platform have both a large user base and can be used independently. In 2014,
+                        <a class="large_links" href="http://www.chalearn.org/">ChaLearn</a> joined to co-develop Codalab
+                        competitions. Since
+                        2015, University Paris-Saclay is
+                        community lead of Codalab competitions, under the direction of Isabelle Guyon, professor of big
+                        data. Codalab is administered by CKCollab and the <a class="large_links"
+                                                                             href="https://www.lri.fr/">LRI staff.</a>
+                    </p>
+                </div>
+
+                <div class="row column-bottom-padding">
+                    <h3 class="ui purple header">Codalab in Research</h3>
+                    <div class="ui divider"></div>
+                    <p>Codalab in research
+                        Codalab is used actively in research. In 2016/2017, 88 new challenges were launched. Recent high
+                        profile challenges organized with Codalab include the <a class="large_links"
+                                                                                 href="https://web.see4c.eu/">2 million
+                            Euro prize of the EU, organized
+                            by the See.4C consortium</a>, the <a class="large_links"
+                                                                 href="https://competitions.codalab.org/competitions/16652">CIKM
+                            AnalytiCup 2017</a>,
+                        which attracted 493 participants,
+                        <a class="large_links" href="https://competitions.codalab.org/competitions/3221">MSCOCO</a>
+                        (633 participants) and the <a class="large_links"
+                                                      href="https://competitions.codalab.org/competitions/2321">ChaLearn
+                            AutoML challenge 2017</a> (687 participants).</p>
+                    <p>Since 2016, Codalab offers the possibility of organizing machine learning challenges with code
+                        submission. The simplest machine learning challenges require only the submission of results,
+                        which are compared to a solution (or key) by a scoring program. Result submission challenges are
+                        less computationally expensive than code submission challenges. However, they offer less
+                        possibilities. In particular, code submission allows conducting fair benchmarks by executing
+                        submitted code in the same condition for all participants.</p>
+                    <p>Codalab has been providing free resources for challenge organizers who want to run high impact
+                        events, within a pre-approved agreed upon budget. New since version 1.5: organizers can hook up
+                        their own compute workers to the backend of Codalab to redirect the code submissions, enabling
+                        growth to big data competitions running at the expense of the organizers. For very special
+                        dedicated projects, Codalab can be customized since it is an open source project.</p>
+                </div>
+
+            </div>
+            <div class="eight wide center aligned column">
+
+                <div class="row news-column-bottom-padding">
+                    <h1 class="ui purple header">News</h1>
+                    <a href="https://web.see4c.eu/"><h3>See.4C</h3></a>
+                    <p><u>February 2018:</u> 2 million Euro Big Data EU prize powered by Codalab.</p>
+                </div>
+
+                <div class="row news-column-bottom-padding">
+                    <a href="http://dataia.eu/index.php?lang=FR&page=kickoff"><h3>DataIA</h3></a>
+                    <p><u>February 2018:</u> Isabelle Guyon presents Codalab at the newly formed Institute of Convergence DataIA</p>
+                </div>
+
+                <div class="row news-column-bottom-padding">
+                    <a href="https://sites.google.com/a/chalearn.org/saclay/"><h3>Student
+                        Projects</h3></a>
+                    <p><u>January 2018:</u> Paris-Saclay master students create challenges for L2 students.</p>
+                </div>
+
+                <div class="row news-column-bottom-padding">
+                    <a
+                       href="https://codalab.lri.fr/competitions/134?secret_key=669495b4-175b-47fe-9aa4-ce1b50416f14">
+                        <h3>Homework</h3></a>
+                    <p><u>January 2018:</u> Paris-Saclay instructors create reinforcement learning homework.</p>
+                </div>
+
+                <div class="row news-column-bottom-padding">
+                    <a href="https://competitions.codalab.org/"><h3>10,000 Users</h3></a>
+                    <p><u>December 2017:</u> Codalab exceeds 10000 users with 480 competitions (145 public)</p>
+                </div>
+
+                <div class="row news-column-bottom-padding">
+                    <a href="http://ciml.chalearn.org/"><h3>CiML workshop</h3></a>
+                    <p>
+                        <u>December 2017:</u> Codalab presented at the Challenges in Machine Learning workshop [<a
+                            href="https://docs.google.com/a/chalearn.org/viewer?a=v&pid=sites&srcid=Y2hhbGVhcm4ub3JnfHdvcmtzaG9wfGd4OjVmY2U0NTk3M2RhYTRlZGY">slides</a>].
+                    </p>
+                </div>
+
+                <div class="row news-column-bottom-padding">
+                    <a href="https://github.com/codalab/codalab-competitions/wiki"><h3>Version 1.5 is out!</h3></a>
+                    <p>
+                        <u>November 2017:</u> Explore the new features: scale up your code submission competition with
+                        your own compute workers (full privacy, dockers); organize RL challenges and hook up simulators
+                        providing data on demand (with your own "ingestion program"); use the ChaLab wizard to create
+                        competitions in minutes.
+                    </p>
+                </div>
+
+            </div>
+            <!--<div class="row">
                 <div class="eight wide column">
-                    <h3 class="ui yellow header">What is Codalab?</h3>
+                    <h3 class="ui purple header">What is Codalab?</h3>
                     <div class="ui divider"></div>
                     <p>CodaLab Competitions is a powerful open source framework for running competitions that involve
                         result or code submission. You can either participate in an existing competition or host a new
@@ -252,15 +386,14 @@
                         scoring program must return a numeric score, which is displayed on a leaderboard where the
                         performances of participants are compared.</p>
                 </div>
-                <div class="six wide right floated column tablet only computer only">
-                    <i class="massive yellow help icon"></i>
+                <div class="six wide right floated column" style="">
+                    <h1 class="ui purple massive bold header">News</h1>
+                    <a class="large_links" href="https://web.see4c.eu/"><h3>See.4C</h3></a>
+                    <div class="ui divider"></div>
+                    <p><u>February 2018:</u> 2 million Euro Big Data EU prize powered by Codalab.</p>
                 </div>
             </div>
             <div class="row">
-                <div class="four wide right floated column">
-                    {#                    <img src="assets/images/wireframe/white-image.png" class="ui large bordered rounded image">#}
-                    <i class="massive purple newspaper icon"></i>
-                </div>
                 <div class="eight wide column">
                     <h3 class="ui purple header">History of Codalab</h3>
                     <div class="ui divider"></div>
@@ -270,26 +403,31 @@
                         Worksheets capture complex research pipelines in a reproducible way and create "executable
                         papers". Some competitions have been organized using worksheets, but the competition platform
                         and the worksheet platform have both a large user base and can be used independently. In 2014,
-                        <a href="http://www.chalearn.org/">ChaLearn</a> joined to co-develop Codalab competitions. Since
+                        <a class="large_links" href="http://www.chalearn.org/">ChaLearn</a> joined to co-develop Codalab competitions. Since
                         2015, University Paris-Saclay is
                         community lead of Codalab competitions, under the direction of Isabelle Guyon, professor of big
-                        data. Codalab is administered by CKCollab and the <a href="https://www.lri.fr/">LRI staff.</a>
+                        data. Codalab is administered by CKCollab and the <a class="large_links" href="https://www.lri.fr/">LRI staff.</a>
                     </p>
+                </div>
+                <div class="six wide right floated column" style="">
+                    <a class="large_links" href="https://sites.google.com/a/chalearn.org/saclay/"><h3>Student Projects</h3></a>
+                    <div class="ui divider"></div>
+                    <p><u>January 2018:</u> Paris-Saclay master students create challenges for L2 students.</p>
                 </div>
             </div>
             <div class="row">
                 <div class="eight wide column">
-                    <h3 class="ui blue header">Codalab in Research</h3>
+                    <h3 class="ui purple header">Codalab in Research</h3>
                     <div class="ui divider"></div>
                     <p>Codalab in research
                         Codalab is used actively in research. In 2016/2017, 88 new challenges were launched. Recent high
-                        profile challenges organized with Codalab include the <a href="https://web.see4c.eu/">2 million
+                        profile challenges organized with Codalab include the <a class="large_links" href="https://web.see4c.eu/">2 million
                             Euro prize of the EU, organized
-                            by the See.4C consortium</a>, the <a
+                            by the See.4C consortium</a>, the <a class="large_links"
                             href="https://competitions.codalab.org/competitions/16652">CIKM AnalytiCup 2017</a>,
                         which attracted 493 participants,
-                        <a href="https://competitions.codalab.org/competitions/3221">MSCOCO</a>
-                        (633 participants) and the <a href="https://competitions.codalab.org/competitions/2321">ChaLearn
+                        <a class="large_links" href="https://competitions.codalab.org/competitions/3221">MSCOCO</a>
+                        (633 participants) and the <a class="large_links" href="https://competitions.codalab.org/competitions/2321">ChaLearn
                             AutoML challenge 2017</a> (687 participants).
                         Since 2016, Codalab offers the possibility of organizing machine learning challenges with code
                         submission. The simplest machine learning challenges require only the submission of results,
@@ -303,71 +441,43 @@
                         growth to big data competitions running at the expense of the organizers. For very special
                         dedicated projects, Codalab can be customized since it is an open source project.</p>
                 </div>
-                <div class="six wide right floated column tablet only computer only">
-                    {#                    <img src="assets/images/wireframe/white-image.png" class="ui large bordered rounded image">#}
-                    <i class="massive blue eyedropper icon"></i>
+                <div class="six wide right floated column" style="">
+                    <div style="padding-bottom: 50px;">>
+                        <a class="large_links" href="https://codalab.lri.fr/competitions/134?secret_key=669495b4-175b-47fe-9aa4-ce1b50416f14">
+                            <h3>Homework</h3></a>
+                        <div class="ui divider"></div>
+                        <p><u>January 2018:</u> Paris-Saclay instructors create reinforcement learning homework.</p>
+                    </div>
+                    <div style="padding-bottom: 50px;">>
+                        <a class="large_links" href="https://competitions.codalab.org/"><h3>Homework</h3></a>
+                        <div class="ui divider"></div>
+                        <p><u>December 2017:</u> Codalab exceeds 10000 users with 480 competitions (145 public)</p>
+                    </div>
                 </div>
             </div>
             <div class="row">
-                <div class="four wide right floated column">
-                    {#                    <img src="assets/images/wireframe/white-image.png" class="ui large bordered rounded image">#}
-                    <i class="massive green student icon"></i>
-                </div>
                 <div class="eight wide column">
-                    <h3 class="ui green header">Codalab in Teaching</h3>
+                    <h3 class="ui purple header">Codalab in Teaching</h3>
                     <div class="ui divider"></div>
                     <p>Since 2015, Codalab is used in teaching at University Paris-Saclay. Master student create
-                        <a href="https://sites.google.com/a/chalearn.org/saclay/">challenges as a project</a> (in only
+                        <a class="large_links" href="https://sites.google.com/a/chalearn.org/saclay/">challenges as a project</a> (in only
                         seven sessions of two hours). The challenges are then solved by
                         undergraduate students. Learning how to organize a challenge teaches the rigor of formulating
                         well a problem, with good data, enough data, good metrics, and a well defined question to be
                         answered. We developed a step-by-step wizard (ChaLab) to facilitate entering the challenge on
                         the platform, so the students can focus more on the scientific aspects. You can borrow the
-                        student instructions if you want to use this in your class as well (<a
+                        student instructions if you want to use this in your class as well (<a class="large_links"
                             href="https://www.dropbox.com/s/o34mfzanszwwzoq/Instructions_Projet_M2Info.pdf?dl=0">full
                             syllabus for 2018</a>;
-                        <a href="https://www.dropbox.com/s/kr8um9djawdxo71/Starting_Kit_M2info.pdf?dl=0">instructions to
+                        <a class="large_links" href="https://www.dropbox.com/s/kr8um9djawdxo71/Starting_Kit_M2info.pdf?dl=0">instructions to
                             prepare a challenge</a>). We grade the master students using various aspects of
                         their work: proposal, website, testing, report, video, presentation in class. The undergraduate
                         students solve the challenges in 12 weeks and are also graded similarly for their proposal,
                         submissions to the challenge, report, video, and presentations in class. More recently, Codalab
-                        is also being used to <a
-                            href="https://codalab.lri.fr/competitions/134?secret_key=669495b4-175b-47fe-9aa4-ce1b50416f14">grade
+                        is also being used to <a class="large_links" href="https://codalab.lri.fr/competitions/134?secret_key=669495b4-175b-47fe-9aa4-ce1b50416f14">grade
                             homework of a reinforcement learning class.</a></p>
                 </div>
-            </div>
-
-            <div class="ui divider"></div>
-
-            <div class="row centered" style="padding: 80px 0;">
-                <div class="eight wide center aligned column">
-                    <h1 class="ui purple header">News</h1>
-
-                    <div style="padding-bottom: 50px;">
-                        <a href="https://web.see4c.eu/"><h3>See.4C</h3></a>
-                        <div class="ui divider"></div>
-                        <p><u>February 2018:</u> 2 million Euro Big Data EU prize powered by Codalab.</p>
-                    </div>
-
-                    <div style="padding-bottom: 50px;">
-                        <a href="https://sites.google.com/a/chalearn.org/saclay/"><h3>Student Projects</h3></a>
-                        <div class="ui divider"></div>
-                        <p><u>January 2018:</u> Paris-Saclay master students create challenges for L2 students.</p>
-                    </div>
-
-                    <div style="padding-bottom: 50px;">
-                        <a href="https://codalab.lri.fr/competitions/134?secret_key=669495b4-175b-47fe-9aa4-ce1b50416f14">
-                            <h3>Homework</h3></a>
-                        <div class="ui divider"></div>
-                        <p><u>January 2018:</u> Paris-Saclay instructors create reinforcement learning homework.</p>
-                    </div>
-
-                    <div style="padding-bottom: 50px;">
-                        <a href="https://competitions.codalab.org/"><h3>Homework</h3></a>
-                        <div class="ui divider"></div>
-                        <p><u>December 2017:</u> Codalab exceeds 10000 users with 480 competitions (145 public)</p>
-                    </div>
-
+                <div class="six wide right floated column" style="">
                     <div style="padding-bottom: 50px;">
                         <a href="http://ciml.chalearn.org/"><h3>CiML workshop</h3></a>
                         <div class="ui divider"></div>
@@ -384,25 +494,31 @@
                         </p>
                     </div>
                 </div>
-            </div>
+            </div>-->
 
+            <div class="ui divider"></div>
 
             <div class="ui container grid centered">
                 <div class="row">
                     <div class="center aligned column">
-                        <h1 class="ui ">Our Partners</h1>
+                        <h3 class="ui header">our partners</h3>
                         <div class="ui small images">
-                            <a href="https://www.stanford.edu/" target="_blank"><img src="{% static "img/highlights/stanford.png" %}" class="ui centered image"></a>
-                            <a href="http://www.chalearn.org/" target="_blank"><img src="{% static "img/highlights/chalearn.png" %}" class="ui centered image"></a>
-                            <a href="https://www.microsoft.com" target="_blank"><img src="{% static "img/highlights/microsoft.png" %}" class="ui centered image"></a>
-                            <a href="https://www.universite-paris-saclay.fr/" target="_blank"><img src="{% static "img/highlights/university_paris.png" %}" class="ui centered image"></a>
+                            <a href="http://www.ub.edu/web/ub/en/" target="_blank"><img
+                                    src="{% static "img/highlights/barcelona.png" %}" class="ui centered image"></a>
+                            <a href="http://www.chalearn.org/" target="_blank"><img
+                                    src="{% static "img/highlights/chalearn.png" %}" class="ui centered image"></a>
+                            <a href="https://www.microsoft.com" target="_blank"><img
+                                    src="{% static "img/highlights/microsoft.png" %}" class="ui centered image"></a>
+                            <a href="https://www.universite-paris-saclay.fr/" target="_blank"><img
+                                    src="{% static "img/highlights/university_paris.png" %}" class="ui centered image"></a>
                         </div>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="center aligned column">
-                        <h1 class="ui ">Powered By</h1>
-                        <a href="https://www.azure.com/" target="_blank"><img src="{% static "img/highlights/azure.png" %}" class="ui small centered image"></a>
+                    <div class="center aligned column" style="margin-top: 20px;">
+                        <h3 class="ui header">powered by</h3>
+                        <a href="https://www.azure.com/" target="_blank" class="ui small centered image"><img
+                                src="{% static "img/highlights/azure.png" %}"></a>
                     </div>
                 </div>
             </div>
@@ -411,7 +527,11 @@
 
     <div class="ui inverted vertical footer segment">
         <div class="ui container">
-            &nbsp; <!-- Blank for now -->
+            <ul class="footer-list">
+                <li><a href="https://github.com/codalab/codalab/issues" target="_blank">Join us on Github for contact & bug reports</a></li>
+                <li><a href="https://github.com/codalab/codalab/wiki/Project_About_CodaLab" target="_blank">About</a></li>
+                <li><a href="https://github.com/codalab/codalab/wiki/Privacy" target="_blank">Privacy and Terms</a></li>
+            </ul>
         </div>
     </div>
 </div>
