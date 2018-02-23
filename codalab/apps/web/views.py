@@ -514,11 +514,8 @@ class CompetitionDetailView(DetailView):
         context['current_server_time'] = datetime.now()
 
         context["first_phase"], context["previous_phase"], context['active_phase'], context["next_phase"] = get_first_previous_active_and_next_phases(competition)
-
         context['phase'] = context['active_phase']
 
-        # Top 3 Leaderboard
-        # Get the month from submitted_at
         try:
             truncate_date = connection.ops.date_trunc_sql('day', 'submitted_at')
             score_def = SubmissionScoreDef.objects.filter(competition=competition).order_by('ordering').first()
