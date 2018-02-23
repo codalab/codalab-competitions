@@ -538,10 +538,7 @@ class CompetitionDetailView(DetailView):
                         'counts': [s['count'] for s in qs],
                         'sorting': score_def.sorting,
                     }
-                else:
-                    print("Scores are computed!")
                 # Below is where we refactored top_three context.
-                # context['top_three_leaders'] = self.get_object().get_top_three()
                 context['top_three'] = context['active_phase'].scores()
 
                 for group in context['top_three']:
@@ -551,9 +548,6 @@ class CompetitionDetailView(DetailView):
                         scoredata['count'] = sub.phase.submissions.filter(participant=sub.participant).count()
                         if sub.team:
                             scoredata['team_name'] = sub.team.name
-
-            else:
-                print("Score def not found!")
         except ObjectDoesNotExist:
             context['top_three_leaders'] = None
             context['graph'] = None

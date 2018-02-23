@@ -306,14 +306,6 @@
                                         {% endwith %}
                                     {% endfor %}
                                 {% endfor %}
-                                {% if phase.competition.enable_detailed_results %}
-                                    <td>
-                                        <a href="/my/competition/submission/{{ scoredata.id }}/detailed_results"
-                                           target="_blank">
-                                            View
-                                        </a></br>
-                                    </td>
-                                {% endif %}
                             </tr>
                         {% endfor %}
                     {% endif %}
