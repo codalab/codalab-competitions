@@ -1120,7 +1120,10 @@ class MyCompetitionSubmissionOutput(View):
     This view serves the files associated with a submission.
     """
     def get(self, request, *args, **kwargs):
-        submission = models.CompetitionSubmission.objects.get(pk=kwargs.get('submission_id'))
+        try:
+            submission = models.CompetitionSubmission.objects.get(pk=kwargs.get('submission_id'))
+        except ObjectDoesNotExist:
+            raise Http404()
         competition = submission.phase.competition
         filetype = kwargs.get('filetype')
 
