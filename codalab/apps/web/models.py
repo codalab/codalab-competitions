@@ -1652,7 +1652,7 @@ class CompetitionDefBundle(models.Model):
 
         if admin_names:
             logger.debug("CompetitionDefBundle::unpack looking up admins %s", comp_spec['admin_names'])
-            admins = ClUser.objects.filter(username__in=admin_names.split(','))
+            admins = ClUser.objects.filter(username__in=[name.strip() for name in admin_names.split(',')])
             logger.debug("CompetitionDefBundle::unpack found admins %s", admins)
             comp.admins.add(*admins)
 
