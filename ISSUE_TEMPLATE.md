@@ -1,4 +1,4 @@
-*** This is a template for an issue, please remove any non-relevant details to your issue***
+*** This is a template for an issue, please remove any non-relevant details to your issue ***
 
 If you are an organizer and have problem hosting your competition:
 ------------------------------------------------------------------
