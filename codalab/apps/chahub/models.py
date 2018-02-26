@@ -49,6 +49,14 @@ class ChaHubSaveMixin(models.Model):
         """
         raise NotImplementedError()
 
+    def chahub_is_valid(self):
+        """Override this to validate the specifc model before it's sent
+
+        Example:
+            return comp.is_published
+        """
+        raise NotImplementedError()
+
     # -------------------------------------------------------------------------
     # Regular methods
     # -------------------------------------------------------------------------
@@ -77,16 +85,20 @@ class ChaHubSaveMixin(models.Model):
 
     def save(self, *args, **kwargs):
         if settings.CHAHUB_API_URL:
-            data = json.dumps(self.get_chahub_data())
-            data_hash = hashlib.md5(data).hexdigest()
+            if self.chahub_is_valid():
+                logger.info("Competition passed validation")
+                data = json.dumps(self.get_chahub_data())
+                data_hash = hashlib.md5(data).hexdigest()
 
-            if not self.sent_to_chahub or self.chahub_data_hash != data_hash:
-                resp = self.send_to_chahub(data)
+                if not self.sent_to_chahub or self.chahub_data_hash != data_hash:
+                    resp = self.send_to_chahub(data)
 
-                logger.info("ChaHub :: Received response {} {}".format(resp.status_code, resp.content))
+                    logger.info("ChaHub :: Received response {} {}".format(resp.status_code, resp.content))
 
-                if resp and resp.status_code in (200, 201):
-                    self.sent_to_chahub = timezone.now()
-                    self.chahub_data_hash = data_hash
+                    if resp and resp.status_code in (200, 201):
+                        self.sent_to_chahub = timezone.now()
+                        self.chahub_data_hash = data_hash
+            else:
+                logger.info("Competition failed validation")
 
         super(ChaHubSaveMixin, self).save(*args, **kwargs)

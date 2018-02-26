@@ -279,6 +279,9 @@ class Competition(ChaHubSaveMixin, models.Model):
     def __unicode__(self):
         return self.title
 
+    def chahub_is_valid(self):
+        return self.published
+
     def set_owner(self, user):
         return assign_perm('view_task', user, self)
 
@@ -305,7 +308,9 @@ class Competition(ChaHubSaveMixin, models.Model):
             "created_when": self.start_date.isoformat(),
             "logo": self.image_url,
             "url": "{}://{}{}".format(http_or_https, settings.CODALAB_SITE_DOMAIN, self.get_absolute_url()),
-            "phases": phase_data
+            "phases": phase_data,
+            "participant_count": self.get_participant_count,
+            "end": self.end_date.isoformat(),
         }
 
     def save(self, *args, **kwargs):
