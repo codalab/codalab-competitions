@@ -301,6 +301,11 @@ class Competition(ChaHubSaveMixin, models.Model):
 
         http_or_https = "https" if settings.SSL_CERTIFICATE else "http"
 
+        if self.end_date:
+            temp_end = self.end_date.isoformat()
+        else:
+            temp_end = None
+
         return {
             "remote_id": self.id,
             "title": self.title,
@@ -310,7 +315,8 @@ class Competition(ChaHubSaveMixin, models.Model):
             "url": "{}://{}{}".format(http_or_https, settings.CODALAB_SITE_DOMAIN, self.get_absolute_url()),
             "phases": phase_data,
             "participant_count": self.get_participant_count,
-            "end": self.end_date.isoformat(),
+            "end": temp_end,
+            "description": self.description
         }
 
     def save(self, *args, **kwargs):
