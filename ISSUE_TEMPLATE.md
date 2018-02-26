@@ -3,7 +3,7 @@
 If you are an organizer and have problem hosting your competition:
 ------------------------------------------------------------------
 
-1. If possible, please add `eric2` and `tthomas63` as admins to your competition so they can see all of the details for your competition
+1. If possible, please add `eric2` and `tthomas63` as admins to your competition so they may access it
 2. Please post a link to your competition
 
 
