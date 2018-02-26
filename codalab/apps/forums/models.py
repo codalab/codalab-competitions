@@ -34,7 +34,10 @@ class Thread(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.id:
+            # On first save do these actions
             self.date_created = datetime.datetime.today()
+            if self.forum.competition.creator.organizer_direct_message_updates:
+                self.notify_user(self.forum.competition.creator)
         return super(Thread, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
@@ -47,16 +50,19 @@ class Thread(models.Model):
         users_in_thread = set(post.posted_by for post in self.posts.all())
 
         for user in users_in_thread:
-            send_mail(
-                context_data={
-                    'thread': self,
-                    'user': user,
-                },
-                subject='New post in %s' % self.title,
-                html_file="forums/emails/new_post.html",
-                text_file="forums/emails/new_post.txt",
-                to_email=user.email
-            )
+            self.notify_user(user)
+
+    def notify_user(self, user):
+        send_mail(
+            context_data={
+                'thread': self,
+                'user': user,
+            },
+            subject='New post in %s' % self.title,
+            html_file="forums/emails/new_post.html",
+            text_file="forums/emails/new_post.txt",
+            to_email=user.email
+        )
 
 
 class Post(models.Model):

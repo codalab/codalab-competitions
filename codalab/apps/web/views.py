@@ -286,16 +286,16 @@ class CompetitionEdit(LoginRequiredMixin, NamedFormsetsMixin, UpdateWithInlinesV
         # inlines[0] = pages
         # inlines[1] = phases
         for phase_form in inlines[1]:
-            if phase_form.cleaned_data["input_data_organizer_dataset"]:
+            if phase_form.cleaned_data.get("input_data_organizer_dataset"):
                 phase_form.instance.input_data = phase_form.cleaned_data["input_data_organizer_dataset"].data_file.file.name
 
-            if phase_form.cleaned_data["reference_data_organizer_dataset"]:
+            if phase_form.cleaned_data.get("reference_data_organizer_dataset"):
                 phase_form.instance.reference_data = phase_form.cleaned_data["reference_data_organizer_dataset"].data_file.file.name
 
-            if phase_form.cleaned_data["scoring_program_organizer_dataset"]:
+            if phase_form.cleaned_data.get("scoring_program_organizer_dataset"):
                 phase_form.instance.scoring_program = phase_form.cleaned_data["scoring_program_organizer_dataset"].data_file.file.name
 
-            if phase_form.cleaned_data["ingestion_program_organizer_dataset"]:
+            if phase_form.cleaned_data.get("ingestion_program_organizer_dataset"):
                 phase_form.instance.ingestion_program = phase_form.cleaned_data["ingestion_program_organizer_dataset"].data_file.file.name
 
             phase_form.instance.save()
@@ -767,7 +767,7 @@ class CompetitionPublicSubmission(TemplateView):
             context['error'] = traceback.print_exc()
 
         # In case all phases are close, lets get last phase
-        if context['active_phase'] is None:
+        if context['active_phase'] is None and competition:
             context['active_phase'] = competition.phases.all().order_by("phasenumber").reverse()[0]
         return context
 
@@ -1120,7 +1120,10 @@ class MyCompetitionSubmissionOutput(View):
     This view serves the files associated with a submission.
     """
     def get(self, request, *args, **kwargs):
-        submission = models.CompetitionSubmission.objects.get(pk=kwargs.get('submission_id'))
+        try:
+            submission = models.CompetitionSubmission.objects.get(pk=kwargs.get('submission_id'))
+        except ObjectDoesNotExist:
+            raise Http404()
         competition = submission.phase.competition
         filetype = kwargs.get('filetype')
 
