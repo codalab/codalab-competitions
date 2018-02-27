@@ -50,6 +50,8 @@ from apps.web.exceptions import ScoringException
 from apps.web.utils import PublicStorage, BundleStorage, clean_html_script
 from apps.teams.models import Team, get_user_team, TeamMembershipStatus, TeamMembership
 
+import lxml.html
+
 User = settings.AUTH_USER_MODEL
 logger = logging.getLogger(__name__)
 
@@ -301,6 +303,12 @@ class Competition(ChaHubSaveMixin, models.Model):
 
         http_or_https = "https" if settings.SSL_CERTIFICATE else "http"
 
+        html_data = ""
+        for page in self.pages.all():
+            if page.html:
+                document = lxml.html.document_fromstring(page.html)
+                html_data += document.text_content()
+
         if self.end_date:
             temp_end = self.end_date.isoformat()
         else:
@@ -316,7 +324,8 @@ class Competition(ChaHubSaveMixin, models.Model):
             "phases": phase_data,
             "participant_count": self.get_participant_count,
             "end": temp_end,
-            "description": self.description
+            "description": self.description,
+            "html_data": html_data
         }
 
     def save(self, *args, **kwargs):

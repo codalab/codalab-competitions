@@ -75,3 +75,6 @@ pytest==3.0.6
 pytest-django==2.9.1
 pytest-testmon==0.9.6
 pytest-watch==4.1.0
+
+#lxml
+lxml==4.1.1

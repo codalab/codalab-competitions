@@ -98,6 +98,8 @@ class ChaHubSaveMixin(models.Model):
                     if resp and resp.status_code in (200, 201):
                         self.sent_to_chahub = timezone.now()
                         self.chahub_data_hash = data_hash
+                else:
+                    print("Not sent to Chahub")
             else:
                 logger.info("Competition failed validation")
 
