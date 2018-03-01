@@ -546,19 +546,10 @@ class CompetitionDetailView(DetailView):
                         # Top Three
                         values = list(sorted(scoredata['values'], key=lambda x: x['rnk']))
                         first_score = values[0]['val']
-                        top_three_list.append(
-                            {
-                                "username": scoredata['username'],
-                                "score": first_score
-                            }
-                        )
-
-                        # Regular score stuff
-                        sub = models.CompetitionSubmission.objects.get(pk=scoredata['id'])
-                        scoredata['date'] = sub.submitted_at
-                        scoredata['count'] = sub.phase.submissions.filter(participant=sub.participant).count()
-                        if sub.team:
-                            scoredata['team_name'] = sub.team.name
+                        top_three_list.append({
+                            "username": scoredata['username'],
+                            "score": first_score
+                        })
                 context['top_three'] = top_three_list[0:3]
         except ObjectDoesNotExist:
             context['top_three_leaders'] = None
