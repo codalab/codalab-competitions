@@ -230,87 +230,24 @@
     </section>
         <div class="row">
         <div class="col-md-4 well">
-            {% for group in top_three %}
-                <table class="table">
-                    <tr class="">
-                        <th rowspan="2">#</th>
-                        <th rowspan="2">User</th>
-                        {% if phase.competition.allow_teams %}
-                            <th rowspan="2">Team Name</th>
-                        {% endif %}
-                        {% for head in group.headers|slice:"0:1"%}
-                            {% if head.subs %}
-                                <th colspan="{{ head.subs|length }}">{{ head.label }}</th>
-                            {% else %}
-                                <th rowspan="2" {% if group.selection_key == head.key %}
-                                    class="" {% else %}
-                                    class="" {% endif %} name="{{ head.key }}">{{ head.label }}
-                                </th>
-                            {% endif %}
-                        {% endfor %}
-                    </tr>
-                    <tr>
-                        {% for head in group.headers|slice:"0:1" %}
-                            {% if head.subs %}
-                                {% for sub in head.subs %}
-                                    <th {% if group.selection_key == sub.key %}
-                                        class="" {% else %}
-                                        class="" {% endif %} name="{{ sub.key }}">{{ sub.label }}
-                                    </th>
-                                {% endfor %}
-                            {% endif %}
-                        {% endfor %}
-                    </tr>
-                    {% if group.scores.items|length_is:"0" %}
-                        <tr class="">
-                            <td colspan="{{ group.total_span|add:phase.competition.enable_medical_image_viewer|add:phase.competition.enable_detailed_results }}">
-                                No data available in table
-                            </td>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Username</th>
+                    <th>Score</th>
+                </tr>
+                </thead>
+                <tbody>
+                    {% for leader in top_three %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ leader.username }}</td>
+                            <td>{{ leader.score }}</td>
                         </tr>
-                    {% else %}
-                        {% for pk, scoredata in group.scores|slice:"0:3" %}
-                            <tr {% if phase.competition.anonymous_leaderboard and request.user.username == scoredata.username %}style="background-color: #D7FFFA;"{% endif %}>
-                                <td class="">
-                                    {{ forloop.counter }}
-                                </td>
-                                <td>
-                                    {% if phase.competition.anonymous_leaderboard %}
-                                        {% if forloop.counter < 4 %}
-                                            <p class="leader-top3"><i>Anonymous</i></p><
-                                        {% else %}
-                                            <i>Anonymous</i>
-                                        {% endif %}
-                                    {% else %}
-                                        {% if forloop.counter < 4 %}
-                                            <p class="leader-top3">{{ scoredata.username }}</p>
-                                        {% else %}
-                                            {{ scoredata.username }}
-                                        {% endif %}
-                                    {% endif %}
-                                </td>
-                                {% if phase.competition.allow_teams %}
-                                    <td>{{ scoredata.team_name|default_if_none:"" }}</td>
-                                {% endif %}
-                                {% for head in group.headers|slice:"0:1" %}
-                                    {% for head_or_sub in head|get_array_or_attr:'subs' %}
-                                        {% with scoredata.values|get_by_name:head_or_sub.key|first as v %}
-                                            {% if 'rnk' in v %}
-                                                <td {% if group.selection_key == v.name %}
-                                                    class="" {% endif %} name={{ v.name }}>{{ v.val }}
-                                                </td>
-                                            {% else %}
-                                                <td {% if group.selection_key == v.name %}
-                                                    class="" {% endif %} name={{ v.name }}>{{ v.val }}
-                                                </td>
-                                            {% endif %}
-                                        {% endwith %}
-                                    {% endfor %}
-                                {% endfor %}
-                            </tr>
-                        {% endfor %}
-                    {% endif %}
-                </table>
-            {% endfor %}
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
         <div align="center" class="col-md-8">
             {% if active_phase.is_blind %}
