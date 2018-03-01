@@ -542,7 +542,6 @@ class CompetitionDetailView(DetailView):
 
                 for group in context['top_three']:
                     for _, scoredata in group['scores']:
-
                         # Top Three
                         values = list(sorted(scoredata['values'], key=lambda x: x['rnk']))
                         first_score = values[0]['val']

@@ -229,7 +229,7 @@
         </div>
     </section>
         <div class="row">
-        <div class="col-md-4 well">
+        <div class="col-sm-4">
             <table class="table">
                 <thead>
                 <tr>
@@ -239,6 +239,7 @@
                 </tr>
                 </thead>
                 <tbody>
+                {% if not active_phase.is_blind %}
                     {% for leader in top_three %}
                         <tr>
                             <td>{{ forloop.counter }}</td>
@@ -246,10 +247,11 @@
                             <td>{{ leader.score }}</td>
                         </tr>
                     {% endfor %}
+                {% endif %}
                 </tbody>
             </table>
         </div>
-        <div align="center" class="col-md-8">
+        <div class="col-sm-8">
             {% if active_phase.is_blind %}
                 <!-- Do nothing -->
             {% else %}
