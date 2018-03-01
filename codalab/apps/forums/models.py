@@ -33,15 +33,22 @@ class Thread(models.Model):
         ordering = ('-last_post_date',)
 
     def save(self, *args, **kwargs):
+        created = False
         if not self.id:
             # On first save do these actions
             self.date_created = datetime.datetime.today()
+            created = True
+
+        # Do the save THEN send email so we have an Id to work with
+        super(Thread, self).save(*args, **kwargs)
+
+        if created:
             if self.forum.competition.creator.organizer_direct_message_updates:
                 self.notify_user(self.forum.competition.creator)
-        return super(Thread, self).save(*args, **kwargs)
+
 
     def get_absolute_url(self):
-        return reverse('forum_thread_detail', kwargs={'forum_pk': self.forum.pk, 'thread_pk': self.pk })
+        return reverse('forum_thread_detail', kwargs={'forum_pk': self.forum.pk, 'thread_pk': self.pk})
 
     def notify_all_posters_of_new_post(self):
         """
