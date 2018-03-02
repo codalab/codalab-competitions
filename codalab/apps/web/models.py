@@ -309,11 +309,6 @@ class Competition(ChaHubSaveMixin, models.Model):
                 document = lxml.html.document_fromstring(page.html)
                 html_text += document.text_content()
 
-        if self.end_date:
-            temp_end = self.end_date.isoformat()
-        else:
-            temp_end = None
-
         return {
             "remote_id": self.id,
             "title": self.title,
@@ -323,7 +318,7 @@ class Competition(ChaHubSaveMixin, models.Model):
             "url": "{}://{}{}".format(http_or_https, settings.CODALAB_SITE_DOMAIN, self.get_absolute_url()),
             "phases": phase_data,
             "participant_count": self.get_participant_count,
-            "end": temp_end,
+            "end": self.end_date.isoformat() if self.end_date else None,
             "description": self.description,
             "html_text": html_text
         }
