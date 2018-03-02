@@ -292,7 +292,7 @@ class Competition(ChaHubSaveMixin, models.Model):
 
     def get_chahub_data(self):
         phase_data = []
-        phases = list(self.phases.all().order_by('-start_date'))
+        phases = list(self.phases.all().order_by('start_date'))
         phase_list_length = len(phases)
         for index, phase in enumerate(phases):
             if phase_list_length > index + 1:
@@ -320,6 +320,11 @@ class Competition(ChaHubSaveMixin, models.Model):
                 document = lxml.html.document_fromstring(page.html)
                 html_text += document.text_content()
 
+        if self.end_date:
+            temp_end = self.end_date.isoformat()
+        else:
+            temp_end = None
+
         return {
             "remote_id": self.id,
             "title": self.title,
@@ -329,7 +334,7 @@ class Competition(ChaHubSaveMixin, models.Model):
             "url": "{}://{}{}".format(http_or_https, settings.CODALAB_SITE_DOMAIN, self.get_absolute_url()),
             "phases": phase_data,
             "participant_count": self.get_participant_count,
-            "end": self.end_date.isoformat() if self.end_date else None,
+            "end": temp_end,
             "description": self.description,
             "html_text": html_text
         }
