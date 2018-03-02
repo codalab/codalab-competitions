@@ -87,14 +87,15 @@ class ChaHubSaveMixin(models.Model):
         except requests.ConnectionError:
             return None
 
-    def save(self, *args, **kwargs):
+    def save(self, force_to_chahub=False, *args, **kwargs):
         if settings.CHAHUB_API_URL:
             if self.chahub_is_valid():
                 logger.info("Competition passed validation")
                 data = json.dumps(self.get_chahub_data())
                 data_hash = hashlib.md5(data).hexdigest()
 
-                if not self.chahub_timestamp or self.chahub_data_hash != data_hash:
+                # Send to chahub if we haven't yet, we have new data, OR we're being forced to
+                if not self.chahub_timestamp or self.chahub_data_hash != data_hash or force_to_chahub:
                     resp = self.send_to_chahub(data)
 
                     if resp and resp.status_code in (200, 201):
@@ -103,7 +104,7 @@ class ChaHubSaveMixin(models.Model):
                         self.chahub_data_hash = data_hash
                         self.chahub_needs_retry = False
                     else:
-                        logger.info("ChaHub :: No response received, connection error?")
+                        logger.info("ChaHub :: Error sending to chahub, status={}".format(resp.status_code))
                         self.chahub_needs_retry = True
             else:
                 logger.info("ChaHub :: Model failed validation")
