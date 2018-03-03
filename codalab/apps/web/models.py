@@ -292,21 +292,10 @@ class Competition(ChaHubSaveMixin, models.Model):
 
     def get_chahub_data(self):
         phase_data = []
-        phases = list(self.phases.all().order_by('start_date'))
-        phase_list_length = len(phases)
-        for index, phase in enumerate(phases):
-            if phase_list_length > index + 1:
-                # Grab next phase start_date - 1 minute
-                phase_end_date = phases[index + 1].start_date - datetime.timedelta(minutes=1)
-                phase_end_date = phase_end_date.isoformat()
-            else:
-                if not self.end_date:
-                    print("Competition has no end_date. Last phase has none for end_date.")
-                phase_end_date = self.end_date
-            print("Phase end date is: {}".format(phase_end_date))
+        for phase in self.phases.all():
             phase_data.append({
                 "start": phase.start_date.isoformat(),
-                "end": phase_end_date,
+                # "end": ,  # We don't have an end...
                 "index": phase.phasenumber,
                 "name": phase.label,
                 "description": phase.description,
@@ -320,10 +309,10 @@ class Competition(ChaHubSaveMixin, models.Model):
                 document = lxml.html.document_fromstring(page.html)
                 html_text += document.text_content()
 
-        if self.end_date:
-            temp_end = self.end_date.isoformat()
-        else:
-            temp_end = None
+        active = CompetitionSubmission.objects.filter(
+            phase=self.phases.all(),
+            submitted_at__gt=now() - datetime.timedelta(days=30)
+        ).exists()
 
         return {
             "remote_id": self.id,
@@ -334,9 +323,10 @@ class Competition(ChaHubSaveMixin, models.Model):
             "url": "{}://{}{}".format(http_or_https, settings.CODALAB_SITE_DOMAIN, self.get_absolute_url()),
             "phases": phase_data,
             "participant_count": self.get_participant_count,
-            "end": temp_end,
+            "end": self.end_date.isoformat() if self.end_date else None,
             "description": self.description,
-            "html_text": html_text
+            "html_text": html_text,
+            "active": active,
         }
 
     def save(self, *args, **kwargs):
