@@ -104,7 +104,8 @@ class ChaHubSaveMixin(models.Model):
                         self.chahub_data_hash = data_hash
                         self.chahub_needs_retry = False
                     else:
-                        logger.info("ChaHub :: Error sending to chahub, status={}".format(resp.status_code))
+                        status = resp.status_code if resp else None
+                        logger.info("ChaHub :: Error sending to chahub, status={}".format(status))
                         self.chahub_needs_retry = True
             else:
                 logger.info("ChaHub :: Model failed validation")
