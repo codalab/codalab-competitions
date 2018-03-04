@@ -1128,18 +1128,24 @@ class CompetitionPhase(models.Model):
                     if sdef.computed:
                         operation = getattr(models, sdef.computed_score.operation)
                         if (operation.name == 'Avg'):
-                            cnt = len(computed_deps[sdef.id])
-                            if (cnt > 0):
-                                computed_values = {}
-                                for id in submission_ids:
-                                    computed_values[id] = sum([ranks[d.id][id] for d in computed_deps[sdef.id]]) / float(cnt)
-                                values[sdef.id] = computed_values
-                                ranks[sdef.id] = self.rank_values(submission_ids, computed_values, sort_ascending=sdef.sorting=='asc')
+                            try:
+                                cnt = len(computed_deps[sdef.id])
+                                if (cnt > 0):
+                                    computed_values = {}
+                                    for id in submission_ids:
+                                        try:
+                                            computed_values[id] = sum([ranks[d.id][id] for d in computed_deps[sdef.id]]) / float(cnt)
+                                        except KeyError:
+                                            pass
+
+                                    values[sdef.id] = computed_values
+                                    ranks[sdef.id] = self.rank_values(submission_ids, computed_values, sort_ascending=sdef.sorting=='asc')
+                            except KeyError:
+                                pass
 
             # format values
             for result in results:
                 try:
-
                     scores = result['scores']
                     for sdef in result['scoredefs']:
                         knownValues = {}
