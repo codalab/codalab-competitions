@@ -327,6 +327,7 @@ class Competition(ChaHubSaveMixin, models.Model):
             "description": self.description,
             "html_text": html_text,
             "active": active,
+            "prize": self.reward,
         }
 
     def save(self, *args, **kwargs):
