@@ -257,6 +257,8 @@ class Competition(models.Model):
     enable_teams = models.BooleanField(default=False, verbose_name="Enable Competition level teams")
     require_team_approval = models.BooleanField(default=True, verbose_name="Organizers need to approve the new teams")
     teams = models.ManyToManyField(Team, related_name='competition_teams', blank=True, null=True)
+    hide_top_three = models.BooleanField(default=False, verbose_name="Hide Top Three Leaderboard")
+    hide_chart = models.BooleanField(default=False, verbose_name="Hide Chart")
 
     competition_docker_image = models.CharField(max_length=128, default='', blank=True)
 
@@ -307,6 +309,18 @@ class Competition(models.Model):
             # Save sets the start date, so let's set it!
             self.save()
         return self.start_date
+
+    @property
+    def show_top_three(self):
+        current_phase = get_current_phase(self)
+        if not self.hide_top_three and not current_phase.is_blind:
+            return True
+        else:
+            return False
+
+    @property
+    def show_chart(self):
+        return not self.hide_chart
 
     @property
     def is_active(self):

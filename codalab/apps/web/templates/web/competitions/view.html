@@ -230,16 +230,16 @@
     </section>
         <div class="row">
         <div class="col-sm-4">
-            <table class="table">
-                <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Username</th>
-                    <th>Score</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% if not active_phase.is_blind %}
+            {% if competition.show_top_three %}
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Username</th>
+                        <th>Score</th>
+                    </tr>
+                    </thead>
+                    <tbody>
                     {% for leader in top_three %}
                         <tr>
                             <td>{{ forloop.counter }}</td>
@@ -247,17 +247,17 @@
                             <td>{{ leader.score }}</td>
                         </tr>
                     {% endfor %}
-                {% endif %}
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            {% endif %}
         </div>
         <div class="col-sm-8">
-            {% if active_phase.is_blind %}
-                <!-- Do nothing -->
-            {% else %}
+            {% if competition.show_chart %}
                 {% if graph %}
                     {% include "web/competitions/_chart.html" %}
                 {% endif %}
+            {% else %}
+                <!-- Do nothing -->
             {% endif %}
         </div>
     </div>
