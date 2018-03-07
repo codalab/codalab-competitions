@@ -431,6 +431,10 @@ class Base(Settings):
             'task': 'apps.web.tasks.do_phase_migrations',
             'schedule': timedelta(seconds=300),
         },
+        'chahub_retries': {
+            'task': 'apps.web.tasks.do_chahub_retries',
+            'schedule': timedelta(seconds=600),
+        },
     }
     CELERY_TIMEZONE = 'UTC'
 
@@ -442,6 +446,13 @@ class Base(Settings):
     # or via ENV vars here.
     SINGLE_COMPETITION_VIEW_PK = os.environ.get('SINGLE_COMPETITION_VIEW_PK')
     CUSTOM_HEADER_LOGO = os.environ.get('CUSTOM_HEADER_LOGO')
+
+
+    # =========================================================================
+    # ChaHub
+    # =========================================================================
+    CHAHUB_API_URL = os.environ.get('CHAHUB_API_URL')
+    CHAHUB_API_KEY = os.environ.get('CHAHUB_API_KEY')
 
 
     # =========================================================================
