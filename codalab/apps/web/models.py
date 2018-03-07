@@ -313,10 +313,7 @@ class Competition(models.Model):
     @property
     def show_top_three(self):
         current_phase = get_current_phase(self)
-        if not self.hide_top_three and not current_phase.is_blind:
-            return True
-        else:
-            return False
+        return not (self.hide_top_three or current_phase.is_blind)
 
     @property
     def show_chart(self):
