@@ -42,12 +42,15 @@ from django_extensions.db.fields import UUIDField
 from django.utils.functional import cached_property
 from s3direct.fields import S3DirectField
 
+from apps.chahub.models import ChaHubSaveMixin
 from apps.forums.models import Forum
 from apps.coopetitions.models import DownloadRecord
 from apps.authenz.models import ClUser
 from apps.web.exceptions import ScoringException
 from apps.web.utils import PublicStorage, BundleStorage, clean_html_script
 from apps.teams.models import Team, get_user_team, TeamMembershipStatus, TeamMembership
+
+import lxml.html
 
 User = settings.AUTH_USER_MODEL
 logger = logging.getLogger(__name__)
@@ -213,7 +216,7 @@ def _uuidify(directory):
     return wrapped_uuidify
 
 
-class Competition(models.Model):
+class Competition(ChaHubSaveMixin, models.Model):
     """ Model representing a competition. """
     # compute_worker_vhost = models.CharField(max_length=128, null=True, blank=True, help_text="(don't edit unless you're instructed to, will break submissions -- only admins can see this!)")
     queue = models.ForeignKey(
@@ -260,6 +263,13 @@ class Competition(models.Model):
 
     competition_docker_image = models.CharField(max_length=128, default='', blank=True)
 
+    class Meta:
+        permissions = (
+            ('is_owner', 'Owner'),
+            ('can_edit', 'Edit'),
+            )
+        ordering = ['end_date']
+
     @property
     def pagecontent(self):
         items = list(self.pagecontainers.all())
@@ -268,18 +278,57 @@ class Competition(models.Model):
     def get_absolute_url(self):
         return reverse('competitions:view', kwargs={'pk':self.pk})
 
-    class Meta:
-        permissions = (
-            ('is_owner', 'Owner'),
-            ('can_edit', 'Edit'),
-            )
-        ordering = ['end_date']
-
     def __unicode__(self):
         return self.title
 
+    def chahub_is_valid(self):
+        return self.published
+
     def set_owner(self, user):
         return assign_perm('view_task', user, self)
+
+    def get_chahub_endpoint(self):
+        return "competitions/"
+
+    def get_chahub_data(self):
+        phase_data = []
+        for phase in self.phases.all():
+            phase_data.append({
+                "start": phase.start_date.isoformat(),
+                # "end": ,  # We don't have an end...
+                "index": phase.phasenumber,
+                "name": phase.label,
+                "description": phase.description,
+            })
+
+        http_or_https = "https" if settings.SSL_CERTIFICATE else "http"
+
+        html_text = ""
+        for page in self.pages.all():
+            if page.html:
+                document = lxml.html.document_fromstring(page.html)
+                html_text += document.text_content()
+
+        active = CompetitionSubmission.objects.filter(
+            phase=self.phases.all(),
+            submitted_at__gt=now() - datetime.timedelta(days=30)
+        ).exists()
+
+        return {
+            "remote_id": self.id,
+            "title": self.title,
+            "created_by": str(self.creator),
+            "created_when": self.start_date.isoformat(),
+            "logo": self.image_url,
+            "url": "{}://{}{}".format(http_or_https, settings.CODALAB_SITE_DOMAIN, self.get_absolute_url()),
+            "phases": phase_data,
+            "participant_count": self.get_participant_count,
+            "end": self.end_date.isoformat() if self.end_date else None,
+            "description": self.description,
+            "html_text": html_text,
+            "active": active,
+            "prize": self.reward,
+        }
 
     def save(self, *args, **kwargs):
         # Make sure the image_url_base is set from the actual storage implementation
