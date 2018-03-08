@@ -260,6 +260,8 @@ class Competition(ChaHubSaveMixin, models.Model):
     enable_teams = models.BooleanField(default=False, verbose_name="Enable Competition level teams")
     require_team_approval = models.BooleanField(default=True, verbose_name="Organizers need to approve the new teams")
     teams = models.ManyToManyField(Team, related_name='competition_teams', blank=True, null=True)
+    hide_top_three = models.BooleanField(default=False, verbose_name="Hide Top Three Leaderboard")
+    hide_chart = models.BooleanField(default=False, verbose_name="Hide Chart")
 
     competition_docker_image = models.CharField(max_length=128, default='', blank=True)
 
@@ -356,6 +358,15 @@ class Competition(ChaHubSaveMixin, models.Model):
             # Save sets the start date, so let's set it!
             self.save()
         return self.start_date
+
+    @property
+    def show_top_three(self):
+        current_phase = get_current_phase(self)
+        return not (self.hide_top_three or current_phase.is_blind)
+
+    @property
+    def show_chart(self):
+        return not self.hide_chart
 
     @property
     def is_active(self):
@@ -560,49 +571,6 @@ class Competition(ChaHubSaveMixin, models.Model):
     @cached_property
     def get_participant_count(self):
         return self.participants.all().count()
-
-    def get_top_three(self):
-        """
-        Returns top three in leaderboard.
-        """
-        current_phase = None
-        next_phase = None
-        phases = self.phases.all()
-        if len(phases) == 0:
-            return
-        last_phase = phases.reverse()[0]
-        for index, phase in enumerate(phases):
-            # Checking for active phase
-            if phase.is_active:
-                current_phase = phase
-                # Checking if active phase is less than last phase
-                if current_phase.phasenumber < last_phase.phasenumber:
-                    # Getting next phase
-                    next_phase = phases[index + 1]
-                break
-        if current_phase and current_phase is not None:
-            local_scores = current_phase.scores()
-            main_score_def = None
-            formatted_score_list = list()
-            for score_dict in local_scores:
-                # Grab score def list
-                header_list = score_dict['headers']
-                # This is in order, so grab the lowest score def.
-                main_score_def = header_list[0]
-                # Grab our list of scores
-                score_list = score_dict['scores']
-                for score in score_list:
-                    # Unpack the tuple, x is an integer index it seems.
-                    (x, score_dict) = score
-                    if score_dict['values']:
-                        for score_value in score_dict['values']:
-                            if score_value['name'] == main_score_def['key']:
-                                temp_dict = {
-                                    'username': score_dict['username'],
-                                    'score': score_value['val']
-                                }
-                                formatted_score_list.append(temp_dict)
-            return formatted_score_list[0:3]  # Return only our top 3, with the data we want.
 
 post_save.connect(Forum.competition_post_save, sender=Competition)
 
