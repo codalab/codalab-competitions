@@ -17,7 +17,8 @@ class ChaHubSaveMixin(models.Model):
     To use:
     1) Override `get_chahub_endpoint()` to return the endpoint on ChaHub API for this model
     2) Override `get_chahub_data()` to return a dictionary to send to ChaHub
-    3) Data is sent on `save()` and `chahub_timestamp` timestamp is set
+    3) Override `get_chahub_is_valid()` to return True/False on whether or not the object is ready to send to ChaHub
+    4) Data is sent on `save()` and `chahub_timestamp` timestamp is set
 
     To update remove the `chahub_timestamp` timestamp and call `save()`"""
     # Timestamp set whenever a successful update happens
@@ -52,7 +53,7 @@ class ChaHubSaveMixin(models.Model):
         """
         raise NotImplementedError()
 
-    def chahub_is_valid(self):
+    def get_chahub_is_valid(self):
         """Override this to validate the specifc model before it's sent
 
         Example:
@@ -88,8 +89,11 @@ class ChaHubSaveMixin(models.Model):
             return None
 
     def save(self, force_to_chahub=False, *args, **kwargs):
+        # We do a save here to give us an ID for generating URLs and such
+        super(ChaHubSaveMixin, self).save(*args, **kwargs)
+
         if settings.CHAHUB_API_URL:
-            if self.chahub_is_valid():
+            if self.get_chahub_is_valid():
                 logger.info("Competition passed validation")
                 data = json.dumps(self.get_chahub_data())
                 data_hash = hashlib.md5(data).hexdigest()
@@ -107,7 +111,8 @@ class ChaHubSaveMixin(models.Model):
                         status = resp.status_code if resp else None
                         logger.info("ChaHub :: Error sending to chahub, status={}".format(status))
                         self.chahub_needs_retry = True
+
+                    # We save at the beginning, but then again at the end to save our new chahub timestamp and such
+                    super(ChaHubSaveMixin, self).save(*args, **kwargs)
             else:
                 logger.info("ChaHub :: Model failed validation")
-
-        super(ChaHubSaveMixin, self).save(*args, **kwargs)
