@@ -515,8 +515,6 @@ class CompetitionDetailView(DetailView):
 
         context["first_phase"], context["previous_phase"], context['active_phase'], context["next_phase"] = get_first_previous_active_and_next_phases(competition)
 
-        # Top 3 Leaderboard
-        # Get the month from submitted_at
         try:
             truncate_date = connection.ops.date_trunc_sql('day', 'submitted_at')
             score_def = SubmissionScoreDef.objects.filter(competition=competition).order_by('ordering').first()
@@ -536,11 +534,25 @@ class CompetitionDetailView(DetailView):
                         'counts': [s['count'] for s in qs],
                         'sorting': score_def.sorting,
                     }
+                # Below is where we refactored top_three context.
+                context['top_three'] = context['active_phase'].scores()
 
-                context['top_three_leaders'] = self.get_object().get_top_three()
+                top_three_list = []
+
+                for group in context['top_three']:
+                    for _, scoredata in group['scores']:
+                        # Top Three
+                        values = list(sorted(scoredata['values'], key=lambda x: x['rnk']))
+                        first_score = values[0]['val']
+                        top_three_list.append({
+                            "username": scoredata['username'],
+                            "score": first_score
+                        })
+                context['top_three'] = top_three_list[0:3]
         except ObjectDoesNotExist:
             context['top_three_leaders'] = None
             context['graph'] = None
+            print("Could not find a score def!")
 
         if settings.USE_AWS:
             context['submission_upload_form'] = forms.SubmissionS3UploadForm
