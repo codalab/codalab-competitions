@@ -213,9 +213,9 @@
 
     {% endblock js %}
         CODAUSER = {
-            username: "{{ request.user.username|safe }}",
+            username: "{{ request.user.username }}",
             user_id: {{ request.user.pk|default:0 }},
-            email: "{{ user.email|safe }}",
+            email: "{{ user.email }}",
             is_authenticated: {{ user.is_authenticated|yesno:"true,false" }},
         }
 
