@@ -320,7 +320,7 @@ class Competition(ChaHubSaveMixin, models.Model):
             "remote_id": self.id,
             "title": self.title,
             "created_by": str(self.creator),
-            "created_when": self.start_date.isoformat(),
+            "created_when": self.start_date.isoformat() if self.start_date else None,
             "logo": self.image_url,
             "url": "{}://{}{}".format(http_or_https, settings.CODALAB_SITE_DOMAIN, self.get_absolute_url()),
             "phases": phase_data,
