@@ -432,6 +432,10 @@ class Base(Settings):
             'task': 'apps.web.tasks.do_phase_migrations',
             'schedule': timedelta(seconds=300),
         },
+        'chahub_retries': {
+            'task': 'apps.web.tasks.do_chahub_retries',
+            'schedule': timedelta(seconds=600),
+        },
     }
     CELERY_TIMEZONE = 'UTC'
 

@@ -50,6 +50,8 @@ from apps.web.exceptions import ScoringException
 from apps.web.utils import PublicStorage, BundleStorage, clean_html_script
 from apps.teams.models import Team, get_user_team, TeamMembershipStatus, TeamMembership
 
+import lxml.html
+
 User = settings.AUTH_USER_MODEL
 logger = logging.getLogger(__name__)
 
@@ -258,6 +260,8 @@ class Competition(ChaHubSaveMixin, models.Model):
     enable_teams = models.BooleanField(default=False, verbose_name="Enable Competition level teams")
     require_team_approval = models.BooleanField(default=True, verbose_name="Organizers need to approve the new teams")
     teams = models.ManyToManyField(Team, related_name='competition_teams', blank=True, null=True)
+    hide_top_three = models.BooleanField(default=False, verbose_name="Hide Top Three Leaderboard")
+    hide_chart = models.BooleanField(default=False, verbose_name="Hide Chart")
 
     competition_docker_image = models.CharField(max_length=128, default='', blank=True)
 
@@ -279,6 +283,9 @@ class Competition(ChaHubSaveMixin, models.Model):
     def __unicode__(self):
         return self.title
 
+    def get_chahub_is_valid(self):
+        return self.published
+
     def set_owner(self, user):
         return assign_perm('view_task', user, self)
 
@@ -287,27 +294,43 @@ class Competition(ChaHubSaveMixin, models.Model):
 
     def get_chahub_data(self):
         phase_data = []
-        if len(self.phases.all()) > 0:
-            for phase in self.phases.all():
-                phase_data.append({
-                    "start": phase.start_date.isoformat(),
-                    # "end": ,  # We don't have an end...
-                    "index": phase.phasenumber,
-                    "name": phase.label,
-                    "description": phase.description,
-                })
+        for phase in self.phases.all():
+            phase_data.append({
+                "start": phase.start_date.isoformat(),
+                # "end": ,  # We don't have an end...
+                "index": phase.phasenumber,
+                "name": phase.label,
+                "description": phase.description,
+            })
 
-            http_or_https = "https" if settings.SSL_CERTIFICATE else "http"
+        http_or_https = "https" if settings.SSL_CERTIFICATE else "http"
 
-            return {
-                "remote_id": self.id,
-                "title": self.title,
-                "created_by": str(self.creator),
-                "created_when": self.start_date.isoformat(),
-                "logo": self.image_url,
-                "url": "{}://{}{}".format(http_or_https, settings.CODALAB_SITE_DOMAIN, self.get_absolute_url()),
-                "phases": phase_data
-            }
+        html_text = ""
+        for page in self.pages.all():
+            if page.html:
+                document = lxml.html.document_fromstring(page.html)
+                html_text += document.text_content()
+
+        active = CompetitionSubmission.objects.filter(
+            phase=self.phases.all(),
+            submitted_at__gt=now() - datetime.timedelta(days=30)
+        ).exists()
+
+        return {
+            "remote_id": self.id,
+            "title": self.title,
+            "created_by": str(self.creator),
+            "created_when": self.start_date.isoformat() if self.start_date else None,
+            "logo": self.image_url,
+            "url": "{}://{}{}".format(http_or_https, settings.CODALAB_SITE_DOMAIN, self.get_absolute_url()),
+            "phases": phase_data,
+            "participant_count": self.get_participant_count,
+            "end": self.end_date.isoformat() if self.end_date else None,
+            "description": self.description,
+            "html_text": html_text,
+            "active": active,
+            "prize": self.reward,
+        }
 
     def save(self, *args, **kwargs):
         # Make sure the image_url_base is set from the actual storage implementation
@@ -335,6 +358,15 @@ class Competition(ChaHubSaveMixin, models.Model):
             # Save sets the start date, so let's set it!
             self.save()
         return self.start_date
+
+    @property
+    def show_top_three(self):
+        current_phase = get_current_phase(self)
+        return not (self.hide_top_three or current_phase.is_blind)
+
+    @property
+    def show_chart(self):
+        return not self.hide_chart
 
     @property
     def is_active(self):
@@ -539,49 +571,6 @@ class Competition(ChaHubSaveMixin, models.Model):
     @cached_property
     def get_participant_count(self):
         return self.participants.all().count()
-
-    def get_top_three(self):
-        """
-        Returns top three in leaderboard.
-        """
-        current_phase = None
-        next_phase = None
-        phases = self.phases.all()
-        if len(phases) == 0:
-            return
-        last_phase = phases.reverse()[0]
-        for index, phase in enumerate(phases):
-            # Checking for active phase
-            if phase.is_active:
-                current_phase = phase
-                # Checking if active phase is less than last phase
-                if current_phase.phasenumber < last_phase.phasenumber:
-                    # Getting next phase
-                    next_phase = phases[index + 1]
-                break
-        if current_phase and current_phase is not None:
-            local_scores = current_phase.scores()
-            main_score_def = None
-            formatted_score_list = list()
-            for score_dict in local_scores:
-                # Grab score def list
-                header_list = score_dict['headers']
-                # This is in order, so grab the lowest score def.
-                main_score_def = header_list[0]
-                # Grab our list of scores
-                score_list = score_dict['scores']
-                for score in score_list:
-                    # Unpack the tuple, x is an integer index it seems.
-                    (x, score_dict) = score
-                    if score_dict['values']:
-                        for score_value in score_dict['values']:
-                            if score_value['name'] == main_score_def['key']:
-                                temp_dict = {
-                                    'username': score_dict['username'],
-                                    'score': score_value['val']
-                                }
-                                formatted_score_list.append(temp_dict)
-            return formatted_score_list[0:3]  # Return only our top 3, with the data we want.
 
 post_save.connect(Forum.competition_post_save, sender=Competition)
 
@@ -1156,18 +1145,24 @@ class CompetitionPhase(models.Model):
                     if sdef.computed:
                         operation = getattr(models, sdef.computed_score.operation)
                         if (operation.name == 'Avg'):
-                            cnt = len(computed_deps[sdef.id])
-                            if (cnt > 0):
-                                computed_values = {}
-                                for id in submission_ids:
-                                    computed_values[id] = sum([ranks[d.id][id] for d in computed_deps[sdef.id]]) / float(cnt)
-                                values[sdef.id] = computed_values
-                                ranks[sdef.id] = self.rank_values(submission_ids, computed_values, sort_ascending=sdef.sorting=='asc')
+                            try:
+                                cnt = len(computed_deps[sdef.id])
+                                if (cnt > 0):
+                                    computed_values = {}
+                                    for id in submission_ids:
+                                        try:
+                                            computed_values[id] = sum([ranks[d.id][id] for d in computed_deps[sdef.id]]) / float(cnt)
+                                        except KeyError:
+                                            pass
+
+                                    values[sdef.id] = computed_values
+                                    ranks[sdef.id] = self.rank_values(submission_ids, computed_values, sort_ascending=sdef.sorting=='asc')
+                            except KeyError:
+                                pass
 
             # format values
             for result in results:
                 try:
-
                     scores = result['scores']
                     for sdef in result['scoredefs']:
                         knownValues = {}
@@ -1680,7 +1675,7 @@ class CompetitionDefBundle(models.Model):
 
         if admin_names:
             logger.debug("CompetitionDefBundle::unpack looking up admins %s", comp_spec['admin_names'])
-            admins = ClUser.objects.filter(username__in=admin_names.split(','))
+            admins = ClUser.objects.filter(username__in=[name.strip() for name in admin_names.split(',')])
             logger.debug("CompetitionDefBundle::unpack found admins %s", admins)
             comp.admins.add(*admins)
 
