@@ -535,6 +535,8 @@ class CompetitionDetailView(DetailView):
                         'sorting': score_def.sorting,
                     }
                 # Below is where we refactored top_three context.
+
+            if context['active_phase']:
                 context['top_three'] = context['active_phase'].scores()
 
                 top_three_list = []
