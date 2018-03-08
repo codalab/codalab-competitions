@@ -541,13 +541,15 @@ class CompetitionDetailView(DetailView):
 
                 for group in context['top_three']:
                     for _, scoredata in group['scores']:
-                        # Top Three
-                        values = list(sorted(scoredata['values'], key=lambda x: x['rnk']))
-                        first_score = values[0]['val']
-                        top_three_list.append({
-                            "username": scoredata['username'],
-                            "score": first_score
-                        })
+                        try:
+                            values = list(sorted(scoredata['values'], key=lambda x: x['rnk']))
+                            first_score = values[0]['val']
+                            top_three_list.append({
+                                "username": scoredata['username'],
+                                "score": first_score
+                            })
+                        except KeyError:
+                            pass
                 context['top_three'] = top_three_list[0:3]
         except ObjectDoesNotExist:
             context['top_three_leaders'] = None
