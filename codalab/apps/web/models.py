@@ -612,6 +612,8 @@ class Page(models.Model):
     def save(self, *args, **kwargs):
         if self.html:
             self.html = clean_html_script(self.html)
+        if self.description:
+            self.description = clean_html(self.description)
         if self.defaults:
             if self.category != self.defaults.category:
                 raise Exception("Defaults category must match Item category")
