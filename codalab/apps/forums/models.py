@@ -33,12 +33,22 @@ class Thread(models.Model):
         ordering = ('-last_post_date',)
 
     def save(self, *args, **kwargs):
+        created = False
         if not self.id:
+            # On first save do these actions
             self.date_created = datetime.datetime.today()
-        return super(Thread, self).save(*args, **kwargs)
+            created = True
+
+        # Do the save THEN send email so we have an Id to work with
+        super(Thread, self).save(*args, **kwargs)
+
+        if created:
+            if self.forum.competition.creator.organizer_direct_message_updates:
+                self.notify_user(self.forum.competition.creator)
+
 
     def get_absolute_url(self):
-        return reverse('forum_thread_detail', kwargs={'forum_pk': self.forum.pk, 'thread_pk': self.pk })
+        return reverse('forum_thread_detail', kwargs={'forum_pk': self.forum.pk, 'thread_pk': self.pk})
 
     def notify_all_posters_of_new_post(self):
         """
@@ -47,16 +57,19 @@ class Thread(models.Model):
         users_in_thread = set(post.posted_by for post in self.posts.all())
 
         for user in users_in_thread:
-            send_mail(
-                context_data={
-                    'thread': self,
-                    'user': user,
-                },
-                subject='New post in %s' % self.title,
-                html_file="forums/emails/new_post.html",
-                text_file="forums/emails/new_post.txt",
-                to_email=user.email
-            )
+            self.notify_user(user)
+
+    def notify_user(self, user):
+        send_mail(
+            context_data={
+                'thread': self,
+                'user': user,
+            },
+            subject='New post in %s' % self.title,
+            html_file="forums/emails/new_post.html",
+            text_file="forums/emails/new_post.txt",
+            to_email=user.email
+        )
 
 
 class Post(models.Model):

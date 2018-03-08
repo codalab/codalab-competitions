@@ -515,8 +515,6 @@ class CompetitionDetailView(DetailView):
 
         context["first_phase"], context["previous_phase"], context['active_phase'], context["next_phase"] = get_first_previous_active_and_next_phases(competition)
 
-        # Top 3 Leaderboard
-        # Get the month from submitted_at
         try:
             truncate_date = connection.ops.date_trunc_sql('day', 'submitted_at')
             score_def = SubmissionScoreDef.objects.filter(competition=competition).order_by('ordering').first()
@@ -536,11 +534,25 @@ class CompetitionDetailView(DetailView):
                         'counts': [s['count'] for s in qs],
                         'sorting': score_def.sorting,
                     }
+                # Below is where we refactored top_three context.
+                context['top_three'] = context['active_phase'].scores()
 
-                context['top_three_leaders'] = self.get_object().get_top_three()
+                top_three_list = []
+
+                for group in context['top_three']:
+                    for _, scoredata in group['scores']:
+                        # Top Three
+                        values = list(sorted(scoredata['values'], key=lambda x: x['rnk']))
+                        first_score = values[0]['val']
+                        top_three_list.append({
+                            "username": scoredata['username'],
+                            "score": first_score
+                        })
+                context['top_three'] = top_three_list[0:3]
         except ObjectDoesNotExist:
             context['top_three_leaders'] = None
             context['graph'] = None
+            print("Could not find a score def!")
 
         if settings.USE_AWS:
             context['submission_upload_form'] = forms.SubmissionS3UploadForm
@@ -767,7 +779,7 @@ class CompetitionPublicSubmission(TemplateView):
             context['error'] = traceback.print_exc()
 
         # In case all phases are close, lets get last phase
-        if context['active_phase'] is None:
+        if context['active_phase'] is None and competition:
             context['active_phase'] = competition.phases.all().order_by("phasenumber").reverse()[0]
         return context
 
@@ -1120,7 +1132,10 @@ class MyCompetitionSubmissionOutput(View):
     This view serves the files associated with a submission.
     """
     def get(self, request, *args, **kwargs):
-        submission = models.CompetitionSubmission.objects.get(pk=kwargs.get('submission_id'))
+        try:
+            submission = models.CompetitionSubmission.objects.get(pk=kwargs.get('submission_id'))
+        except ObjectDoesNotExist:
+            raise Http404()
         competition = submission.phase.competition
         filetype = kwargs.get('filetype')
 
