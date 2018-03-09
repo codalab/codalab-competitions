@@ -1,6 +1,8 @@
 import hashlib
 import json
 import logging
+
+import os
 import requests
 
 from django.conf import settings
@@ -93,7 +95,8 @@ class ChaHubSaveMixin(models.Model):
         # We do a save here to give us an ID for generating URLs and such
         super(ChaHubSaveMixin, self).save(*args, **kwargs)
 
-        if settings.CHAHUB_API_URL:
+        # Make sure we're not sending these in tests
+        if settings.CHAHUB_API_URL and not os.environ.get('PYTEST'):
             if self.get_chahub_is_valid():
                 logger.info("Competition passed validation")
                 data = json.dumps(self.get_chahub_data())
