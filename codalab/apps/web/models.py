@@ -347,6 +347,9 @@ class Competition(ChaHubSaveMixin, models.Model):
         # Make sure the image_url_base is set from the actual storage implementation
         self.image_url_base = self.image.storage.url('')
 
+        if self.description:
+            self.description = clean_html_script(self.description)
+
         phases = self.phases.all().order_by('start_date')
         if len(phases) > 0:
             self.start_date = phases[0].start_date.replace(tzinfo=None)
