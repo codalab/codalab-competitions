@@ -1267,7 +1267,7 @@ class CompetitionSubmissionStatus(models.Model):
 
 
 # Competition Submission
-class CompetitionSubmission(models.Model):
+class CompetitionSubmission(ChaHubSaveMixin, models.Model):
     """Represents a submission from a competition participant."""
     participant = models.ForeignKey(CompetitionParticipant, related_name='submissions')
     phase = models.ForeignKey(CompetitionPhase, related_name='submissions')
@@ -1346,6 +1346,18 @@ class CompetitionSubmission(models.Model):
     def metadata_scoring(self):
         '''Generated from the result scoring step of evaluation a submission'''
         return self.metadatas.get(is_scoring=True)
+
+    def get_chahub_endpoint(self):
+        return "submissions/"
+
+    def get_chahub_data(self):
+        return {
+            "remote_id": self.id,
+            "competition": self.phase.competition_id,
+            "phase_index": self.phase.phasenumber,
+            "participant": self.participant.user_id,
+            "submitted_at": self.submitted_at.isoformat(),
+        }
 
     def save(self, ignore_submission_limits=False, *args, **kwargs):
         print "Saving competition submission."
