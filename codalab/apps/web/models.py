@@ -331,7 +331,7 @@ class Competition(ChaHubSaveMixin, models.Model):
             "remote_id": self.id,
             "title": self.title,
             "created_by": str(self.creator),
-            "created_when": self.start_date.isoformat() if self.start_date else None,
+            "start": self.start_date.isoformat() if self.start_date else None,
             "logo": self.image_url,
             "url": "{}://{}{}".format(http_or_https, settings.CODALAB_SITE_DOMAIN, self.get_absolute_url()),
             "phases": phase_data,
@@ -612,6 +612,8 @@ class Page(models.Model):
     def save(self, *args, **kwargs):
         if self.html:
             self.html = clean_html_script(self.html)
+        if self.description:
+            self.description = clean_html(self.description)
         if self.defaults:
             if self.category != self.defaults.category:
                 raise Exception("Defaults category must match Item category")
