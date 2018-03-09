@@ -1355,7 +1355,7 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
             "remote_id": self.id,
             "competition": self.phase.competition_id,
             "phase_index": self.phase.phasenumber,
-            "participant": self.participant.user_id,
+            "participant": self.participant.username,
             "submitted_at": self.submitted_at.isoformat(),
         }
 
