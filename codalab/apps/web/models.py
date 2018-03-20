@@ -1349,6 +1349,9 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
         '''Generated from the result scoring step of evaluation a submission'''
         return self.metadatas.get(is_scoring=True)
 
+    def get_chahub_is_valid(self):
+        return self.phase.competition.published
+
     def get_chahub_endpoint(self):
         return "submissions/"
 
