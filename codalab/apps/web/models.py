@@ -2251,7 +2251,11 @@ class OrganizerDataSet(models.Model):
         super(OrganizerDataSet, self).save(**kwargs)
 
     def __unicode__(self):
-        return self.full_name
+        if self.full_name:
+            return self.full_name
+        else:
+            self.save()  # to get full_name
+            return self.full_name
 
     def write_multidataset_metadata(self, datasets=None):
         # Write sub bundle metadata, replaces old data_file!
