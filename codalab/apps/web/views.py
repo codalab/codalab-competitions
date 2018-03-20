@@ -553,7 +553,7 @@ class CompetitionDetailView(DetailView):
                                     "username": scoredata['username'],
                                     "score": default_score['val']
                                 })
-                            except KeyError:
+                            except (KeyError, StopIteration):
                                 pass
                     context['top_three'] = top_three_list[0:3]
                 except KeyError:
