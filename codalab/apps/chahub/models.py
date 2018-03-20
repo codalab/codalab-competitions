@@ -119,6 +119,6 @@ class ChaHubSaveMixin(models.Model):
                         self.chahub_needs_retry = True
 
                     # We save at the beginning, but then again at the end to save our new chahub timestamp and such
-                    super(ChaHubSaveMixin, self).save(*args, **kwargs)
+                    super(ChaHubSaveMixin, self).save(force_update=True, *args, **kwargs)
             else:
                 logger.info("ChaHub :: Model failed validation")
