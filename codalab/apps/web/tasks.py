@@ -830,8 +830,8 @@ def do_chahub_retries():
 
 @task(queue='site-worker')
 def do_phase_migrations():
-    logger.info("Checking {} competitions for phase migrations.".format(len(competitions)))
     competitions = Competition.objects.filter(is_migrating=False)
+    logger.info("Checking {} competitions for phase migrations.".format(len(competitions)))
     for c in competitions:
         c.check_future_phase_sumbmissions()
 
