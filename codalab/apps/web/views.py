@@ -544,7 +544,7 @@ class CompetitionDetailView(DetailView):
                 for group in context['top_three']:
                     for _, scoredata in group['scores']:
                         try:
-                            values = list(sorted(scoredata['values'], key=lambda x: x['rnk']))
+                            values = list(sorted(scoredata['values'], key=lambda x: x.get('rnk')))
                             first_score = values[0]['val']
                             top_three_list.append({
                                 "username": scoredata['username'],
