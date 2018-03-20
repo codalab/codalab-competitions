@@ -1870,6 +1870,9 @@ class CompetitionDefBundle(models.Model):
                         phase.reference_data_organizer_dataset = data_set
                     except OrganizerDataSet.DoesNotExist:
                         assert False, "Invalid file-type or could not find file {} for reference_data".format(phase_spec['reference_data'])
+            else:
+                raise OrganizerDataSet.DoesNotExist("No reference data was supplied with the competition bundle!")
+                logger.info("No reference data found. Halting.")
 
             if hasattr(phase, 'ingestion_program') and phase.ingestion_program:
                 if phase_spec["ingestion_program"].endswith(".zip"):
