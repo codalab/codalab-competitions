@@ -99,7 +99,7 @@ class ChaHubSaveMixin(models.Model):
         # Make sure we're not sending these in tests
         if settings.CHAHUB_API_URL and not os.environ.get('PYTEST'):
             if self.get_chahub_is_valid():
-                logger.info("Competition passed validation")
+                logger.info("Chahub model mixin passed validation")
                 data = json.dumps(self.get_chahub_data())
                 data_hash = hashlib.md5(data).hexdigest()
 
