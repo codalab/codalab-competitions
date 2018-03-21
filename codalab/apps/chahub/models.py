@@ -105,6 +105,7 @@ class ChaHubSaveMixin(models.Model):
 
                 # Send to chahub if we haven't yet, we have new data, OR we're being forced to
                 if not self.chahub_timestamp or self.chahub_data_hash != data_hash or force_to_chahub:
+                    logger.info("Competition passed validation and the hash is new, sending to ChaHub")
                     resp = self.send_to_chahub(data)
 
                     if resp and resp.status_code in (200, 201):
@@ -121,4 +122,4 @@ class ChaHubSaveMixin(models.Model):
                     # We save at the beginning, but then again at the end to save our new chahub timestamp and such
                     super(ChaHubSaveMixin, self).save(force_update=True)
             else:
-                logger.info("ChaHub :: Model failed validation")
+                pass
