@@ -556,7 +556,7 @@ class CompetitionDetailView(DetailView):
                             except (KeyError, StopIteration):
                                 pass
                     context['top_three'] = top_three_list[0:3]
-                except KeyError:
+                except (KeyError, IndexError):
                     pass
         except ObjectDoesNotExist:
             context['top_three_leaders'] = None
