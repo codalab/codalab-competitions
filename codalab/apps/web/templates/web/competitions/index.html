@@ -2,43 +2,33 @@
 
 {% load static %}
 
-{% block head_title %}Competitions{% endblock head_title %}
-{% block page_title %}Competitions{% endblock page_title %}
+{% block head_title %}Competitions search{% endblock head_title %}
+{% block nosubheader %}{% endblock %}  {# don't show header #}
 
-
-{% block content %}
-
-
-
-
-
-
-
-    <script src="//chahub:9000/static/riot/results.tag" type="riot/tag"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/riot/3.6.1/riot+compiler.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            riot.mount('*')
-        })
-    </script>
-
-    asdf
-    <search-results></search-results>
-    @@@
+{% block content_wrapper %}
 
 
 
 
 
 
-
-
-
-
-
-
-
-{#    <iframe src="https://codalabchahub.herokuapp.com/"></iframe>#}
+{#    <link rel="stylesheet" href="https://cdn.jsdelivr.net/semantic-ui/2.2.10/semantic.min.css">#}
+{#    <script src="https://cdn.jsdelivr.net/semantic-ui/2.2.10/semantic.min.js"></script>#}
+{#    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>#}
+{##}
+{#    <script src="//cdnjs.cloudflare.com/ajax/libs/riot/3.6.1/riot.min.js"></script>#}
+{#    <script src="//chahub:9000/static/generated/riot.js"></script>#}
+{##}
+{#    <search-results#}
+{#        base-url="http://chahub:9000/"#}
+{#        producer="http://localhost/">#}
+{#    </search-results>#}
+{#    <script>#}
+{#        $(document).ready(function() {#}
+{#            riot.mount('*')#}
+{#            console.log("fucking FUCK")#}
+{#        })#}
+{#    </script>#}
 
 
 
@@ -47,6 +37,11 @@
 
 
 
+
+
+
+    <iframe id="chahub_embed" src="{{ CHAHUB_URL }}" frameborder="no"></iframe>
+{#    <iframe src="http://chahub:9000/"></iframe>#}
 
 
 
@@ -113,7 +108,7 @@
 {#    </div>#}
 {#</div>#}
 {#<a href="https://github.com/codalab/codalab/wiki/User_Competition-Roadmap">Learn how to create your own competition.</a>#}
-{% endblock content%}
+{% endblock %}
 {##}
 {#{% block js %}#}
 {#    function populate(frm, data) {#}
