@@ -151,6 +151,7 @@ class Base(Settings):
     )
 
     MIDDLEWARE_CLASSES = (
+        "django_switchuser.middleware.SuStateMiddleware",
         'apps.web.middleware.SingleCompetitionMiddleware',
         'django.middleware.common.CommonMiddleware',
         'django.contrib.sessions.middleware.SessionMiddleware',
@@ -168,10 +169,11 @@ class Base(Settings):
         # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
         # Always use forward slashes, even on Windows.
         # Don't forget to use absolute paths, not relative paths.
-        os.path.join(PROJECT_DIR,'templates'),
+        os.path.join(PROJECT_DIR, 'templates'),
     )
 
     TEMPLATE_CONTEXT_PROCESSORS = Settings.TEMPLATE_CONTEXT_PROCESSORS + (
+        "django_switchuser.context_processors.su_state",
         "allauth.account.context_processors.account",
         "allauth.socialaccount.context_processors.socialaccount",
         "codalab.context_processors.app_version_proc",
@@ -245,6 +247,9 @@ class Base(Settings):
         # Search
         'haystack',
         'django_extensions',
+
+        # Switch User
+        "django_switchuser",
 
         # Lockout
         'pin_passcode',
@@ -602,10 +607,10 @@ class Base(Settings):
         'group_models': True,
     }
 
-    USERSWITCH_OPTIONS = {
-        'auth_backend': 'django.contrib.auth.backends.ModelBackend',
-        'css_inline': 'position:fixed !important; bottom: 10px !important; left: 10px !important; opacity:0.50; z-index: 9999;',
-    }
+    # USERSWITCH_OPTIONS = {
+    #     'auth_backend': 'django.contrib.auth.backends.ModelBackend',
+    #     'css_inline': 'position:fixed !important; bottom: 10px !important; left: 10px !important; opacity:0.50; z-index: 9999;',
+    # }
 
     @classmethod
     def pre_setup(cls):
@@ -643,10 +648,10 @@ class DevBase(Base):
             'debug_toolbar.middleware.DebugToolbarMiddleware',
         )
 
-        if os.environ.get('USER_SWITCH_MIDDLEWARE', False):
-            EXTRA_MIDDLEWARE_CLASSES += (
-                'userswitch.middleware.UserSwitchMiddleware',
-            )
+        # if os.environ.get('USER_SWITCH_MIDDLEWARE', False):
+        #     EXTRA_MIDDLEWARE_CLASSES += (
+        #         'userswitch.middleware.UserSwitchMiddleware',
+        #     )
 
         DEBUG_TOOLBAR_CONFIG = {
             'SHOW_TEMPLATE_CONTEXT': True,

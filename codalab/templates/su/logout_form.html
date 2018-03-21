@@ -1,0 +1,11 @@
+{% load switchuser %}
+{% load url from future %}
+
+<form method="POST" action="{% url "su-logout" %}?next={{ next }}">
+  {% csrf_token %}
+  {% if su_state.is_active %}
+    <input class="btn btn-danger" type="submit" value="Revert-User (back to {% su_user_short_label su_state.auth_user %})" />
+  {% else %}
+    <input class="btn btn-danger" type="submit" value="Revert-User (not active)" disabled="disabled" />
+  {% endif %}
+</form>
