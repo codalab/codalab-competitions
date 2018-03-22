@@ -23,4 +23,5 @@ def common_settings(request):
 
         # Just get the base of the URL
         'CHAHUB_URL': '//{}'.format(settings.CHAHUB_API_URL.split("//")[-1].split("/")[0].split('?')[0]),
+        'CHAHUB_PRODUCER_ID': settings.CHAHUB_PRODUCER_ID,
     }
