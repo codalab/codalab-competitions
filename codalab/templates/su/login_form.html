@@ -22,17 +22,16 @@
             <form method="POST" action="{% url "su-login" %}?next={{ next }}">
                 {% csrf_token %}
                 <label for="user_id">Login as:</label>
-                <br>
+                <p>
                 <select name="user_id">
                     {% for user in su_state.available_users %}
                         <option value="{{ user.id }}">{% su_user_long_label user %}</option>
                     {% endfor %}
                 </select>
-                <br>
-                <br>
+                </p>
                 <input class="btn btn-success btn-large" type="submit" value="Switch-User"/>
             </form>
-        <hr>
+            <hr>
             {% include "su/logout_form.html" %}
         </div>
     {% endif %}

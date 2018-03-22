@@ -607,11 +607,6 @@ class Base(Settings):
         'group_models': True,
     }
 
-    # USERSWITCH_OPTIONS = {
-    #     'auth_backend': 'django.contrib.auth.backends.ModelBackend',
-    #     'css_inline': 'position:fixed !important; bottom: 10px !important; left: 10px !important; opacity:0.50; z-index: 9999;',
-    # }
-
     @classmethod
     def pre_setup(cls):
         if hasattr(cls,'OPTIONAL_APPS'):
