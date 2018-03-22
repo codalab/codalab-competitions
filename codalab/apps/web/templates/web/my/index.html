@@ -92,17 +92,20 @@
     });
 
 
-    $('.competition-publish-button').on('click', function(event) {
+    $('.competition-publish-button').on('click', function (event) {
         event.preventDefault();
         var button = $(this);
-        $.get($(this).prop('href'))
-            .success(function() {
-                button.siblings('.competition-unpublish-button').removeClass('hide');
-                button.addClass('hide');
-            })
-            .error(function() {
-                alert('Error publishing competition, check your Internet connection. If problem persists contact an administrator.');
-            });
+        if (confirm("Are you sure you wish to publish this competition?")) {
+            $.get($(this).prop('href'))
+                .success(function () {
+                    button.siblings('.competition-unpublish-button').removeClass('hide');
+                    button.addClass('hide');
+                })
+                .error(function () {
+                    alert('Error publishing competition, check your Internet connection. If problem persists contact an administrator.');
+                });
+        }
+
         return false;
     });
     $('.competition-unpublish-button').on('click', function(event) {
