@@ -95,7 +95,6 @@ def get_base_of_url(url):
     :param url:
     :return:
     """
-    # Ignore empty or pure whitespace
-    if not url and not url.strip():
+    if not url:
         return None
     return '//{}'.format(url.split("//")[-1].split("/")[0].split('?')[0])

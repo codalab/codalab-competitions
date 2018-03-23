@@ -40,5 +40,4 @@ class GetBaseOfUrlTests(TestCase):
         assert get_base_of_url("https://test.com/asdf/?with=query_params&more=params") == "//test.com"
         assert get_base_of_url("https://subdomain.test.com/asdf/") == "//subdomain.test.com"
         assert get_base_of_url("") == None
-        assert get_base_of_url(" ") == " "
         assert get_base_of_url(None) == None
