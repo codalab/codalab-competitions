@@ -694,7 +694,7 @@ msgstr "元"
 
 #: apps/web/templates/web/index.html:12
 msgid "Accelerating reproducible computational research."
-msgstr "致力于促进可重复性计算研究的发展"
+msgstr "基于高校群体智能促进数据科学研究发展"
 
 #: apps/web/templates/web/index.html:25
 msgid "Popular Competitions"
@@ -1074,9 +1074,8 @@ msgid "Refresh the Page"
 msgstr "刷新页面"
 
 #: apps/web/templates/web/competitions/dumps.html:13
-#, fuzzy
 msgid "Dumps for:"
-msgstr "仓库"
+msgstr "竞赛备份："
 
 #: apps/web/templates/web/competitions/dumps.html:16
 msgid "Download link"
@@ -1092,12 +1091,12 @@ msgstr "发布日期"
 
 #: apps/web/templates/web/competitions/dumps.html:52
 msgid "No dumps found for the current competition."
-msgstr "没有发现当前竞赛的仓库"
+msgstr "没有发现当前竞赛的备份"
 
 #: apps/web/templates/web/competitions/dumps.html:62
 #: apps/web/templates/web/competitions/dumps.html:75
 msgid "Create Competition Dump"
-msgstr "创建比赛仓库"
+msgstr "创建比赛备份仓库"
 
 #: apps/web/templates/web/competitions/dumps.html:68
 msgid "URI Keys instead of files"
@@ -1374,7 +1373,7 @@ msgstr "为了创建竞赛，上传一个新竞赛的定义包"
 
 #: apps/web/templates/web/competitions/upload_competition.html:16
 msgid "Upload definition..."
-msgstr "上传定义中……"
+msgstr "上传竞赛包"
 
 #: apps/web/templates/web/competitions/upload_s3_competition.html:22
 msgid "Upload Competition Bundle"
@@ -1391,7 +1390,7 @@ msgstr "管理您的竞赛"
 #: apps/web/templates/web/competitions/view.html:37
 #: apps/web/templates/web/my/_competition_tile.html:50
 msgid "Dumps"
-msgstr "仓库"
+msgstr "备份仓库"
 
 #: apps/web/templates/web/competitions/view.html:60
 msgid "Current server time:"
