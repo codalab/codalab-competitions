@@ -536,23 +536,28 @@ class CompetitionDetailView(DetailView):
                     }
                 # Below is where we refactored top_three context.
 
+
             if context['active_phase']:
-                context['top_three'] = context['active_phase'].scores()
+                try:
+                    scores = context['active_phase'].scores()
+                    headers = list(sorted(scores[0]['headers'], key=lambda x: x.get('ordering')))
+                    default_score_key = headers[0]['key']
 
-                top_three_list = []
+                    top_three_list = []
 
-                for group in context['top_three']:
-                    for _, scoredata in group['scores']:
-                        try:
-                            values = list(sorted(scoredata['values'], key=lambda x: x['rnk']))
-                            first_score = values[0]['val']
-                            top_three_list.append({
-                                "username": scoredata['username'],
-                                "score": first_score
-                            })
-                        except KeyError:
-                            pass
-                context['top_three'] = top_three_list[0:3]
+                    for group in scores:
+                        for _, scoredata in group['scores']:
+                            try:
+                                default_score = next(val for val in scoredata['values'] if val['name'] == default_score_key)
+                                top_three_list.append({
+                                    "username": scoredata['username'],
+                                    "score": default_score['val']
+                                })
+                            except (KeyError, StopIteration):
+                                pass
+                    context['top_three'] = top_three_list[0:3]
+                except (KeyError, IndexError):
+                    pass
         except ObjectDoesNotExist:
             context['top_three_leaders'] = None
             context['graph'] = None
@@ -771,6 +776,7 @@ class CompetitionPublicSubmission(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(CompetitionPublicSubmission, self).get_context_data(**kwargs)
         context['active_phase'] = None
+        competition = None
 
         try:
             competition = models.Competition.objects.get(pk=self.kwargs['pk'])
