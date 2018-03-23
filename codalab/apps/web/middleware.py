@@ -6,8 +6,6 @@ import tempfile
 import StringIO
 
 from django.conf import settings
-# from userswitch.middleware import UserSwitchMiddleware
-
 from apps.customizer.models import Configuration
 
 words_re = re.compile( r'\s+' )

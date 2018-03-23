@@ -643,11 +643,6 @@ class DevBase(Base):
             'debug_toolbar.middleware.DebugToolbarMiddleware',
         )
 
-        # if os.environ.get('USER_SWITCH_MIDDLEWARE', False):
-        #     EXTRA_MIDDLEWARE_CLASSES += (
-        #         'userswitch.middleware.UserSwitchMiddleware',
-        #     )
-
         DEBUG_TOOLBAR_CONFIG = {
             'SHOW_TEMPLATE_CONTEXT': True,
             'ENABLE_STACKTRACES': True,
