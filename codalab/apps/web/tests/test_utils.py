@@ -1,5 +1,5 @@
 from django.test import TestCase
-from apps.web.utils import docker_image_clean
+from apps.web.utils import docker_image_clean, get_base_of_url
 
 
 class DockerImageSanitationTests(TestCase):
@@ -32,3 +32,13 @@ class DockerImageSanitationTests(TestCase):
 
         # Handles underscores
         self._sanitize("lisesun/codalab_automl2016", "lisesun/codalab_automl2016")
+
+
+class GetBaseOfUrlTests(TestCase):
+    def test_get_base_of_url(self):
+        assert get_base_of_url("https://test.com/asdf/asdf/asdf/asdf") == "//test.com"
+        assert get_base_of_url("https://test.com/asdf/?with=query_params&more=params") == "//test.com"
+        assert get_base_of_url("https://subdomain.test.com/asdf/") == "//subdomain.test.com"
+        assert get_base_of_url("") == None
+        assert get_base_of_url(" ") == " "
+        assert get_base_of_url(None) == None

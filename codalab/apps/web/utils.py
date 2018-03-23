@@ -80,3 +80,22 @@ def inheritors(klass):
                 subclasses.add(child)
                 work.append(child)
     return subclasses
+
+
+def get_base_of_url(url):
+    """
+    Takes a URL
+
+        "http(s)://whatever.com/some/endpoint"
+
+    and grabs only the base for using in an iframe/link/etc.
+
+        "//whatever.com"
+
+    :param url:
+    :return:
+    """
+    # Ignore empty or pure whitespace
+    if not url and not url.strip():
+        return None
+    return '//{}'.format(url.split("//")[-1].split("/")[0].split('?')[0])
