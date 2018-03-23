@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-01-27 02:37+0000\n"
+"POT-Creation-Date: 2018-03-23 12:10+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,10 +17,6 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-
-#: apps/authenz/adapter.py:25
-msgid "Usernames can only contain letters, digits and ./-/_ "
-msgstr "用户名注册异常"
 
 #: apps/authenz/adapter.py:31
 msgid "Username can not be used. Please use other username."
@@ -1053,7 +1049,7 @@ msgstr "竞赛"
 
 #: apps/web/templates/web/competitions/dumps.html:6
 #: apps/web/templates/web/competitions/edit.html:18
-#: apps/web/templates/web/competitions/public_submissions.html:21
+#: apps/web/templates/web/competitions/public_submissions.html:20
 #: apps/web/templates/web/competitions/submission_metadata.html:17
 #: apps/web/templates/web/my/detailed_results.html:8
 #: apps/web/templates/web/my/participants.html:16
@@ -1129,6 +1125,7 @@ msgid "Upload score and dataset manifest file"
 msgstr "上传分数和数据集清单文件"
 
 #: apps/web/templates/web/competitions/edit-phase.html:17
+#: apps/web/templates/web/my/datasets_form.html:36
 msgid "Upload"
 msgstr "上传"
 
@@ -1425,6 +1422,14 @@ msgstr "公共提交"
 msgid "Team"
 msgstr "团队"
 
+#: apps/web/templates/web/competitions/view.html:166
+msgid "Start:"
+msgstr "开始："
+
+#: apps/web/templates/web/competitions/view.html:168
+msgid "Description:"
+msgstr "描述："
+
 #: apps/web/templates/web/competitions/view.html:193
 msgid "You must be logged in to participate in competitions."
 msgstr "你必须登录才能参加比赛"
@@ -1613,7 +1618,11 @@ msgstr "单个新的数据集"
 
 #: apps/web/templates/web/my/datasets_form.html:20
 msgid "Many existing datasets bundled into one new dataset"
-msgstr "许多现有的数据集被绑定到一个新的数据集"
+msgstr "从现有的数据集创建"
+
+#: apps/web/templates/web/my/datasets_form.html:36
+msgid "Save changes"
+msgstr "保存修改"
 
 #: apps/web/templates/web/my/detailed_results.html:5
 #: apps/web/templates/web/my/detailed_results.html:6
@@ -1836,6 +1845,9 @@ msgstr "已迁移的"
 #: apps/web/templates/web/my/submissions.html:156
 msgid "MIGRATE"
 msgstr "迁移"
+
+#~ msgid "Usernames can only contain letters, digits and ./-/_ "
+#~ msgstr "用户名注册异常"
 
 #~ msgid "unknown"
 #~ msgstr "未知"
