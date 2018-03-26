@@ -10,6 +10,8 @@ import StringIO
 import re
 import urllib
 import uuid
+from urllib import pathname2url
+
 import yaml
 import zipfile
 import math
@@ -332,7 +334,7 @@ class Competition(ChaHubSaveMixin, models.Model):
             "title": self.title,
             "created_by": str(self.creator),
             "start": self.start_date.isoformat() if self.start_date else None,
-            "logo": self.image_url,
+            "logo": self.image_url.replace(" ", "%20") if self.image_url else None,
             "url": "{}://{}{}".format(http_or_https, settings.CODALAB_SITE_DOMAIN, self.get_absolute_url()),
             "phases": phase_data,
             "participant_count": self.get_participant_count,
@@ -1267,7 +1269,7 @@ class CompetitionSubmissionStatus(models.Model):
 
 
 # Competition Submission
-class CompetitionSubmission(models.Model):
+class CompetitionSubmission(ChaHubSaveMixin, models.Model):
     """Represents a submission from a competition participant."""
     participant = models.ForeignKey(CompetitionParticipant, related_name='submissions')
     phase = models.ForeignKey(CompetitionPhase, related_name='submissions')
@@ -1346,6 +1348,21 @@ class CompetitionSubmission(models.Model):
     def metadata_scoring(self):
         '''Generated from the result scoring step of evaluation a submission'''
         return self.metadatas.get(is_scoring=True)
+
+    def get_chahub_is_valid(self):
+        return self.phase.competition.published
+
+    def get_chahub_endpoint(self):
+        return "submissions/"
+
+    def get_chahub_data(self):
+        return {
+            "remote_id": self.id,
+            "competition": self.phase.competition_id,
+            "phase_index": self.phase.phasenumber,
+            "participant": self.participant.user.username,
+            "submitted_at": self.submitted_at.isoformat(),
+        }
 
     def save(self, ignore_submission_limits=False, *args, **kwargs):
         print "Saving competition submission."
@@ -1870,6 +1887,9 @@ class CompetitionDefBundle(models.Model):
                         phase.reference_data_organizer_dataset = data_set
                     except OrganizerDataSet.DoesNotExist:
                         assert False, "Invalid file-type or could not find file {} for reference_data".format(phase_spec['reference_data'])
+            else:
+                raise OrganizerDataSet.DoesNotExist("No reference data was supplied with the competition bundle!")
+                logger.info("No reference data found. Halting.")
 
             if hasattr(phase, 'ingestion_program') and phase.ingestion_program:
                 if phase_spec["ingestion_program"].endswith(".zip"):
@@ -2251,7 +2271,11 @@ class OrganizerDataSet(models.Model):
         super(OrganizerDataSet, self).save(**kwargs)
 
     def __unicode__(self):
-        return self.full_name
+        if self.full_name:
+            return self.full_name
+        else:
+            self.save()  # to get full_name
+            return self.full_name
 
     def write_multidataset_metadata(self, datasets=None):
         # Write sub bundle metadata, replaces old data_file!

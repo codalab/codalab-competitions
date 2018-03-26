@@ -61,7 +61,8 @@ class ChaHubSaveMixin(models.Model):
         Example:
             return comp.is_published
         """
-        raise NotImplementedError()
+        # By default, always push
+        return True
 
 
     # -------------------------------------------------------------------------
@@ -97,7 +98,7 @@ class ChaHubSaveMixin(models.Model):
         # Make sure we're not sending these in tests
         if settings.CHAHUB_API_URL and not os.environ.get('PYTEST'):
             if self.get_chahub_is_valid():
-                logger.info("Competition passed validation")
+                logger.info("Chahub model mixin passed validation")
                 data = json.dumps(self.get_chahub_data())
                 data_hash = hashlib.md5(data).hexdigest()
 
@@ -111,11 +112,12 @@ class ChaHubSaveMixin(models.Model):
                         self.chahub_data_hash = data_hash
                         self.chahub_needs_retry = False
                     else:
-                        status = resp.status_code if resp else None
-                        logger.info("ChaHub :: Error sending to chahub, status={}".format(status))
+                        status = resp.status_code if hasattr(resp, 'status_code') else 'N/A'
+                        body = resp.content if hasattr(resp, 'content') else 'N/A'
+                        logger.info("ChaHub :: Error sending to chahub, status={}, body={}".format(status, body))
                         self.chahub_needs_retry = True
 
                     # We save at the beginning, but then again at the end to save our new chahub timestamp and such
-                    super(ChaHubSaveMixin, self).save(*args, **kwargs)
+                    super(ChaHubSaveMixin, self).save(force_update=True)
             else:
                 logger.info("ChaHub :: Model failed validation")
