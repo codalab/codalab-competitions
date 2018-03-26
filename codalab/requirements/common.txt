@@ -57,7 +57,7 @@ gunicorn==19.7.0
 #gevent==1.2.2
 
 #Extras added
-git+https://github.com/ikraft/django-userswitch.git
+git+https://github.com/Tthomas63/django-switchuser.git
 Sphinx==1.4.1
 
 

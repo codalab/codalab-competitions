@@ -776,6 +776,7 @@ class CompetitionPublicSubmission(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(CompetitionPublicSubmission, self).get_context_data(**kwargs)
         context['active_phase'] = None
+        competition = None
 
         try:
             competition = models.Competition.objects.get(pk=self.kwargs['pk'])
