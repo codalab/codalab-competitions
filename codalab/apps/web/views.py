@@ -1353,6 +1353,9 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
             sys.exc_clear()
         context['phase'] = active_phase
 
+        if competition.creator == self.request.user or self.request.user in competition.admins.all():
+            context['is_admin_or_owner'] = True
+
         return context
 
 
