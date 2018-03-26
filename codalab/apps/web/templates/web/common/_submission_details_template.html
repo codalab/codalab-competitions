@@ -26,7 +26,7 @@
                                     {% if phase.is_blind %}
                                         <li><a href="/my/competition/submission/_/stderr.txt" target="_blank" class="hide">View standard error log</a></li>
                                     {% endif %}
-                                    {% if is_admin_or_owner and not phase.is_blind %}
+                                    {% if is_admin_or_owner or not phase.is_blind %}
                                         <li><a href="/my/competition/submission/_/stdout.txt" target="_blank">View scoring output log</a></li>
                                         <li><a href="/my/competition/submission/_/stderr.txt" target="_blank">View scoring error log</a></li>
                                         {% if not phase.is_scoring_only %}
