@@ -6,8 +6,6 @@ import tempfile
 import StringIO
 
 from django.conf import settings
-from userswitch.middleware import UserSwitchMiddleware
-
 from apps.customizer.models import Configuration
 
 words_re = re.compile( r'\s+' )
@@ -124,19 +122,3 @@ class SingleCompetitionMiddleware(object):
 
             if config.header_logo:
                 settings.CUSTOM_HEADER_LOGO = config.header_logo.url
-
-
-class CodalabUserSwitchMiddleware(UserSwitchMiddleware):
-    """Augments the UserSwitchMiddleware helper from django-debug-toolbar to only allow superusers to
-    use this feature."""
-
-    def process_request(self, request):
-        if hasattr(request, 'user'):
-            if request.user.is_authenticated() and request.user.is_superuser:
-                return super(CodalabUserSwitchMiddleware, self).process_request(request)
-
-    def process_response(self, request, response):
-        if hasattr(request, 'user'):
-            if request.user.is_authenticated() and request.user.is_superuser:
-                return super(CodalabUserSwitchMiddleware, self).process_response(request, response)
-        return response
