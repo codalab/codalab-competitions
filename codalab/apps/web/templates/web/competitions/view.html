@@ -100,7 +100,9 @@
                                 <div class="date">{{next_phase.start_date|utc}} UTC</div>
                             </div>
                         </div>
-                    {% else %}
+                    {% endif %}
+
+                    {% if not previous_phase or not active_phase or not next_phase %}
                         <div class="col-sm-4">
                             <div class="phase">
                                 <h4>End</h4>
@@ -109,7 +111,6 @@
                             </div>
                         </div>
                     {% endif %}
-
                 </div>
             </div>
         </div>
