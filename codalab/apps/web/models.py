@@ -2401,6 +2401,7 @@ def get_first_previous_active_and_next_phases(competition):
     for phase in phase_iterator:
         if not first_phase:
             first_phase = phase
+            print("first_phase set to", first_phase)
 
         # Get an active phase that isn't also never-ending, unless we don't have any active_phases
         if phase.is_active:
@@ -2409,14 +2410,25 @@ def get_first_previous_active_and_next_phases(competition):
                 active_phase = phase
             elif not phase.phase_never_ends:
                 active_phase = phase
-                try:
-                    next_phase = next(phase_iterator)
-                except StopIteration:
-                    pass
+
+            try:
+                next_phase = next(phase_iterator)
+            except StopIteration:
+                pass
+
+            if not active_phase.phase_never_ends:
+                # The phase has a definite ending, so we can stop here using this
+                # as the active phase and next (if applicable) is already grabbed
+                # from the iterator
                 break
 
         # Hold this to store "previous phase"
         trailing_phase_holder = phase
+
+    print("first phase ended up being:", first_phase)
+    print("previous_phase ended up being:", previous_phase)
+    print("active_phase ended up being:", active_phase)
+    print("next_phase ended up being:", next_phase)
     return first_phase, previous_phase, active_phase, next_phase
 
 
