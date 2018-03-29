@@ -889,8 +889,8 @@ def make_modified_bundle(competition_pk, exclude_datasets_flag):
         logger.info("Creating Competion dump")
         temp_comp_dump = CompetitionDump.objects.create(competition=competition)
         yaml_data = OrderedDict()
-        yaml_data['title'] = competition.title
-        yaml_data['description'] = competition.description.replace("/n", "").replace("\"", "").strip()
+        yaml_data['title'] = competition.title if competition.title else ''
+        yaml_data['description'] = competition.description.replace("/n", "").replace("\"", "").strip() if competition.description else ''
         if competition.competition_docker_image and competition.competition_docker_image != "":
             yaml_data['competition_docker_image'] = competition.competition_docker_image
         if competition.image:
