@@ -230,55 +230,36 @@
         </div>
     </section>
         <div class="row">
-        <div class="col-md-4">
-            {% if top_three_leaders and not active_phase.is_blind %}
-                <div class="panel">
-                    <div class="panel-body">
-                        <center><h4>{% trans "Top Three"%}</h4></center>
-                        <table class="table table-responsive">
-                            <thead>
-                                <tr>
-                                    <th>{% trans "Rank"%}</th>
-                                    <th>{% trans "Username"%}</th>
-                                    <th>{% trans "Score"%}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for leader in top_three_leaders %}
-                                    <tr>
-                                        <td class="leader">{{ forloop.counter }}</td>
-                                        <td class="leader">{{ leader.username }}</td>
-                                        <td class="leader">{{ leader.score }}</td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            {% else %}
-                <div class="panel">
-                    <div class="panel-body">
-                        <center><h4>{% trans "Top Three"%}</h4></center>
-                        <table class="table table-responsive">
-                            <thead>
-                                <tr>
-                                    <th>{% trans "Rank"%}</th>
-                                    <th>{% trans "Username"%}</th>
-                                    <th>{% trans "Score"%}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>{% trans "No data"%}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+        <div class="col-sm-4">
+            {% if competition.show_top_three and top_three %}
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>{% trans "Username"%}</th>
+                        <th>{% trans "Score"%}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for leader in top_three %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ leader.username }}</td>
+                            <td>{{ leader.score }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
             {% endif %}
         </div>
-        <div class="col-md-8">
-            {% include "web/competitions/_chart.html" %}
+        <div class="col-sm-8">
+            {% if competition.show_chart %}
+                {% if graph %}
+                    {% include "web/competitions/_chart.html" %}
+                {% endif %}
+            {% else %}
+                <!-- Do nothing -->
+            {% endif %}
         </div>
     </div>
 </div>

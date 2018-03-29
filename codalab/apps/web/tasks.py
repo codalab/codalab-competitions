@@ -33,6 +33,8 @@ from django.db.models import Count
 from django.template import Context
 from django.template.loader import render_to_string
 from django.contrib.sites.models import Site
+
+from apps.chahub.models import ChaHubSaveMixin
 from apps.jobs.models import (Job,
                               run_job_task,
                               JobTaskResult,
@@ -62,6 +64,7 @@ from apps.coopetitions.models import DownloadRecord
 
 import time
 # import cProfile
+from apps.web.utils import inheritors
 from codalab.azure_storage import make_blob_sas_url
 
 from apps.web import models
@@ -809,6 +812,20 @@ def send_mass_email(competition_pk, body=None, subject=None, from_email=None, to
     mail_tuples = ((subject, text, html, from_email, [e]) for e in to_emails)
 
     _send_mass_html_mail(mail_tuples)
+
+
+@task(queue='site-worker')
+def do_chahub_retries():
+    if not settings.CHAHUB_API_URL:
+        return
+
+    logger.info("Checking for objects needing to be re-sent to ChaHub")
+    chahub_models = inheritors(ChaHubSaveMixin)
+    for model in chahub_models:
+        needs_retry = model.objects.filter(chahub_needs_retry=True)
+        for instance in needs_retry:
+            # Saving forces chahub update
+            instance.save()
 
 
 @task(queue='site-worker')

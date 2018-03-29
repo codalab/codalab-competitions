@@ -41,7 +41,7 @@ def docker_image_clean(image_name):
     image_name = '"{}"'.format(image_name.strip().split(' ')[0])
     # Regex acts as a whitelist here. Only alphanumerics and the following symbols are allowed: / . : -.
     # If any not allowed are found, replaced with second argument to sub.
-    image_name = re.sub('[^0-9a-zA-Z/.:-_]+', '', image_name)
+    image_name = re.sub('[^0-9a-zA-Z/.:\-_]+', '', image_name)
     return image_name
 
 
@@ -71,3 +71,15 @@ def _put_blob(url, file_path):
             'x-ms-blob-type': 'BlockBlob',
         }
     )
+
+
+def inheritors(klass):
+    subclasses = set()
+    work = [klass]
+    while work:
+        parent = work.pop()
+        for child in parent.__subclasses__():
+            if child not in subclasses:
+                subclasses.add(child)
+                work.append(child)
+    return subclasses

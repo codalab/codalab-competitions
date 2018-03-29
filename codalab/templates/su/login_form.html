@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% load switchuser %}
+{% load url from future %}
+
+{% block head_title %}Switch-User{% endblock %}
+
+{% block content %}
+    {% if not su_state %}
+        <div class="alert alert-danger">
+            Error: the <tt>su_state</tt> context processor was not found. Is
+            <tt>"django_switchuser.context_processors.su_state"</tt> in your list
+            of <tt>TEMPLATE_CONTEXT_PROCESSORS</tt>?
+        </div>
+    {% else %}
+        {% if su_state.is_active %}
+            <div class="alert alert-success">
+                Currently logged in as: <em>{% su_user_short_label su_state.active_user %}</em>
+            </div>
+        {% endif %}
+        <div align="center" class="well">
+            <form method="POST" action="{% url "su-login" %}?next={{ next }}">
+                {% csrf_token %}
+                <label for="user_id">Login as:</label>
+                <p>
+                <select name="user_id">
+                    {% for user in su_state.available_users %}
+                        <option value="{{ user.id }}">{% su_user_long_label user %}</option>
+                    {% endfor %}
+                </select>
+                </p>
+                <input class="btn btn-success btn-large" type="submit" value="Switch-User"/>
+            </form>
+            <hr>
+            {% include "su/logout_form.html" %}
+        </div>
+    {% endif %}
+{% endblock %}

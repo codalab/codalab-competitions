@@ -230,6 +230,10 @@ class Team(models.Model):
         return self.get_members("approved")
 
     @cached_property
+    def active_members_count(self):
+        return len(self.get_members("approved")) + 1
+
+    @cached_property
     def active_requests(self):
         return self.get_members("pending")
 

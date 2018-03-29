@@ -16,6 +16,11 @@ import os, sys
 from os.path import abspath, basename, dirname, join, normpath
 
 
+# Set UTF8 encoding everywhere
+reload(sys)
+sys.setdefaultencoding('utf8')
+
+
 def _uuidpathext(filename, prefix):
     filename = basename(filename)
     filepath = join(prefix, str(uuid.uuid4()), filename)
@@ -158,6 +163,7 @@ class Base(Settings):
     )
 
     MIDDLEWARE_CLASSES = (
+        "django_switchuser.middleware.SuStateMiddleware",
         'apps.web.middleware.SingleCompetitionMiddleware',
         'django.middleware.common.CommonMiddleware',
         'django.contrib.sessions.middleware.SessionMiddleware',
@@ -177,10 +183,11 @@ class Base(Settings):
         # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
         # Always use forward slashes, even on Windows.
         # Don't forget to use absolute paths, not relative paths.
-        os.path.join(PROJECT_DIR,'templates'),
+        os.path.join(PROJECT_DIR, 'templates'),
     )
 
     TEMPLATE_CONTEXT_PROCESSORS = Settings.TEMPLATE_CONTEXT_PROCESSORS + (
+        "django_switchuser.context_processors.su_state",
         "allauth.account.context_processors.account",
         "allauth.socialaccount.context_processors.socialaccount",
         "codalab.context_processors.app_version_proc",
@@ -257,6 +264,9 @@ class Base(Settings):
         # Search
         'haystack',
         'django_extensions',
+
+        # Switch User
+        "django_switchuser",
 
         # Lockout
         'pin_passcode',
@@ -443,6 +453,10 @@ class Base(Settings):
             'task': 'apps.web.tasks.do_phase_migrations',
             'schedule': timedelta(seconds=300),
         },
+        'chahub_retries': {
+            'task': 'apps.web.tasks.do_chahub_retries',
+            'schedule': timedelta(seconds=600),
+        },
     }
     CELERY_TIMEZONE = 'Asia/Shanghai'
 
@@ -454,6 +468,13 @@ class Base(Settings):
     # or via ENV vars here.
     SINGLE_COMPETITION_VIEW_PK = os.environ.get('SINGLE_COMPETITION_VIEW_PK')
     CUSTOM_HEADER_LOGO = os.environ.get('CUSTOM_HEADER_LOGO')
+
+
+    # =========================================================================
+    # ChaHub
+    # =========================================================================
+    CHAHUB_API_URL = os.environ.get('CHAHUB_API_URL')
+    CHAHUB_API_KEY = os.environ.get('CHAHUB_API_KEY')
 
 
     # =========================================================================
@@ -603,11 +624,6 @@ class Base(Settings):
         'group_models': True,
     }
 
-    USERSWITCH_OPTIONS = {
-        'auth_backend': 'django.contrib.auth.backends.ModelBackend',
-        'css_inline': 'position:fixed !important; bottom: 10px !important; left: 10px !important; opacity:0.50; z-index: 9999;',
-    }
-
     @classmethod
     def pre_setup(cls):
         if hasattr(cls,'OPTIONAL_APPS'):
@@ -643,11 +659,6 @@ class DevBase(Base):
         EXTRA_MIDDLEWARE_CLASSES = (
             'debug_toolbar.middleware.DebugToolbarMiddleware',
         )
-
-        if os.environ.get('USER_SWITCH_MIDDLEWARE', False):
-            EXTRA_MIDDLEWARE_CLASSES += (
-                'userswitch.middleware.UserSwitchMiddleware',
-            )
 
         DEBUG_TOOLBAR_CONFIG = {
             'SHOW_TEMPLATE_CONTEXT': True,
