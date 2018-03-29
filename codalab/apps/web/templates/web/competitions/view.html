@@ -3,6 +3,7 @@
 {% load staticfiles %}
 {% load codalab_tags %}
 {% load tz %}
+{% load humanize %}
 {% block head_title %}Competition{% endblock %}
 {% block page_title %}Competition{% endblock page_title %}
 
@@ -56,7 +57,12 @@
 
 
             {% endif %}
-            <div class="organizer">Organized by {{ competition.creator }} - Current server time: {{ current_server_time|utc }} UTC</div>
+            <div class="organizer">
+                Organized by {{ competition.creator }} - Current server time: {{ current_server_time|utc }} UTC<br>
+                {% if competition.reward and competition.reward > 0 %}
+                     Reward <b>${{ competition.reward|intcomma }}</b>
+                {% endif %}
+            </div>
             <input type="hidden" id="competitionId" value="{{competition.id}}" />
             <input type="hidden" id="cstoken" value="{{csrf_token}}" />
             <div class="phase-container">
