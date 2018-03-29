@@ -1,32 +1,34 @@
+import StringIO
 import csv
 import datetime
 import exceptions
 import io
 import json
 import logging
+import math
 import operator
 import os
-import StringIO
 import re
 import urllib
 import uuid
-from urllib import pathname2url
-
-import yaml
 import zipfile
-import math
-
+from decimal import Decimal
 from os.path import split
 
-from decimal import Decimal
+import lxml.html
+import yaml
+from apps.authenz.models import ClUser
+from apps.chahub.models import ChaHubSaveMixin
+from apps.coopetitions.models import DownloadRecord
+from apps.forums.models import Forum
+from apps.teams.models import Team, get_user_team, TeamMembership
+from apps.web.utils import PublicStorage, BundleStorage, clean_html_script
 from django.conf import settings
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
-from django.core.cache import cache
 from django.core.exceptions import PermissionDenied
 from django.core.files import File
 from django.core.files.base import ContentFile
-from django.core.files.storage import get_storage_class
 from django.core.urlresolvers import reverse
 from django.db import IntegrityError
 from django.db import models
@@ -34,25 +36,13 @@ from django.db import transaction
 from django.db.models import Max
 from django.db.models.signals import post_save
 from django.utils.dateparse import parse_datetime
-from django.utils.timezone import now
-
-from mptt.models import MPTTModel, TreeForeignKey
-
-from pytz import utc
-from guardian.shortcuts import assign_perm
-from django_extensions.db.fields import UUIDField
 from django.utils.functional import cached_property
+from django.utils.timezone import now
+from django_extensions.db.fields import UUIDField
+from guardian.shortcuts import assign_perm
+from mptt.models import MPTTModel, TreeForeignKey
+from pytz import utc
 from s3direct.fields import S3DirectField
-
-from apps.chahub.models import ChaHubSaveMixin
-from apps.forums.models import Forum
-from apps.coopetitions.models import DownloadRecord
-from apps.authenz.models import ClUser
-from apps.web.exceptions import ScoringException
-from apps.web.utils import PublicStorage, BundleStorage, clean_html_script
-from apps.teams.models import Team, get_user_team, TeamMembershipStatus, TeamMembership
-
-import lxml.html
 
 User = settings.AUTH_USER_MODEL
 logger = logging.getLogger(__name__)
