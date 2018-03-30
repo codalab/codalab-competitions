@@ -93,7 +93,7 @@ class Base(Settings):
     # Language code for this installation. All choices can be found here:
     # http://www.i18nguy.com/unicode/language-identifiers.html
     LANGUAGE_CODE = 'zh_CN'
-
+    DEBUG_TOOLBAR_PATCH_SETTINGS = False 
    # LANGUAGES = (
   #      ('en',('English')),
   #      ('zh-cn',('简体中文')),
@@ -163,7 +163,7 @@ class Base(Settings):
     )
 
     MIDDLEWARE_CLASSES = (
-        "django_switchuser.middleware.SuStateMiddleware",
+        'django_switchuser.middleware.SuStateMiddleware',
         'apps.web.middleware.SingleCompetitionMiddleware',
         'django.middleware.common.CommonMiddleware',
         'django.contrib.sessions.middleware.SessionMiddleware',
