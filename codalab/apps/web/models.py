@@ -1422,9 +1422,10 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
                 else:
                     print "Submission number below maximum."
 
-                if self.phase.competition.end_date and datetime.date.today() > self.phase.competition.end_date.date():
-                    print "Submission is past competition end."
-                    raise PermissionDenied("The competition has ended. No more submissions are allowed.")
+                if self.phase.competition.end_date and not self.phase.phase_never_ends:
+                    if now().date() > self.phase.competition.end_date.date():
+                        print "Submission is past competition end."
+                        raise PermissionDenied("The competition has ended. No more submissions are allowed.")
 
                 if hasattr(self.phase, 'max_submissions_per_day'):
                     print 'Checking submissions per day count'
