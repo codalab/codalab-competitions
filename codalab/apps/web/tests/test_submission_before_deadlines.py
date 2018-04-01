@@ -1,20 +1,15 @@
 import datetime
 
-import pytest
 from django.core.exceptions import PermissionDenied
-from django.core.urlresolvers import reverse
 from django.test import TestCase, Client
 from django.contrib.auth import get_user_model
-from django.utils import timezone
 
 from apps.web.models import (Competition,
                              CompetitionParticipant,
                              ParticipantStatus,
                              CompetitionSubmission,
                              CompetitionPhase,
-                             CompetitionSubmissionStatus,
-                             PhaseLeaderBoardEntry,
-                             PhaseLeaderBoard)
+                             CompetitionSubmissionStatus)
 
 User = get_user_model()
 

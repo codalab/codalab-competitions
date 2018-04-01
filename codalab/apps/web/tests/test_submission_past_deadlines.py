@@ -2,10 +2,8 @@ import datetime
 
 import pytest
 from django.core.exceptions import PermissionDenied
-from django.core.urlresolvers import reverse
 from django.test import TestCase, Client
 from django.contrib.auth import get_user_model
-from django.utils import timezone
 
 from apps.web.models import (Competition,
                              CompetitionParticipant,
@@ -71,15 +69,10 @@ class CompetitionTestDeadlines(TestCase):
         self.client.login(username="participant", password="pass")
         submission_finished = CompetitionSubmissionStatus.objects.create(name="finished", codename="finished")
 
-        with pytest.raises(PermissionDenied) as exc_info:
+        with pytest.raises(PermissionDenied):
             self.submission_1 = CompetitionSubmission.objects.create(
                 participant=self.participant_1,
                 phase=self.phase_1,
                 status=submission_finished,
                 submitted_at=datetime.datetime.now()
             )
-
-        exception_raised = exc_info.value
-
-        if not exception_raised:
-            assert False, "Submissions should be allowed past competition end if phase never ends"
