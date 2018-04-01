@@ -10,6 +10,8 @@ import StringIO
 import re
 import urllib
 import uuid
+from urllib import pathname2url
+
 import yaml
 import zipfile
 import math
@@ -18,7 +20,9 @@ from os.path import split
 
 from decimal import Decimal
 from django.conf import settings
-from django.contrib.contenttypes import generic
+# from django.contrib.contenttypes import generic
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.contenttypes.models import ContentType
 
 from django.core.cache import cache
@@ -39,16 +43,19 @@ from mptt.models import MPTTModel, TreeForeignKey
 
 from pytz import utc
 from guardian.shortcuts import assign_perm
-from django_extensions.db.fields import UUIDField
 from django.utils.functional import cached_property
 from s3direct.fields import S3DirectField
 
+from apps.chahub.models import ChaHubSaveMixin
 from apps.forums.models import Forum
 from apps.coopetitions.models import DownloadRecord
 from apps.authenz.models import ClUser
 from apps.web.exceptions import ScoringException
 from apps.web.utils import PublicStorage, BundleStorage, clean_html_script
 from apps.teams.models import Team, get_user_team, TeamMembershipStatus, TeamMembership
+
+import lxml.html
+import uuid
 
 User = settings.AUTH_USER_MODEL
 logger = logging.getLogger(__name__)
@@ -127,7 +134,7 @@ class PageContainer(models.Model):
     name = models.CharField(max_length=200, blank=True)
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField(db_index=True)
-    owner = generic.GenericForeignKey('content_type', 'object_id')
+    owner = GenericForeignKey('content_type', 'object_id')
 
     class Meta:
         unique_together = (('object_id', 'content_type'),)
@@ -215,7 +222,7 @@ def _uuidify(directory):
     # return wrapped_uuidify
 
 
-class Competition(models.Model):
+class Competition(ChaHubSaveMixin, models.Model):
     """ Model representing a competition. """
     # compute_worker_vhost = models.CharField(max_length=128, null=True, blank=True, help_text="(don't edit unless you're instructed to, will break submissions -- only admins can see this!)")
     queue = models.ForeignKey(
@@ -237,14 +244,14 @@ class Competition(models.Model):
     admins = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='competition_admins', blank=True, null=True)
     modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='competitioninfo_modified_by')
     last_modified = models.DateTimeField(auto_now_add=True)
-    pagecontainers = generic.GenericRelation(PageContainer)
+    pagecontainers = GenericRelation(PageContainer)
     published = models.BooleanField(default=False, verbose_name="Publicly Available")
     # Let's assume the first phase never needs "migration"
     last_phase_migration = models.PositiveIntegerField(default=1)
     is_migrating = models.BooleanField(default=False)
     force_submission_to_leaderboard = models.BooleanField(default=False)
     disallow_leaderboard_modifying = models.BooleanField(default=False)
-    secret_key = UUIDField(version=4)
+    secret_key = models.UUIDField()
     enable_medical_image_viewer = models.BooleanField(default=False)
     enable_detailed_results = models.BooleanField(default=False)
     original_yaml_file = models.TextField(default='', blank=True, null=True)
@@ -259,8 +266,17 @@ class Competition(models.Model):
     enable_teams = models.BooleanField(default=False, verbose_name="Enable Competition level teams")
     require_team_approval = models.BooleanField(default=True, verbose_name="Organizers need to approve the new teams")
     teams = models.ManyToManyField(Team, related_name='competition_teams', blank=True, null=True)
+    hide_top_three = models.BooleanField(default=False, verbose_name="Hide Top Three Leaderboard")
+    hide_chart = models.BooleanField(default=False, verbose_name="Hide Chart")
 
     competition_docker_image = models.CharField(max_length=128, default='', blank=True)
+
+    class Meta:
+        permissions = (
+            ('is_owner', 'Owner'),
+            ('can_edit', 'Edit'),
+            )
+        ordering = ['end_date']
 
     @property
     def pagecontent(self):
@@ -270,22 +286,75 @@ class Competition(models.Model):
     def get_absolute_url(self):
         return reverse('competitions:view', kwargs={'pk':self.pk})
 
-    class Meta:
-        permissions = (
-            ('is_owner', 'Owner'),
-            ('can_edit', 'Edit'),
-            )
-        ordering = ['end_date']
-
     def __unicode__(self):
         return self.title
+
+    def get_chahub_is_valid(self):
+        return self.published
 
     def set_owner(self, user):
         return assign_perm('view_task', user, self)
 
+    def get_chahub_endpoint(self):
+        return "competitions/"
+
+    def get_chahub_data(self):
+        phase_data = []
+        phases = list(self.phases.all().order_by('start_date'))
+        phase_list_length = len(phases)
+        for index, phase in enumerate(phases):
+            if phase_list_length > index + 1:
+                # Grab next phase start_date - 1 minute
+                phase_end_date = phases[index + 1].start_date - datetime.timedelta(minutes=1)
+                phase_end_date = phase_end_date.isoformat()
+            else:
+                phase_end_date = None
+                if self.end_date:
+                    phase_end_date = self.end_date.isoformat()
+
+            phase_data.append({
+                "start": phase.start_date.isoformat() if phase.start_date else None,
+                "end": phase_end_date,
+                "index": phase.phasenumber,
+                "name": phase.label,
+                "description": phase.description,
+            })
+
+        http_or_https = "https" if settings.SSL_CERTIFICATE else "http"
+
+        html_text = ""
+        for page in self.pages.all():
+            if page.html:
+                document = lxml.html.document_fromstring(page.html)
+                html_text += document.text_content()
+
+        active = CompetitionSubmission.objects.filter(
+            phase=self.phases.all(),
+            submitted_at__gt=now() - datetime.timedelta(days=30)
+        ).exists()
+
+        return {
+            "remote_id": self.id,
+            "title": self.title,
+            "created_by": str(self.creator),
+            "start": self.start_date.isoformat() if self.start_date else None,
+            "logo": self.image_url.replace(" ", "%20") if self.image_url else None,
+            "url": "{}://{}{}".format(http_or_https, settings.CODALAB_SITE_DOMAIN, self.get_absolute_url()),
+            "phases": phase_data,
+            "participant_count": self.get_participant_count,
+            "end": self.end_date.isoformat() if self.end_date else None,
+            "description": self.description,
+            "html_text": html_text,
+            "active": active,
+            "prize": self.reward,
+        }
+
     def save(self, *args, **kwargs):
         # Make sure the image_url_base is set from the actual storage implementation
         self.image_url_base = self.image.storage.url('')
+
+        if self.description:
+            self.description = clean_html_script(self.description)
 
         phases = self.phases.all().order_by('start_date')
         if len(phases) > 0:
@@ -309,6 +378,15 @@ class Competition(models.Model):
             # Save sets the start date, so let's set it!
             self.save()
         return self.start_date
+
+    @property
+    def show_top_three(self):
+        current_phase = get_current_phase(self)
+        return not (self.hide_top_three or current_phase.is_blind)
+
+    @property
+    def show_chart(self):
+        return not self.hide_chart
 
     @property
     def is_active(self):
@@ -513,49 +591,6 @@ class Competition(models.Model):
     @cached_property
     def get_participant_count(self):
         return self.participants.all().count()
-
-    def get_top_three(self):
-        """
-        Returns top three in leaderboard.
-        """
-        current_phase = None
-        next_phase = None
-        phases = self.phases.all()
-        if len(phases) == 0:
-            return
-        last_phase = phases.reverse()[0]
-        for index, phase in enumerate(phases):
-            # Checking for active phase
-            if phase.is_active:
-                current_phase = phase
-                # Checking if active phase is less than last phase
-                if current_phase.phasenumber < last_phase.phasenumber:
-                    # Getting next phase
-                    next_phase = phases[index + 1]
-                break
-        if current_phase and current_phase is not None:
-            local_scores = current_phase.scores()
-            main_score_def = None
-            formatted_score_list = list()
-            for score_dict in local_scores:
-                # Grab score def list
-                header_list = score_dict['headers']
-                # This is in order, so grab the lowest score def.
-                main_score_def = header_list[0]
-                # Grab our list of scores
-                score_list = score_dict['scores']
-                for score in score_list:
-                    # Unpack the tuple, x is an integer index it seems.
-                    (x, score_dict) = score
-                    if score_dict['values']:
-                        for score_value in score_dict['values']:
-                            if score_value['name'] == main_score_def['key']:
-                                temp_dict = {
-                                    'username': score_dict['username'],
-                                    'score': score_value['val']
-                                }
-                                formatted_score_list.append(temp_dict)
-            return formatted_score_list[0:3]  # Return only our top 3, with the data we want.
 
 post_save.connect(Forum.competition_post_save, sender=Competition)
 
@@ -780,7 +815,7 @@ class CompetitionPhase(models.Model):
         ('purple', 'Purple'),
     )
 
-    competition = models.ForeignKey(Competition,related_name='phases')
+    competition = models.ForeignKey(Competition, related_name='phases')
     description = models.CharField(max_length=1000, null=True, blank=True)
     # Is this 0 based or 1 based?
     phasenumber = models.PositiveIntegerField(verbose_name="Number")
@@ -1140,18 +1175,24 @@ class CompetitionPhase(models.Model):
                     if sdef.computed:
                         operation = getattr(models, sdef.computed_score.operation)
                         if (operation.name == 'Avg'):
-                            cnt = len(computed_deps[sdef.id])
-                            if (cnt > 0):
-                                computed_values = {}
-                                for id in submission_ids:
-                                    computed_values[id] = sum([ranks[d.id][id] for d in computed_deps[sdef.id]]) / float(cnt)
-                                values[sdef.id] = computed_values
-                                ranks[sdef.id] = self.rank_values(submission_ids, computed_values, sort_ascending=sdef.sorting=='asc')
+                            try:
+                                cnt = len(computed_deps[sdef.id])
+                                if (cnt > 0):
+                                    computed_values = {}
+                                    for id in submission_ids:
+                                        try:
+                                            computed_values[id] = sum([ranks[d.id][id] for d in computed_deps[sdef.id]]) / float(cnt)
+                                        except KeyError:
+                                            pass
+
+                                    values[sdef.id] = computed_values
+                                    ranks[sdef.id] = self.rank_values(submission_ids, computed_values, sort_ascending=sdef.sorting=='asc')
+                            except KeyError:
+                                pass
 
             # format values
             for result in results:
                 try:
-
                     scores = result['scores']
                     for sdef in result['scoredefs']:
                         knownValues = {}
@@ -1242,7 +1283,7 @@ class CompetitionSubmissionStatus(models.Model):
 
 
 # Competition Submission
-class CompetitionSubmission(models.Model):
+class CompetitionSubmission(ChaHubSaveMixin, models.Model):
     """Represents a submission from a competition participant."""
     participant = models.ForeignKey(CompetitionParticipant, related_name='submissions')
     phase = models.ForeignKey(CompetitionPhase, related_name='submissions')
@@ -1323,6 +1364,21 @@ class CompetitionSubmission(models.Model):
         '''Generated from the result scoring step of evaluation a submission'''
         return self.metadatas.get(is_scoring=True)
 
+    def get_chahub_is_valid(self):
+        return self.phase.competition.published
+
+    def get_chahub_endpoint(self):
+        return "submissions/"
+
+    def get_chahub_data(self):
+        return {
+            "remote_id": self.id,
+            "competition": self.phase.competition_id,
+            "phase_index": self.phase.phasenumber,
+            "participant": self.participant.user.username,
+            "submitted_at": self.submitted_at.isoformat(),
+        }
+
     def save(self, ignore_submission_limits=False, *args, **kwargs):
         print "Saving competition submission."
         if self.participant.competition != self.phase.competition:
@@ -1365,27 +1421,35 @@ class CompetitionSubmission(models.Model):
 
                 failed_count = CompetitionSubmission.objects.filter(phase=self.phase,
                                                                     participant=self.participant,
-                                                                    status__name=CompetitionSubmissionStatus.FAILED).count()
+                                                                    status__codename=CompetitionSubmissionStatus.FAILED).count()
 
-                print "This is submission number %d, and %d submissions have failed" % (self.submission_number, failed_count)
-                offset_submission_count = self.submission_number - failed_count
+                all_count = CompetitionSubmission.objects.filter(phase=self.phase, participant=self.participant).count()
 
-                if (offset_submission_count > self.phase.max_submissions):
-                    print "Checking to see if the offset_submission_count (%d) is greater than the maximum allowed (%d)" % (offset_submission_count, self.phase.max_submissions)
+                print "This is submission number %d, and %d submissions have failed" % (all_count, failed_count)
+
+                submission_count = CompetitionSubmission.objects.filter(phase=self.phase,
+                                                                               participant=self.participant).exclude(
+                    status__codename=CompetitionSubmissionStatus.FAILED).count()
+
+                if (submission_count >= self.phase.max_submissions):
+                    print "Checking to see if the submission_count (%d) is greater than the maximum allowed (%d)" % (submission_count, self.phase.max_submissions)
                     raise PermissionDenied("The maximum number of submissions has been reached.")
                 else:
                     print "Submission number below maximum."
 
+                if self.phase.competition.end_date and datetime.date.today() > self.phase.competition.end_date.date():
+                    print "Submission is past competition end."
+                    raise PermissionDenied("The competition has ended. No more submissions are allowed.")
+
                 if hasattr(self.phase, 'max_submissions_per_day'):
                     print 'Checking submissions per day count'
 
-                    submissions_from_today_count = len(CompetitionSubmission.objects.filter(
-                        phase__competition=self.phase.competition,
+                    # All submissions from today without those that failed
+                    submissions_from_today_count = CompetitionSubmission.objects.filter(
                         participant=self.participant,
                         phase=self.phase,
                         submitted_at__gte=datetime.date.today(),
-                        status__codename=CompetitionSubmissionStatus.FINISHED,
-                    ))
+                    ).exclude(status__codename=CompetitionSubmissionStatus.FAILED).count()
 
                     print 'Count is %s and maximum is %s' % (submissions_from_today_count, self.phase.max_submissions_per_day)
 
@@ -1425,13 +1489,16 @@ class CompetitionSubmission(models.Model):
             self.save()
         return self.readable_filename
 
-    def get_file_for_download(self, key, requested_by):
+    def get_file_for_download(self, key, requested_by, override_permissions=False):
         """
         Returns the FileField object for the file that is to be downloaded by the given user.
 
         :param key: A name identifying the file to download.
 
         :param requested_by: A user object identifying the user making the request to access the file.
+
+        :param override_permissions: Overrides basic permissions (unless private output) useful for certain situations,
+        like detailed_results
 
            - ValueError exception for improper arguments.
            - PermissionDenied exception when access to the file cannot be granted.
@@ -1459,17 +1526,21 @@ class CompetitionSubmission(models.Model):
         file_attr, file_ext, file_has_restricted_access = downloadable_files[key]
 
         competition = self.phase.competition
-        if competition.creator == requested_by or requested_by in competition.admins.all():
-            pass
-        elif not self.is_public:
-            # If the user requesting access is the owner, access granted
-            if self.participant.competition.creator.id != requested_by.id:
-                # User making request must be owner of this submission and be granted
-                # download privilege by the competition owners.
-                if self.participant.user.id != requested_by.id:
-                    raise PermissionDenied()
-                if file_has_restricted_access and self.phase.is_blind:
-                    raise PermissionDenied()
+
+        if not override_permissions:
+            if competition.creator == requested_by or requested_by in competition.admins.all():
+                pass
+
+            elif not self.is_public:
+                # If the user requesting access is the owner, access granted
+                if self.participant.competition.creator.id != requested_by.id:
+                    # User making request must be owner of this submission and be granted
+                    # download privilege by the competition owners.
+                    if self.participant.user.id != requested_by.id:
+                        raise PermissionDenied()
+                    if file_has_restricted_access and self.phase.is_blind:
+                        raise PermissionDenied()
+
 
         if key == 'private_output.zip':
             if self.participant.competition.creator.id != requested_by.id:
@@ -1656,7 +1727,7 @@ class CompetitionDefBundle(models.Model):
 
         if admin_names:
             logger.debug("CompetitionDefBundle::unpack looking up admins %s", comp_spec['admin_names'])
-            admins = ClUser.objects.filter(username__in=admin_names.split(','))
+            admins = ClUser.objects.filter(username__in=[name.strip() for name in admin_names.split(',')])
             logger.debug("CompetitionDefBundle::unpack found admins %s", admins)
             comp.admins.add(*admins)
 
@@ -1837,6 +1908,9 @@ class CompetitionDefBundle(models.Model):
                         phase.reference_data_organizer_dataset = data_set
                     except OrganizerDataSet.DoesNotExist:
                         assert False, "Invalid file-type or could not find file {} for reference_data".format(phase_spec['reference_data'])
+            else:
+                raise OrganizerDataSet.DoesNotExist("No reference data was supplied with the competition bundle!")
+                logger.info("No reference data found. Halting.")
 
             if hasattr(phase, 'ingestion_program') and phase.ingestion_program:
                 if phase_spec["ingestion_program"].endswith(".zip"):
@@ -2209,7 +2283,7 @@ class OrganizerDataSet(models.Model):
     )
     sub_data_files = models.ManyToManyField('OrganizerDataSet', null=True, blank=True, verbose_name="Bundle of data files")
     uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL)
-    key = UUIDField(version=4)
+    key = models.UUIDField()
 
     def save(self, **kwargs):
         if self.key is None or self.key == '':
@@ -2218,7 +2292,11 @@ class OrganizerDataSet(models.Model):
         super(OrganizerDataSet, self).save(**kwargs)
 
     def __unicode__(self):
-        return self.full_name
+        if self.full_name:
+            return self.full_name
+        else:
+            self.save()  # to get full_name
+            return self.full_name
 
     def write_multidataset_metadata(self, datasets=None):
         # Write sub bundle metadata, replaces old data_file!
@@ -2313,14 +2391,57 @@ def add_submission_to_leaderboard(submission):
 
 
 def get_current_phase(competition):
-    all_phases = competition.phases.all()
+    all_phases = competition.phases.all().order_by('start_date')
     phase_iterator = iter(all_phases)
     active_phase = None
     for phase in phase_iterator:
+        # Get an active phase that isn't also never-ending, unless we don't have any active_phases
         if phase.is_active:
-            active_phase = phase
-            break
+            if active_phase is None:
+                active_phase = phase
+            elif not phase.phase_never_ends:
+                active_phase = phase
+                break
     return active_phase
+
+
+def get_first_previous_active_and_next_phases(competition):
+    first_phase = None
+    previous_phase = None
+    active_phase = None
+    next_phase = None
+
+    all_phases = competition.phases.all().order_by('start_date')
+    phase_iterator = iter(all_phases)
+    trailing_phase_holder = None
+
+    for phase in phase_iterator:
+        if not first_phase:
+            first_phase = phase
+
+        # Get an active phase that isn't also never-ending, unless we don't have any active_phases
+        if phase.is_active:
+            previous_phase = trailing_phase_holder
+            if active_phase is None:
+                active_phase = phase
+            elif not phase.phase_never_ends:
+                active_phase = phase
+
+            try:
+                next_phase = next(phase_iterator)
+            except StopIteration:
+                pass
+
+            if not active_phase.phase_never_ends:
+                # The phase has a definite ending, so we can stop here using this
+                # as the active phase and next (if applicable) is already grabbed
+                # from the iterator
+                break
+
+        # Hold this to store "previous phase"
+        trailing_phase_holder = phase
+
+    return first_phase, previous_phase, active_phase, next_phase
 
 
 class CompetitionDump(models.Model):

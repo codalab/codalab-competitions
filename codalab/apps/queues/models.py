@@ -2,16 +2,17 @@ from urlparse import urlparse
 
 from django.conf import settings
 from django.db import models
-from django_extensions.db.fields import UUIDField
 from pyrabbit.http import HTTPError
 from django.contrib.sites.models import Site
+
+import uuid
 
 from apps.queues import rabbit
 
 
 class Queue(models.Model):
     name = models.CharField(max_length=64)
-    vhost = UUIDField(unique=True)
+    vhost = models.UUIDField(unique=True)
     is_public = models.BooleanField(default=False)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL)
     organizers = models.ManyToManyField(

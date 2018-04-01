@@ -25,25 +25,25 @@
                                     <li><a href="/my/competition/submission/_/input.zip">Download your submission</a></li>
                                     {% if phase.is_blind %}
                                         <li><a href="/my/competition/submission/_/stderr.txt" target="_blank" class="hide">View standard error log</a></li>
-                                    {% else %}
+                                    {% endif %}
+                                    {% if is_admin_or_owner or not phase.is_blind %}
                                         <li><a href="/my/competition/submission/_/stdout.txt" target="_blank">View scoring output log</a></li>
                                         <li><a href="/my/competition/submission/_/stderr.txt" target="_blank">View scoring error log</a></li>
                                         {% if not phase.is_scoring_only %}
                                             <li><a href="/my/competition/submission/_/predict_stdout.txt" target="_blank">View predict output log</a></li>
                                             <li><a href="/my/competition/submission/_/predict_stderr.txt" target="_blank">View predict error log</a></li>
-                                            <li><a href="/my/competition/submission/_/prediction-output.zip">Download evaluation output from prediction step</a></li>
+                                            <li><a href="/my/competition/submission/_/prediction-output.zip">Download output from prediction step</a></li>
+                                            {% if phase.ingestion_program %}
+                                                <li><a href="/my/competition/submission/_/ingestion_program_stdout_file.txt" target="_blank">View ingestion output log</a></li>
+                                                <li><a href="/my/competition/submission/_/ingestion_program_stderr_file.txt" target="_blank">View ingestion error log</a></li>
+                                            {% endif %}
                                         {% endif %}
                                         {% if phase.competition.enable_detailed_results %}
                                             <li><a href="/my/competition/submission/_/detailed_results" target="_blank">View detailed results</a></li>
                                         {% endif %}
-                                            <li><a href="/my/competition/submission/_/output.zip">Download evaluation output from scoring step</a></li>
-                                        {% if user.id == phase.competition.creator.id %}
+                                            <li><a href="/my/competition/submission/_/output.zip">Download output from scoring step</a></li>
+                                        {% if is_admin_or_owner %}
                                             <li><a href="/my/competition/submission/_/private_output.zip">Download private output from scoring step</a></li>
-
-                                            {% if not phase.is_scoring_only and phase.ingestion_program %}
-                                                <li><a href="/my/competition/submission/_/ingestion_program_stdout_file.txt" target="_blank">View ingestion output log</a></li>
-                                                <li><a href="/my/competition/submission/_/ingestion_program_stderr_file.txt" target="_blank">View ingestion error log</a></li>
-                                            {% endif %}
                                         {% endif %}
                                     {% endif %}
                                 </ul>

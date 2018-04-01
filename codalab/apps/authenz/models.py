@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth import models as auth_models
-from django_extensions.db.fields import UUIDField
-
+import uuid
 
 class ClUser(auth_models.AbstractUser):
     """

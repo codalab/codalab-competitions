@@ -1,5 +1,4 @@
 from django.conf import settings
-from django.contrib.sites.models import Site
 from django.core.mail import EmailMultiAlternatives
 from django.template import Context
 from django.template.loader import render_to_string
@@ -18,6 +17,7 @@ def send_mail(context_data=None, from_email=None, html_file=None, text_file=None
     """
     from_email = from_email if from_email else settings.DEFAULT_FROM_EMAIL
 
+    from django.contrib.sites.models import Site
     context_data["site"] = Site.objects.get_current()
 
     context = Context(context_data)
@@ -26,4 +26,4 @@ def send_mail(context_data=None, from_email=None, html_file=None, text_file=None
 
     message = EmailMultiAlternatives(subject, text, from_email, [to_email])
     message.attach_alternative(html, 'text/html')
-    message.send()
+    message.send(fail_silently=False)

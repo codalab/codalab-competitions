@@ -33,6 +33,8 @@ from django.db.models import Count
 from django.template import Context
 from django.template.loader import render_to_string
 from django.contrib.sites.models import Site
+
+from apps.chahub.models import ChaHubSaveMixin
 from apps.jobs.models import (Job,
                               run_job_task,
                               JobTaskResult,
@@ -62,6 +64,7 @@ from apps.coopetitions.models import DownloadRecord
 
 import time
 # import cProfile
+from apps.web.utils import inheritors
 from codalab.azure_storage import make_blob_sas_url
 
 from apps.web import models
@@ -268,6 +271,10 @@ def _prepare_compute_worker_run(job_id, submission, is_prediction):
     time_limit = submission.phase.execution_time_limit
     if time_limit <= 0:
         time_limit = 60 * 10  # 10 minutes timeout by default
+
+    # Let's make our soft time limit (for the task) a bit longer than it needs to be, so the worker has time to
+    # clean up
+    time_limit += 60 * 5  # 5 minutes cleanup time
 
     if submission.phase.competition.queue:
         submission.queue_name = submission.phase.competition.queue.name or ''
@@ -812,6 +819,20 @@ def send_mass_email(competition_pk, body=None, subject=None, from_email=None, to
 
 
 @task(queue='site-worker')
+def do_chahub_retries():
+    if not settings.CHAHUB_API_URL:
+        return
+
+    logger.info("Checking for objects needing to be re-sent to ChaHub")
+    chahub_models = inheritors(ChaHubSaveMixin)
+    for model in chahub_models:
+        needs_retry = model.objects.filter(chahub_needs_retry=True)
+        for instance in needs_retry:
+            # Saving forces chahub update
+            instance.save()
+
+
+@task(queue='site-worker')
 def do_phase_migrations():
     competitions = Competition.objects.filter(is_migrating=False)
     logger.info("Checking {} competitions for phase migrations.".format(len(competitions)))
@@ -868,8 +889,8 @@ def make_modified_bundle(competition_pk, exclude_datasets_flag):
         logger.info("Creating Competion dump")
         temp_comp_dump = CompetitionDump.objects.create(competition=competition)
         yaml_data = OrderedDict()
-        yaml_data['title'] = competition.title
-        yaml_data['description'] = competition.description.replace("/n", "").replace("\"", "").strip()
+        yaml_data['title'] = competition.title if competition.title else ''
+        yaml_data['description'] = competition.description.replace("/n", "").replace("\"", "").strip() if competition.description else ''
         if competition.competition_docker_image and competition.competition_docker_image != "":
             yaml_data['competition_docker_image'] = competition.competition_docker_image
         if competition.image:
