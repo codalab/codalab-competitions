@@ -38,28 +38,6 @@
                         </div>
                     </div>
                 {% elif field.label == 'Admins' %}
-                    <style>
-                        .select2-container--default .select2-selection--multiple,
-                        .select2-container--default.select2-container--focus .select2-selection--multiple {
-                            border: 1px solid #ccc;
-                            border-radius: 0px;
-                            height: 39px;
-                        }
-                        .select2-search__field {
-                            box-shadow: none !important;
-                            height: 0;
-                        }
-                        .select2-container--default .select2-selection--multiple .select2-selection__rendered {
-                        margin: -5px 0 0 0;
-                        }
-                        .select2-dropdown {
-                        border-radius: 0px;
-                        }
-                        .select2-selection__choice {
-                        margin-top: 10px !important;
-                        }
-                    </style>
-
                     <label for="{{field.id_for_label}}" class="col-sm-3 control-label">
                         {{field.label}}{{form.label_suffix}}
                     </label>

@@ -57,8 +57,6 @@ class CompetitionForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user')
         super(CompetitionForm, self).__init__(*args, **kwargs)
-        # self.fields["admins"].widget.attrs["style"] = "width: 100%;"
-        # self.fields["admins"].queryset = ClUser.objects.none()
 
         # Get public queues and include current queue instance if it's selected
         filters = Q(is_public=True) | Q(owner=user) | Q(organizers__in=[user])
