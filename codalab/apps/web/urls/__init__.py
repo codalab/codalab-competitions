@@ -23,6 +23,7 @@ urlpatterns = patterns('',
     url(r'^coopetitions/', include('apps.coopetitions.urls', namespace="coopetitions")),
     url(r'^queues/', include('apps.queues.urls', namespace="queues")),
     url(r'^customizer/', include('apps.customizer.urls')),
+    url(r'^user_lookup/', views.user_lookup),
 
     # Third party
     url(r'^s3direct/', include('s3direct.urls')),

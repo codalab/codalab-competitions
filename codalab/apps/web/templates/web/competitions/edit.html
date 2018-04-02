@@ -37,6 +37,38 @@
                             {% endif %}
                         </div>
                     </div>
+                {% elif field.label == 'Admins' %}
+                    <style>
+                        .select2-container--default .select2-selection--multiple,
+                        .select2-container--default.select2-container--focus .select2-selection--multiple {
+                            border: 1px solid #ccc;
+                            border-radius: 0px;
+                            height: 39px;
+                        }
+                        .select2-search__field {
+                            box-shadow: none !important;
+                            height: 0;
+                        }
+                        .select2-container--default .select2-selection--multiple .select2-selection__rendered {
+                        margin: -5px 0 0 0;
+                        }
+                        .select2-dropdown {
+                        border-radius: 0px;
+                        }
+                        .select2-selection__choice {
+                        margin-top: 10px !important;
+                        }
+                    </style>
+
+                    <label for="{{field.id_for_label}}" class="col-sm-3 control-label">
+                        {{field.label}}{{form.label_suffix}}
+                    </label>
+                    <div class="col-sm-9">
+                        <div class="field-container">
+                            <select multiple id="id_admins" name="admins"></select>
+                            {{ field.errors }}
+                        </div>
+                    </div>
                 {% else %}
                     <label for="{{field.id_for_label}}" class="col-sm-3 control-label">
                         {{field.label}}{{form.label_suffix}}
@@ -300,7 +332,16 @@
 <script type="text/javascript">
 {% block js %}
 $('document').ready(function () {
-    $("#id_admins").select2();
+    $("#id_admins").select2({
+        width: "100%",
+        dropdownAutoWidth: true,
+        ajax: {
+            url: '/user_lookup/',
+            delay: 250
+        },
+        cache: true,
+        minimumInputLength: 1
+    });
 
     tinyMCE.init({
         theme : "advanced",

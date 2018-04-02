@@ -53,6 +53,7 @@ from apps.web.forms import CompetitionS3UploadForm, SubmissionS3UploadForm
 from apps.web.models import SubmissionScore, SubmissionScoreDef, get_current_phase, \
     get_first_previous_active_and_next_phases
 
+from apps.authenz.models import ClUser
 from tasks import evaluate_submission, re_run_all_submissions_in_phase, create_competition, _make_url_sassy, \
     make_modified_bundle
 from apps.teams.models import TeamMembership, get_user_team, get_competition_teams, get_competition_pending_teams, get_competition_deleted_teams, get_last_team_submissions, get_user_requests, get_team_pending_membership
@@ -1946,3 +1947,32 @@ class CompetitionDumpDeleteView(DeleteView):
     def get_success_url(self):
         dump = self.object
         return reverse('competitions:dumps', kwargs={'competition_pk': dump.competition.pk})
+
+
+@login_required
+def user_lookup(request):
+    search = request.GET.get('term')
+    filters = Q()
+    show_emails = False
+
+    if search:
+        filters |= Q(username__icontains=search)
+    if request.user.is_superuser or request.user.is_staff:
+        show_emails = True
+        filters |= Q(email__icontains=search)
+
+    users = ClUser.objects.filter(filters)[:5]
+
+    # Helper to print username with email for admins
+    def _get_username(user):
+        if show_emails:
+            return "{} ({})".format(user.username, user.email)
+        else:
+            return user.username
+
+    return HttpResponse(
+        json.dumps({"results": [
+            {"id": u.pk, "text": _get_username(u)} for u in users]
+        }),
+        content_type="application/json"
+    )

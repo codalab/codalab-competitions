@@ -17,6 +17,8 @@ from apps.web.models import SubmissionScoreSet
 from apps.web.utils import clean_html_script
 from apps.web.tasks import _make_url_sassy
 
+from apps.authenz.models import ClUser
+
 User = get_user_model()
 
 
@@ -55,7 +57,8 @@ class CompetitionForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user')
         super(CompetitionForm, self).__init__(*args, **kwargs)
-        self.fields["admins"].widget.attrs["style"] = "width: 100%;"
+        # self.fields["admins"].widget.attrs["style"] = "width: 100%;"
+        # self.fields["admins"].queryset = ClUser.objects.none()
 
         # Get public queues and include current queue instance if it's selected
         filters = Q(is_public=True) | Q(owner=user) | Q(organizers__in=[user])
