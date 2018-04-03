@@ -14,6 +14,7 @@ framework.
 
 """
 import os
+from whitenoise.django import DjangoWhiteNoise
 
 # We defer to a DJANGO_SETTINGS_MODULE already in the environment. This breaks
 # if running multiple sites in the same mod_wsgi process. To fix this, use
@@ -36,7 +37,10 @@ if os.path.exists('%s/../newrelic.ini' % newrelic_ini_path):
 # file. This includes Django's development server, if the WSGI_APPLICATION
 # setting points here.
 from configurations.wsgi import get_wsgi_application
+from whitenoise.django import DjangoWhiteNoise
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", 'codalab.settings')
 application = get_wsgi_application()
+application = DjangoWhiteNoise(application)
 
 # Apply WSGI middleware here.
 # from helloworld.wsgi import HelloWorldApplication

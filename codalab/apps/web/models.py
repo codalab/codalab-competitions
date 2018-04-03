@@ -251,7 +251,7 @@ class Competition(ChaHubSaveMixin, models.Model):
     is_migrating = models.BooleanField(default=False)
     force_submission_to_leaderboard = models.BooleanField(default=False)
     disallow_leaderboard_modifying = models.BooleanField(default=False)
-    secret_key = models.UUIDField()
+    secret_key = models.UUIDField(default=uuid.uuid4())
     enable_medical_image_viewer = models.BooleanField(default=False)
     enable_detailed_results = models.BooleanField(default=False)
     original_yaml_file = models.TextField(default='', blank=True, null=True)
@@ -1290,8 +1290,8 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
     secret = models.CharField(max_length=128, default='', blank=True)
     docker_image = models.CharField(max_length=128, default='', blank=True)
     file = models.FileField(storage=BundleStorage, null=True, blank=True)
-    # s3_file = S3DirectField(dest='submissions', null=True, blank=True)
-    s3_file = models.FileField(null=True, blank=True)
+    s3_file = S3DirectField(dest='submissions', null=True, blank=True)
+    # s3_file = models.FileField(null=True, blank=True)
     file_url_base = models.CharField(max_length=2000, blank=True)
     readable_filename = models.TextField(null=True, blank=True)
     description = models.CharField(max_length=256, blank=True)
@@ -1641,10 +1641,10 @@ class SubmissionScoreDef(models.Model):
 
 class CompetitionDefBundle(models.Model):
     """Defines a competition bundle."""
-    # config_bundle = models.FileField(upload_to=_uuidify('competition-bundles'), storage=BundleStorage, null=True, blank=True)
-    config_bundle = models.FileField(storage=BundleStorage, null=True, blank=True)
-    # s3_config_bundle = S3DirectField(dest='competitions', null=True, blank=True)
-    s3_config_bundle = models.FileField(null=True, blank=True)
+    config_bundle = models.FileField(upload_to=_uuidify('competition-bundles'), storage=BundleStorage, null=True, blank=True)
+    # config_bundle = models.FileField(storage=BundleStorage, null=True, blank=True)
+    s3_config_bundle = S3DirectField(dest='competitions', null=True, blank=True)
+    # s3_config_bundle = models.FileField(null=True, blank=True)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='owner')
     created_at = models.DateTimeField(auto_now_add=True)
 

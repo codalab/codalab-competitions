@@ -2,7 +2,6 @@ import csv
 import urllib
 from datetime import datetime, timedelta
 import json
-import math
 import os
 import StringIO
 import sys
@@ -10,8 +9,7 @@ import traceback
 import yaml
 import zipfile
 
-from decimal import Decimal
-from yaml.representer import SafeRepresenter
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from django.db import connection
 from django.conf import settings
@@ -23,23 +21,16 @@ from django.core.exceptions import ImproperlyConfigured
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.core.servers.basehttp import FileWrapper
-from django.core.urlresolvers import reverse, reverse_lazy
+from django.core.urlresolvers import reverse
 from django.db.models import Q, Max, Min, Count
 from django.http import Http404, HttpResponseForbidden
 from django.http import HttpResponse, HttpResponseRedirect
-from django.http import StreamingHttpResponse
 from django.shortcuts import render_to_response, render
-from django.template import RequestContext, loader
-from django.utils.decorators import method_decorator
-from django.utils.html import strip_tags
+from django.template import RequestContext
 from django.views.generic import FormView
 from django.views.generic import View, TemplateView, DetailView, ListView, UpdateView, CreateView, DeleteView
 from django.utils.html import strip_tags
 from django.utils import timezone
-
-
-from mimetypes import MimeTypes
 
 from apps.jobs.models import Job
 from apps.web import forms
@@ -51,7 +42,8 @@ from apps.common.competition_utils import get_most_popular_competitions, get_fea
 from apps.web.exceptions import ScoringException
 # from apps.web.forms import CompetitionS3UploadForm, SubmissionS3UploadForm, CompetitionGCSUploadForm
 # from apps.web.models import SubmissionScore, SubmissionScoreDef, get_current_phase, CompetitionDefBundle
-from apps.web.forms import CompetitionS3UploadForm, SubmissionS3UploadForm, CompetitionGCSUploadForm
+from apps.web.forms import CompetitionS3UploadForm, SubmissionS3UploadForm, CompetitionGCSUploadForm, \
+    OrganizerDataSetModelForm
 from apps.web.models import SubmissionScore, SubmissionScoreDef, get_current_phase, \
     get_first_previous_active_and_next_phases, CompetitionDefBundle
 
@@ -136,10 +128,10 @@ class HomePageView(TemplateView):
         return context
 
 
-class LoginRequiredMixin(object):
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super(LoginRequiredMixin, self).dispatch(*args, **kwargs)
+# class LoginRequiredMixin(object):
+#     @method_decorator(login_required)
+#     def dispatch(self, *args, **kwargs):
+#         return super(LoginRequiredMixin, self).dispatch(*args, **kwargs)
 
 
 class UserSettingsView(LoginRequiredMixin, UpdateView):
@@ -199,7 +191,6 @@ def my_index(request):
 
         - User needs to be authenticated.
     """
-    template = loader.get_template("web/my/index.html")
     try:
         denied = models.ParticipantStatus.objects.get(codename=models.ParticipantStatus.DENIED)
     except:
@@ -215,7 +206,8 @@ def my_index(request):
         'competitions_im_in': list(request.user.participation.all().exclude(status=denied)),
         'published_competitions': published_competitions,
     }
-    return HttpResponse(template.render(RequestContext(request, context_dict)))
+    # return HttpResponse(template.render(RequestContext(request, context_dict)))
+    return render(request, 'web/my/index.html', context_dict)
 
 
 def sort_data_table(request, context, list):
@@ -271,7 +263,7 @@ class CompetitionS3Upload(LoginRequiredMixin, FormView):
 
 class CompetitionGCSUpload(LoginRequiredMixin, CreateView):
     form_class = CompetitionGCSUploadForm
-    template_name = 'web/competitions/upload_gcs_competition.html'
+    template_name = 'web/competitions/upload_competition.html'
 
     def form_valid(self, form):
         print("Doing bullshit here.")
@@ -1441,7 +1433,7 @@ class OrganizerDataSetFormMixin(LoginRequiredMixin):
         kwargs['user'] = self.request.user
         return kwargs
 
-    def get_form(self, form_class):
+    def get_form(self, form_class=None):
         form = super(OrganizerDataSetFormMixin, self).get_form(form_class)
         form.fields["sub_data_files"].queryset = models.OrganizerDataSet.objects.filter(
             uploaded_by=self.request.user,
@@ -1455,7 +1447,7 @@ class OrganizerDataSetFormMixin(LoginRequiredMixin):
 
 class OrganizerDataSetCreate(OrganizerDataSetFormMixin, CreateView):
     model = models.OrganizerDataSet
-    form_class = forms.OrganizerDataSetModelForm
+    form_class = OrganizerDataSetModelForm
     template_name = "web/my/datasets_form.html"
 
     def get_form_kwargs(self, **kwargs):
@@ -1548,7 +1540,7 @@ def download_dataset(request, dataset_key):
 
             zip_file.close()
 
-            resp = HttpResponse(zip_buffer.getvalue(), mimetype = "application/x-zip-compressed")
+            resp = HttpResponse(zip_buffer.getvalue(), content_type="application/x-zip-compressed")
             resp['Content-Disposition'] = 'attachment; filename=%s.zip' % dataset.name
             return resp
         else:
@@ -1673,7 +1665,7 @@ def download_competition_bundle(request, competition_pk):
 
         zip_file.close()
 
-        resp = HttpResponse(zip_buffer.getvalue(), mimetype = "application/x-zip-compressed")
+        resp = HttpResponse(zip_buffer.getvalue(), content_type="application/x-zip-compressed")
         resp['Content-Disposition'] = 'attachment; filename=%s-%s.zip' % (competition.title, competition.pk)
         return resp
     except:
@@ -1764,7 +1756,7 @@ def download_leaderboard_results(request, competition_pk, phase_pk):
 
         zip_file.close()
 
-        resp = HttpResponse(zip_buffer.getvalue(), mimetype = "application/x-zip-compressed")
+        resp = HttpResponse(zip_buffer.getvalue(), content_type = "application/x-zip-compressed")
         resp['Content-Disposition'] = 'attachment; filename=%s-%s-results.zip' % (competition.title, competition.pk)
         return resp
     except:

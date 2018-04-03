@@ -141,6 +141,9 @@ Sphinx
 
 # Required when PostgreSQL is used
 psycopg2
+psycopg2-binary
+
+whitenoise
 
 # Lock unwanted people out on staging servers
 django-pin-passcode

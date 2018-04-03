@@ -9,7 +9,9 @@ from uuid import uuid4
 
 from django.utils.text import slugify
 from rest_framework import (permissions, status, viewsets, views, filters)
-from rest_framework.decorators import action, link, permission_classes
+from django_filters.rest_framework import DjangoFilterBackend
+# from rest_framework.decorators import action, link, permission_classes
+from rest_framework.decorators import permission_classes, list_route, detail_route
 from rest_framework.exceptions import PermissionDenied, ParseError
 from rest_framework.response import Response
 
@@ -31,6 +33,7 @@ from apps.api import serializers
 from apps.jobs.models import Job
 from apps.web import models as webmodels
 from apps.teams import models as teammodels
+from apps.web.models import CompetitionSubmission
 from apps.web.tasks import (create_competition, evaluate_submission)
 
 from codalab.azure_storage import make_blob_sas_url, PREFERRED_STORAGE_X_MS_VERSION
@@ -84,7 +87,7 @@ class CompetitionCreationApi(views.APIView):
             { 'token': <value> }
         Use the token with CompetitionCreationStatusApi to track the progress of the job.
         """
-        blob_name = request.DATA['id'] if 'id' in request.DATA else ''
+        blob_name = request.data['id'] if 'id' in request.data else ''
         if len(blob_name) <= 0:
             return Response("Invalid or missing tracking ID.", status=status.HTTP_400_BAD_REQUEST)
         owner = self.request.user
@@ -110,6 +113,7 @@ class CompetitionCreationStatusApi(views.APIView):
            { 'status': <value> }
         where <value> is status of the job as defined by the 'code_name' in apps.jobs.models.Job.STATUS_BY_CODE.
         """
+        print("Competition Creation API called")
         user_id = self.request.user.id
         logger.debug("CompetitionCreationStatus: requestor=%s; token=%s.", user_id, token)
         try:
@@ -126,11 +130,12 @@ class CompetitionCreationStatusApi(views.APIView):
             data['error'] = info['error']
         return Response(data)
 
+
 class CompetitionAPIViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CompetitionSerial
     queryset = webmodels.Competition.objects.all()
     filter_class = serializers.CompetitionFilter
-    filter_backends = (filters.DjangoFilterBackend,filters.SearchFilter,)
+    filter_backends = (DjangoFilterBackend,filters.SearchFilter,)
     filter_fields = ('creator')
     search_fields = ("title", "description", "=creator__username")
 
@@ -155,7 +160,8 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
 
         return Response(json.dumps(response), content_type="application/json")
 
-    @action(methods=['GET'], permission_classes=[permissions.IsAuthenticated])
+    # @action(methods=['GET'], permission_classes=[permissions.IsAuthenticated])
+    @detail_route(methods=['GET'], permission_classes=[permissions.IsAuthenticated])
     def publish(self, request, pk):
         """
         Publish a competition.
@@ -179,7 +185,8 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
             response['status'] = 403
         return Response(json.dumps(response), content_type="application/json")
 
-    @action(methods=['GET'], permission_classes=[permissions.IsAuthenticated])
+    # @action(methods=['GET'], permission_classes=[permissions.IsAuthenticated])
+    @detail_route(methods=['GET'], permission_classes=[permissions.IsAuthenticated])
     def unpublish(self, request, pk):
         """
         Unpublish a competition.
@@ -208,7 +215,8 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
         message.attach_alternative(html, 'text/html')
         message.send()
 
-    @action(permission_classes=[permissions.IsAuthenticated])
+    # @action(permission_classes=[permissions.IsAuthenticated])
+    @permission_classes((permissions.IsAuthenticated,))
     def participate(self, request, pk=None):
         comp = self.get_object()
 
@@ -295,17 +303,19 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
             status = 400
         return Response(resp, status=status)
 
-    @link(permission_classes=[permissions.IsAuthenticated])
+    # @link(permission_classes=[permissions.IsAuthenticated])
+    @permission_classes((permissions.IsAuthenticated,))
     def mystatus(self, request, pk=None):
         return self._get_userstatus(request, pk)
 
-    @action(methods=['POST', 'PUT'], permission_classes=[permissions.IsAuthenticated])
+    # @action(methods=['POST', 'PUT'], permission_classes=[permissions.IsAuthenticated])
+    @detail_route(methods=['POST', 'PUT'], permission_classes=[permissions.IsAuthenticated])
     def participation_status(self, request, pk=None):
         comp = self.get_object()
         resp = {}
-        status = request.DATA['status']
-        participant_id = request.DATA['participant_id']
-        reason = request.DATA['reason']
+        status = request.data['status']
+        participant_id = request.data['participant_id']
+        reason = request.data['reason']
 
         if comp.creator != request.user and request.user not in comp.admins.all():
             raise PermissionDenied()
@@ -381,13 +391,14 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
 
         return Response(json.dumps(resp), content_type="application/json")
 
-    @action(methods=['POST', 'PUT'], permission_classes=[permissions.IsAuthenticated])
+    # @action(methods=['POST', 'PUT'], permission_classes=[permissions.IsAuthenticated])
+    @detail_route(methods=['POST', 'PUT'], permission_classes=[permissions.IsAuthenticated])
     def team_status(self, request, pk=None):
         comp = self.get_object()
         resp = {}
-        status = request.DATA['status']
-        teamID = request.DATA['team_id']
-        reason = request.DATA['reason']
+        status = request.data['status']
+        teamID = request.data['team_id']
+        reason = request.data['reason']
 
         if comp.creator != request.user and request.user not in comp.admins.all():
             raise PermissionDenied()
@@ -408,11 +419,12 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
             }
         return Response(json.dumps(resp), content_type="application/json")
 
-    @action(permission_classes=[permissions.IsAuthenticated])
+    # @action(permission_classes=[permissions.IsAuthenticated])
+    @permission_classes((permissions.IsAuthenticated,))
     def info(self, request, *args, **kwargs):
         comp = self.get_object()
-        comp.title = request.DATA.get('title')
-        comp.description = request.DATA.get('description')
+        comp.title = request.data.get('title')
+        comp.description = request.data.get('description')
         comp.save()
         return Response({"data": {
                              "title": comp.title,
@@ -423,6 +435,7 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
 competition_list = CompetitionAPIViewSet.as_view({'get':'list', 'post': 'participate'})
 competition_retrieve = CompetitionAPIViewSet.as_view({'get':'retrieve', 'put':'update', 'patch': 'partial_update'})
 
+
 class CompetitionParticipantAPIViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CompetitionParticipantSerial
     queryset = webmodels.CompetitionParticipant.objects.all()
@@ -430,6 +443,7 @@ class CompetitionParticipantAPIViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         competition_id = self.kwargs.get('competition_id', None)
         return self.queryset.filter(competition__pk=competition_id)
+
 
 class CompetitionPhaseAPIViewset(viewsets.ModelViewSet):
     serializer_class = serializers.CompetitionPhaseSerial
@@ -540,25 +554,82 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return self.queryset.filter(phase__competition__pk=self.kwargs['competition_id'])
 
-    def pre_save(self, obj):
+    # def pre_save(self, serializer):
+    #     obj = CompetitionSubmission()
+    #     try:
+    #         obj.participant = webmodels.CompetitionParticipant.objects.get(
+    #                             competition=self.kwargs['competition_id'], user=self.request.user)
+    #         print("Participant is {}".format(obj.participant))
+    #     except ObjectDoesNotExist:
+    #         raise PermissionDenied()
+    #     if not obj.participant.is_approved:
+    #         raise PermissionDenied()
+    #     phase_id = self.request.QUERY_PARAMS.get('phase_id', "")
+    #     for phase in webmodels.CompetitionPhase.objects.filter(competition=self.kwargs['competition_id'], id=phase_id):
+    #         if phase.is_active is True:
+    #             break
+    #     if phase is None or phase.is_active is False:
+    #         raise PermissionDenied(detail='Competition phase is closed.')
+    #     if phase.auto_migration and not phase.is_migrated and not phase.competition.is_migrating_delayed:
+    #         raise PermissionDenied(detail="Failed, competition phase is being migrated, please try again in a few minutes")
+    #     obj.phase = phase
+    #
+    #     blob_name = self.request.data['id'] if 'id' in self.request.data else ''
+    #
+    #     if len(blob_name) <= 0:
+    #         raise ParseError(detail='Invalid or missing tracking ID.')
+    #     if settings.USE_AWS:
+    #         # obj.readable_filename = os.path.basename(blob_name)
+    #         # Get file name from url and ensure we aren't getting GET params along with it
+    #         obj.readable_filename = blob_name.split('/')[-1]
+    #         obj.readable_filename = obj.readable_filename.split('?')[0]
+    #         obj.s3_file = blob_name
+    #     else:
+    #         obj.file.name = blob_name
+    #
+    #     obj.description = escape(self.request.QUERY_PARAMS.get('description', ""))
+    #     if not phase.disable_custom_docker_image:
+    #         obj.docker_image = escape(self.request.QUERY_PARAMS.get('docker_image', ""))
+    #     if not obj.docker_image:
+    #         obj.docker_image = phase.competition.competition_docker_image or settings.DOCKER_DEFAULT_WORKER_IMAGE
+    #     obj.team_name = escape(self.request.QUERY_PARAMS.get('team_name', ""))
+    #     obj.organization_or_affiliation = escape(self.request.QUERY_PARAMS.get('organization_or_affiliation', ""))
+    #     obj.method_name = escape(self.request.QUERY_PARAMS.get('method_name', ""))
+    #     obj.method_description = escape(self.request.QUERY_PARAMS.get('method_description', ""))
+    #     obj.project_url = escape(self.request.QUERY_PARAMS.get('project_url', ""))
+    #     obj.publication_url = escape(self.request.QUERY_PARAMS.get('publication_url', ""))
+    #     obj.bibtex = escape(self.request.QUERY_PARAMS.get('bibtex', ""))
+    #     if phase.competition.queue:
+    #         obj.queue_name = phase.competition.queue.name or ''
+    #     obj.save()
+
+    def perform_create(self, serializer):
+        # obj = CompetitionSubmission()
+        kwargs = {}
         try:
-            obj.participant = webmodels.CompetitionParticipant.objects.filter(
-                                competition=self.kwargs['competition_id'], user=self.request.user).get()
+            kwargs['participant'] = webmodels.CompetitionParticipant.objects.get(
+                competition=self.kwargs['competition_id'], user=self.request.user)
+            print("Participant is {}".format(kwargs['participant']))
         except ObjectDoesNotExist:
             raise PermissionDenied()
-        if not obj.participant.is_approved:
+        if not kwargs['participant'].is_approved:
             raise PermissionDenied()
-        phase_id = self.request.QUERY_PARAMS.get('phase_id', "")
-        for phase in webmodels.CompetitionPhase.objects.filter(competition=self.kwargs['competition_id'], id=phase_id):
+        phase_id = self.request.query_params.get('phase_id', "")
+        for phase in webmodels.CompetitionPhase.objects.filter(competition=self.kwargs['competition_id'],
+                                                               id=phase_id):
             if phase.is_active is True:
                 break
         if phase is None or phase.is_active is False:
             raise PermissionDenied(detail='Competition phase is closed.')
         if phase.auto_migration and not phase.is_migrated and not phase.competition.is_migrating_delayed:
-            raise PermissionDenied(detail="Failed, competition phase is being migrated, please try again in a few minutes")
-        obj.phase = phase
+            raise PermissionDenied(
+                detail="Failed, competition phase is being migrated, please try again in a few minutes")
+        kwargs['phase'] = phase
+        print(kwargs['phase'])
 
-        blob_name = self.request.DATA['id'] if 'id' in self.request.DATA else ''
+        obj = serializer.save(**kwargs)
+
+        blob_name = self.request.data['id'] if 'id' in self.request.data else ''
 
         if len(blob_name) <= 0:
             raise ParseError(detail='Invalid or missing tracking ID.')
@@ -571,31 +642,40 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
         else:
             obj.file.name = blob_name
 
-        obj.description = escape(self.request.QUERY_PARAMS.get('description', ""))
+        obj.description = escape(self.request.query_params.get('description', ""))
         if not phase.disable_custom_docker_image:
-            obj.docker_image = escape(self.request.QUERY_PARAMS.get('docker_image', ""))
+            obj.docker_image = escape(self.request.query_params.get('docker_image', ""))
         if not obj.docker_image:
             obj.docker_image = phase.competition.competition_docker_image or settings.DOCKER_DEFAULT_WORKER_IMAGE
-        obj.team_name = escape(self.request.QUERY_PARAMS.get('team_name', ""))
-        obj.organization_or_affiliation = escape(self.request.QUERY_PARAMS.get('organization_or_affiliation', ""))
-        obj.method_name = escape(self.request.QUERY_PARAMS.get('method_name', ""))
-        obj.method_description = escape(self.request.QUERY_PARAMS.get('method_description', ""))
-        obj.project_url = escape(self.request.QUERY_PARAMS.get('project_url', ""))
-        obj.publication_url = escape(self.request.QUERY_PARAMS.get('publication_url', ""))
-        obj.bibtex = escape(self.request.QUERY_PARAMS.get('bibtex', ""))
+        obj.team_name = escape(self.request.query_params.get('team_name', ""))
+        obj.organization_or_affiliation = escape(self.request.query_params.get('organization_or_affiliation', ""))
+        obj.method_name = escape(self.request.query_params.get('method_name', ""))
+        obj.method_description = escape(self.request.query_params.get('method_description', ""))
+        obj.project_url = escape(self.request.query_params.get('project_url', ""))
+        obj.publication_url = escape(self.request.query_params.get('publication_url', ""))
+        obj.bibtex = escape(self.request.query_params.get('bibtex', ""))
         if phase.competition.queue:
             obj.queue_name = phase.competition.queue.name or ''
+        obj.save()
 
-    def post_save(self, obj, created):
-        if created:
-            evaluate_submission.apply_async((obj.pk, obj.phase.is_scoring_only))
+        evaluate_submission.delay(obj.pk, obj.phase.is_scoring_only)
+
+     # def post_save(self, obj, created):
+     #     if created:
+     #    evaluate_submission.apply_async((obj.pk, obj.phase.is_scoring_only))
+
+    # def perform_update(self, serializer):
+    #     if CompetitionSubmission.objects.get(pk=serializer.pk):
+    #         obj = serializer.save()
+    #         evaluate_submission.apply_async((obj.pk, obj.phase.is_scoring_only))
 
     def handle_exception(self, exc):
         if type(exc) is DjangoPermissionDenied:
             exc = PermissionDenied(detail=str(exc))
         return super(CompetitionSubmissionViewSet, self).handle_exception(exc)
 
-    @action(methods=["DELETE"])
+    # @action(methods=["DELETE"])
+    @detail_route(methods=['DELETE'], permission_classes=[permissions.IsAuthenticated])
     def removeFromLeaderboard(self, request, pk=None, competition_id=None):
         try:
             participant = webmodels.CompetitionParticipant.objects.filter(competition=self.kwargs['competition_id'],
@@ -621,7 +701,8 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
         except ObjectDoesNotExist:
             raise PermissionDenied()
 
-    @action(methods=["POST"])
+    # @action(methods=["POST"])
+    @detail_route(methods=['POST'], permission_classes=[permissions.IsAuthenticated])
     def addToLeaderboard(self, request, pk=None, competition_id=None):
         try:
             participant = webmodels.CompetitionParticipant.objects.filter(competition=self.kwargs['competition_id'],
@@ -647,6 +728,7 @@ competition_submission_create = CompetitionSubmissionViewSet.as_view({'post':'cr
 competition_submission_leaderboard = CompetitionSubmissionViewSet.as_view(
                                         {'post':'addToLeaderboard', 'delete':'removeFromLeaderboard'})
 
+
 class LeaderBoardViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.LeaderBoardSerial
     queryset = webmodels.PhaseLeaderBoard.objects.all()
@@ -663,6 +745,7 @@ class LeaderBoardViewSet(viewsets.ModelViewSet):
 
 leaderboard_list = LeaderBoardViewSet.as_view({'get':'list', 'post':'create'})
 leaderboard_retrieve = LeaderBoardViewSet.as_view({'get':'retrieve', 'put':'update', 'patch':'partial_update'})
+
 
 class LeaderBoardDataViewSet(views.APIView):
     """

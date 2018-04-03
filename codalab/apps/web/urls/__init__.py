@@ -1,14 +1,11 @@
 from django.conf import settings
-from django.conf.urls import patterns, include, url
-from django.contrib.sites.models import Site
+from django.conf.urls import include, url
 from django.views.generic import TemplateView, RedirectView
 from django.contrib import admin
 
-from apps.web.models import Competition
-
 from .. import views
 
-urlpatterns = patterns('',
+urlpatterns = [
     url(r'^$', views.HomePageView.as_view(), name='home'),
     url(r'^_ver', views.VersionView.as_view(),name='_version'),
     url(r'^my/', include('apps.web.urls.my')),
@@ -36,7 +33,7 @@ urlpatterns = patterns('',
 
     # Static pages
     url(r'^(?i)highlights/?', TemplateView.as_view(template_name='web/highlights.html'), name="highlights"),
-)
+]
 
 
 if settings.DEBUG:
@@ -100,6 +97,4 @@ if settings.DEBUG:
     '''
     Admin
     '''
-    urlpatterns += patterns('',
-        url(r'^admin/', include(admin.site.urls)),
-    )
+    urlpatterns += url(r'^admin/', include(admin.site.urls)),

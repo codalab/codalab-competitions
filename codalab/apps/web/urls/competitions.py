@@ -1,14 +1,11 @@
-from django.conf.urls import patterns, include, url
-from django.views.generic import TemplateView
-
+from django.conf.urls import url
 from .. import views
 
-urlpatterns = patterns(
-    '',
+urlpatterns = [
     url(r'^$', views.competition_index, name='list'),
     url(r'^(?P<pk>\d+)$', views.CompetitionDetailView.as_view(), name='view'),
     url(r'^create$', views.CompetitionUpload.as_view(), name='create'),
-    url(r'^s3_create_competition$', views.CompetitionGCSUpload.as_view(), name='s3_create_competition'),
+    url(r'^s3_create_competition$', views.CompetitionS3Upload.as_view(), name='s3_create_competition'),
     url(r'^edit_competition/(?P<pk>\d+)$', views.CompetitionEdit.as_view(), name='edit'),
     url(r'^delete_competition/(?P<pk>\d+)$', views.CompetitionDelete.as_view(), name='delete'),
     url(r'^(?P<id>\d+)/submissions/(?P<phase>\d+)$', views.CompetitionSubmissionsPage.as_view(), name='competition_submissions_page'),
@@ -35,5 +32,4 @@ urlpatterns = patterns(
     url(r'^(?P<pk>\d+)/public_submissions/(?P<phase>\d+)$', views.CompetitionPublicSubmissionByPhases.as_view(), name='public_submissions_phase'),
     url(r'^(?P<competition_pk>\d+)/dumps/$', views.competition_dumps_view, name='dumps'),
     url(r'^(?P<pk>\d+)/delete_dump/$', views.CompetitionDumpDeleteView.as_view(), name="delete_dump"),
-
-)
+]

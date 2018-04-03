@@ -47,7 +47,6 @@
                 }
             test_if_done()
         })
-
         $("#s3_upload_form").submit(function(event) {
             event.preventDefault()
             $.post(
@@ -83,8 +82,6 @@
                 $('#submit-button').html('<div class="loading-btn"> <span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Loading <div>');
             })
         })
-
-
     </script>
 {% endblock %}
 

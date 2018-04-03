@@ -91,7 +91,7 @@ class AzureStorage(Storage):
     def size(self, name):
         return self.properties(name)["content-length"]
 
-    def get_available_name(self, name):
+    def get_available_name(self, name, max_length=None):
         dir_path, file_name = os.path.split(name)
         name = clean_name(name)
         try:

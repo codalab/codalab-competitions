@@ -9,8 +9,8 @@ from django.core.files.storage import get_storage_class
 StorageClass = get_storage_class(settings.DEFAULT_FILE_STORAGE)
 
 if hasattr(settings, 'USE_AWS') and settings.USE_AWS:
-    BundleStorage = StorageClass(bucket_name=settings.GS_PRIVATE_BUCKET_NAME)
-    PublicStorage = StorageClass(bucket_name=settings.GS_PUBLIC_BUCKET_NAME)
+    BundleStorage = StorageClass(bucket_name=settings.AWS_STORAGE_PRIVATE_BUCKET_NAME)
+    PublicStorage = StorageClass(bucket_name=settings.AWS_STORAGE_BUCKET_NAME)
 elif hasattr(settings, 'BUNDLE_AZURE_ACCOUNT_NAME') and settings.BUNDLE_AZURE_ACCOUNT_NAME:
     BundleStorage = StorageClass(account_name=settings.BUNDLE_AZURE_ACCOUNT_NAME,
                                  account_key=settings.BUNDLE_AZURE_ACCOUNT_KEY,

@@ -3,7 +3,7 @@ from urlparse import urlparse
 from django.conf import settings
 from django.db import models
 from pyrabbit.http import HTTPError
-from django.contrib.sites.models import Site
+# from django.contrib.sites.models import Site
 
 import uuid
 
@@ -31,6 +31,7 @@ class Queue(models.Model):
         # Start with pyamqp://guest:guest@localhost:5672//
         broker_url_parts = urlparse(settings.BROKER_URL)
         # Get localhost:5672
+        from django.contrib.sites.models import Site
         host = Site.objects.get_current().domain
 
         return "pyamqp://{}:{}@{}/{}".format(

@@ -25,7 +25,7 @@ from celery import task
 from celery.app import app_or_default
 from celery.exceptions import SoftTimeLimitExceeded
 from django.conf import settings
-from django.contrib.sites.models import get_current_site
+# from django.contrib.sites.models import get_current_site
 from django.core.files.base import ContentFile
 from django.core.mail import get_connection, EmailMultiAlternatives, send_mail
 from django.db import transaction
@@ -73,6 +73,8 @@ from apps.web.models import CompetitionDump
 
 logger = logging.getLogger(__name__)
 
+from codalab.celery import app
+
 # Echo
 def echo_task(job_id, args):
     """
@@ -103,7 +105,7 @@ def echo(text):
     return Job.objects.create_and_dispatch_job('echo', {'message': text})
 
 
-@task(queue='site-worker', soft_time_limit=60 * 60 * 24)
+@app.task(queue='site-worker', soft_time_limit=60 * 60 * 24)
 def create_competition(job_id, comp_def_id):
     """
     A task to create a competition from a bundle with the competition's definition.
@@ -534,7 +536,7 @@ class SubmissionUpdateException(Exception):
         self.inner_exception = inner_exception
 
 
-@task(queue='submission-updates')
+@app.task(queue='submission-updates')
 def update_submission(job_id, args, secret):
     """
     A task to update the status of a submission in a competition.
@@ -722,7 +724,7 @@ def update_submission(job_id, args, secret):
     run_job_task(job_id, update_it, handle_update_exception)
 
 
-@task(queue='site-worker', soft_time_limit=60 * 60 * 1)
+@app.task(queue='site-worker', soft_time_limit=60 * 60 * 1)
 def re_run_all_submissions_in_phase(phase_pk):
     phase = CompetitionPhase.objects.get(id=phase_pk)
 
@@ -756,7 +758,7 @@ def re_run_all_submissions_in_phase(phase_pk):
         evaluate_submission.apply_async((new_submission.pk, submission.phase.is_scoring_only))
 
 
-@task(queue='site-worker')
+@app.task(queue='site-worker')
 def evaluate_submission(submission_id, is_scoring_only):
     """
     Starts the process of evaluating a user's submission to a competition.
@@ -806,7 +808,7 @@ def _send_mass_html_mail(datatuple, fail_silently=False, user=None, password=Non
     return connection.send_messages(messages)
 
 
-@task(queue='site-worker')
+@app.task(queue='site-worker')
 def send_mass_email(competition_pk, body=None, subject=None, from_email=None, to_emails=None):
     competition = Competition.objects.get(pk=competition_pk)
     context = Context({"competition": competition, "body": body, "site": Site.objects.get_current()})
@@ -818,7 +820,7 @@ def send_mass_email(competition_pk, body=None, subject=None, from_email=None, to
     _send_mass_html_mail(mail_tuples)
 
 
-@task(queue='site-worker')
+@app.task(queue='site-worker')
 def do_chahub_retries():
     if not settings.CHAHUB_API_URL:
         return
@@ -832,7 +834,7 @@ def do_chahub_retries():
             instance.save()
 
 
-@task(queue='site-worker')
+@app.task(queue='site-worker')
 def do_phase_migrations():
     competitions = Competition.objects.filter(is_migrating=False)
     logger.info("Checking {} competitions for phase migrations.".format(len(competitions)))
@@ -840,7 +842,7 @@ def do_phase_migrations():
         c.check_future_phase_sumbmissions()
 
 
-@task(queue='site-worker', soft_time_limit=60 * 60 * 24)
+@app.task(queue='site-worker', soft_time_limit=60 * 60 * 24)
 def make_modified_bundle(competition_pk, exclude_datasets_flag):
     # The following lines help dump this in a nice format
     _mapping_tag = yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG

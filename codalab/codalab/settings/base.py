@@ -269,6 +269,7 @@ class Base(Configuration):
 
         # Django Nose !!Important!! This needs to come after South.
         'django_nose',
+        'django_filters',  # DRF filters
 
         # CodaLab apps
         'apps.authenz',
@@ -331,6 +332,7 @@ class Base(Configuration):
     )
 
     REST_FRAMEWORK = {
+        'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
         'DEFAULT_RENDERER_CLASSES': (
             'rest_framework.renderers.JSONRenderer',
         ),
@@ -401,34 +403,34 @@ class Base(Configuration):
     # =========================================================================
     DEFAULT_FILE_STORAGE = os.environ.get('DEFAULT_FILE_STORAGE', 'django.core.files.storage.FileSystemStorage')
 
-    # # S3 from AWS
-    # # USE_AWS = DEFAULT_FILE_STORAGE == 'storages.backends.s3boto.S3BotoStorage'
-    # AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
-    # AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
-    # AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
-    # AWS_STORAGE_PRIVATE_BUCKET_NAME = os.environ.get('AWS_STORAGE_PRIVATE_BUCKET_NAME')
-    # AWS_S3_CALLING_FORMAT = os.environ.get('AWS_S3_CALLING_FORMAT', 'boto.s3.connection.OrdinaryCallingFormat')
-    # AWS_S3_HOST = os.environ.get('AWS_S3_HOST', 's3-us-west-2.amazonaws.com')
-    # AWS_QUERYSTRING_AUTH = os.environ.get(
-    #     # This stops signature/auths from appearing in saved URLs
-    #     'AWS_QUERYSTRING_AUTH',
-    #     False
-    # )
-    # if isinstance(AWS_QUERYSTRING_AUTH, str) and 'false' in AWS_QUERYSTRING_AUTH.lower():
-    #     AWS_QUERYSTRING_AUTH = False  # Was set to string, convert to bool
+    # S3 from AWS
+    USE_AWS = DEFAULT_FILE_STORAGE == 'storages.backends.s3boto.S3BotoStorage'
+    AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+    AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
+    AWS_STORAGE_PRIVATE_BUCKET_NAME = os.environ.get('AWS_STORAGE_PRIVATE_BUCKET_NAME')
+    AWS_S3_CALLING_FORMAT = os.environ.get('AWS_S3_CALLING_FORMAT', 'boto.s3.connection.OrdinaryCallingFormat')
+    AWS_S3_HOST = os.environ.get('AWS_S3_HOST', 's3-us-west-2.amazonaws.com')
+    AWS_QUERYSTRING_AUTH = os.environ.get(
+        # This stops signature/auths from appearing in saved URLs
+        'AWS_QUERYSTRING_AUTH',
+        False
+    )
+    if isinstance(AWS_QUERYSTRING_AUTH, str) and 'false' in AWS_QUERYSTRING_AUTH.lower():
+        AWS_QUERYSTRING_AUTH = False  # Was set to string, convert to bool
 
-    USE_AWS = DEFAULT_FILE_STORAGE == 'storages.backends.gcloud.GoogleCloudStorage'
-    GS_PUBLIC_BUCKET_NAME = os.environ.get('GS_PUBLIC_BUCKET_NAME')
-    GS_PRIVATE_BUCKET_NAME = os.environ.get('GS_PRIVATE_BUCKET_NAME')
-    #GS_CREDENTIALS = os.environ.get('GS_CREDENTIALS')
-    #GS_APPLICATION_CREDENTIALS = os.environ.get('GS_APPLICATION_CREDENTIALS')
-    # GS_CREDENTIALS = 'goMLh86iVt2OxbfIN9W67exk'
-    # from google.cloud import datastore
-    # client = datastore.Client()
-    GS_PROJECT_ID = '297322048366'
-    GOOGLE_APPLICATION_CREDENTIALS = os.environ.get('GS_APPLICATION_CREDENTIALS')
-    GS_CREDENTIALS = os.environ.get('GS_APPLICATION_CREDENTIALS')
-    # Azure
+    # USE_AWS = DEFAULT_FILE_STORAGE == 'storages.backends.gcloud.GoogleCloudStorage'
+    # GS_PUBLIC_BUCKET_NAME = os.environ.get('GS_PUBLIC_BUCKET_NAME')
+    # GS_PRIVATE_BUCKET_NAME = os.environ.get('GS_PRIVATE_BUCKET_NAME')
+    # #GS_CREDENTIALS = os.environ.get('GS_CREDENTIALS')
+    # #GS_APPLICATION_CREDENTIALS = os.environ.get('GS_APPLICATION_CREDENTIALS')
+    # # GS_CREDENTIALS = 'goMLh86iVt2OxbfIN9W67exk'
+    # # from google.cloud import datastore
+    # # client = datastore.Client()
+    # GS_PROJECT_ID = '297322048366'
+    # GOOGLE_APPLICATION_CREDENTIALS = os.environ.get('GS_APPLICATION_CREDENTIALS')
+    # GS_CREDENTIALS = os.environ.get('GS_APPLICATION_CREDENTIALS')
+    # # Azure
     AZURE_ACCOUNT_NAME = os.environ.get('AZURE_ACCOUNT_NAME')
     AZURE_ACCOUNT_KEY = os.environ.get('AZURE_ACCOUNT_KEY')
     AZURE_CONTAINER = os.environ.get('AZURE_CONTAINER', 'public')
@@ -440,21 +442,21 @@ class Base(Configuration):
     # =========================================================================
     # S3Direct (S3 uploads)
     # =========================================================================
-    # S3DIRECT_REGION = os.environ.get('S3DIRECT_REGION', 'us-west-2')
-    # S3DIRECT_DESTINATIONS = {
-    #     'competitions': {
-    #         'key': lambda f: _uuidpathext(f, 'uploads/competitions/'),
-    #         'auth': lambda u: u.is_authenticated(),
-    #         'bucket': AWS_STORAGE_PRIVATE_BUCKET_NAME,
-    #         'allowed': ['application/zip', 'application/octet-stream', 'application/x-zip-compressed']
-    #     },
-    #     'submissions': {
-    #         'key': lambda f: _uuidpathext(f, 'uploads/submissions/'),
-    #         'auth': lambda u: u.is_authenticated(),
-    #         'bucket': AWS_STORAGE_PRIVATE_BUCKET_NAME,
-    #         'allowed': ['application/zip', 'application/octet-stream', 'application/x-zip-compressed']
-    #     }
-    # }
+    S3DIRECT_REGION = os.environ.get('S3DIRECT_REGION', 'us-west-2')
+    S3DIRECT_DESTINATIONS = {
+        'competitions': {
+            'key': lambda f: _uuidpathext(f, 'uploads/competitions/'),
+            'auth': lambda u: u.is_authenticated(),
+            'bucket': AWS_STORAGE_PRIVATE_BUCKET_NAME,
+            'allowed': ['application/zip', 'application/octet-stream', 'application/x-zip-compressed']
+        },
+        'submissions': {
+            'key': lambda f: _uuidpathext(f, 'uploads/submissions/'),
+            'auth': lambda u: u.is_authenticated(),
+            'bucket': AWS_STORAGE_PRIVATE_BUCKET_NAME,
+            'allowed': ['application/zip', 'application/octet-stream', 'application/x-zip-compressed']
+        }
+    }
 
 
     # =========================================================================
@@ -470,26 +472,26 @@ class Base(Configuration):
     # =========================================================================
     # Celery
     # =========================================================================
-    BROKER_URL = os.environ.get('BROKER_URL')
-    if not BROKER_URL:
-        # BROKER_URL might be set but empty, make sure it's set!
-        BROKER_URL = 'pyamqp://{}:{}@{}:{}//'.format(RABBITMQ_DEFAULT_USER, RABBITMQ_DEFAULT_PASS, RABBITMQ_HOST, RABBITMQ_PORT)
-    BROKER_POOL_LIMIT = None  # Stops connection timeout
-    BROKER_USE_SSL = SSL_CERTIFICATE or os.environ.get('BROKER_USE_SSL', False)
+    CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL')
+    if not CELERY_BROKER_URL:
+        # CELERY_BROKER_URL might be set but empty, make sure it's set!
+        CELERY_BROKER_URL = 'pyamqp://{}:{}@{}:{}//'.format(RABBITMQ_DEFAULT_USER, RABBITMQ_DEFAULT_PASS, RABBITMQ_HOST, RABBITMQ_PORT)
+    CELERY_BROKER_POOL_LIMIT = None  # Stops connection timeout
+    CELERY_BROKER_USE_SSL = SSL_CERTIFICATE or os.environ.get('BROKER_USE_SSL', False)
     # Don't use pickle -- dangerous
     CELERY_ACCEPT_CONTENT = ['json']
     CELERY_TASK_SERIALIZER = 'json'
     CELERY_RESULT_SERIALIZER = 'json'
     # Keep celery from becoming unresponsive
     CELERY_ACKS_LATE = True
-    CELERYD_PREFETCH_MULTIPLIER = 1
-    CELERYD_TASK_SOFT_TIME_LIMIT = 180  # 3 minutes
+    # CELERYD_PREFETCH_MULTIPLIER = 1
+    # CELERYD_TASK_SOFT_TIME_LIMIT = 180  # 3 minutes
     FLOWER_PORT = os.environ.get('FLOWER_PORT', '15672')
     # Run as *not* root
-    CELERYD_USER = "workeruser"
-    CELERYD_GROUP = "workeruser"
-    CELERYD_MAX_TASKS_PER_CHILD = 100  # Make celery restart every N tasks to stop leaks
-    CELERYBEAT_SCHEDULE = {
+    # CELERYD_USER = "workeruser"
+    # CELERYD_GROUP = "workeruser"
+    # CELERYD_MAX_TASKS_PER_CHILD = 100  # Make celery restart every N tasks to stop leaks
+    CELERY_CELERYBEAT_SCHEDULE = {
         'phase_migrations': {
             'task': 'apps.web.tasks.do_phase_migrations',
             'schedule': timedelta(seconds=300),
@@ -688,29 +690,29 @@ class Base(Configuration):
 class DevBase(Base):
 
     if os.environ.get('DEBUG', False):
-        OPTIONAL_APPS = (
-            'debug_toolbar',
-        )
+        # OPTIONAL_APPS = (
+        #     'debug_toolbar',
+        # )
         ACCOUNT_EMAIL_VERIFICATION = None
         CACHES = {
             'default': {
                 'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
             }
         }
-        EXTRA_MIDDLEWARE_CLASSES = (
-            'debug_toolbar.middleware.DebugToolbarMiddleware',
-        )
+        # EXTRA_MIDDLEWARE_CLASSES = (
+        #     'debug_toolbar.middleware.DebugToolbarMiddleware',
+        # )
 
-        DEBUG_TOOLBAR_CONFIG = {
-            'SHOW_TEMPLATE_CONTEXT': True,
-            'ENABLE_STACKTRACES': True,
-            'SHOW_TOOLBAR_CALLBACK': lambda x: True,
-        }
+        # DEBUG_TOOLBAR_CONFIG = {
+        #     'SHOW_TEMPLATE_CONTEXT': True,
+        #     'ENABLE_STACKTRACES': True,
+        #     'SHOW_TOOLBAR_CALLBACK': lambda x: True,
+        # }
 
-        if os.environ.get('PIN_PASSCODE_ENABLED', False):
-            EXTRA_MIDDLEWARE_CLASSES += ('pin_passcode.middleware.PinPasscodeMiddleware',)
-            PIN_PASSCODE_PIN = os.environ.get('PIN_PASSCODE_PIN', 1234)
-            PIN_PASSCODE_IP_WHITELIST = ('127.0.0.1', 'localhost',)
+        # if os.environ.get('PIN_PASSCODE_ENABLED', False):
+        #     EXTRA_MIDDLEWARE_CLASSES += ('pin_passcode.middleware.PinPasscodeMiddleware',)
+        #     PIN_PASSCODE_PIN = os.environ.get('PIN_PASSCODE_PIN', 1234)
+        #     PIN_PASSCODE_IP_WHITELIST = ('127.0.0.1', 'localhost',)
 
         # Increase amount of logging output in Dev mode.
         # for logger_name in ('codalab', 'apps'):

@@ -2,7 +2,7 @@
 # Run this script from the CodaLab virtual environment to insert
 # initial data required by the web app into the database.
 
-import sys, os.path, os
+import sys, os.path, os, django
 
 root_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "codalab")
 sys.path.append(root_dir)
@@ -15,15 +15,16 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "codalab.settings")
 from configurations import importer
 importer.install()
 
-from django.contrib.sites.models import Site
-from apps.web.models import (CompetitionSubmissionStatus,
-                             ContentCategory,
-                             ContentVisibility,
-                             DefaultContentItem,
-                             ParticipantStatus)
-from apps.web.models import (Page)
-from django.conf import settings
-from apps.teams.models import TeamStatus, TeamMembershipStatus
+# from django.contrib.sites.models import Site
+# from apps.web.models import (CompetitionSubmissionStatus,
+#                              ContentCategory,
+#                              ContentVisibility,
+#                              DefaultContentItem,
+#                              ParticipantStatus)
+# from apps.web.models import (Page)
+# from django.conf import settings
+# from apps.teams.models import TeamStatus, TeamMembershipStatus
+
 
 def migrate_data():
     """
@@ -32,20 +33,24 @@ def migrate_data():
 
     # For https://github.com/codalab/codalab/issues/322
 
+    from apps.web.models import ContentCategory
     categories = ContentCategory.objects.filter(codename='participate')
     for category in categories:
 
+        from apps.web.models import DefaultContentItem
         dcitems = DefaultContentItem.objects.filter(category=category, rank=1, required=True)
         for dcitem in dcitems:
             if dcitem.label == "Submit Results":
                 dcitem.label = "Submit / View Results"
                 dcitem.save()
 
+        from apps.web.models import Page
         pages = Page.objects.filter(category=category, rank=1)
         for page in pages:
             if page.label == "Submit Results":
                 page.label = "Submit / View Results"
                 page.save()
+
 
 def insert_data():
     """
@@ -65,6 +70,7 @@ def insert_data():
     # site.name = settings.CODALAB_SITE_NAME
     # site.save()
 
+    from apps.web.models import ContentCategory
     if ContentCategory.objects.all().count() > 0:
         print "Initial data has been detected in the database: skipping all inserts. Running data migration..."
         migrate_data()
@@ -81,6 +87,7 @@ def insert_data():
 
     content_visibility_items = dict()
     for name, codename, classname in cvs:
+        from apps.web.models import ContentVisibility
         ncv, _ = ContentVisibility.objects.get_or_create(name=name, codename=codename, classname=classname)
         ncv.save()
         content_visibility_items[codename] = ncv
@@ -145,6 +152,7 @@ def insert_data():
               'label' : "Submit / View Results" } ]
 
     for dci in cis:
+        from apps.web.models import DefaultContentItem
         dcii, _ = DefaultContentItem.objects.get_or_create(category=dci['category'], label=dci['label'],
                                 rank=dci['rank'], required=dci['required'],codename=dci['codename'],
                                 initial_visibility=dci['initial_visibility'])
@@ -156,6 +164,7 @@ def insert_data():
             ("Pending", "pending", "Paricipation is pending approval.") ]
 
     for name, codename, description in pss:
+        from apps.web.models import ParticipantStatus
         _, _ = ParticipantStatus.objects.get_or_create(name=name, codename=codename, description=description)
 
     submission_status_set = [("Submitting", "submitting"),
@@ -166,6 +175,7 @@ def insert_data():
                              ("Finished", "finished")]
 
     for name, codename in submission_status_set:
+        from apps.web.models import CompetitionSubmissionStatus
         _, _ = CompetitionSubmissionStatus.objects.get_or_create(name=name, codename=codename)
 
     team_status = [("Denied", "denied", "Team was denied."),
@@ -174,6 +184,7 @@ def insert_data():
                    ("Deleted", "deleted", "Team has been deleted.")]
 
     for name, codename, description in team_status:
+        from apps.teams.models import TeamStatus
         _, _ = TeamStatus.objects.get_or_create(name=name, codename=codename, description=description)
 
         team_membership_status = [("Rejected", "rejected", "User membership rejected."),
@@ -182,10 +193,11 @@ def insert_data():
                                   ("Canceled", "canceled", "User membership canceled.")]
 
     for name, codename, description in team_membership_status:
+        from apps.teams.models import TeamMembershipStatus
         _, _ = TeamMembershipStatus.objects.get_or_create(name=name, codename=codename,
                                                           description=description)
 
 
 if __name__ == "__main__":
-
+    django.setup()
     insert_data()

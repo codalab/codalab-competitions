@@ -1,6 +1,10 @@
+import uuid
+
 from rest_framework import serializers
 from apps.web import models as webmodels
 import django_filters
+
+from apps.web.models import PageContainer, CompetitionPhase
 
 
 class ContentCategorySerial(serializers.ModelSerializer):
@@ -19,7 +23,7 @@ class DefaultContentSerial(serializers.ModelSerializer):
 
 
 class PageSerial(serializers.ModelSerializer):
-    container = serializers.RelatedField(required=False)
+    container = serializers.RelatedField(required=False, queryset=PageContainer.objects.all())
 
     class Meta:
         model = webmodels.Page
@@ -52,7 +56,8 @@ class CompetitionParticipantSerial(serializers.ModelSerializer):
 
 class CompetitionSubmissionSerial(serializers.ModelSerializer):
     status = serializers.SlugField(source="status.codename", read_only=True)
-    filename = serializers.Field(source="get_filename")
+    filename = serializers.ReadOnlyField(source="get_filename")
+
     class Meta:
         model = webmodels.CompetitionSubmission
         fields = ('id','status','status_details','submitted_at','submission_number', 'file', 'filename', 'exception_details', 'description')
@@ -84,7 +89,7 @@ class LeaderBoardSerial(serializers.ModelSerializer):
 
 class CompetitionDataSerial(serializers.ModelSerializer):
     image_url = serializers.URLField(source='image.url', read_only=True)
-    phases = serializers.RelatedField(many=True)
+    phases = serializers.RelatedField(many=True, queryset=CompetitionPhase.objects.all())
     class Meta:
         model = webmodels.Competition
 
@@ -114,7 +119,7 @@ class PhaseRel(serializers.RelatedField):
 
 
 class CompetitionSerial(serializers.ModelSerializer):
-    phases = PhaseRel(many=True,read_only=False)
+    phases = PhaseRel(many=True,read_only=False, queryset=CompetitionPhase.objects.all())
     image_url = serializers.CharField(source='image_url',read_only=True)
     pages = PageSerial(source='pagecontent.pages', read_only=True)
 
