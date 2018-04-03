@@ -13,7 +13,10 @@ def _get_rabbit_connection():
         scheme = 'https'
     else:
         scheme = 'http'
-    return Client(host_with_port, settings.RABBITMQ_DEFAULT_USER, settings.RABBITMQ_DEFAULT_PASS, scheme=scheme)
+    print(host_with_port)
+    print(scheme)
+    # return Client(host_with_port, settings.RABBITMQ_DEFAULT_USER, settings.RABBITMQ_DEFAULT_PASS, scheme=scheme)
+    return Client(host_with_port, settings.RABBITMQ_DEFAULT_USER, settings.RABBITMQ_DEFAULT_PASS)
 
 
 def check_user_needs_initialization(user):

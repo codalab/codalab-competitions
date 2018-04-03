@@ -17,7 +17,7 @@ class ConfigurationFormView(UpdateView):
         obj, created = Configuration.objects.get_or_create(pk=1)
         return obj
 
-    def get_form(self, form_class):
+    def get_form(self, form_class=None):
         # Setup the form to be pre-filled with our admin user's competitions
         form = super(ConfigurationFormView, self).get_form(form_class)
 
