@@ -8,18 +8,9 @@ from pyrabbit.http import HTTPError, NetworkError
 
 def _get_rabbit_connection():
     """Helper giving us a rabbit connection from settings.BROKER_URL"""
-    temp_host = settings.CODALAB_SITE_DOMAIN
-    if temp_host == 'localhost':
-        temp_host = 'docker.for.mac.localhost'
-    host_with_port = "{}:{}/api/".format(temp_host, settings.RABBITMQ_MANAGEMENT_PORT)
-    if settings.BROKER_USE_SSL:
-        scheme = 'https'
-    else:
-        scheme = 'http'
-    print(host_with_port)
-    print(scheme)
-    return Client(host_with_port, user=settings.RABBITMQ_DEFAULT_USER, passwd=settings.RABBITMQ_DEFAULT_PASS, timeout=500)
-    # return Client(host_with_port, settings.RABBITMQ_DEFAULT_USER, settings.RABBITMQ_DEFAULT_PASS)
+    host_with_port = "{}:{}/api/".format(settings.RABBITMQ_HOST, settings.RABBITMQ_MANAGEMENT_PORT)
+    scheme = 'https' if settings.BROKER_USE_SSL else 'http'
+    return Client(host_with_port, settings.RABBITMQ_DEFAULT_USER, settings.RABBITMQ_DEFAULT_PASS, scheme=scheme)
 
 
 def check_user_needs_initialization(user):
