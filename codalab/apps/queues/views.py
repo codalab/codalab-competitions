@@ -39,6 +39,7 @@ class QueueCreateView(LoginRequiredMixin, QueueFormMixin, CreateView):
         try:
             queue = form.save(commit=False)
             queue.owner = self.request.user
+            print(self.request.user)
             if rabbit.check_user_needs_initialization(self.request.user):
                 rabbit.initialize_user(self.request.user)
             queue.vhost = rabbit.create_queue(self.request.user)

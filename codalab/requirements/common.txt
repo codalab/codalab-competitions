@@ -105,7 +105,7 @@ py
 pyasn1
 pyasn1-modules
 Pygments
-pyrabbit
+#pyrabbit
 pytz
 PyYAML
 rcssmin
@@ -118,18 +118,16 @@ snowballstemmer
 Sphinx
 SQLAlchemy
 sqlparse
-urllib3
+urllib3<1.22
 vine
 virtualenv
-watchdog
-SQLAlchemy
 watchdog
 wsgiref
 django-simple-captcha
 django-bootstrap-form
 python-memcached
 
-#git+https://github.com/bkjones/pyrabbit.git@e8a9f74ed5c6bba958994fb9a72c396e6a99ea0f
+git+https://github.com/bkjones/pyrabbit.git@e8a9f74ed5c6bba958994fb9a72c396e6a99ea0f
 
 #Extras added
 git+https://github.com/Tthomas63/django-switchuser.git
