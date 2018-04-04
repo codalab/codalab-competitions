@@ -8,7 +8,7 @@ from pyrabbit.http import HTTPError
 
 def _get_rabbit_connection():
     """Helper giving us a rabbit connection from settings.BROKER_URL"""
-    host_with_port = "{}:{}/api/".format(settings.CODALAB_SITE_DOMAIN, settings.RABBITMQ_MANAGEMENT_PORT)
+    host_with_port = "{}:{}/api/".format(settings.RABBITMQ_HOST, settings.RABBITMQ_MANAGEMENT_PORT)
     if settings.BROKER_USE_SSL:
         scheme = 'https'
     else:
