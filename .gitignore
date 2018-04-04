@@ -3,7 +3,8 @@
 .env
 !certs/.gitkeep
 certs/
-var/*
+var/
+*_old/
 docker-compose.override.yml
 
 # CodaLab Files #
