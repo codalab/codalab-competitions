@@ -419,24 +419,24 @@ class Base(Configuration):
     if isinstance(AWS_QUERYSTRING_AUTH, str) and 'false' in AWS_QUERYSTRING_AUTH.lower():
         AWS_QUERYSTRING_AUTH = False  # Was set to string, convert to bool
 
-    # USE_AWS = DEFAULT_FILE_STORAGE == 'storages.backends.gcloud.GoogleCloudStorage'
-    # GS_PUBLIC_BUCKET_NAME = os.environ.get('GS_PUBLIC_BUCKET_NAME')
-    # GS_PRIVATE_BUCKET_NAME = os.environ.get('GS_PRIVATE_BUCKET_NAME')
-    # #GS_CREDENTIALS = os.environ.get('GS_CREDENTIALS')
-    # #GS_APPLICATION_CREDENTIALS = os.environ.get('GS_APPLICATION_CREDENTIALS')
-    # # GS_CREDENTIALS = 'goMLh86iVt2OxbfIN9W67exk'
-    # # from google.cloud import datastore
-    # # client = datastore.Client()
-    # GS_PROJECT_ID = '297322048366'
-    # GOOGLE_APPLICATION_CREDENTIALS = os.environ.get('GS_APPLICATION_CREDENTIALS')
-    # GS_CREDENTIALS = os.environ.get('GS_APPLICATION_CREDENTIALS')
-    # # Azure
-    AZURE_ACCOUNT_NAME = os.environ.get('AZURE_ACCOUNT_NAME')
-    AZURE_ACCOUNT_KEY = os.environ.get('AZURE_ACCOUNT_KEY')
-    AZURE_CONTAINER = os.environ.get('AZURE_CONTAINER', 'public')
-    BUNDLE_AZURE_ACCOUNT_NAME = os.environ.get('BUNDLE_AZURE_ACCOUNT_NAME', AZURE_ACCOUNT_NAME)
-    BUNDLE_AZURE_ACCOUNT_KEY = os.environ.get('BUNDLE_AZURE_ACCOUNT_KEY', AZURE_ACCOUNT_KEY)
-    BUNDLE_AZURE_CONTAINER = os.environ.get('BUNDLE_AZURE_CONTAINER', 'bundles')
+    # USE_AWS flag set for google as well.. TODO rename this...........
+    USE_AWS = DEFAULT_FILE_STORAGE == 'storages.backends.gcloud.GoogleCloudStorage'
+    GS_PUBLIC_BUCKET_NAME = os.environ.get('GS_PUBLIC_BUCKET_NAME')
+    GS_PRIVATE_BUCKET_NAME = os.environ.get('GS_PRIVATE_BUCKET_NAME')
+    # Default bucket set to public bucket
+    GS_BUCKET_NAME = GS_PUBLIC_BUCKET_NAME
+    # NOTE: Credentials are stored in a json file which GOOGLE_APPLICATION_CREDENTIALS env var
+    # should point to
+    # GS_CREDENTIALS = os.environ.get('GS_CREDENTIALS')
+    # GS_CREDENTIALS = service_account.Credentials.from_service_account_file('/path/to/key.json')
+
+    # Azure
+    # AZURE_ACCOUNT_NAME = os.environ.get('AZURE_ACCOUNT_NAME')
+    # AZURE_ACCOUNT_KEY = os.environ.get('AZURE_ACCOUNT_KEY')
+    # AZURE_CONTAINER = os.environ.get('AZURE_CONTAINER', 'public')
+    # BUNDLE_AZURE_ACCOUNT_NAME = os.environ.get('BUNDLE_AZURE_ACCOUNT_NAME', AZURE_ACCOUNT_NAME)
+    # BUNDLE_AZURE_ACCOUNT_KEY = os.environ.get('BUNDLE_AZURE_ACCOUNT_KEY', AZURE_ACCOUNT_KEY)
+    # BUNDLE_AZURE_CONTAINER = os.environ.get('BUNDLE_AZURE_CONTAINER', 'bundles')
 
 
     # =========================================================================
@@ -468,7 +468,7 @@ class Base(Configuration):
     RABBITMQ_PORT = os.environ.get('RABBITMQ_PORT', '5672')
     RABBITMQ_MANAGEMENT_PORT = os.environ.get('RABBITMQ_MANAGEMENT_PORT', '15672')
 
-    if DEBUG:
+    if DEBUG and SSL_CERTIFICATE:
         # To make RABBITMQ api calls work locally over SSL we need this set for requests
         # to recognize our cert
         os.environ.setdefault('REQUESTS_CA_BUNDLE', SSL_CERTIFICATE)

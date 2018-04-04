@@ -17,8 +17,12 @@ npm run build-css
 python manage.py collectstatic --noinput
 
 # migrate db, so we have the latest db schema
-# python manage.py syncdb --migrate
-# python manage.py syncdb
+python manage.py migrate
+
+# If the above migrations are failing upgrade an older database like so:
+#   # Unsure why I had to specially migrate this one
+#   $ python manage.py migrate oauth2_provider --fake
+#   $ python manage.py migrate --fake-initial
 
 # Insert initial data into the database
 python scripts/initialize.py
