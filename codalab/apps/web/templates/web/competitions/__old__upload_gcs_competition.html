@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block head_title %}Create Competition{% endblock head_title %}
+{% block page_title %}Create Competition{% endblock page_title %}
+
+{% block content %}
+    <div id="create_competition" class="panel panel-default s3-panel">
+        <div class="panel-body">
+            <div class="row">
+              <h3 class="center-block"  style="width:80%;">
+                To create a competition, upload a bundle with the definition of the new competition.
+                <a href="https://github.com/codalab/codalab/wiki/User_Competition-Roadmap"
+                   title="Get help with creating a competition" target="_blank">
+                    <span class="glyphicon glyphicon-question-sign"></span>
+                </a>
+              </h4>
+            </div>
+
+{#            <form id="s3_upload_form" action="{% url "competitions:s3_create_competition" %}" method="post">#}
+{#                {% csrf_token %}#}
+{#                <div class="form-group">#}
+{#                  <button type="button" id="submit-button" class="btn btn-primary">Upload Competition Bundle</button>#}
+{#                </div>#}
+{#                <div class="row">#}
+{#                  <div class="form-group center-block" style="width:50%; height: 10px;">#}
+{#                    {{ form }}#}
+{#                  </div>#}
+{#                </div>#}
+{#            </form>#}
+
+            <form id="s3_upload_form" action="{% url "competitions:s3_create_competition" %}" method="post">
+                {% csrf_token %}
+                {{ form }}
+                <input type="submit" value="Submit"/>
+            </form>
+
+            <div class="row">
+              <div id="details" class="center-block" style="width: 83%; margin-top:3rem;"></div>
+            </div>
+        </div>
+    </div>
+
+{#    <script>#}
+{#        $("#submit-button").click(function() {#}
+{#          $("input[type='file']").click()#}
+{#                var test_if_done = function() {#}
+{#                    var progress = $('a.file-link').attr('href') !== ""#}
+{#                    if( progress ) {#}
+{#                        $("#s3_upload_form").submit()#}
+{#                    } else {#}
+{#                        setTimeout(test_if_done, 100)#}
+{#                    }#}
+{#                }#}
+{#            test_if_done()#}
+{#            $("#s3_upload_form").submit()#}
+{#        })#}
+{##}
+{#        $("#s3_upload_form").submit(function(event) {#}
+{#            var printy_data = $("input[name='s3_config_bundle']").val()#}
+{#            console.log(printy_data)#}
+{#            event.preventDefault()#}
+{#            $.post(#}
+{#                '{% url 'competitions:s3_create_competition' %}',#}
+{#                $("#s3_upload_form").serialize()#}
+{#            ).success(function(data) {#}
+{#                console.log(data)#}
+{#                var token = data.token#}
+{#                var wait_for_competition = function() {#}
+{#                    $.ajax({#}
+{#                        url: '/api/competition/create/' + token,#}
+{#                        type: 'get',#}
+{#                        cache: false,#}
+{#                        data: { 'csrfmiddlewaretoken': $("input[name='csrfmiddlewaretoken']").val() }#}
+{#                    }).done(function(data) {#}
+{#                        if (data.status == 'finished') {#}
+{#                            $('#submit-button').prop('disabled', true).html('Nice!')#}
+{#                            $('#details').html('Congratulations! ' +#}
+{#                                "Your new competition is ready to <a href='/competitions/" + data.id + "'>view</a>. " +#}
+{#                                "You can also manage it from <a href='/my/#my_managing'>your CodaLab dashboard.</a>"#}
+{#                            );#}
+{#                        } else if (data.status == 'failed') {#}
+{#                            $('#details').html('<div class="alert alert-error">Oops! There was a problem creating the competition: <br><pre>' + data.error + '</pre></div>');#}
+{#                            $('#uploadButton').removeClass('disabled');#}
+{#                        } else {#}
+{#                            setTimeout(wait_for_competition, 1000);#}
+{#                        }#}
+{#                    }).fail(function() {#}
+{#                        $('#details').html('<div class="alert alert-error">An unexpected error occurred.</div>');#}
+{#                        $('#uploadButton').removeClass('disabled');#}
+{#                    });#}
+{#                };#}
+{#                wait_for_competition();#}
+{#                $('#submit-button').html('<div class="loading-btn"> <span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Loading <div>');#}
+{#            }).fail(function(data) {#}
+{#                console.log(data)#}
+{#            })#}
+{#        })#}
+{##}
+{##}
+{#    </script>#}
+{% endblock %}
+
+{% block extra_headers %}
+    {{ form.media }}
+
+{% endblock %}

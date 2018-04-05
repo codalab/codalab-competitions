@@ -420,7 +420,7 @@ class Base(Configuration):
         AWS_QUERYSTRING_AUTH = False  # Was set to string, convert to bool
 
     # USE_AWS flag set for google as well.. TODO rename this...........
-    USE_AWS = DEFAULT_FILE_STORAGE == 'storages.backends.gcloud.GoogleCloudStorage'
+    USE_GCS = DEFAULT_FILE_STORAGE == 'storages.backends.gcloud.GoogleCloudStorage'
     GS_PUBLIC_BUCKET_NAME = os.environ.get('GS_PUBLIC_BUCKET_NAME')
     GS_PRIVATE_BUCKET_NAME = os.environ.get('GS_PRIVATE_BUCKET_NAME')
     # Default bucket set to public bucket
