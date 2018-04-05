@@ -24,6 +24,7 @@ from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.contenttypes.models import ContentType
+from django.utils.deconstruct import deconstructible
 
 from django.core.cache import cache
 from django.core.exceptions import PermissionDenied
@@ -211,15 +212,17 @@ class ParticipantStatus(models.Model):
         return self.name
 
 
-def _uuidify(directory):
-    """Helper to generate UUID's in file names while maintaining their extension"""
-    # def wrapped_uuidify(obj, filename):
-    # name, extension = os.path.splitext(filename)
-    # truncated_uuid = str(uuid.uuid4())[0:5]
-    # truncated_name = name[0:35]
-    # return os.path.join(directory, str(obj.pk), truncated_uuid, "{0}{1}".format(truncated_name, extension))
-    return directory
-    # return wrapped_uuidify
+@deconstructible
+class _uuidify(object):
+
+    def __init__(self, directory):
+        self.directory = directory
+
+    def __call__(self, instance, filename):
+        name, extension = os.path.splitext(filename)
+        random_hash = str(uuid.uuid4())
+        truncated_name = name[0:35]
+        return os.path.join(self.directory, random_hash, "{0}{1}".format(truncated_name, extension))
 
 
 class Competition(ChaHubSaveMixin, models.Model):

@@ -16,7 +16,7 @@
                 </h3>
             </div>
 
-            <form id="gcs_upload_form" action="." method="post" enctype="multipart/form-data">
+            <form id="gcs_upload_form" action="" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="form-group">
                     <button type="button" id="submit-button" class="btn btn-primary">Upload Competition Bundle</button>
@@ -26,6 +26,8 @@
                         <input type="file" name="config_bundle">
                     </div>
                 </div>
+
+                <button>submit</button>
             </form>
 
             <div class="row">
@@ -64,7 +66,11 @@
         })
 
         $("input[type='file']").change(function () {
-            $('#gcs_upload_form').submit()
+            //$('#gcs_upload_form').submit()
+
+
+
+
             //_upload_ajax('/competitions/gcs_create_competition', new FormData(this), function(progress){
             //    console.log("Upload progress " + progress)
             //})
