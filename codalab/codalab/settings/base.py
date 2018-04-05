@@ -420,15 +420,15 @@ class Base(Configuration):
         AWS_QUERYSTRING_AUTH = False  # Was set to string, convert to bool
 
     # USE_AWS flag set for google as well.. TODO rename this...........
-    USE_GCS = DEFAULT_FILE_STORAGE == 'storages.backends.gcloud.GoogleCloudStorage'
+    USE_GCS = DEFAULT_FILE_STORAGE == 'apps.web.storage.CodalabGoogleCloudStorage'
     GS_PUBLIC_BUCKET_NAME = os.environ.get('GS_PUBLIC_BUCKET_NAME')
     GS_PRIVATE_BUCKET_NAME = os.environ.get('GS_PRIVATE_BUCKET_NAME')
     # Default bucket set to public bucket
     GS_BUCKET_NAME = GS_PUBLIC_BUCKET_NAME
-    # NOTE: Credentials are stored in a json file which GOOGLE_APPLICATION_CREDENTIALS env var
-    # should point to
-    # GS_CREDENTIALS = os.environ.get('GS_CREDENTIALS')
-    # GS_CREDENTIALS = service_account.Credentials.from_service_account_file('/path/to/key.json')
+    if USE_GCS:
+        assert os.environ.get('GOOGLE_APPLICATION_CREDENTIALS'), "Google Cloud Storage credentials are stored in a json " \
+                                                                 "file which GOOGLE_APPLICATION_CREDENTIALS env var " \
+                                                                 "should point to (edit in .env)"
 
     # Azure
     # AZURE_ACCOUNT_NAME = os.environ.get('AZURE_ACCOUNT_NAME')
