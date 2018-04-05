@@ -22,6 +22,10 @@ from collections import OrderedDict
 import sys
 
 from datetime import datetime
+from datetime import timedelta
+
+from django.utils import timezone
+
 from boto.s3.connection import S3Connection
 from celery import task
 from celery.app import app_or_default
@@ -328,7 +332,7 @@ def _make_url_sassy(path, permission='r', duration=60 * 60 * 24):
         )
     elif settings.USE_GCS:
         bucket = BundleStorage.client.get_bucket(settings.GS_PRIVATE_BUCKET_NAME)
-        return bucket.blob(path).generate_signed_url(duration)
+        return bucket.blob(path).generate_signed_url(expiration=timezone.now() + timedelta(seconds=duration))
     else:
         sassy_url = make_blob_sas_url(
             settings.BUNDLE_AZURE_ACCOUNT_NAME,

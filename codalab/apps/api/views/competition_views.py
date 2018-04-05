@@ -4,9 +4,11 @@ Defines Django views for 'apps.api' app for competitions
 import json
 import logging
 import os
+from datetime import timedelta
 
 from uuid import uuid4
 
+from django.utils import timezone
 from django.utils.text import slugify
 from rest_framework import (permissions, status, viewsets, views, filters)
 from django_filters.rest_framework import DjangoFilterBackend
@@ -35,6 +37,7 @@ from apps.web import models as webmodels
 from apps.teams import models as teammodels
 from apps.web.models import CompetitionSubmission
 from apps.web.tasks import (create_competition, evaluate_submission)
+from apps.web.utils import BundleStorage
 
 from codalab.azure_storage import make_blob_sas_url, PREFERRED_STORAGE_X_MS_VERSION
 
@@ -47,12 +50,16 @@ def _generate_blob_sas_url(prefix, extension):
     Helper to generate SAS URL for creating a BLOB.
     """
     blob_name = '{0}/{1}{2}'.format(prefix, str(uuid4()), extension)
-    url = make_blob_sas_url(settings.BUNDLE_AZURE_ACCOUNT_NAME,
-                            settings.BUNDLE_AZURE_ACCOUNT_KEY,
-                            settings.BUNDLE_AZURE_CONTAINER,
-                            blob_name,
-                            permission='w',
-                            duration=60)
+    if settings.USE_GCS:
+        bucket = BundleStorage.client.get_bucket(settings.GS_PRIVATE_BUCKET_NAME)
+        url = bucket.blob(blob_name).generate_signed_url(expiration=timezone.now() + timedelta(seconds=60))
+    else:
+        url = make_blob_sas_url(settings.BUNDLE_AZURE_ACCOUNT_NAME,
+                                settings.BUNDLE_AZURE_ACCOUNT_KEY,
+                                settings.BUNDLE_AZURE_CONTAINER,
+                                blob_name,
+                                permission='w',
+                                duration=60)
     logger.debug("_generate_blob_sas_url: sas=%s; blob_name=%s.", url, blob_name)
     return {'url': url, 'id': blob_name, 'version': PREFERRED_STORAGE_X_MS_VERSION}
 
