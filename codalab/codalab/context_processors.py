@@ -21,4 +21,5 @@ def common_settings(request):
         'local_ace_editor': codalab_settings.LOCAL_ACE_EDITOR,
         'is_dev': codalab_settings.IS_DEV,
         'USE_AWS': codalab_settings.USE_AWS,
+        'USE_GCS': codalab_settings.USE_GCS,
     }

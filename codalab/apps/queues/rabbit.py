@@ -17,10 +17,6 @@ def check_user_needs_initialization(user):
     rabbit = _get_rabbit_connection()
 
     try:
-        print("Trying something here")
-        print(user)
-        print(user.rabbitmq_username)
-        print(rabbit)
         rabbit.get_user_permissions(user.rabbitmq_username)
         # We found the user, no need to initialize
         return False
@@ -35,13 +31,8 @@ def initialize_user(user):
     user.rabbitmq_username = uuid.uuid4()
     user.rabbitmq_password = uuid.uuid4()
 
-    print user.rabbitmq_username
-    print user.rabbitmq_password
-
     rabbit = _get_rabbit_connection()
-    print(rabbit)
     rabbit.create_user(str(user.rabbitmq_username), str(user.rabbitmq_password))
-    # rabbit.create_user(str(user.rabbitmq_username), str(user.rabbitmq_password))
 
     # Give user permissions to send submission updates
     rabbit.set_vhost_permissions(

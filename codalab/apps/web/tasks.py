@@ -326,6 +326,9 @@ def _make_url_sassy(path, permission='r', duration=60 * 60 * 24):
             key=path,
             query_auth=True,
         )
+    elif settings.USE_GCS:
+        bucket = BundleStorage.client.get_bucket(settings.GS_PRIVATE_BUCKET_NAME)
+        return bucket.blob(path).generate_signed_url(duration)
     else:
         sassy_url = make_blob_sas_url(
             settings.BUNDLE_AZURE_ACCOUNT_NAME,

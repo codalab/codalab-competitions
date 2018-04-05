@@ -6,6 +6,7 @@ urlpatterns = [
     url(r'^(?P<pk>\d+)$', views.CompetitionDetailView.as_view(), name='view'),
     url(r'^create$', views.CompetitionUpload.as_view(), name='create'),
     url(r'^s3_create_competition$', views.CompetitionS3Upload.as_view(), name='s3_create_competition'),
+    url(r'^gcs_create_competition$', views.CompetitionGCSUpload.as_view(), name='gcs_create_competition'),
     url(r'^edit_competition/(?P<pk>\d+)$', views.CompetitionEdit.as_view(), name='edit'),
     url(r'^delete_competition/(?P<pk>\d+)$', views.CompetitionDelete.as_view(), name='delete'),
     url(r'^(?P<id>\d+)/submissions/(?P<phase>\d+)$', views.CompetitionSubmissionsPage.as_view(), name='competition_submissions_page'),
