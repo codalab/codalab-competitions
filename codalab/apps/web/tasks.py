@@ -306,17 +306,16 @@ def compute_worker_run(data, priority=None, **kwargs):
 
 
 def _make_url_sassy(path, permission='r', duration=60 * 60 * 24):
+    if permission == 'r':
+        # GET instead of r (read) for AWS
+        method = 'GET'
+    elif permission == 'w':
+        # GET instead of w (write) for AWS
+        method = 'PUT'
+    else:
+        # Default to get if we don't know
+        method = 'GET'
     if settings.USE_AWS:
-        if permission == 'r':
-            # GET instead of r (read) for AWS
-            method = 'GET'
-        elif permission == 'w':
-            # GET instead of w (write) for AWS
-            method = 'PUT'
-        else:
-            # Default to get if we don't know
-            method = 'GET'
-
         # Remove the beginning of the URL (before bucket name) so we just have the path to the file
         path = path.split(settings.AWS_STORAGE_PRIVATE_BUCKET_NAME)[-1]
 
@@ -332,7 +331,7 @@ def _make_url_sassy(path, permission='r', duration=60 * 60 * 24):
         )
     elif settings.USE_GCS:
         bucket = BundleStorage.client.get_bucket(settings.GS_PRIVATE_BUCKET_NAME)
-        return bucket.blob(path).generate_signed_url(expiration=timezone.now() + timedelta(seconds=duration))
+        return bucket.blob(path).generate_signed_url(expiration=timezone.now() + timedelta(seconds=duration), method=method)
     else:
         sassy_url = make_blob_sas_url(
             settings.BUNDLE_AZURE_ACCOUNT_NAME,

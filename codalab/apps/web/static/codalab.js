@@ -957,11 +957,13 @@ var CodaLab;
                 $.ajax({
                     url: uri,
                     type: 'PUT',
+                    contentType: 'application/xml'
                     data: data,
                     processData: false,
                     beforeSend: function(xhr) {
-                        xhr.setRequestHeader('x-ms-version', xmsversion);
-                        xhr.setRequestHeader('x-ms-blob-type', 'BlockBlob');
+                        // xhr.setRequestHeader('x-ms-version', xmsversion);
+                        // xhr.setRequestHeader('x-ms-blob-type', 'BlockBlob');
+                        console.log("No azure headers in codalab.js")
                     },
                     success: function(data, status) {
                         onload_success(data, status);
@@ -1037,10 +1039,11 @@ var CodaLab;
                 processData: false,
                 data: xmlLines.join('\n'),
                 beforeSend: function(xhr) {
-                    xhr.setRequestHeader('x-ms-version', that.state.sasVersion);
-                    xhr.setRequestHeader('x-ms-blob-content-type', file.type);
-                    xhr.setRequestHeader('x-ms-meta-name', file.name);
-                    xhr.setRequestHeader('x-ms-meta-size', file.size.toString());
+                    // xhr.setRequestHeader('x-ms-version', that.state.sasVersion);
+                    // xhr.setRequestHeader('x-ms-blob-content-type', file.type);
+                    // xhr.setRequestHeader('x-ms-meta-name', file.name);
+                    // xhr.setRequestHeader('x-ms-meta-size', file.size.toString());
+                    console.log("NOO")
                 },
                 success: function(data, status) {
                     that.options.uploadSuccess(file, that.state.trackingId);

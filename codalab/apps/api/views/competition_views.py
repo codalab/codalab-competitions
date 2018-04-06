@@ -51,8 +51,11 @@ def _generate_blob_sas_url(prefix, extension):
     """
     blob_name = '{0}/{1}{2}'.format(prefix, str(uuid4()), extension)
     if settings.USE_GCS:
+        print("SOMETHING HERE?")
         bucket = BundleStorage.client.get_bucket(settings.GS_PRIVATE_BUCKET_NAME)
-        url = bucket.blob(blob_name).generate_signed_url(expiration=timezone.now() + timedelta(seconds=60))
+        url = bucket.blob(blob_name).generate_signed_url(expiration=timezone.now() + timedelta(seconds=60), method='PUT', content_type='application/xml')
+        logger.debug("_generate_blob_sas_url: sas=%s; blob_name=%s.", url, blob_name)
+        return {'url': url, 'id': blob_name}
     else:
         url = make_blob_sas_url(settings.BUNDLE_AZURE_ACCOUNT_NAME,
                                 settings.BUNDLE_AZURE_ACCOUNT_KEY,
@@ -60,8 +63,8 @@ def _generate_blob_sas_url(prefix, extension):
                                 blob_name,
                                 permission='w',
                                 duration=60)
-    logger.debug("_generate_blob_sas_url: sas=%s; blob_name=%s.", url, blob_name)
-    return {'url': url, 'id': blob_name, 'version': PREFERRED_STORAGE_X_MS_VERSION}
+        logger.debug("_generate_blob_sas_url: sas=%s; blob_name=%s.", url, blob_name)
+        return {'url': url, 'id': blob_name, 'version': PREFERRED_STORAGE_X_MS_VERSION}
 
 
 @permission_classes((permissions.IsAuthenticated,))
