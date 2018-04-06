@@ -172,7 +172,7 @@ var CodaLab;
                 $.ajax({
                     url: uri,
                     type: 'PUT',
-                    contentType: 'application/xml',
+                    contentType: 'application/zip',
                     data: data,
                     processData: false,
                     beforeSend: function(xhr) {
@@ -240,19 +240,19 @@ var CodaLab;
         FileUploader.prototype.endUpload = function() {
             var uri = this.state.sasUrl + '&comp=blocklist';
             var file = this.getCurrentFile();
-            var xmlLines = ['<?xml version="1.0" encoding="utf-8"?>'];
-            xmlLines.push('<BlockList>');
-            for (var i = 0; i < this.state.blockIds.length; i++) {
-                xmlLines.push('  <Latest>' + this.state.blockIds[i] + '</Latest>');
-            }
-            xmlLines.push('</BlockList>');
+            // var xmlLines = ['<?xml version="1.0" encoding="utf-8"?>'];
+            // xmlLines.push('<BlockList>');
+            // for (var i = 0; i < this.state.blockIds.length; i++) {
+            //     xmlLines.push('  <Latest>' + this.state.blockIds[i] + '</Latest>');
+            // }
+            // xmlLines.push('</BlockList>');
             var that = this;
             $.ajax({
                 url: uri,
                 type: 'PUT',
-                contentType: 'application/xml',
+                contentType: 'application/zip',
                 processData: false,
-                data: xmlLines.join('\n'),
+                data: file,
                 beforeSend: function(xhr) {
                     // xhr.setRequestHeader('x-ms-version', that.state.sasVersion);
                     // xhr.setRequestHeader('x-ms-blob-content-type', file.type);
