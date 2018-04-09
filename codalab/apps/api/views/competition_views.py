@@ -149,7 +149,8 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
     filter_fields = ('creator')
     search_fields = ("title", "description", "=creator__username")
 
-    @method_decorator(login_required)
+    # @method_decorator(login_required)
+    @permission_classes(permissions.IsAuthenticated,)
     def destroy(self, request, pk, *args, **kwargs):
         """
         Cleanup the destruction of a competition.
@@ -216,8 +217,7 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
         from_email = from_email if from_email else settings.DEFAULT_FROM_EMAIL
 
         context_data["site"] = Site.objects.get_current()
-
-        context = Context(context_data)
+        context = context_data
         text = render_to_string(text_file, context)
         html = render_to_string(html_file, context)
 
@@ -226,7 +226,7 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
         message.send()
 
     # @action(permission_classes=[permissions.IsAuthenticated])
-    @permission_classes((permissions.IsAuthenticated,))
+    @detail_route(permission_classes=[permissions.IsAuthenticated], methods=['POST'])
     def participate(self, request, pk=None):
         comp = self.get_object()
 
@@ -314,7 +314,8 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
         return Response(resp, status=status)
 
     # @link(permission_classes=[permissions.IsAuthenticated])
-    @permission_classes((permissions.IsAuthenticated,))
+    # @permission_classes((permissions.IsAuthenticated,))
+    @detail_route(permission_classes=[permissions.IsAuthenticated], methods=['GET'])
     def mystatus(self, request, pk=None):
         return self._get_userstatus(request, pk)
 
@@ -430,7 +431,7 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
         return Response(json.dumps(resp), content_type="application/json")
 
     # @action(permission_classes=[permissions.IsAuthenticated])
-    @permission_classes((permissions.IsAuthenticated,))
+    @detail_route(permission_classes=[permissions.IsAuthenticated], methods=['GET'])
     def info(self, request, *args, **kwargs):
         comp = self.get_object()
         comp.title = request.data.get('title')
