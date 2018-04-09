@@ -1182,10 +1182,14 @@ class MyCompetitionSubmissionOutput(View):
             return HttpResponse(status=400)
         except:
             return HttpResponse(status=500)
-        if settings.USE_AWS:
+        if settings.USE_AWS or settings.USE_GCS:
+            if settings.USE_AWS:
+                temp_file_name = file_name
+            else:
+                temp_file_name = file.name
             if file_name:
                 return HttpResponseRedirect(
-                    _make_url_sassy(file_name)
+                    _make_url_sassy(temp_file_name)
                 )
             else:
                 raise Http404()
