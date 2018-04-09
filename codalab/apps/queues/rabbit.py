@@ -14,13 +14,13 @@ def _get_rabbit_connection():
 
 
 def check_user_needs_initialization(user):
-    rabbit = _get_rabbit_connection()
+    conn = _get_rabbit_connection()
 
     try:
-        rabbit.get_user_permissions(user.rabbitmq_username)
+        conn.get_user_permissions(user.rabbitmq_username)
         # We found the user, no need to initialize
         return False
-    except NetworkError:
+    except (HTTPError, NetworkError):
         # User not found, needs initialization
         return True
 
@@ -31,13 +31,13 @@ def initialize_user(user):
     user.rabbitmq_username = uuid.uuid4()
     user.rabbitmq_password = uuid.uuid4()
 
-    rabbit = _get_rabbit_connection()
-    rabbit.create_user(str(user.rabbitmq_username), str(user.rabbitmq_password))
+    conn = _get_rabbit_connection()
+    conn.create_user(str(user.rabbitmq_username), str(user.rabbitmq_password))
 
     # Give user permissions to send submission updates
-    rabbit.set_vhost_permissions(
+    conn.set_vhost_permissions(
         '/',
-        user.rabbitmq_username,
+        str(user.rabbitmq_username),
         '.*',
         '.*submission-updates.*',
         '.*submission-updates.*'
@@ -50,11 +50,11 @@ def initialize_user(user):
 def create_queue(user):
     """Create a new queue with a random name and give full permissions to the owner AND our base account"""
     vhost = str(uuid.uuid4())
-    rabbit = _get_rabbit_connection()
-    rabbit.create_vhost(vhost)
+    conn = _get_rabbit_connection()
+    conn.create_vhost(vhost)
 
     # Set permissions for our end user
-    rabbit.set_vhost_permissions(
+    conn.set_vhost_permissions(
         vhost,
         user.rabbitmq_username,
         '.*',
@@ -63,7 +63,7 @@ def create_queue(user):
     )
 
     # Set permissions for ourselves
-    rabbit.set_vhost_permissions(
+    conn.set_vhost_permissions(
         vhost,
         settings.RABBITMQ_DEFAULT_USER,
         '.*',
@@ -75,5 +75,5 @@ def create_queue(user):
 
 
 def delete_vhost(vhost):
-    rabbit = _get_rabbit_connection()
-    rabbit.delete_vhost(vhost)
+    conn = _get_rabbit_connection()
+    conn.delete_vhost(vhost)
