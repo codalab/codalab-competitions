@@ -153,6 +153,7 @@ services:
     volumes:
       - ./codalab:/app/codalab
       - ./docker:/app/docker
+      - ./certs:/app/certs
       - ${LOGGING_DIR}/worker_site:/var/log/
     environment:
       # Stop memory leaks

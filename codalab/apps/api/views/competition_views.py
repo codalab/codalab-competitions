@@ -45,11 +45,11 @@ logger = logging.getLogger(__name__)
 
 
 
-def _generate_blob_sas_url(prefix, extension):
+def _generate_blob_sas_url(prefix, extension, name='blob'):
     """
     Helper to generate SAS URL for creating a BLOB.
     """
-    blob_name = '{0}/{1}{2}'.format(prefix, str(uuid4()), extension)
+    blob_name = '{0}/{1}/{2}{3}'.format(prefix, str(uuid4()), name, extension)
     if settings.USE_GCS:
         print("SOMETHING HERE?")
         bucket = BundleStorage.client.get_bucket(settings.GS_PRIVATE_BUCKET_NAME)
@@ -550,8 +550,9 @@ class CompetitionSubmissionSasApi(views.APIView):
         """
         if len(competition_id) <= 0:
             raise ParseError(detail='Invalid competition ID.')
+        name, _ = os.path.splitext(request.POST.get('name'))
         prefix = 'competition/{0}/submission/{1}'.format(competition_id, request.user.id)
-        response_data = _generate_blob_sas_url(prefix, '.zip')
+        response_data = _generate_blob_sas_url(prefix, '.zip', name=name)
         return Response(response_data, status=status.HTTP_201_CREATED)
 
 
