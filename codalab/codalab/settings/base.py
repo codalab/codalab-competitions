@@ -36,6 +36,7 @@ class Base(Configuration):
     DOMAIN_NAME = 'localhost'
     SERVER_NAME = 'localhost'
     DEBUG = os.environ.get('DEBUG', False)
+
     COMPILE_LESS = True  # is the less -> css already done or would you like less.js to compile it on render
     LOCAL_MATHJAX = False  # see prep_for_offline
     LOCAL_ACE_EDITOR = False  # see prep_for_offline
@@ -187,6 +188,7 @@ class Base(Configuration):
 
     TEMPLATES = [
         {
+            'TEMPLATE_DEBUG': DEBUG,
             'BACKEND': 'django.template.backends.django.DjangoTemplates',
             'DIRS': [
                 SEARCH_TEMPLATES,
