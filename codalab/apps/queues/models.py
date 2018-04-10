@@ -19,7 +19,6 @@ class Queue(models.Model):
         settings.AUTH_USER_MODEL,
         related_name='organizers',
         blank=True,
-        null=True,
         help_text="(Organizers allowed to view this queue when they assign their competition to a queue)"
     )
 

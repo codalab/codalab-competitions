@@ -979,7 +979,8 @@ def make_modified_bundle(competition_pk, exclude_datasets_flag):
                             if data_field.file.name not in file_cache.keys():
                                 if exclude_datasets_flag:
                                     data_field = getattr(phase, data_type + '_organizer_dataset')
-                                    phase_dict[data_type] = data_field.key
+                                    # Cast UUID to string so YAML can represent
+                                    phase_dict[data_type] = str(data_field.key)
                                     file_name = "{}_{}.zip".format(data_type, phase.phasenumber)
                                     file_cache[data_field.name] = {
                                         'name': file_name
@@ -996,7 +997,8 @@ def make_modified_bundle(competition_pk, exclude_datasets_flag):
                                 if exclude_datasets_flag:
                                     data_field = getattr(phase, data_type + '_organizer_dataset')
                                     # file_name = file_cache[data_field.name]['name']
-                                    phase_dict[data_type] = data_field.key
+                                    # Cast UUID to string so YAML can represent
+                                    phase_dict[data_type] = str(data_field.key)
                                 else:
                                     file_name = file_cache[str(data_field.name)]['name']
                                     phase_dict[data_type] = file_name

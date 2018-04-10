@@ -13,37 +13,53 @@ import os
 class Command(BaseCommand):
     help = "Creates competition."
 
-    option_list = BaseCommand.option_list + (
-        make_option('--title',
-                    dest='title',
-                    help="Name ofthe competition"),
-        make_option('--description',
-                    dest='description',
-                    help="Description of the competition"),
-        make_option('--creator',
-                    dest='creator',
-                    help="Email address of creator"),
-        make_option('--logo',
-                    dest='logo',
-                    help="The file of the logo for the competition"),
-        make_option('--force_user_create',
-                    dest='create_user',
-                    action='store_true', default=False,
-                    help="Create user if non existant"
-                    ),
-        make_option('--numphases',
-                    dest='numphases',
-                    default=0,
-                    type="int",
-                    help="Number of phases to create"
-                    ),
-        make_option('--phasedates',
-                    dest='phasedates',
-                    type='string',
-                    default=None,
-                    help="Comma-seprated list of the startdates of the phases: YYYY-MM-DD,YYYY-MM-DD"
-                    )
-    )
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--title',
+            dest='title',
+            type=str,
+            help="Name of the competition"
+        )
+        parser.add_argument(
+            '--description',
+            dest='description',
+            type=str,
+            help="Description of the competition"
+        )
+        parser.add_argument(
+            '--creator',
+            dest='creator',
+            type=str,
+            help="Email address of creator"
+        )
+        parser.add_argument(
+            '--logo',
+            dest='logo',
+            type=str,
+            help="The file of the logo for the competition"
+        )
+        parser.add_argument(
+            '--force_user_create',
+            dest='force_user_create',
+            action='store_true',
+            default=False,
+            # type=bool,
+            help="Create user if non existant"
+        )
+        parser.add_argument(
+            '--numphases',
+            dest='numphases',
+            type=int,
+            default=0,
+            help="Number of phases to create"
+        )
+        parser.add_argument(
+            '--phasedates',
+            dest='phasedates',
+            type=str,
+            default=None,
+            help="Comma-seperated list of start dates of phases: YYYY-MM-DD,YYYY-MM-DD"
+        )
 
     def handle(self, *args, **options):
         print " ----- "

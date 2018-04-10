@@ -244,7 +244,7 @@ class Competition(ChaHubSaveMixin, models.Model):
     start_date = models.DateTimeField(null=True, blank=True, verbose_name="Start Date (UTC)")
     end_date = models.DateTimeField(null=True, blank=True, verbose_name="End Date (UTC)")
     creator = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='competitioninfo_creator')
-    admins = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='competition_admins', blank=True, null=True)
+    admins = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='competition_admins', blank=True)
     modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='competitioninfo_modified_by')
     last_modified = models.DateTimeField(auto_now_add=True)
     pagecontainers = GenericRelation(PageContainer)
@@ -268,7 +268,7 @@ class Competition(ChaHubSaveMixin, models.Model):
     anonymous_leaderboard = models.BooleanField(default=False)
     enable_teams = models.BooleanField(default=False, verbose_name="Enable Competition level teams")
     require_team_approval = models.BooleanField(default=True, verbose_name="Organizers need to approve the new teams")
-    teams = models.ManyToManyField(Team, related_name='competition_teams', blank=True, null=True)
+    teams = models.ManyToManyField(Team, related_name='competition_teams', blank=True)
     hide_top_three = models.BooleanField(default=False, verbose_name="Hide Top Three Leaderboard")
     hide_chart = models.BooleanField(default=False, verbose_name="Hide Chart")
 
@@ -2285,7 +2285,7 @@ class OrganizerDataSet(models.Model):
         blank=True,
         null=True,
     )
-    sub_data_files = models.ManyToManyField('OrganizerDataSet', null=True, blank=True, verbose_name="Bundle of data files")
+    sub_data_files = models.ManyToManyField('OrganizerDataSet', blank=True, verbose_name="Bundle of data files")
     uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL)
     key = models.UUIDField()
 

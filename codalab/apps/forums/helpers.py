@@ -20,7 +20,7 @@ def send_mail(context_data=None, from_email=None, html_file=None, text_file=None
     from django.contrib.sites.models import Site
     context_data["site"] = Site.objects.get_current()
 
-    context = Context(context_data)
+    context = context_data
     text = render_to_string(text_file, context)
     html = render_to_string(html_file, context)
 

@@ -8,23 +8,22 @@ from optparse import make_option
 class Command(BaseCommand):
     help = "Adds a particpant to a competition. If the user does not exist, it will create one."
 
-    option_list = BaseCommand.option_list + (
-        make_option('--email',
-                    dest='email',
-                    help="Email of the user"),
-        make_option('--competition',
-                    dest='competition',
-                    default=None,
-                    help="ID of the competition"),
-        make_option('--status',
-                    choices=(
-                        ParticipantStatus.UNKNOWN, ParticipantStatus.PENDING,
-                        ParticipantStatus.APPROVED, ParticipantStatus.DENIED),
-                    dest='status',
-                    default=ParticipantStatus.PENDING,
-                    help="The initial status of the created participant"
-                    )
-    )
+    def add_arguments(self, parser):
+        parser.add_argument('--email',
+                            dest='email',
+                            help="Email of the user"),
+        parser.add_argument('--competition',
+                            dest='competition',
+                            default=None,
+                            help="ID of the competition"),
+        parser.add_argument('--status',
+                            choices=(
+                                ParticipantStatus.UNKNOWN, ParticipantStatus.PENDING,
+                                ParticipantStatus.APPROVED, ParticipantStatus.DENIED),
+                            dest='status',
+                            default=ParticipantStatus.PENDING,
+                            help="The initial status of the created participant"
+                            )
 
     def handle(self, *args, **options):
         competition_id = options['competition']

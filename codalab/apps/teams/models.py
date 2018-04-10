@@ -201,7 +201,7 @@ class Team(models.Model):
     image_url_base = models.CharField(max_length=255)
     allow_requests = models.BooleanField(default=True, verbose_name="Allow requests")
     creator = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='team_creator')
-    members = models.ManyToManyField(settings.AUTH_USER_MODEL, through='TeamMembership', blank=True, null=True)
+    members = models.ManyToManyField(settings.AUTH_USER_MODEL, through='TeamMembership', blank=True)
     created_at = models.DateTimeField(null=True, auto_now_add=True)
     last_modified = models.DateTimeField(auto_now_add=True)
     status = models.ForeignKey(TeamStatus, null=True)

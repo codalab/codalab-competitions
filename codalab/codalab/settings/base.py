@@ -36,7 +36,6 @@ class Base(Configuration):
     DOMAIN_NAME = 'localhost'
     SERVER_NAME = 'localhost'
     DEBUG = os.environ.get('DEBUG', False)
-    TEMPLATE_DEBUG = DEBUG
     COMPILE_LESS = True  # is the less -> css already done or would you like less.js to compile it on render
     LOCAL_MATHJAX = False  # see prep_for_offline
     LOCAL_ACE_EDITOR = False  # see prep_for_offline
@@ -182,6 +181,9 @@ class Base(Configuration):
     # )
 
     SEARCH_TEMPLATES = os.path.join(PROJECT_DIR,'templates')
+
+    # The below setting goes in TEMPLATE['OPTIONS'] but is un-requred due to defaulting to settings.DEBUG
+    # TEMPLATE_DEBUG = DEBUG
 
     TEMPLATES = [
         {
