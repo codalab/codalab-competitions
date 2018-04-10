@@ -188,7 +188,6 @@ class Base(Configuration):
 
     TEMPLATES = [
         {
-            'TEMPLATE_DEBUG': DEBUG,
             'BACKEND': 'django.template.backends.django.DjangoTemplates',
             'DIRS': [
                 SEARCH_TEMPLATES,
