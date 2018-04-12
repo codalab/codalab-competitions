@@ -291,7 +291,7 @@ def _prepare_compute_worker_run(job_id, submission, is_prediction):
         # Send to special queue?
         app = app_or_default()
         with app.connection() as new_connection:
-            new_connection.virtual_host = submission.phase.competition.queue.vhost
+            new_connection.virtual_host = str(submission.phase.competition.queue.vhost)
             compute_worker_run(data, soft_time_limit=time_limit, connection=new_connection)
     else:
         compute_worker_run(data, soft_time_limit=time_limit, priority=2)
