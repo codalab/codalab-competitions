@@ -35,5 +35,5 @@ urlpatterns = patterns(
     url(r'^(?P<pk>\d+)/public_submissions/(?P<phase>\d+)$', views.CompetitionPublicSubmissionByPhases.as_view(), name='public_submissions_phase'),
     url(r'^(?P<competition_pk>\d+)/dumps/$', views.competition_dumps_view, name='dumps'),
     url(r'^(?P<pk>\d+)/delete_dump/$', views.CompetitionDumpDeleteView.as_view(), name="delete_dump"),
-
+    url(r'^(?P<competition_pk>\d+)/create_org_team/$', views.CompetitionOrganizerTeams.as_view(), name='create_org_team'),
 )

@@ -46,6 +46,7 @@ class CompetitionForm(forms.ModelForm):
             'enable_forum',
             'anonymous_leaderboard',
             'enable_teams',
+            'allow_organizer_teams',
             'require_team_approval',
             'competition_docker_image',
             'hide_top_three',
@@ -292,3 +293,8 @@ class SubmissionS3UploadForm(forms.ModelForm):
 
         self.fields['s3_file'].required = True
         self.fields['s3_file'].label = ''
+
+
+class OrganizerTeamForm(forms.Form):
+    team_name = forms.CharField()
+    team_members = forms.CharField(widget=forms.Textarea)
