@@ -11,6 +11,8 @@ import yaml
 import zipfile
 
 from decimal import Decimal
+
+from django.views.generic.base import ContextMixin
 from yaml.representer import SafeRepresenter
 
 from django.db import connection
@@ -49,7 +51,7 @@ from apps.coopetitions.models import Like, Dislike
 from apps.forums.models import Forum
 from apps.common.competition_utils import get_most_popular_competitions, get_featured_competitions
 from apps.web.exceptions import ScoringException
-from apps.web.forms import CompetitionS3UploadForm, SubmissionS3UploadForm
+from apps.web.forms import CompetitionS3UploadForm, SubmissionS3UploadForm, OrganizerTeamForm
 from apps.web.models import SubmissionScore, SubmissionScoreDef, get_current_phase, \
     get_first_previous_active_and_next_phases
 
@@ -1024,6 +1026,7 @@ class MyCompetitionParticipantView(LoginRequiredMixin, ListView):
 
         # If teams are enabled for this competition, add team information
         competition = models.Competition.objects.get(pk=self.kwargs.get('competition_id'))
+        context['allow_organizer_teams'] = competition.allow_organizer_teams
         if competition.enable_teams:
             context['teams_enabled'] = True
             participant_memberships = TeamMembership.objects.filter(user__in=competition_participants_ids)
@@ -1911,6 +1914,33 @@ def competition_dumps_view(request, competition_pk):
         raise Http404()
 
     return render(request, "web/competitions/dumps.html", {"dumps": dumps, "competition": competition})
+
+
+class CompetitionOrganizerTeams(FormView, ContextMixin):
+    form_class = OrganizerTeamForm
+    template_name = 'web/my/organizer_teams.html'
+    # success_url = reverse('competitions:participants')
+
+    def form_valid(self, form):
+        print("Yay")
+        try:
+            competition = models.Competition.objects.get(pk=self.kwargs['competition_pk'])
+        except ObjectDoesNotExist:
+            print("Could not find a competition for that PK!")
+        self.success_url = reverse("competitions:view", kwargs={'pk': competition.pk})
+        return super(CompetitionOrganizerTeams, self).form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super(CompetitionOrganizerTeams, self).get_context_data(**kwargs)
+        try:
+            competition = models.Competition.objects.get(pk=self.kwargs['competition_pk'])
+            context['competition'] = competition
+            context['my_form'] = OrganizerTeamForm()
+        except ObjectDoesNotExist:
+            print("Could not find a competition for that PK!")
+        return context
+
+
 
 
 @login_required

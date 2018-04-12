@@ -264,6 +264,7 @@ class Competition(ChaHubSaveMixin, models.Model):
     teams = models.ManyToManyField(Team, related_name='competition_teams', blank=True, null=True)
     hide_top_three = models.BooleanField(default=False, verbose_name="Hide Top Three Leaderboard")
     hide_chart = models.BooleanField(default=False, verbose_name="Hide Chart")
+    allow_organizer_teams = models.BooleanField(default=False, verbose_name="Allow Organizer Teams")
 
     competition_docker_image = models.CharField(max_length=128, default='', blank=True)
 
