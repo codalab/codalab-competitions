@@ -1949,6 +1949,27 @@ class CompetitionDumpDeleteView(DeleteView):
         return reverse('competitions:dumps', kwargs={'competition_pk': dump.competition.pk})
 
 
+class CompetitionWidgetsView(LoginRequiredMixin, DetailView):
+    queryset = models.Competition.objects.all()
+    template_name = 'web/competitions/widgets.html'
+
+    def get_object(self, queryset=None):
+        self.object = super(CompetitionWidgetsView, self).get_object()
+        if self.request.user != self.object.creator and self.request.user not in self.object.admins.all():
+            raise Http404()
+        return self.object
+
+
+class CompetitionSubmissionWidgetView(DetailView):
+    queryset = models.Competition.objects.all()
+    template_name = 'web/widget_iframes/submission.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(CompetitionSubmissionWidgetView, self).get_context_data(**kwargs)
+        context['current_phase'] = get_current_phase(self.object)
+        return context
+
+
 @login_required
 def user_lookup(request):
     search = request.GET.get('term')

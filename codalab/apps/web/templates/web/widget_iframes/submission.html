@@ -1,0 +1,89 @@
+{% load static %}
+
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/riot/3.9.1/riot+compiler.min.js" integrity="sha256-+juQoCyuN9TkYFfIoWlKlLeUumBwxbekKF2+/vuV6So=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+
+    <script src="{% static 'riot/submission-form.tag' %}" type="riot/tag"></script>
+
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/imports.css">
+
+    <script>
+        // Setup CSRF
+        function csrfSafeMethod(method) {
+            // these HTTP methods do not require CSRF protection
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
+
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        var csrftoken = getCookie('csrftoken');
+
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+    </script>
+
+    <style>
+        body {
+            padding: 20px;
+        }
+        iframe {
+            border: none;
+        }
+    </style>
+</head>
+
+<body>
+    <h3>Codalab submission panel</h3>
+    <dl>
+        <dt>Submitting to</dt>
+        <dd>{{ competition }}</dd>
+        <dt>Current phase</dt>
+        <dd>{{ current_phase.label }}</dd>
+    </dl>
+
+    {% if request.user.is_authenticated %}
+        <submission-form competition_id="{{ competition.pk }}" phase_id="{{ current_phase.pk }}"></submission-form>
+    {% else %}
+        <i>You must <button onclick="check_auth_loop();">login before</button> continuing!</i>
+    {% endif %}
+
+    <script>
+        riot.mount('*')
+
+        var auth_window = undefined
+        var check_auth_loop = function() {
+            if(auth_window === undefined) {
+                auth_window = window.open("{% url 'account_login' %}?next=/close", "Codalab login", "height=640,width=640")
+            }
+            if(auth_window.closed) {
+                window.location.reload()
+            } else {
+                setTimeout(check_auth_loop, 10)
+            }
+        }
+    </script>
+</body>
+</html>

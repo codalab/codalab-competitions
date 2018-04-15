@@ -37,6 +37,9 @@ urlpatterns = patterns('',
 
     # Static pages
     url(r'^(?i)highlights/?', TemplateView.as_view(template_name='web/highlights.html'), name="highlights"),
+
+    # Helper that closes window upon visiting
+    url(r'^close/$', TemplateView.as_view(template_name='close.html')),
 )
 
 
@@ -98,9 +101,13 @@ if settings.DEBUG:
     #     )),
     # )
 
-    '''
-    Admin
-    '''
+    # Admin
     urlpatterns += patterns('',
         url(r'^admin/', include(admin.site.urls)),
     )
+
+    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+
+    # Local static files
+    from django.contrib.staticfiles.views import serve
+    urlpatterns += [url(r'^static/(?P<path>.*)$', serve), ]
