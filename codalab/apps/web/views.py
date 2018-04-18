@@ -1977,6 +1977,36 @@ class CompetitionLeaderboardWidgetView(WidgetMixin, DetailView):
     queryset = models.Competition.objects.all()
     template_name = 'web/widget_iframes/leaderboard.html'
 
+    def get_context_data(self, **kwargs):
+        context = super(CompetitionLeaderboardWidgetView, self).get_context_data(**kwargs)
+        try:
+            context['block_leaderboard_view'] = True
+            competition = self.object
+            phase = get_current_phase(competition)
+            is_owner = self.request.user.id == competition.creator_id
+            context['competition_admins'] = competition.admins.all()
+            context['is_owner'] = is_owner
+            context['phase'] = phase
+            context['groups'] = phase.scores()
+
+            for group in context['groups']:
+                for _, scoredata in group['scores']:
+                    sub = models.CompetitionSubmission.objects.get(pk=scoredata['id'])
+                    scoredata['date'] = sub.submitted_at
+                    scoredata['count'] = sub.phase.submissions.filter(participant=sub.participant).count()
+                    if sub.team:
+                        scoredata['team_name'] = sub.team.name
+
+            user = self.request.user
+
+            # Will allow creator and admin to see Leaderboard in advanced
+            if user == phase.competition.creator or user in phase.competition.admins.all():
+                context['block_leaderboard_view'] = False
+        except:
+            context['error'] = traceback.format_exc()
+        finally:
+            return context
+
 
 @login_required
 def user_lookup(request):
