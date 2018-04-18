@@ -12,12 +12,13 @@
 
 {% block content %}
 
-<a href="{% url "competitions:view" pk=competition.pk %}" class="pull-right" >Go Back to Competition Homepage</a>
-
-    <form action="" method="post">
+    <a href="{% url "competitions:view" pk=competition.pk %}" class="pull-right">Go Back to Competition Homepage</a>
+    {{ csv_form.non_field_errors }}
+    <form action="{% url "create_org_teams_from_csv" competition_pk=competition.pk %}" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
-        {{ my_form.as_p }}
+        {{ form.as_p }}
         <input type="submit" value="Submit">
     </form>
+
 
 {% endblock %}

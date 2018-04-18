@@ -293,8 +293,3 @@ class SubmissionS3UploadForm(forms.ModelForm):
 
         self.fields['s3_file'].required = True
         self.fields['s3_file'].label = ''
-
-
-class OrganizerTeamForm(forms.Form):
-    team_name = forms.CharField()
-    team_members = forms.CharField(widget=forms.Textarea)

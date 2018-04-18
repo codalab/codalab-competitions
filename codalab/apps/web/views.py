@@ -31,7 +31,7 @@ from django.db.models import Q, Max, Min, Count
 from django.http import Http404, HttpResponseForbidden
 from django.http import HttpResponse, HttpResponseRedirect
 from django.http import StreamingHttpResponse
-from django.shortcuts import render_to_response, render
+from django.shortcuts import render_to_response, render, redirect
 from django.template import RequestContext, loader
 from django.utils.decorators import method_decorator
 from django.utils.html import strip_tags
@@ -43,6 +43,7 @@ from django.utils import timezone
 
 from mimetypes import MimeTypes
 
+from apps.teams.forms import OrganizerTeamsCSVForm
 from apps.jobs.models import Job
 from apps.web import forms
 from apps.web import models
@@ -51,14 +52,14 @@ from apps.coopetitions.models import Like, Dislike
 from apps.forums.models import Forum
 from apps.common.competition_utils import get_most_popular_competitions, get_featured_competitions
 from apps.web.exceptions import ScoringException
-from apps.web.forms import CompetitionS3UploadForm, SubmissionS3UploadForm, OrganizerTeamForm
+from apps.web.forms import CompetitionS3UploadForm, SubmissionS3UploadForm
 from apps.web.models import SubmissionScore, SubmissionScoreDef, get_current_phase, \
-    get_first_previous_active_and_next_phases
+    get_first_previous_active_and_next_phases, Competition
 
 from apps.authenz.models import ClUser
 from tasks import evaluate_submission, re_run_all_submissions_in_phase, create_competition, _make_url_sassy, \
     make_modified_bundle
-from apps.teams.models import TeamMembership, get_user_team, get_competition_teams, get_competition_pending_teams, get_competition_deleted_teams, get_last_team_submissions, get_user_requests, get_team_pending_membership
+from apps.teams.models import Team, TeamMembership, get_user_team, get_competition_teams, get_competition_pending_teams, get_competition_deleted_teams, get_last_team_submissions, get_user_requests, get_team_pending_membership
 
 from extra_views import UpdateWithInlinesView, InlineFormSet, NamedFormsetsMixin
 
@@ -1027,8 +1028,10 @@ class MyCompetitionParticipantView(LoginRequiredMixin, ListView):
         # If teams are enabled for this competition, add team information
         competition = models.Competition.objects.get(pk=self.kwargs.get('competition_id'))
         context['allow_organizer_teams'] = competition.allow_organizer_teams
-        if competition.enable_teams:
-            context['teams_enabled'] = True
+        context['csv_form'] = OrganizerTeamsCSVForm(competition_pk=self.kwargs.get('competition_id'), creator_pk=competition.creator.pk)
+        if competition.enable_teams or competition.allow_organizer_teams:
+            if competition.enable_teams:
+                context['teams_enabled'] = True
             participant_memberships = TeamMembership.objects.filter(user__in=competition_participants_ids)
             teams_list = []
             for number, team in enumerate(get_competition_teams(competition)):
@@ -1914,33 +1917,6 @@ def competition_dumps_view(request, competition_pk):
         raise Http404()
 
     return render(request, "web/competitions/dumps.html", {"dumps": dumps, "competition": competition})
-
-
-class CompetitionOrganizerTeams(FormView, ContextMixin):
-    form_class = OrganizerTeamForm
-    template_name = 'web/my/organizer_teams.html'
-    # success_url = reverse('competitions:participants')
-
-    def form_valid(self, form):
-        print("Yay")
-        try:
-            competition = models.Competition.objects.get(pk=self.kwargs['competition_pk'])
-        except ObjectDoesNotExist:
-            print("Could not find a competition for that PK!")
-        self.success_url = reverse("competitions:view", kwargs={'pk': competition.pk})
-        return super(CompetitionOrganizerTeams, self).form_valid(form)
-
-    def get_context_data(self, **kwargs):
-        context = super(CompetitionOrganizerTeams, self).get_context_data(**kwargs)
-        try:
-            competition = models.Competition.objects.get(pk=self.kwargs['competition_pk'])
-            context['competition'] = competition
-            context['my_form'] = OrganizerTeamForm()
-        except ObjectDoesNotExist:
-            print("Could not find a competition for that PK!")
-        return context
-
-
 
 
 @login_required
