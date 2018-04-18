@@ -13,11 +13,19 @@
 {% block content %}
 
 <a href="{% url "competitions:view" pk=competition_id %}" class="pull-right" >Go Back to Competition Homepage</a>
-<a href="{% url "competitions:create_org_team" competition_pk=competition_id %}" class="pull-middle btn btn-default" >Create Organizer Team</a>
+{% if allow_organizer_teams %}
+    <a href="{% url "create_org_team" competition_pk=competition_id %}" class="pull-middle btn btn-default" >Create Organizer Team</a>
+    {{ csv_form.non_field_errors }}
+    <form action="{% url "create_org_teams_from_csv" competition_pk=competition_id %}" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ csv_form.as_p }}
+        <input type="submit" value="Submit">
+    </form>
+{% endif %}
 
 <div class="participants">
     <h3>Teams</h3>
-    {% if teams_enabled %}
+    {% if teams_enabled or allow_organizer_teams %}
         {% if not allow_organizer_teams %}
             {% if pending_teams %}
                 {% for item in pending_teams %}
@@ -43,7 +51,7 @@
                             {% if item.status.codename == 'denied' %}
                                 <p class="text-danger">Reason: {{ item.reason }}</p>
                             {% endif %}
-                            <form class="custom process_request" id="team_request_{{ item.id }}">{% csrf_token %}
+                            <form class="custom process_request form-participate" id="team_request_{{ item.id }}">{% csrf_token %}
                                 <input type="hidden" name="team_id" value="{{ item.id }}"/>
                                 <div class="row">
                                     <div class="col-sm-4">
@@ -102,6 +110,9 @@
                                             class="pull-right btn btn-success btn-sm team_reinstate_button button {% if team.status == "approved" %}hide{% endif %}"
                                             team_id="{{ team.pk }}">Reinstate
                                     </button>
+                                {% else %}
+                                    <a href="{% url "edit_org_team" competition_pk=competition_id pk=team.pk %}" class="pull-right button btn-primary btn-xs">Edit</a>
+                                    <a href="{% url "delete_org_team" competition_pk=competition_id team_pk=team.pk %}" class="pull-right button btn-danger btn-xs">Delete</a>
                                 {% endif %}
                             {% else %}
                                 {{ team|get_item:column.name }}
@@ -144,7 +155,7 @@
                             {% if item.status.codename == 'denied' %}
                                 <p class="text-danger">Reason: {{ item.reason }}</p>
                             {% endif %}
-                            <form class="custom process_request" id="process_request_{{ item.id }}">{% csrf_token %}
+                            <form class="custom process_request form-participate" id="process_request_{{ item.id }}">{% csrf_token %}
                                 <input type="hidden" name="participant_id" value="{{ item.id }}"/>
                                 <div class="row">
                                     <div class="col-sm-4">
@@ -228,7 +239,7 @@
                 <h4 class="modal-title">Email Participants</h4>
             </div>
             <div class="modal-body">
-                <form id="message-form">
+                <form class="form-participate" id="message-form">
                     <div class="form-group">
                         <input id="subject_input" type="text" placeholder="Subject" class="form-control">
                             <div class="alert alert-danger" id="subject-alert" role="alert">
@@ -318,7 +329,7 @@
                                     'approved': '' };
 
     /* attach a submit handler to the form */
-    $("form").submit(function(event) {
+    $(".form-participate").submit(function(event) {
 
         /* stop form from submitting normally */
         event.preventDefault();

@@ -1329,6 +1329,7 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
     is_migrated = models.BooleanField(default=False) # Will be used to auto  migrate
 
     # Team of the user in the moment of the submission
+    # This field is not used anywhere we can see 4/18/2018
     team = models.ForeignKey(Team, related_name='team', null=True, blank=True)
 
     queue_name = models.TextField(null=True, blank=True)

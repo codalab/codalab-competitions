@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% load codalab_tags %}
+{% load tz %}
+
+{% block page_title %}Participants{% endblock page_title %}
+{% block head_title %}Participants{% endblock %}
+
+{% block extra_head %}
+    <script src="{% static 'js/foundation/vendor/jquery.validate.min.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+
+    <a href="{% url "competitions:view" pk=competition.pk %}" class="pull-right">Go Back to Competition Homepage</a>
+    <form action="" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" value="Submit">
+    </form>
+
+
+{% endblock %}
