@@ -1960,14 +1960,22 @@ class CompetitionWidgetsView(LoginRequiredMixin, DetailView):
         return self.object
 
 
-class CompetitionSubmissionWidgetView(DetailView):
+class WidgetMixin(object):
+
+    def get_context_data(self, **kwargs):
+        context = super(WidgetMixin, self).get_context_data(**kwargs)
+        context['current_phase'] = get_current_phase(self.object)
+        return context
+
+
+class CompetitionSubmissionWidgetView(WidgetMixin, DetailView):
     queryset = models.Competition.objects.all()
     template_name = 'web/widget_iframes/submission.html'
 
-    def get_context_data(self, **kwargs):
-        context = super(CompetitionSubmissionWidgetView, self).get_context_data(**kwargs)
-        context['current_phase'] = get_current_phase(self.object)
-        return context
+
+class CompetitionLeaderboardWidgetView(WidgetMixin, DetailView):
+    queryset = models.Competition.objects.all()
+    template_name = 'web/widget_iframes/leaderboard.html'
 
 
 @login_required

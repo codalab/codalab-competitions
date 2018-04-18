@@ -106,8 +106,6 @@ if settings.DEBUG:
         url(r'^admin/', include(admin.site.urls)),
     )
 
-    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-
     # Local static files
     from django.contrib.staticfiles.views import serve
     urlpatterns += [url(r'^static/(?P<path>.*)$', serve), ]

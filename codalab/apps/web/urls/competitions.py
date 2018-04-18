@@ -39,4 +39,5 @@ urlpatterns = patterns(
     url(r'^(?P<pk>\d+)/widgets/$', views.CompetitionWidgetsView.as_view(), name='widgets'),
 
     url(r'^submission_widget/(?P<pk>\d+)/$', views.CompetitionSubmissionWidgetView.as_view(), name='submission_widget'),
+    url(r'^leaderboard_widget/(?P<pk>\d+)/$', views.CompetitionLeaderboardWidgetView.as_view(), name='leaderboard_widget'),
 )

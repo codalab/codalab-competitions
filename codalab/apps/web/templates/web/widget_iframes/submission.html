@@ -47,21 +47,42 @@
 
     <style>
         body {
-            padding: 20px;
+            padding: 20px;TODO: Link to terms and conditions
         }
         iframe {
             border: none;
+        }
+
+        .title {
+            margin-top: 0;
+        }
+
+        @media (min-width: 768px) {
+            .dl-horizontal dt {
+                width: 215px;
+            }
+
+            .dl-horizontal dd {
+                margin-left: 235px;
+            }
         }
     </style>
 </head>
 
 <body>
-    <h3>Codalab submission panel</h3>
-    <dl>
+    <h3 class="title">Codalab submission panel</h3>
+    <dl class="dl-horizontal">
         <dt>Submitting to</dt>
         <dd>{{ competition }}</dd>
+
         <dt>Current phase</dt>
         <dd>{{ current_phase.label }}</dd>
+
+        <dt>Max submissions per day</dt>
+        <dd>{{ current_phase.max_submissions_per_day }}</dd>
+
+        <dt>Max submissions total</dt>
+        <dd>{{ current_phase.max_submissions }}</dd>
     </dl>
 
     {% if request.user.is_authenticated %}
