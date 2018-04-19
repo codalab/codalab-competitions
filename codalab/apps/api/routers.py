@@ -15,7 +15,7 @@ router.register(r'defaultcontent', views.DefaultContentViewSet)
 
 urlpatterns = router.urls
 
-urlpatterns += (
+urlpatterns += ( 
 
     url(r'^competition/create$', views.CompetitionCreationApi.as_view(), name='api_competition_creation'),
     url(r'^competition/create/sas$', views.CompetitionCreationSasApi.as_view(), name='api_competition_creation_sas'),

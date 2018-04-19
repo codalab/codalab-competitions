@@ -1,4 +1,5 @@
 import datetime
+import psycopg2
 
 from django.contrib.auth import get_user_model
 from django.http import HttpResponseRedirect
@@ -8,10 +9,40 @@ from django.views.generic import DetailView, CreateView
 from apps.web.views import LoginRequiredMixin
 from .forms import PostForm, ThreadForm
 from .models import Forum, Thread, Post
+from django.shortcuts import render_to_response
 
 
 User = get_user_model()
 
+#hhm add 2018.3.21
+def index(request,**args):
+    database_config = {
+
+        'database' : "wechatrecord",
+        'user' : 	"qyx",
+        'password' : "211314",
+        #'host' : "127.0.0.1",
+        'host' : "172.17.0.1",
+        'port' : "5432",
+
+    }
+    conn = psycopg2.connect(database = database_config['database'], user = database_config['user'], password = database_config['password'], host = database_config['host'], port = database_config['port'])
+    cur = conn.cursor()
+    #name = request.GET['search_name']
+    name = args['search_name']
+    if name!='':
+        cur.execute("SELECT msg_from, msg_time, msg_content, ref_url, msg_type from TestChatRecord_2 where msg_from = '"+name+"'")
+    else:
+        cur.execute("SELECT msg_from, msg_time, msg_content, ref_url, msg_type from TestChatRecord_2")
+    info = cur.fetchall()
+
+    result = []
+    for i in info:
+        result.append({'msg_from':i[0],'msg_time':i[1], 'msg_content':i[2],'ref_url':i[3],'msg_type':i[4]})
+    
+    cur.close()
+    conn.close()
+    return render_to_response('forums/show.html',{'result':result,'STATIC_URL':'/static/'}) 
 
 class ForumBaseMixin(object):
     """
