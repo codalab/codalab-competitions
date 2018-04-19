@@ -28,7 +28,7 @@ class CompetitionPhaseToPhase(TestCase):
         self.competition.admins.add(self.admin)
         self.competition.save()
 
-    def test_submit_organizer_team_form(self):
+    def test_who_can_create_organizer_teams(self):
         creator = Client()
         creator.login(username='testuser', password='test')
         resp = creator.post(reverse('create_org_team', kwargs={'competition_pk': self.competition.pk}), {"text_members": "test@user.com", "name": "Test Team 1", "description": "Test Team"})
