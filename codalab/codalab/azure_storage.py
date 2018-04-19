@@ -6,13 +6,14 @@ import datetime
 import os.path
 import re
 import itertools
+import os
 from django.core.files.storage import Storage
 from django.core.exceptions import ImproperlyConfigured
 from io import RawIOBase
 
 # keep consistent path separators
 pathjoin = lambda *args: os.path.join(*args).replace("\\", "/")
-
+AZURITE_HOST=os.environ.get("AZURITE_HOST")
 try:
     import azure
     import azure.storage
@@ -36,6 +37,11 @@ from storages.utils import setting
 def clean_name(name):
     return os.path.normpath(name).replace("\\", "/")
 
+class AzuriteBlobService(azure.storage.BlobService):
+    def __init__(self, *args, **kwargs):
+        super(AzuriteBlobService, self).__init__(*args, **kwargs)
+    def _get_host(self):
+        return AZURITE_HOST
 
 class AzureStorage(Storage):
     chunk_size = 65536
@@ -50,10 +56,16 @@ class AzureStorage(Storage):
     @property
     def connection(self):
         if self._connection is None:
-            self._connection = azure.storage.BlobService(
+            # self._connection = azure.storage.BlobService(
+            #     self.account_name,
+            #     self.account_key,
+            #     timeout=4096
+            # )
+            self._connection = AzuriteBlobService(
                 self.account_name,
                 self.account_key,
-                timeout=4096
+                timeout=4096,
+                protocol='http'
             )
         return self._connection
 
@@ -82,7 +94,9 @@ class AzureStorage(Storage):
         return name
 
     def url(self, name):
-        return "https://%s%s/%s/%s" % (self.account_name, azure.BLOB_SERVICE_HOST_BASE, self.azure_container, name)
+        # return "https://%s%s/%s/%s" % (self.account_name, azure.BLOB_SERVICE_HOST_BASE, self.azure_container, name)
+        #return "http://%s/%s/%s" % (AZURITE_HOST,self.azure_container, name)
+	return "http://contest.mooc.buaa.edu.cn/azurite/%s/%s" % (self.azure_container, name)
 
     def properties(self, name):
         return self.connection.get_blob_properties(
@@ -223,6 +237,8 @@ def make_blob_sas_url(account_name,
 
     blob_url = BlobService(account_name, account_key)
 
-    url = blob_url.make_blob_url(container_name=container_name, blob_name=blob_name, sas_token=sas_token)
+    # url = blob_url.make_blob_url(container_name=container_name, blob_name=blob_name, sas_token=sas_token)
+    #url = "http://%s/%s/%s?storage_platform=azurite" % (AZURITE_HOST,container_name,blob_name)
+    url = "http://contest.mooc.buaa.edu.cn/azurite/%s/%s?storage_platform=azurite" % (container_name,blob_name)
 
     return url
