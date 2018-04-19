@@ -133,9 +133,17 @@ class OrganizerTeamForm(forms.ModelForm):
 
     def clean_name(self):
         if self.cleaned_data.get('name'):
-            existing_team_with_name = Team.objects.filter(name=self.cleaned_data.get('name'))
-            if existing_team_with_name:
-                raise ValidationError(('Invalid value for name. A team already exists with that name.'), code='invalid')
+            if hasattr(self, 'instance'):
+                if self.instance.pk:
+                    print("WE HAVE A PK AS WELL IN FORM")
+                    existing_team_with_name = Team.objects.filter(name=self.cleaned_data.get('name')).exclude(pk=self.instance.pk)
+                    if existing_team_with_name:
+                        raise ValidationError(('Invalid value for name. A team already exists with that name.'),
+                                              code='invalid')
+            else:
+                existing_team_with_name = Team.objects.filter(name=self.cleaned_data.get('name'))
+                if existing_team_with_name:
+                    raise ValidationError(('Invalid value for name. A team already exists with that name.'), code='invalid')
         return self.cleaned_data.get('name')
 
     def save(self, commit=True):
@@ -198,7 +206,7 @@ class OrganizerTeamsCSVForm(forms.Form):
         self.teams_dict = teams_dict
 
         for team_name in self.teams_dict:
-            if Team.objects.get(name=team_name):
+            if Team.objects.filter(name=team_name):
                 raise ValidationError("A team with that name already exists!")
 
     def save(self):
