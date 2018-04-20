@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-01-27 09:33+0000\n"
+"POT-Creation-Date: 2018-03-23 12:10+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -950,7 +950,7 @@ msgstr "元"
 
 #: apps/web/templates/web/index.html:12
 msgid "Accelerating reproducible computational research."
-msgstr "致力于促进可重复性计算研究的发展"
+msgstr "基于高校群体智能促进数据科学研究发展"
 
 #: apps/web/templates/web/index.html:25
 msgid "Popular Competitions"
@@ -1287,6 +1287,16 @@ msgstr "是的，我确定"
 msgid "Competition Dumps"
 msgstr "竞赛"
 
+#: apps/web/templates/web/competitions/dumps.html:6
+#: apps/web/templates/web/competitions/edit.html:18
+#: apps/web/templates/web/competitions/public_submissions.html:20
+#: apps/web/templates/web/competitions/submission_metadata.html:17
+#: apps/web/templates/web/my/detailed_results.html:8
+#: apps/web/templates/web/my/participants.html:16
+#: apps/web/templates/web/my/submissions.html:18
+msgid "Go Back to Competition Homepage"
+msgstr "返回竞赛主页"
+
 #: apps/web/templates/web/competitions/dumps.html:7
 msgid "Note: Refresh the page to view updates."
 msgstr "提示：刷新页面查看更新"
@@ -1300,9 +1310,8 @@ msgid "Refresh the Page"
 msgstr "刷新页面"
 
 #: apps/web/templates/web/competitions/dumps.html:13
-#, fuzzy
 msgid "Dumps for:"
-msgstr "仓库"
+msgstr "竞赛备份："
 
 #: apps/web/templates/web/competitions/dumps.html:16
 msgid "Download link"
@@ -1318,12 +1327,12 @@ msgstr "发布日期"
 
 #: apps/web/templates/web/competitions/dumps.html:52
 msgid "No dumps found for the current competition."
-msgstr "没有发现当前竞赛的仓库"
+msgstr "没有发现当前竞赛的备份"
 
 #: apps/web/templates/web/competitions/dumps.html:62
 #: apps/web/templates/web/competitions/dumps.html:75
 msgid "Create Competition Dump"
-msgstr "创建比赛仓库"
+msgstr "创建比赛备份仓库"
 
 #: apps/web/templates/web/competitions/dumps.html:68
 msgid "URI Keys instead of files"
@@ -1356,6 +1365,7 @@ msgid "Upload score and dataset manifest file"
 msgstr "上传分数和数据集清单文件"
 
 #: apps/web/templates/web/competitions/edit-phase.html:17
+#: apps/web/templates/web/my/datasets_form.html:36
 msgid "Upload"
 msgstr "上传"
 
@@ -1584,7 +1594,7 @@ msgstr "为了创建竞赛，上传一个新竞赛的定义包"
 
 #: apps/web/templates/web/competitions/upload_competition.html:16
 msgid "Upload definition..."
-msgstr "上传定义中……"
+msgstr "上传竞赛包"
 
 #: apps/web/templates/web/competitions/upload_s3_competition.html:22
 msgid "Upload Competition Bundle"
@@ -1601,7 +1611,7 @@ msgstr "管理您的竞赛"
 #: apps/web/templates/web/competitions/view.html:37
 #: apps/web/templates/web/my/_competition_tile.html:50
 msgid "Dumps"
-msgstr "仓库"
+msgstr "备份仓库"
 
 #: apps/web/templates/web/competitions/view.html:60
 msgid "Current server time:"
@@ -1631,6 +1641,18 @@ msgstr "永不结束"
 #: apps/web/templates/web/competitions/view.html:130
 msgid "Public Submissions"
 msgstr "公共提交"
+
+#: apps/web/templates/web/competitions/view.html:138
+msgid "Team"
+msgstr "团队"
+
+#: apps/web/templates/web/competitions/view.html:166
+msgid "Start:"
+msgstr "开始："
+
+#: apps/web/templates/web/competitions/view.html:168
+msgid "Description:"
+msgstr "描述："
 
 #: apps/web/templates/web/competitions/view.html:193
 msgid "You must be logged in to participate in competitions."
@@ -1815,7 +1837,11 @@ msgstr "单个新的数据集"
 
 #: apps/web/templates/web/my/datasets_form.html:20
 msgid "Many existing datasets bundled into one new dataset"
-msgstr "许多现有的数据集被绑定到一个新的数据集"
+msgstr "从现有的数据集创建"
+
+#: apps/web/templates/web/my/datasets_form.html:36
+msgid "Save changes"
+msgstr "保存修改"
 
 #: apps/web/templates/web/my/detailed_results.html:5
 #: apps/web/templates/web/my/detailed_results.html:6

@@ -32,6 +32,13 @@ except ImportError:
         "See https://github.com/WindowsAzure/azure-sdk-for-python")
 
 from storages.utils import setting
+import os
+AZURITE_HOST=os.environ.get("AZURITE_HOST")
+class AzuriteBlobService(azure.storage.BlobService):
+    def __init__(self, *args, **kwargs):
+        super(AzuriteBlobService, self).__init__(*args, **kwargs)
+    def _get_host(self):
+        return AZURITE_HOST
 
 
 def clean_name(name):
@@ -56,17 +63,13 @@ class AzureStorage(Storage):
     @property
     def connection(self):
         if self._connection is None:
-            # self._connection = azure.storage.BlobService(
-            #     self.account_name,
-            #     self.account_key,
-            #     timeout=4096
-            # )
-            self._connection = AzuriteBlobService(
+	    self._connection = AzuriteBlobService(
                 self.account_name,
                 self.account_key,
                 timeout=4096,
                 protocol='http'
             )
+
         return self._connection
 
     def _open(self, name, mode="rb"):
@@ -94,8 +97,6 @@ class AzureStorage(Storage):
         return name
 
     def url(self, name):
-        # return "https://%s%s/%s/%s" % (self.account_name, azure.BLOB_SERVICE_HOST_BASE, self.azure_container, name)
-        #return "http://%s/%s/%s" % (AZURITE_HOST,self.azure_container, name)
 	return "http://contest.mooc.buaa.edu.cn/azurite/%s/%s" % (self.azure_container, name)
 
     def properties(self, name):
@@ -237,8 +238,5 @@ def make_blob_sas_url(account_name,
 
     blob_url = BlobService(account_name, account_key)
 
-    # url = blob_url.make_blob_url(container_name=container_name, blob_name=blob_name, sas_token=sas_token)
-    #url = "http://%s/%s/%s?storage_platform=azurite" % (AZURITE_HOST,container_name,blob_name)
     url = "http://contest.mooc.buaa.edu.cn/azurite/%s/%s?storage_platform=azurite" % (container_name,blob_name)
-
     return url

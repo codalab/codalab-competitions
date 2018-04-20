@@ -163,9 +163,9 @@
                                             <h3 class="panel-title">{{ phase.label }}</h3>
                                         </div>
                                         <div class="panel-body">
-                                            <p><strong>Start:</strong> {{ phase.start_date }}</p>
+                                            <p><strong>{% trans 'Start:' %}</strong> {{ phase.start_date }}</p>
                                             {% if phase.description %}
-                                                <p><strong>Description:</strong> {{ phase.description }}</p>
+                                                <p><strong>{% trans 'Description:' %}</strong> {{ phase.description }}</p>
                                             {% endif %}
                                         </div>
                                     </div>

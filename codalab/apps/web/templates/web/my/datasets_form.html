@@ -1,5 +1,5 @@
-{% load i18n %}
 {% extends 'base.html' %}
+{% load i18n %}
 {% load staticfiles %}
 {% load codalab_tags %}
 {% load tz %}
@@ -33,7 +33,7 @@
                     </div>
                 {% endfor %}
             </fieldset>
-            <input id="dataset_submit_button" type="submit" value="{% if "update" in request.path %}Save changes{% else %}Upload{% endif %}" class="button btn btn-primary">
+            <input id="dataset_submit_button" type="submit" value="{% if "update" in request.path %}{% trans 'Save changes'%}{% else %}{% trans 'Upload'%}{% endif %}" class="button btn btn-primary">
         </form>
     </div>
 </div>
