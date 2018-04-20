@@ -15,12 +15,7 @@
 <a href="{% url "competitions:view" pk=competition_id %}" class="pull-right" >Go Back to Competition Homepage</a>
 {% if allow_organizer_teams %}
     <a href="{% url "create_org_team" competition_pk=competition_id %}" class="pull-middle btn btn-default" >Create Organizer Team</a>
-    {{ csv_form.non_field_errors }}
-    <form action="{% url "create_org_teams_from_csv" competition_pk=competition_id %}" method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ csv_form.as_p }}
-        <input type="submit" value="Submit">
-    </form>
+    <a href="{% url "create_org_teams_from_csv" competition_pk=competition_id %}" class="pull-middle btn btn-default" >Upload Team CSV</a>
 {% endif %}
 
 <div class="participants">
@@ -436,6 +431,15 @@
 
         };
     });
+
+$( document ).ready(function() {
+    $("#submit_button").click(function () {
+        $('#id_csv_file').click();
+    });
+    $('#id_csv_file').change(function(){
+        $('#choose-file').submit()
+    })
+});
 
     function removeErrorMessage(){
         $('#subject-alert').css({
