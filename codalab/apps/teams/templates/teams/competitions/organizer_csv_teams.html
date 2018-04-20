@@ -14,11 +14,115 @@
 
     <a href="{% url "competitions:view" pk=competition.pk %}" class="pull-right">Go Back to Competition Homepage</a>
     {{ csv_form.non_field_errors }}
-    <form action="{% url "create_org_teams_from_csv" competition_pk=competition.pk %}" method="POST" enctype="multipart/form-data">
+    <div id="main_container" class="container-fluid">
+    <form id="choose-file" action="{% url "create_org_teams_from_csv" competition_pk=competition.pk %}" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form.as_p }}
-        <input type="submit" value="Submit">
-    </form>
-
-
+        <div id="panel_container" class="panel panel-default">
+            <div id="info_container">The CSV File should be formatted with the teams in each row, where the team name is
+                the first entry, and team members are separated by commas.
+            </div>
+        <button id="submit_button" type="button" class="pull-middle btn btn-primary">Submit Teams from CSV</button>
+            <div id="code">
+                Example CSV:
+                <table>
+                    <tr>
+                        <td>TeamOne, Team Member 1, Team Member 2, Team Member 3,<br/>TeamTwo, Team Member 1, Team Member 2</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        </form>
+    </div>
+<style>
+    #main_container {
+        text-align: center;
+        margin: auto;
+        padding: 3em;
+    }
+    #code {
+        border:solid gray;
+        border-width:.1em .1em .1em .8em;
+        padding:.2em .6em;
+        overflow: auto;
+        width: 70%;
+        margin: auto;
+        text-align: left;
+        background: #f0f0f0;
+        font-family: Monospace;
+    }
+    table {
+        text-align: left;
+        width: 100%;
+        background: #f0f0f0;
+    }
+    #panel_container {
+        margin: auto;
+        width: inherit;
+        padding-bottom: 6em;
+        padding-top: 4em;
+        text-align: center;
+    }
+    #info_container {
+        width: 90%;
+        font-size: 19px;
+        margin: auto;
+        height: 4em;
+    }
+    #choose-file>p {
+        display: none;
+    }
+    #submit_button {
+        margin: 1em auto;
+    }
+    @media only screen and (max-width: 991px) {
+        #info_container {
+            font-size: 15px;
+            height: 5em;
+        }
+        #code {
+            width: auto;
+        }
+    }
+    @media only screen and (max-width: 671px) {
+        #code {
+            font-size: 13px;
+            width: auto;
+        }
+    }
+    @media only screen and (max-width: 570px) {
+        #code {
+            font-size: 11px;
+            width: auto;
+        }
+    }
+    @media only screen and (max-width: 477px) {
+        #info_container {
+            font-size: 13px;
+            height: 5em;
+        }
+    }
+</style>
+<script>
+    $( document ).ready(function() {
+        $("#submit_button").click(function () {
+            $('#id_csv_file').click();
+        });
+        $('#id_csv_file').change(function(){
+            $('#choose-file').submit()
+        });
+        var errors = document.getElementsByClassName("errorlist");
+        if (errors[0].innerText !== ""){
+            errors[0].classList.add('list-unstyled');
+            errors[0].children[0].classList.add('alert');
+            errors[0].children[0].classList.add('alert-danger');
+            $('.alert.alert-danger').css({
+                'margin': '2em auto 0 auto',
+                'text-align': 'center',
+                'border-radius': '4px',
+                'width': '50%'
+        })
+        }
+    });
+</script>
 {% endblock %}
