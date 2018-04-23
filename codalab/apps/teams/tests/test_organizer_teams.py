@@ -1,16 +1,16 @@
-import datetime
 
-from django.test import TestCase, Client
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
-from django.utils.timezone import now
 
-from apps.web.models import Competition, CompetitionParticipant, CompetitionPhase, ParticipantStatus
+from apps.web.models import Competition
+from apps.teams.models import Team
 
 User = get_user_model()
 
 
-class CompetitionPhaseToPhase(TestCase):
+class CompetitionOrganizerTeamsTests(TestCase):
     def setUp(self):
         self.creator = User.objects.create(email='test@user.com', username='testuser')
         self.creator.set_password('test')
@@ -28,26 +28,150 @@ class CompetitionPhaseToPhase(TestCase):
         self.competition.admins.add(self.admin)
         self.competition.save()
 
-    def test_who_can_create_organizer_teams(self):
-        creator = Client()
-        creator.login(username='testuser', password='test')
-        resp = creator.post(reverse('create_org_team', kwargs={'competition_pk': self.competition.pk}), {"text_members": "test@user.com", "name": "Test Team 1", "description": "Test Team"})
-        assert(resp.status_code == 302)
+    # def test_organizer_teams_permissions(self):
+    def test_organizer_teams_competition_creator_can_create_teams(self):
+        # Creator and Admin should be allowed.
+        self.client.login(username='testuser', password='test')
+        resp = self.client.post(reverse('create_org_team', kwargs={'competition_pk': self.competition.pk}), {"text_members": "test@user.com", "name": "Test Team 1", "description": "Test Team"})
+        assert resp.status_code == 302
+        assert resp.url == 'http://testserver/my/competition/1/participants/'
 
-        user = Client()
-        user.login(username='testclientuser', password='testclient')
-        resp = user.post(reverse('create_org_team', kwargs={'competition_pk': self.competition.pk}),
+    def test_organizer_teams_sitewide_admin_can_create_teams(self):
+        self.client.login(username='testadminuser', password='testadmin')
+        resp = self.client.post(reverse('create_org_team', kwargs={'competition_pk': self.competition.pk}),
+                          {"text_members": "testadmin@user.com", "name": "Test Team 3", "description": "Test Team"})
+        assert resp.status_code == 302
+        assert resp.url == 'http://testserver/my/competition/1/participants/'
+
+    def test_organizer_teams_regular_user_cannot_create_teams(self):
+        # Random users should not be allowed, nor anonymous users
+        self.client.login(username='testclientuser', password='testclient')
+        resp = self.client.post(reverse('create_org_team', kwargs={'competition_pk': self.competition.pk}),
                       {"text_members": "testclient@user.com", "name": "Test Team 2", "description": "Test Team"})
-        assert (resp.status_code == 403)
+        assert resp.status_code == 403
 
-        admin = Client()
-        admin.login(username='testadminuser', password='testadmin')
-        resp = admin.post(reverse('create_org_team', kwargs={'competition_pk': self.competition.pk}),
-                         {"text_members": "testadmin@user.com", "name": "Test Team 3", "description": "Test Team"})
-        assert (resp.status_code == 302)
-
-        anon = Client()
-        # admin.login(username='testadminuser', password='testadmin')
-        resp = anon.post(reverse('create_org_team', kwargs={'competition_pk': self.competition.pk}),
+    def test_organizer_teams_random_user_cannot_create_teams(self):
+        resp = self.client.post(reverse('create_org_team', kwargs={'competition_pk': self.competition.pk}),
                          {"text_members": "testadmin@user.com", "name": "Test Team 4", "description": "Test Team"})
-        assert (resp.url == 'http://testserver/accounts/login/?next=/teams/1/create_org_team/')
+        assert resp.status_code == 302
+        assert resp.url == 'http://testserver/accounts/login/?next=/teams/1/create_org_team/'
+
+    def test_organizer_team_form_with_creator(self):
+        self.client.login(username='testuser', password='test')
+        resp = self.client.post(reverse('create_org_team', kwargs={'competition_pk': self.competition.pk}),
+                            {"text_members": "test@user.com", "name": "Test Team 1", "description": "Test Team"})
+        assert resp.status_code == 302
+        # Make sure new team was created
+        new_team = Team.objects.get(name="Test Team 1", description="Test Team")
+
+        assert self.creator in new_team.members.all()
+
+        resp = self.client.post(
+            reverse(
+                'edit_org_team',
+                kwargs={'competition_pk': self.competition.pk, 'pk': new_team.pk}
+            ),
+            {"text_members": "test@user.com", "name": "Test Team 1", "description": "Test Team"}
+        )
+
+        assert resp.status_code == 302
+        other_teams = Team.objects.all().exclude(pk=new_team.pk)
+        # Make sure we still only have one instance
+        assert not other_teams
+        # Make sure we can still grab it by the same name and description. We didnt change anything.
+        new_team = Team.objects.get(name="Test Team 1", description="Test Team")
+
+        resp = self.client.post(
+            reverse(
+                'edit_org_team',
+                kwargs={'competition_pk': self.competition.pk, 'pk': new_team.pk}
+            ),
+            {"text_members": "test@user.com", "name": "Test Team @@@", "description": "Test Team @@@"}
+        )
+
+        assert resp.status_code == 302
+        new_team = Team.objects.get(name="Test Team @@@", description="Test Team @@@")
+        # Make sure we can grab it by the new name and description.
+        # We should still have the creator as a member
+        assert self.creator in new_team.members.all()
+
+        resp = self.client.post(
+            reverse(
+                'edit_org_team',
+                kwargs={'competition_pk': self.competition.pk, 'pk': new_team.pk}
+            ),
+            {"text_members": "test@user.com, testclientuser", "name": "Test Team @@@", "description": "Test Team @@@"}
+        )
+
+        assert resp.status_code == 302
+        new_team = Team.objects.get(name="Test Team @@@", description="Test Team @@@")
+        # Make sure we can grab it by the new name and description.
+        # We should still have the creator as a member, and now a regular user
+        assert self.creator in new_team.members.all()
+        assert self.user in new_team.members.all()
+
+        # Create a new team with our creator as a member. This should remove us from the first team.
+        resp = self.client.post(reverse('create_org_team', kwargs={'competition_pk': self.competition.pk}),
+                            {"text_members": "test@user.com", "name": "@@@Test@@@", "description": "@@@Test@@@"})
+        assert resp.status_code == 302
+        new_team_to_leave_for = Team.objects.get(name="@@@Test@@@", description="@@@Test@@@")
+        # Check that our creator got removed from the first team, and added to the second.
+        assert self.creator not in new_team.members.all()
+        assert self.creator in new_team_to_leave_for.members.all()
+
+    def test_organizer_teams_csv_file_form(self):
+        test_csv = SimpleUploadedFile(
+            "test_team.csv",
+            "Team 1, test@user.com, team_member2, team_member3\nTeam 2, team_member_1, team_member_2",
+            content_type='multipart/form-data'
+        )
+
+        creator = self.client
+        creator.login(username='testuser', password='test')
+        resp = creator.post(
+            reverse('create_org_teams_from_csv', kwargs={'competition_pk': self.competition.pk}),
+            {"csv_file": test_csv}
+        )
+        assert resp.status_code == 302
+        assert resp.url == 'http://testserver/my/competition/1/participants/'
+
+        # Spaces will be removed from the name!
+        new_team = Team.objects.get(name="Team 1", description="Team 1")
+        print("NEW MEMBERS: {}".format(new_team.members.all()))
+        # Make sure we can grab it by the new name and description.
+        # We should still have the creator as a member
+        assert self.creator in new_team.members.all()
+
+        resp = creator.post(
+            reverse(
+                'edit_org_team',
+                kwargs={'competition_pk': self.competition.pk, 'pk': new_team.pk}
+            ),
+            {"text_members": "test@user.com, testclientuser", "name": "Test Team @@@", "description": "Test Team @@@"}
+        )
+
+        assert resp.status_code == 302
+        assert resp.url == 'http://testserver/my/competition/1/participants/'
+
+        new_team = Team.objects.get(name="Test Team @@@", description="Test Team @@@")
+        assert self.creator in new_team.members.all()
+        assert self.user in new_team.members.all()
+
+        test_csv_two = SimpleUploadedFile(
+            "test_team.csv",
+            "Team1, test@user.com, team_member2, team_member3\n",
+            content_type='multipart/form-data'
+        )
+
+        resp = creator.post(
+            reverse('create_org_teams_from_csv', kwargs={'competition_pk': self.competition.pk}),
+            {"csv_file": test_csv_two}
+        )
+        assert resp.status_code == 302
+        assert resp.url == 'http://testserver/my/competition/1/participants/'
+
+        # Spaces will be removed from the name!
+        new_team = Team.objects.get(name="Team1", description="Team1")
+        # Make sure we can grab it by the new name and description.
+        # We should still have the creator as a member
+        assert self.creator in new_team.members.all()

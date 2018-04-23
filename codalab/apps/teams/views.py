@@ -337,8 +337,6 @@ class CompetitionOrganizerTeams(FormView):
         if self.request.user != competition.creator:
             if self.request.user not in competition.admins.all():
                 return HttpResponseForbidden(status=403)
-            else:
-                pass
         return super(CompetitionOrganizerTeams, self).dispatch(*args, **kwargs)
 
     def get_form(self, form_class=None):
@@ -401,8 +399,6 @@ class CompetitionOrganizerCSVTeams(FormView):
         if self.request.user != competition.creator:
             if self.request.user not in competition.admins.all():
                 return HttpResponseForbidden(status=403)
-            else:
-                pass
         return super(CompetitionOrganizerCSVTeams, self).dispatch(*args, **kwargs)
 
     # success_url = reverse('competitions:participants')

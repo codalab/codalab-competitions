@@ -135,7 +135,6 @@ class OrganizerTeamForm(forms.ModelForm):
         if self.cleaned_data.get('name'):
             if hasattr(self, 'instance'):
                 if self.instance.pk:
-                    print("WE HAVE A PK AS WELL IN FORM")
                     existing_team_with_name = Team.objects.filter(name=self.cleaned_data.get('name')).exclude(pk=self.instance.pk)
                     if existing_team_with_name:
                         raise ValidationError(('Invalid value for name. A team already exists with that name.'),
@@ -200,8 +199,8 @@ class OrganizerTeamsCSVForm(forms.Form):
             temp_csv = self.cleaned_data.get('csv_file')
             csv_team_list = [line.rstrip() for line in temp_csv]
             for index, value in enumerate(csv_team_list):
-                temp_line = value.replace(' ', '').split(',')
-                # Pop the team name (First value), into the dict key, then the rest of the list is users.
+                temp_line = value.split(',')
+                temp_line = [s.strip() for s in temp_line]
                 teams_dict[temp_line.pop(0)] = temp_line
         self.teams_dict = teams_dict
 
