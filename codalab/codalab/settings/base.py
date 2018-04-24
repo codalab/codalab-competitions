@@ -409,7 +409,7 @@ class Base(Settings):
     RABBITMQ_PORT = os.environ.get('RABBITMQ_PORT', '5672')
     RABBITMQ_MANAGEMENT_PORT = os.environ.get('RABBITMQ_MANAGEMENT_PORT', '15672')
 
-    if DEBUG:
+    if DEBUG and SSL_CERTIFICATE:
         # To make RABBITMQ api calls work locally over SSL we need this set for requests
         # to recognize our cert
         os.environ.setdefault('REQUESTS_CA_BUNDLE', SSL_CERTIFICATE)
