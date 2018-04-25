@@ -326,7 +326,6 @@ class TeamCancelView(TeamDetailView):
         return context
 
 
-# @login_required
 class CompetitionOrganizerTeams(FormView):
     form_class = OrganizerTeamForm
     template_name = 'teams/competitions/organizer_teams.html'
@@ -365,28 +364,33 @@ class CompetitionOrganizerTeams(FormView):
     def get_context_data(self, **kwargs):
         context = super(CompetitionOrganizerTeams, self).get_context_data(**kwargs)
         try:
-            competition = Competition.objects.get(pk=self.kwargs['competition_pk'])
-            context['competition'] = competition
+            if self.kwargs.get('pk'):
+                team = Team.objects.get(pk=self.kwargs.get('pk'))
+                context['initial_team_members'] = ','.join(list(team.members.all().values_list('username', flat=True)))
         except ObjectDoesNotExist:
-            print("Could not find a competition for that PK!")
+            print("Could not find a team for that PK!")
         return context
 
 
 @login_required
 def delete_organizer_team(request, team_pk, competition_pk):
-    try:
-        comp = Competition.objects.get(pk=competition_pk)
-        team_to_delete = Team.objects.get(pk=team_pk)
-        if request.user != team_to_delete.creator or request.user != team_to_delete.competition.creator:
-            if request.user not in comp.admins.all():
-                return HttpResponseForbidden(status=403)
-        else:
-            # comp_pk = team_to_delete.competition.pk
+
+    if request.method == 'POST':
+        try:
+            comp = Competition.objects.get(pk=competition_pk)
+            team_to_delete = Team.objects.get(pk=team_pk)
+
+            if request.user != comp.creator:
+                if request.user not in comp.admins.all():
+                    return HttpResponseForbidden(status=403)
+
             print("Deleting team {0} from competition {1}".format(team_to_delete, comp))
             team_to_delete.delete()
             return redirect('my_competition_participants', competition_id=comp.pk)
-    except ObjectDoesNotExist:
-        return HttpResponse(status=404)
+        except ObjectDoesNotExist:
+            return HttpResponse(status=404)
+    else:
+        return HttpResponse(status=405)
 
 
 class CompetitionOrganizerCSVTeams(FormView):
@@ -420,5 +424,4 @@ class CompetitionOrganizerCSVTeams(FormView):
 
     def get_context_data(self, **kwargs):
         context = super(CompetitionOrganizerCSVTeams, self).get_context_data(**kwargs)
-        context['competition'] = Competition.objects.get(pk=self.kwargs['competition_pk'])
         return context

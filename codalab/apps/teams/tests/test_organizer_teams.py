@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 
 from apps.web.models import Competition
-from apps.teams.models import Team
+from apps.teams.models import Team, TeamStatus
 
 User = get_user_model()
 
@@ -32,34 +32,64 @@ class CompetitionOrganizerTeamsTests(TestCase):
     def test_organizer_teams_competition_creator_can_create_teams(self):
         # Creator and Admin should be allowed.
         self.client.login(username='testuser', password='test')
-        resp = self.client.post(reverse('create_org_team', kwargs={'competition_pk': self.competition.pk}), {"text_members": "test@user.com", "name": "Test Team 1", "description": "Test Team"})
+
+        resp = self.client.post(
+            reverse('create_org_team', kwargs={
+                'competition_pk': self.competition.pk
+            }),
+            {"text_members": "test@user.com", "name": "Test Team 1", "description": "Test Team"}
+        )
+
         assert resp.status_code == 302
         assert resp.url == 'http://testserver/my/competition/1/participants/'
 
-    def test_organizer_teams_sitewide_admin_can_create_teams(self):
+    def test_organizer_teams_competition_admin_can_create_teams(self):
         self.client.login(username='testadminuser', password='testadmin')
-        resp = self.client.post(reverse('create_org_team', kwargs={'competition_pk': self.competition.pk}),
-                          {"text_members": "testadmin@user.com", "name": "Test Team 3", "description": "Test Team"})
+
+        resp = self.client.post(
+            reverse('create_org_team', kwargs={
+                'competition_pk': self.competition.pk
+            }),
+            {"text_members": "testadmin@user.com", "name": "Test Team 3", "description": "Test Team"}
+        )
+
         assert resp.status_code == 302
         assert resp.url == 'http://testserver/my/competition/1/participants/'
 
     def test_organizer_teams_regular_user_cannot_create_teams(self):
         # Random users should not be allowed, nor anonymous users
         self.client.login(username='testclientuser', password='testclient')
-        resp = self.client.post(reverse('create_org_team', kwargs={'competition_pk': self.competition.pk}),
-                      {"text_members": "testclient@user.com", "name": "Test Team 2", "description": "Test Team"})
+
+        resp = self.client.post(
+            reverse('create_org_team', kwargs={
+                'competition_pk': self.competition.pk
+            }),
+            {"text_members": "testclient@user.com", "name": "Test Team 2", "description": "Test Team"}
+        )
+
         assert resp.status_code == 403
 
     def test_organizer_teams_random_user_cannot_create_teams(self):
-        resp = self.client.post(reverse('create_org_team', kwargs={'competition_pk': self.competition.pk}),
-                         {"text_members": "testadmin@user.com", "name": "Test Team 4", "description": "Test Team"})
+        resp = self.client.post(
+            reverse('create_org_team', kwargs={
+                'competition_pk': self.competition.pk
+            }),
+            {"text_members": "testadmin@user.com", "name": "Test Team 4", "description": "Test Team"}
+        )
+
         assert resp.status_code == 302
         assert resp.url == 'http://testserver/accounts/login/?next=/teams/1/create_org_team/'
 
     def test_organizer_team_form_with_creator(self):
         self.client.login(username='testuser', password='test')
-        resp = self.client.post(reverse('create_org_team', kwargs={'competition_pk': self.competition.pk}),
-                            {"text_members": "test@user.com", "name": "Test Team 1", "description": "Test Team"})
+
+        resp = self.client.post(
+            reverse('create_org_team', kwargs={
+                'competition_pk': self.competition.pk
+            }),
+            {"text_members": "test@user.com", "name": "Test Team 1", "description": "Test Team"}
+        )
+
         assert resp.status_code == 302
         # Make sure new team was created
         new_team = Team.objects.get(name="Test Team 1", description="Test Team")
@@ -67,10 +97,9 @@ class CompetitionOrganizerTeamsTests(TestCase):
         assert self.creator in new_team.members.all()
 
         resp = self.client.post(
-            reverse(
-                'edit_org_team',
-                kwargs={'competition_pk': self.competition.pk, 'pk': new_team.pk}
-            ),
+            reverse('edit_org_team',kwargs={
+                'competition_pk': self.competition.pk, 'pk': new_team.pk
+            }),
             {"text_members": "test@user.com", "name": "Test Team 1", "description": "Test Team"}
         )
 
@@ -82,10 +111,9 @@ class CompetitionOrganizerTeamsTests(TestCase):
         new_team = Team.objects.get(name="Test Team 1", description="Test Team")
 
         resp = self.client.post(
-            reverse(
-                'edit_org_team',
-                kwargs={'competition_pk': self.competition.pk, 'pk': new_team.pk}
-            ),
+            reverse('edit_org_team', kwargs={
+                'competition_pk': self.competition.pk, 'pk': new_team.pk
+            }),
             {"text_members": "test@user.com", "name": "Test Team @@@", "description": "Test Team @@@"}
         )
 
@@ -96,10 +124,9 @@ class CompetitionOrganizerTeamsTests(TestCase):
         assert self.creator in new_team.members.all()
 
         resp = self.client.post(
-            reverse(
-                'edit_org_team',
-                kwargs={'competition_pk': self.competition.pk, 'pk': new_team.pk}
-            ),
+            reverse('edit_org_team',kwargs={
+                'competition_pk': self.competition.pk, 'pk': new_team.pk
+            }),
             {"text_members": "test@user.com, testclientuser", "name": "Test Team @@@", "description": "Test Team @@@"}
         )
 
@@ -111,8 +138,13 @@ class CompetitionOrganizerTeamsTests(TestCase):
         assert self.user in new_team.members.all()
 
         # Create a new team with our creator as a member. This should remove us from the first team.
-        resp = self.client.post(reverse('create_org_team', kwargs={'competition_pk': self.competition.pk}),
-                            {"text_members": "test@user.com", "name": "@@@Test@@@", "description": "@@@Test@@@"})
+        resp = self.client.post(
+            reverse('create_org_team', kwargs={
+                'competition_pk': self.competition.pk
+            }),
+            {"text_members": "test@user.com", "name": "@@@Test@@@", "description": "@@@Test@@@"}
+        )
+
         assert resp.status_code == 302
         new_team_to_leave_for = Team.objects.get(name="@@@Test@@@", description="@@@Test@@@")
         # Check that our creator got removed from the first team, and added to the second.
@@ -128,8 +160,11 @@ class CompetitionOrganizerTeamsTests(TestCase):
 
         creator = self.client
         creator.login(username='testuser', password='test')
+
         resp = creator.post(
-            reverse('create_org_teams_from_csv', kwargs={'competition_pk': self.competition.pk}),
+            reverse('create_org_teams_from_csv', kwargs={
+                'competition_pk': self.competition.pk
+            }),
             {"csv_file": test_csv}
         )
         assert resp.status_code == 302
@@ -143,10 +178,9 @@ class CompetitionOrganizerTeamsTests(TestCase):
         assert self.creator in new_team.members.all()
 
         resp = creator.post(
-            reverse(
-                'edit_org_team',
-                kwargs={'competition_pk': self.competition.pk, 'pk': new_team.pk}
-            ),
+            reverse('edit_org_team', kwargs={
+                'competition_pk': self.competition.pk, 'pk': new_team.pk
+            }),
             {"text_members": "test@user.com, testclientuser", "name": "Test Team @@@", "description": "Test Team @@@"}
         )
 
@@ -159,19 +193,172 @@ class CompetitionOrganizerTeamsTests(TestCase):
 
         test_csv_two = SimpleUploadedFile(
             "test_team.csv",
-            "Team1, test@user.com, team_member2, team_member3\n",
+            "Team 1, test@user.com, team_member2, team_member3\n",
             content_type='multipart/form-data'
         )
 
         resp = creator.post(
-            reverse('create_org_teams_from_csv', kwargs={'competition_pk': self.competition.pk}),
+            reverse('create_org_teams_from_csv', kwargs={
+                'competition_pk': self.competition.pk
+            }),
             {"csv_file": test_csv_two}
         )
+
+        assert resp.status_code == 302
+        assert resp.url == 'http://testserver/my/competition/1/participants/'
+
+        new_team = Team.objects.get(name="Team 1", description="Team 1")
+        # Make sure we can grab it by the new name and description.
+        # We should still have the creator as a member
+        assert self.creator in new_team.members.all()
+
+        test_csv_three = SimpleUploadedFile(
+            "test_team.csv",
+            "Team 1, test@user.com, team_member2, team_member3\n",
+            content_type='multipart/form-data'
+        )
+
+        resp = creator.post(
+            reverse('create_org_teams_from_csv', kwargs={
+                'competition_pk': self.competition.pk
+            }),
+            {"csv_file": test_csv_three}
+        )
+
         assert resp.status_code == 302
         assert resp.url == 'http://testserver/my/competition/1/participants/'
 
         # Spaces will be removed from the name!
-        new_team = Team.objects.get(name="Team1", description="Team1")
+        new_team = Team.objects.get(name="Team 1", description="Team 1")
         # Make sure we can grab it by the new name and description.
         # We should still have the creator as a member
         assert self.creator in new_team.members.all()
+
+    def test_organizer_teams_competition_creator_can_delete_teams(self):
+        new_team = Team.objects.create(
+            name="Test Team!", description="Test Team!",
+            competition=self.competition,
+            creator=self.creator,
+            allow_requests=False,
+            status=TeamStatus.objects.get(codename=TeamStatus.APPROVED)
+        )
+
+        self.client.login(username='testuser', password='test')
+
+        resp = self.client.post(
+            reverse(
+                'delete_org_team',
+                kwargs={
+                    'competition_pk': self.competition.pk,
+                    'team_pk': new_team.pk
+                }
+            )
+        )
+
+        assert resp.status_code == 302
+        assert resp.url == 'http://testserver/my/competition/1/participants/'
+
+    def test_organizer_teams_competition_admin_can_delete_teams(self):
+        new_team = Team.objects.create(
+            name="Test Team!", description="Test Team!",
+            competition=self.competition,
+            creator=self.creator,
+            allow_requests=False,
+            status=TeamStatus.objects.get(codename=TeamStatus.APPROVED)
+        )
+
+        self.client.login(username='testadminuser', password='testadmin')
+
+        resp = self.client.post(
+            reverse(
+                'delete_org_team',
+                kwargs={
+                    'competition_pk': self.competition.pk,
+                    'team_pk': new_team.pk
+                }
+            )
+        )
+
+        assert resp.status_code == 302
+        assert resp.url == 'http://testserver/my/competition/1/participants/'
+
+    def test_organizer_teams_regular_user_cannot_delete_teams(self):
+        new_team = Team.objects.create(
+            name="Test Team!", description="Test Team!",
+            competition=self.competition,
+            creator=self.creator,
+            allow_requests=False,
+            status=TeamStatus.objects.get(codename=TeamStatus.APPROVED)
+        )
+
+        self.client.login(username='testclientuser', password='testclient')
+
+        resp = self.client.post(
+            reverse(
+                'delete_org_team',
+                kwargs={
+                    'competition_pk': self.competition.pk,
+                    'team_pk': new_team.pk
+                }
+            )
+        )
+
+        assert resp.status_code == 403
+
+    def test_organizer_teams_random_user_cannot_delete_teams(self):
+        new_team = Team.objects.create(
+            name="Test Team!", description="Test Team!",
+            competition=self.competition,
+            creator=self.creator,
+            allow_requests=False,
+            status=TeamStatus.objects.get(codename=TeamStatus.APPROVED)
+        )
+
+        resp = self.client.post(
+            reverse(
+                'delete_org_team',
+                kwargs={
+                    'competition_pk': self.competition.pk,
+                    'team_pk': new_team.pk
+                }
+            )
+        )
+
+        assert resp.status_code == 302
+        assert resp.url == 'http://testserver/accounts/login/?next=/teams/1/delete_org_team/1'
+
+    def test_organizer_teams_test_allowed_methods_for_delete(self):
+        new_team = Team.objects.create(
+            name="Test Team!", description="Test Team!",
+            competition=self.competition,
+            creator=self.creator,
+            allow_requests=False,
+            status=TeamStatus.objects.get(codename=TeamStatus.APPROVED)
+        )
+
+        self.client.login(username='testuser', password='test')
+
+        resp = self.client.get(
+            reverse(
+                'delete_org_team',
+                kwargs={
+                    'competition_pk': self.competition.pk,
+                    'team_pk': new_team.pk
+                }
+            )
+        )
+
+        assert resp.status_code == 405
+
+        resp = self.client.post(
+            reverse(
+                'delete_org_team',
+                kwargs={
+                    'competition_pk': self.competition.pk,
+                    'team_pk': new_team.pk
+                }
+            )
+        )
+
+        assert resp.status_code == 302
+        assert resp.url == 'http://testserver/my/competition/1/participants/'

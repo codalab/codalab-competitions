@@ -12,7 +12,9 @@ from apps.teams.models import TeamMembership, Team, TeamStatus, TeamMembershipSt
 from django.utils.safestring import mark_safe
 import os
 import datetime
+import logging
 
+logger = logging.getLogger(__name__)
 
 class CustomImageField(ClearableFileInput):
 
@@ -106,44 +108,29 @@ class OrganizerTeamForm(forms.ModelForm):
         fields = ('description', 'name')
 
     def __init__(self, *args, **kwargs):
-        self.user_list = []
         self.competition = Competition.objects.get(pk=kwargs.pop('competition_pk'))
         self.creator = ClUser.objects.get(pk=kwargs.pop('creator_pk'))
         super(OrganizerTeamForm, self).__init__(*args, **kwargs)
-        # This check is to see if we have an existing object with a PK, or if we're making a new one
-        # If we have an existing we grab existing members for the form.
-        if hasattr(self, 'instance'):
-            if hasattr(self.instance, 'pk'):
-                if self.instance and self.instance.pk:
-                    team = Team.objects.get(pk=self.instance.pk)
-                    current_members = team.members.all()
-                    name_text_list = ""
-                    name_list = []
-                    for member in current_members:
-                        name_list.append(member.username)
-                        name_text_list = ",".join(name_list)
-                    self.initial['text_members'] = name_text_list
+
+    def clean(self):
+        cleaned_data = super(OrganizerTeamForm, self).clean()
+        if cleaned_data.get('name'):
+            if hasattr(self, 'instance'):
+                if self.instance.pk:
+                    existing_team_with_name = Team.objects.filter(name=self.cleaned_data.get('name')).exclude(pk=self.instance.pk)
+                    if existing_team_with_name:
+                        raise ValidationError('Invalid value for name. A team already exists with that name.', code='invalid')
+            else:
+                existing_team_with_name = Team.objects.filter(name=self.cleaned_data.get('name'))
+                if existing_team_with_name:
+                    raise ValidationError('Invalid value for name. A team already exists with that name.', code='invalid')
+        return cleaned_data
 
     def clean_text_members(self):
         if self.cleaned_data.get('text_members'):
             team_members_text = self.cleaned_data.get('text_members')
             team_members_list = team_members_text.replace(' ','').split(',')
-            # team_members_list = team_members_text.replace(' ','').split('\n')
-            self.user_list = ClUser.objects.filter(Q(username__in=team_members_list) | Q(email__in=team_members_list))
-
-    def clean_name(self):
-        if self.cleaned_data.get('name'):
-            if hasattr(self, 'instance'):
-                if self.instance.pk:
-                    existing_team_with_name = Team.objects.filter(name=self.cleaned_data.get('name')).exclude(pk=self.instance.pk)
-                    if existing_team_with_name:
-                        raise ValidationError(('Invalid value for name. A team already exists with that name.'),
-                                              code='invalid')
-            else:
-                existing_team_with_name = Team.objects.filter(name=self.cleaned_data.get('name'))
-                if existing_team_with_name:
-                    raise ValidationError(('Invalid value for name. A team already exists with that name.'), code='invalid')
-        return self.cleaned_data.get('name')
+            return ClUser.objects.filter(Q(username__in=team_members_list) | Q(email__in=team_members_list))
 
     def save(self, commit=True):
         self.instance.creator = self.creator
@@ -153,18 +140,19 @@ class OrganizerTeamForm(forms.ModelForm):
         # We need to call save before adding members
         self.instance.save()
 
-        if hasattr(self, 'user_list'):
-            # On save, if we have existing objects, clear it. We only add names in the form.
-            if len(self.instance.members.all()) > 0:
+        if self.cleaned_data.get('text_members'):
+            all_current_members = self.instance.members.all()
+            # On save, if we have existing objects, remove users not in the given list anymore. We only add names in the form.
+            if all_current_members:
                 # Remove users no longer in the list
-                for user in self.instance.members.all():
-                    if user not in self.user_list:
+                for user in all_current_members:
+                    if user not in self.cleaned_data.get('text_members'):
                         # Delete members not on the new list
-                        print("Deleting membership for user: {}".format(user))
+                        logger.info("Deleting membership for user: {}".format(user))
                         TeamMembership.objects.get(user=user, team=self.instance).delete()
             # Then we loop through the names/emails they gave us.
-            for user in self.user_list:
-                if user not in self.instance.members.all():
+            for user in self.cleaned_data.get('text_members'):
+                if user not in all_current_members:
                     # There is not already an existing membership for this user.
                     new_team_membership = TeamMembership.objects.create(
                         user=user,
@@ -172,14 +160,13 @@ class OrganizerTeamForm(forms.ModelForm):
                         is_invitation=False,
                         is_request=False,
                         start_date=timezone.now(),
-                        end_date=timezone.now() + datetime.timedelta(days=9000),
                         message="Organizer Created",
                         status=TeamMembershipStatus.objects.get(codename=TeamMembershipStatus.APPROVED),
                         reason="Organizer Created Team"
                     )
-                    print("Created new membership: {0} for user: {1} on team: {2}".format(new_team_membership, user, self.instance))
+                    logger.info("Created new membership: {0} for user: {1} on team: {2}".format(new_team_membership, user, self.instance))
                 else:
-                    print("Existing membership found for user on team.")
+                    logger.info("Existing membership found for user on team.")
         return super(OrganizerTeamForm, self).save(commit=commit)
 
 
@@ -190,49 +177,61 @@ class OrganizerTeamsCSVForm(forms.Form):
     def __init__(self, *args, **kwargs):
         self.competition = Competition.objects.get(pk=kwargs.pop('competition_pk'))
         self.creator = ClUser.objects.get(pk=kwargs.pop('creator_pk'))
-        self.teams_dict = {}
         super(OrganizerTeamsCSVForm, self).__init__(*args, **kwargs)
 
     def clean_csv_file(self):
         teams_dict = {}
         if self.cleaned_data.get('csv_file'):
-            temp_csv = self.cleaned_data.get('csv_file')
-            csv_team_list = [line.rstrip() for line in temp_csv]
-            for index, value in enumerate(csv_team_list):
-                temp_line = value.split(',')
-                temp_line = [s.strip() for s in temp_line]
-                teams_dict[temp_line.pop(0)] = temp_line
-        self.teams_dict = teams_dict
+            csv_team_list = [line.rstrip() for line in self.cleaned_data.get('csv_file')]
+            for string_line in csv_team_list:
+                # String line is the literal line from a file.
+                # It's split on comma's, and every string from the split is stripped and turned into a list
+                list_line = [s.strip() for s in string_line.split(',')]
+                # Pop the first value in the list, the team name, out as our dictionary key and set the value
+                #  to the list of members, the rest of the list
+                teams_dict[list_line.pop(0)] = list_line
+        return teams_dict
 
-        for team_name in self.teams_dict:
-            if Team.objects.filter(name=team_name):
-                raise ValidationError("A team with that name already exists!")
+    def clean(self):
+        cleaned_data = super(OrganizerTeamsCSVForm, self).clean()
+        return cleaned_data
 
     def save(self):
-        if hasattr(self, 'teams_dict'):
-            for team_name, team_member_list in self.teams_dict.iteritems():
-                new_team = Team.objects.create(
-                    name=team_name,
-                    competition=self.competition,
-                    description=team_name,
-                    allow_requests=False,
-                    creator=self.creator,
-                    created_at=timezone.now(),
-                    status=TeamStatus.objects.get(codename=TeamStatus.APPROVED),
-                    reason="Organizer Created Team"
-                )
-                print("Created new team: {}".format(new_team))
-                user_list = ClUser.objects.filter(Q(username__in=team_member_list) | Q(email__in=team_member_list))
-                for user in user_list:
-                    new_team_membership = TeamMembership.objects.create(
-                        user=user,
-                        team=new_team,
-                        is_invitation=False,
-                        is_request=False,
-                        start_date=timezone.now(),
-                        end_date=timezone.now() + datetime.timedelta(days=9000),
-                        message="Organizer Created",
-                        status=TeamMembershipStatus.objects.get(codename=TeamMembershipStatus.APPROVED),
+        if self.cleaned_data.get('csv_file'):
+            for team_name, team_member_list in self.cleaned_data.get('csv_file').iteritems():
+                existing_team = Team.objects.filter(name=team_name, competition=self.competition).first()
+                if not existing_team:
+                    new_team = Team.objects.create(
+                        name=team_name,
+                        competition=self.competition,
+                        description=team_name,
+                        allow_requests=False,
+                        creator=self.creator,
+                        created_at=timezone.now(),
+                        status=TeamStatus.objects.get(codename=TeamStatus.APPROVED),
                         reason="Organizer Created Team"
                     )
-                    print("Created new membership for user: {0} on team: {1}".format(user, new_team))
+                    logger.info("Created new team: {}".format(new_team))
+                    existing_team = new_team
+                else:
+                    logger.info("Using existing team: {}".format(existing_team))
+                user_list = ClUser.objects.filter(Q(username__in=team_member_list) | Q(email__in=team_member_list))
+                for user in existing_team.members.all():
+                    if user not in user_list:
+                        logger.info("Deleting membership for user: {}".format(user))
+                        TeamMembership.objects.get(user=user, team=existing_team).delete()
+                for user in user_list:
+                    if user not in existing_team.members.all():
+                        TeamMembership.objects.create(
+                            user=user,
+                            team=existing_team,
+                            is_invitation=False,
+                            is_request=False,
+                            start_date=timezone.now(),
+                            message="Organizer Created",
+                            status=TeamMembershipStatus.objects.get(codename=TeamMembershipStatus.APPROVED),
+                            reason="Organizer Created Team"
+                        )
+                        logger.info("Created new membership for user: {0} on team: {1}".format(user, existing_team))
+                    else:
+                        logger.info("User already exists on team.")
