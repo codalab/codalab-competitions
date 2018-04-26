@@ -424,4 +424,6 @@ class CompetitionOrganizerCSVTeams(FormView):
 
     def get_context_data(self, **kwargs):
         context = super(CompetitionOrganizerCSVTeams, self).get_context_data(**kwargs)
+        competition = Competition.objects.get(pk=self.kwargs['competition_pk'])
+        context['competition'] = competition
         return context

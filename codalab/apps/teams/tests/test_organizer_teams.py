@@ -170,7 +170,6 @@ class CompetitionOrganizerTeamsTests(TestCase):
         assert resp.status_code == 302
         assert resp.url == 'http://testserver/my/competition/1/participants/'
 
-        # Spaces will be removed from the name!
         new_team = Team.objects.get(name="Team 1", description="Team 1")
         print("NEW MEMBERS: {}".format(new_team.members.all()))
         # Make sure we can grab it by the new name and description.
@@ -214,7 +213,7 @@ class CompetitionOrganizerTeamsTests(TestCase):
 
         test_csv_three = SimpleUploadedFile(
             "test_team.csv",
-            "Team 1, test@user.com, team_member2, team_member3\n",
+            "Team 1, team_member2, team_member3\n",
             content_type='multipart/form-data'
         )
 
@@ -228,11 +227,10 @@ class CompetitionOrganizerTeamsTests(TestCase):
         assert resp.status_code == 302
         assert resp.url == 'http://testserver/my/competition/1/participants/'
 
-        # Spaces will be removed from the name!
         new_team = Team.objects.get(name="Team 1", description="Team 1")
         # Make sure we can grab it by the new name and description.
-        # We should still have the creator as a member
-        assert self.creator in new_team.members.all()
+        # We should not have the creator as a member
+        assert self.creator not in new_team.members.all()
 
     def test_organizer_teams_competition_creator_can_delete_teams(self):
         new_team = Team.objects.create(
