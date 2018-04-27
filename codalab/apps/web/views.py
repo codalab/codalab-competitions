@@ -23,7 +23,7 @@ from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.urlresolvers import reverse
 from django.db.models import Q, Max, Min, Count
-from django.http import Http404, HttpResponseForbidden
+from django.http import Http404, HttpResponseForbidden, StreamingHttpResponse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response, render
 from django.template import RequestContext
@@ -1188,9 +1188,7 @@ class MyCompetitionSubmissionOutput(View):
             else:
                 temp_file_name = file.name
             if file_name:
-                return HttpResponseRedirect(
-                    _make_url_sassy(temp_file_name)
-                )
+                return StreamingHttpResponse(file.readlines(), content_type='text/plain')
             else:
                 raise Http404()
         else:
