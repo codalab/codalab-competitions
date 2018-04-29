@@ -24,8 +24,6 @@
         </div>
     </div>
 
-    <p>TODO: Show recent submissions</p>
-
     <script>
         var self = this
 
