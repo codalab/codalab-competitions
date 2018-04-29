@@ -16,6 +16,7 @@
             <button id="fileUploadButton" type="button" class="button btn btn-primary" onclick="{ select_file }">
                 Submit
             </button>
+            <button type="button" class="button btn btn-primary" onclick="window.location.reload()">Refresh to load results</button>
         </div>
     </form>
     <div class="progress" show="{ upload_progress > 0 }" ref="progress">
@@ -30,38 +31,11 @@
         /*---------------------------------------------------------------------
          Progress bar
         ---------------------------------------------------------------------*/
-        /*self.show_progress_bar = function () {
-            // The transition delays are for timing the animations, so they're one after the other
-            self.refs.form.style.transitionDelay = '0s'
-            self.refs.form.style.maxHeight = 0
-            self.refs.form.style.overflow = 'hidden'
-
-            self.refs.progress.style.transitionDelay = '1s'
-            self.refs.progress.style.height = '24px'
-        }
-
-        self.hide_progress_bar = function () {
-            // The transition delays are for timing the animations, so they're one after the other
-            self.refs.progress.style.transitionDelay = '0s'
-            self.refs.progress.style.height = 0
-
-            self.refs.form.style.transitionDelay = '.1s'
-            self.refs.form.style.maxHeight = '1000px'
-            setTimeout(function () {
-                // Do this after transition has been totally completed
-                self.refs.form.style.overflow = 'visible'
-            }, 1000)
-        }*/
         self.progress_update_handler = function (progress) {
-            if (self.upload_progress === undefined) {
-                // First iteration of this upload, nice transitions
-                //self.show_progress_bar()
-            }
-
-            self.upload_progress = progress * 100;
-            //$(self.refs.progress).progress({percent: self.upload_progress})
-            self.update();
+            self.upload_progress = progress * 100
+            self.update()
         }
+
 
         /*---------------------------------------------------------------------
          File upload/form processing
@@ -108,7 +82,7 @@
                     xhr.setRequestHeader('Content-Type', 'application/zip')
                 },
                 xhr: function (xhr) {
-                    var request = new window.XMLHttpRequest();
+                    var request = new window.XMLHttpRequest()
                     // Upload progress
                     request.upload.addEventListener("progress", function (event) {
                         if (event.lengthComputable) {
@@ -120,27 +94,15 @@
                 }
             })
                 .success(function (data) {
-                    console.log("SUCCESS!")
-                    console.log(data)
                     self.finalize_submission(file)
                 })
                 .error(function (data) {
                     console.log("ERROR")
                     console.log(data)
-                    //self.hide_progress_bar()
                 })
         }
 
         self.finalize_submission = function (file) {
-
-            // Tells the server about finished upload and any extra submission details
-            //      https://competitions/api/competition/69/submission?description=&phase_id=97
-
-            // Data:
-            //      id: competition/69/submission/57/b8c6e639-d26a-42b7-aa97-95e8902f1a32.zip
-            //      name: competition%2F16%2Fsubmission%2F2%2F75ff9100-c17b-472a-909f-d30dc06bfccc.zip
-            //      type: application/zip
-            //      size: 91
             var url = "/api/competition/" + self.opts.competition_id + "/submission?description=" + self.refs.description.value + "&phase_id=" + self.opts.phase_id
 
             // Reset the form so we can get another input file changed event
@@ -163,7 +125,6 @@
                 .always(function() {
                     self.upload_progress = 0
                     self.update()
-                    //self.hide_progress_bar()
                 })
         }
     </script>
