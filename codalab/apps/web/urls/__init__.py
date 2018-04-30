@@ -25,6 +25,7 @@ urlpatterns = patterns('',
     url(r'^coopetitions/', include('apps.coopetitions.urls', namespace="coopetitions")),
     url(r'^queues/', include('apps.queues.urls', namespace="queues")),
     url(r'^customizer/', include('apps.customizer.urls')),
+    url(r'^user_lookup/', views.user_lookup),
 
     # Third party
     url(r'^s3direct/', include('s3direct.urls')),
@@ -35,6 +36,12 @@ urlpatterns = patterns('',
     url(r'^(?i)ChalearnLAP_Action/?', RedirectView.as_view(url='https://www.codalab.org/competitions/2241')),
     url(r'^(?i)Age/?', RedirectView.as_view(url='https://www.codalab.org/competitions/4711')),
     url(r'^(?i)Caption/?', RedirectView.as_view(url='https://www.codalab.org/competitions/3221')),
+
+    # Static pages
+    url(r'^(?i)highlights/?', TemplateView.as_view(template_name='web/highlights.html'), name="highlights"),
+
+    # Helper that closes window upon visiting
+    url(r'^close/$', TemplateView.as_view(template_name='close.html')),
 )
 
 
@@ -96,9 +103,11 @@ if settings.DEBUG:
     #     )),
     # )
 
-    '''
-    Admin
-    '''
+    # Admin
     urlpatterns += patterns('',
         url(r'^admin/', include(admin.site.urls)),
     )
+
+    # Local static files
+    from django.contrib.staticfiles.views import serve
+    urlpatterns += [url(r'^static/(?P<path>.*)$', serve), ]

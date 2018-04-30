@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% load codalab_tags %}
+{% load tz %}
+
+{% block page_title %}Participants{% endblock page_title %}
+{% block head_title %}Participants{% endblock %}
+
+{% block extra_head %}
+    <script src="{% static 'js/foundation/vendor/jquery.validate.min.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+    <div id="comp-back">
+        <a href="{% url "competitions:view" pk=form.competition.pk %}" class="pull-right">Go Back to Competition Homepage</a>
+    </div>
+    <div id="main_container" class="container-fluid">
+        {{ form.non_field_errors }}
+        <form action="" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div id="panel_container" class="panel panel-default">
+                <div class="form-group">
+                    <label for="id_name">Team Name:</label>
+                    <input id="id_name" maxlength="100" name="name" type="text" value="{{ form.name.value|default_if_none:"" }}"/>
+                    <p>{{ form.name.errors }}</p>
+                </div>
+                <div class="form-group">
+                    <label for="id_text_members">Team Members:</label>
+                    <textarea class="form-control" rows="3" id="id_text_members" name="text_members" placeholder="Enter team member names separated by commas. (Ex. Team Member1, Team Member 2, etc.)">{{ initial_team_members|default_if_none:"" }}</textarea>
+                    <p>{{ form.text_members.error }}</p>
+                </div>
+                <div class="form-group">
+                    <label for="id_description">Description:</label>
+                    <textarea class="form-control" rows="3" id="id_description" name="description" placeholder="Enter a short description of the team here.">{{ form.description.value|default_if_none:"" }}</textarea>
+                    <p>{{ form.description.error }}</p>
+                </div>
+                <div id="pull-middle">
+                    <input id="submit_button" type="submit" class="pull-middle btn btn-primary" value="Submit Team">
+                </div>
+            </div>
+        </form>
+    </div>
+    <style>
+        #main_container {
+            text-align: left;
+            margin: 0 auto;
+            padding: 1em;
+        }
+        #id_name {
+            width: 40%;
+        }
+        .form-group {
+            width: 96%;
+            margin: 0.5em auto;
+        }
+        #panel_container {
+            margin: 1em auto;
+            width: 80%;
+            padding-bottom: 2em;
+            padding-top: 1em;
+        }
+        #pull-middle {
+            text-align: center;
+        }
+        #submit_button {
+            margin: 1em auto;
+        }
+    </style>
+{% endblock %}

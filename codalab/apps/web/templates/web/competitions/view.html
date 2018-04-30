@@ -3,6 +3,7 @@
 {% load staticfiles %}
 {% load codalab_tags %}
 {% load tz %}
+{% load humanize %}
 {% block head_title %}Competition{% endblock %}
 {% block page_title %}Competition{% endblock page_title %}
 
@@ -34,6 +35,7 @@
     </a>
     <a href="{% url 'my_competition_submissions' competition_id=competition.pk %}" class="btn btn-primary">Submissions</a>
     <a href="{% url 'competitions:dumps' competition_pk=competition.pk %}" class="btn btn-primary">Dumps</a>
+    <a href="{% url 'competitions:widgets' pk=competition.pk %}" class="btn btn-primary">Widgets</a>
     <hr>
 {% endif %}
 <div class="competition-view">
@@ -56,7 +58,12 @@
 
 
             {% endif %}
-            <div class="organizer">Organized by {{ competition.creator }} - Current server time: {{ current_server_time|utc }} UTC</div>
+            <div class="organizer">
+                Organized by {{ competition.creator }} - Current server time: {{ current_server_time|utc }} UTC<br>
+                {% if competition.reward and competition.reward > 0 %}
+                     Reward <b>${{ competition.reward|intcomma }}</b>
+                {% endif %}
+            </div>
             <input type="hidden" id="competitionId" value="{{competition.id}}" />
             <input type="hidden" id="cstoken" value="{{csrf_token}}" />
             <div class="phase-container">
@@ -100,7 +107,9 @@
                                 <div class="date">{{next_phase.start_date|utc}} UTC</div>
                             </div>
                         </div>
-                    {% else %}
+                    {% endif %}
+
+                    {% if not previous_phase or not active_phase or not next_phase %}
                         <div class="col-sm-4">
                             <div class="phase">
                                 <h4>End</h4>
@@ -109,7 +118,6 @@
                             </div>
                         </div>
                     {% endif %}
-
                 </div>
             </div>
         </div>
@@ -131,7 +139,7 @@
                     {% if competition.enable_forum %}
                     <li><a href="{% url 'forum_detail' forum_pk=competition.forum.pk %}">Forums <i class="glyphicon glyphicon-log-in"></i></a></li>
                     {% endif %}
-                    {% if competition.enable_teams %}
+                    {% if competition.enable_teams and not competition.allow_organizer_teams %}
                         {% if my_status == "approved" %}
                             <li>
                                 <a href="{% url 'team_detail' competition_pk=competition.pk %}">Team

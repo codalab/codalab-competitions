@@ -264,6 +264,7 @@ class Competition(ChaHubSaveMixin, models.Model):
     teams = models.ManyToManyField(Team, related_name='competition_teams', blank=True, null=True)
     hide_top_three = models.BooleanField(default=False, verbose_name="Hide Top Three Leaderboard")
     hide_chart = models.BooleanField(default=False, verbose_name="Hide Chart")
+    allow_organizer_teams = models.BooleanField(default=False, verbose_name="Allow Organizer Teams")
 
     competition_docker_image = models.CharField(max_length=128, default='', blank=True)
 
@@ -334,7 +335,7 @@ class Competition(ChaHubSaveMixin, models.Model):
             "title": self.title,
             "created_by": str(self.creator),
             "start": self.start_date.isoformat() if self.start_date else None,
-            "logo": self.image_url.replace(" ", "%20"),
+            "logo": self.image_url.replace(" ", "%20") if self.image_url else None,
             "url": "{}://{}{}".format(http_or_https, settings.CODALAB_SITE_DOMAIN, self.get_absolute_url()),
             "phases": phase_data,
             "participant_count": self.get_participant_count,
@@ -1328,6 +1329,7 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
     is_migrated = models.BooleanField(default=False) # Will be used to auto  migrate
 
     # Team of the user in the moment of the submission
+    # This field is not used anywhere we can see 4/18/2018
     team = models.ForeignKey(Team, related_name='team', null=True, blank=True)
 
     queue_name = models.TextField(null=True, blank=True)
@@ -1348,6 +1350,9 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
     def metadata_scoring(self):
         '''Generated from the result scoring step of evaluation a submission'''
         return self.metadatas.get(is_scoring=True)
+
+    def get_chahub_is_valid(self):
+        return self.phase.competition.published
 
     def get_chahub_endpoint(self):
         return "submissions/"
@@ -1418,6 +1423,11 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
                     raise PermissionDenied("The maximum number of submissions has been reached.")
                 else:
                     print "Submission number below maximum."
+
+                if self.phase.competition.end_date and not self.phase.phase_never_ends:
+                    if now().date() > self.phase.competition.end_date.date():
+                        print "Submission is past competition end."
+                        raise PermissionDenied("The competition has ended. No more submissions are allowed.")
 
                 if hasattr(self.phase, 'max_submissions_per_day'):
                     print 'Checking submissions per day count'
@@ -2402,14 +2412,21 @@ def get_first_previous_active_and_next_phases(competition):
                 active_phase = phase
             elif not phase.phase_never_ends:
                 active_phase = phase
-                try:
-                    next_phase = next(phase_iterator)
-                except StopIteration:
-                    pass
+
+            try:
+                next_phase = next(phase_iterator)
+            except StopIteration:
+                pass
+
+            if not active_phase.phase_never_ends:
+                # The phase has a definite ending, so we can stop here using this
+                # as the active phase and next (if applicable) is already grabbed
+                # from the iterator
                 break
 
         # Hold this to store "previous phase"
         trailing_phase_holder = phase
+
     return first_phase, previous_phase, active_phase, next_phase
 
 
