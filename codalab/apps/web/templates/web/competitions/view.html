@@ -35,6 +35,7 @@
     </a>
     <a href="{% url 'my_competition_submissions' competition_id=competition.pk %}" class="btn btn-primary">Submissions</a>
     <a href="{% url 'competitions:dumps' competition_pk=competition.pk %}" class="btn btn-primary">Dumps</a>
+    <a href="{% url 'competitions:widgets' pk=competition.pk %}" class="btn btn-primary">Widgets</a>
     <hr>
 {% endif %}
 <div class="competition-view">

@@ -1955,6 +1955,137 @@ class CompetitionDumpDeleteView(DeleteView):
         return reverse('competitions:dumps', kwargs={'competition_pk': dump.competition.pk})
 
 
+class CompetitionWidgetsView(LoginRequiredMixin, DetailView):
+    queryset = models.Competition.objects.all()
+    template_name = 'web/competitions/widgets.html'
+
+    def get_object(self, queryset=None):
+        self.object = super(CompetitionWidgetsView, self).get_object()
+        if self.request.user != self.object.creator and self.request.user not in self.object.admins.all():
+            raise Http404()
+        return self.object
+
+
+class WidgetMixin(object):
+
+    def get_context_data(self, **kwargs):
+        context = super(WidgetMixin, self).get_context_data(**kwargs)
+        context['current_phase'] = get_current_phase(self.object)
+        return context
+
+
+class CompetitionSubmissionWidgetView(WidgetMixin, DetailView):
+    queryset = models.Competition.objects.all()
+    template_name = 'web/widget_iframes/submission.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(CompetitionSubmissionWidgetView, self).get_context_data(**kwargs)
+        context['phase'] = get_current_phase(self.object)
+        phase = context['phase']
+        competition = self.object
+
+        if settings.USE_AWS:
+            context['form'] = forms.SubmissionS3UploadForm
+
+        if competition.participants.filter(user__in=[self.request.user]).exists():
+            participant = competition.participants.get(user=self.request.user)
+            if participant.status.codename == models.ParticipantStatus.APPROVED:
+                submissions = models.CompetitionSubmission.objects.filter(
+                    participant=participant,
+                    phase=phase
+                ).select_related('status').order_by('submitted_at')
+
+                # find which submission is in the leaderboard, if any and only if phase allows seeing results.
+                id_of_submission_in_leaderboard = -1
+                if not phase.is_blind:
+                    leaderboard_entry = models.PhaseLeaderBoardEntry.objects.filter(
+                        board__phase=phase,
+                        result__participant__user=self.request.user
+                    ).select_related('result', 'result__participant')
+                    if leaderboard_entry:
+                        id_of_submission_in_leaderboard = leaderboard_entry[0].result.pk
+                submission_info_list = []
+                for submission in submissions:
+                    try:
+                        default_score = float(submission.get_default_score())
+                    except (TypeError, ValueError):
+                        default_score = '---'
+                    submission_info = {
+                        'id': submission.id,
+                        'number': submission.submission_number,
+                        'filename': submission.get_filename(),  # left as call for legacy update of readable_filename on subs.
+                        'submitted_at': submission.submitted_at,
+                        'status_name': submission.status.name,
+                        'is_finished': submission.status.codename == 'finished',
+                        'is_in_leaderboard': submission.id == id_of_submission_in_leaderboard,
+                        'exception_details': submission.exception_details,
+                        'description': submission.description,
+                        'team_name': submission.team_name,
+                        'method_name': submission.method_name,
+                        'method_description': submission.method_description,
+                        'project_url': submission.project_url,
+                        'publication_url': submission.publication_url,
+                        'bibtex': submission.bibtex,
+                        'organization_or_affiliation': submission.organization_or_affiliation,
+                        'is_public': submission.is_public,
+                        'score': default_score,
+                    }
+                    submission_info_list.append(submission_info)
+                context['submission_info_list'] = submission_info_list
+                context['phase'] = phase
+
+        try:
+            last_submission = models.CompetitionSubmission.objects.filter(
+                participant__user=self.request.user,
+                phase=context['phase']
+            ).latest('submitted_at')
+            context['last_submission_team_name'] = last_submission.team_name
+            context['last_submission_method_name'] = last_submission.method_name
+            context['last_submission_method_description'] = last_submission.method_description
+            context['last_submission_project_url'] = last_submission.project_url
+            context['last_submission_publication_url'] = last_submission.publication_url
+            context['last_submission_bibtex'] = last_submission.bibtex
+            context['last_submission_organization_or_affiliation'] = last_submission.organization_or_affiliation
+        except ObjectDoesNotExist:
+            pass
+        return context
+
+
+class CompetitionLeaderboardWidgetView(WidgetMixin, DetailView):
+    queryset = models.Competition.objects.all()
+    template_name = 'web/widget_iframes/leaderboard.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(CompetitionLeaderboardWidgetView, self).get_context_data(**kwargs)
+        try:
+            context['block_leaderboard_view'] = True
+            competition = self.object
+            phase = get_current_phase(competition)
+            is_owner = self.request.user.id == competition.creator_id
+            context['competition_admins'] = competition.admins.all()
+            context['is_owner'] = is_owner
+            context['phase'] = phase
+            context['groups'] = phase.scores()
+
+            for group in context['groups']:
+                for _, scoredata in group['scores']:
+                    sub = models.CompetitionSubmission.objects.get(pk=scoredata['id'])
+                    scoredata['date'] = sub.submitted_at
+                    scoredata['count'] = sub.phase.submissions.filter(participant=sub.participant).count()
+                    if sub.team:
+                        scoredata['team_name'] = sub.team.name
+
+            user = self.request.user
+
+            # Will allow creator and admin to see Leaderboard in advanced
+            if user == phase.competition.creator or user in phase.competition.admins.all():
+                context['block_leaderboard_view'] = False
+        except:
+            context['error'] = traceback.format_exc()
+        finally:
+            return context
+
+
 @login_required
 def user_lookup(request):
     search = request.GET.get('term')
