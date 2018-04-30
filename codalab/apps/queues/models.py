@@ -32,10 +32,11 @@ class Queue(models.Model):
         # Get localhost:5672
         host = Site.objects.get_current().domain
 
-        return "pyamqp://{}:{}@{}/{}".format(
+        return "pyamqp://{}:{}@{}:{}/{}".format(
             self.owner.rabbitmq_username,
             self.owner.rabbitmq_password,
             host,
+            settings.RABBITMQ_PORT,
             self.vhost
         )
 
