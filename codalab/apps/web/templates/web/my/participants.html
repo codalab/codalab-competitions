@@ -13,58 +13,64 @@
 {% block content %}
 
 <a href="{% url "competitions:view" pk=competition_id %}" class="pull-right" >Go Back to Competition Homepage</a>
+{% if allow_organizer_teams %}
+    <a href="{% url "create_org_team" competition_pk=competition_id %}" class="pull-middle btn btn-default" >Create Organizer Team</a>
+    <a href="{% url "create_org_teams_from_csv" competition_pk=competition_id %}" class="pull-middle btn btn-default" >Upload Team CSV</a>
+{% endif %}
 
 <div class="participants">
     <h3>Teams</h3>
-    {% if teams_enabled %}
-        {% if pending_teams %}
-            {% for item in pending_teams %}
-                <div class="panel panel-default competitionUserBlock teamUserBlock_{{item.id}}">
-                    <div class="panel-heading">
-                        <h3 class="panel-title">{{ item.name }}
-                            <span class="participationStatus label label-{{ item.status.codename }}">
-                                {% if item.status.codename == 'pending' %}
-                                    Team pending approval
-                                {% elif item.status.codename == 'approved' %}
-                                    Team approved
-                                {% elif item.status.codename == 'denied' %}
-                                    Team denied
-                                {% elif item.status.codename == 'deleted' %}
-                                    Team deleted
-                                {% else %}
-                                    Unknown Status
-                                {% endif %}
-                            </span>
-                        </h3>
-                    </div>
-                    <div class="panel-body">
-                        {% if item.status.codename == 'denied' %}
-                            <p class="text-danger">Reason: {{ item.reason }}</p>
-                        {% endif %}
-                        <form class="custom process_request" id="team_request_{{item.id}}">{% csrf_token %}
-                            <input type="hidden" name="team_id" value="{{item.id}}"/>
-                            <div class="row">
-                                <div class="col-sm-4">
-                                    <div class="form-group">
-                                        <label for="status">Status:</label>
-                                        <select id="status" name="status" class="form-control">
-                                            <option value="approved">Approve</option>
-                                            <option value="denied">Deny</option>
-                                        </select>
+    {% if teams_enabled or allow_organizer_teams %}
+        {% if not allow_organizer_teams %}
+            {% if pending_teams %}
+                {% for item in pending_teams %}
+                    <div class="panel panel-default competitionUserBlock teamUserBlock_{{ item.id }}">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">{{ item.name }}
+                                <span class="participationStatus label label-{{ item.status.codename }}">
+                                    {% if item.status.codename == 'pending' %}
+                                        Team pending approval
+                                    {% elif item.status.codename == 'approved' %}
+                                        Team approved
+                                    {% elif item.status.codename == 'denied' %}
+                                        Team denied
+                                    {% elif item.status.codename == 'deleted' %}
+                                        Team deleted
+                                    {% else %}
+                                        Unknown Status
+                                    {% endif %}
+                                </span>
+                            </h3>
+                        </div>
+                        <div class="panel-body">
+                            {% if item.status.codename == 'denied' %}
+                                <p class="text-danger">Reason: {{ item.reason }}</p>
+                            {% endif %}
+                            <form class="custom process_request form-participate" id="team_request_{{ item.id }}">{% csrf_token %}
+                                <input type="hidden" name="team_id" value="{{ item.id }}"/>
+                                <div class="row">
+                                    <div class="col-sm-4">
+                                        <div class="form-group">
+                                            <label for="status">Status:</label>
+                                            <select id="status" name="status" class="form-control">
+                                                <option value="approved">Approve</option>
+                                                <option value="denied">Deny</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-8">
+                                        <div class="form-group">
+                                            <label for="reason">Reason:</label>
+                                            <textarea id="reason" name="reason" class="form-control"></textarea>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="col-sm-8">
-                                    <div class="form-group">
-                                        <label for="reason">Reason:</label>
-                                        <textarea id="reason" name="reason" class="form-control"></textarea>
-                                    </div>
-                                </div>
-                            </div>
-                            <input type="submit" class="btn btn-primary pull-right" value="Process" />
-                        </form>
+                                <input type="submit" class="btn btn-primary pull-right" value="Process"/>
+                            </form>
+                        </div>
                     </div>
-                </div>
-            {% endfor %}
+                {% endfor %}
+            {% endif %}
         {% endif %}
         {% if not team_list %}
              <p><em>There are no teams.</em></p>
@@ -90,8 +96,19 @@
                                 <span class="label label-{{team|get_item:column.name}}">
                                     {{team|get_item:column.name}}
                                 </span>
-                                <button type="button" class="pull-right btn btn-danger btn-sm team_revoke_button button {% if team.status == "denied" %}hide{% endif %}" team_id="{{ team.pk }}">Revoke</button>
-                                <button type="button" class="pull-right btn btn-success btn-sm team_reinstate_button button {% if team.status == "approved" %}hide{% endif %}" team_id="{{ team.pk }}">Reinstate</button>
+                                {% if not allow_organizer_teams %}
+                                    <button type="button"
+                                            class="pull-right btn btn-danger btn-sm team_revoke_button button {% if team.status == "denied" %}hide{% endif %}"
+                                            team_id="{{ team.pk }}">Revoke
+                                    </button>
+                                    <button type="button"
+                                            class="pull-right btn btn-success btn-sm team_reinstate_button button {% if team.status == "approved" %}hide{% endif %}"
+                                            team_id="{{ team.pk }}">Reinstate
+                                    </button>
+                                {% else %}
+                                    <a href="{% url "edit_org_team" competition_pk=competition_id pk=team.pk %}" class="pull-right button btn-primary btn-xs">Edit</a>
+                                    <a href="{% url "delete_org_team" competition_pk=competition_id team_pk=team.pk %}" class="pull-right button btn-danger btn-xs">Delete</a>
+                                {% endif %}
                             {% else %}
                                 {{ team|get_item:column.name }}
                             {% endif %}
@@ -106,90 +123,107 @@
 </div>
 <div class="participants">
     <h3>Participants</h3>
-    {% if not object_list %}
-        <p><em>There are no participants.</em></p>
-    {% else %}
-        {% for item in pending_participants %}
-            <div class="panel panel-default competitionUserBlock competitionUserBlock_{{item.id}}">
-                <div class="panel-heading">
-                    <h3 class="panel-title">{{ item.user.username }}
-                        <span class="participationStatus label label-{{ item.status.codename }}">
-                            {% if item.status.codename == 'pending' %}
-                                Participation pending approval
-                            {% elif item.status.codename == 'approved' %}
-                                Participation approved
-                            {% elif item.status.codename == 'denied' %}
-                                Participation denied
-                            {% else %}
-                                Unknown Status
-                            {% endif %}
-                        </span>
-                    </h3>
-                </div>
-                <div class="panel-body">
-                    {% if item.status.codename == 'denied' %}
-                        <p class="text-danger">Reason: {{ item.reason }}</p>
-                    {% endif %}
-                    <form class="custom process_request" id="process_request_{{item.id}}">{% csrf_token %}
-                        <input type="hidden" name="participant_id" value="{{item.id}}"/>
-                        <div class="row">
-                            <div class="col-sm-4">
-                                <div class="form-group">
-                                    <label for="status">Status:</label>
-                                    <select id="status" name="status" class="form-control">
-                                        <option value="approved">Approve</option>
-                                        <option value="denied">Deny</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-sm-8">
-                                <div class="form-group">
-                                    <label for="reason">Reason:</label>
-                                    <textarea id="reason" name="reason" class="form-control"></textarea>
-                                </div>
-                            </div>
-                        </div>
-                        <input type="submit" class="btn btn-primary pull-right" value="Process" />
-                    </form>
-                </div>
-            </div>
-        {% endfor %}
 
-        <button type="button" data-toggle="modal" href="#message_all_modal" class="btn btn-primary">Send message to all participants?</button>
-
-        <table class="resultsTable dataTable table table-striped table-bordered">
-            <thead>
-                <tr>
-                    {% for column in columns %}
-                    <th>
-                        <a href="?order={{column.name}}{% if direction == 'asc' and order == column.name %}&direction=desc{% endif %}">
-                            {{column.label}} <i class="{% if order == column.name %}{% if direction == 'asc'%}fi-arrow-down{% else %}fi-arrow-up{% endif %}{% endif %} right"></i>
-                        </a>
-                    </th>
-                    {% endfor %}
-                </tr>
-            </thead>
-            <tbody>
-                {% for participant in participant_list %}
-                <tr>
-                    {% for column in columns %}
-                    <td>
-                        {% if column.label == "STATUS" %}
-                            <span class="label label-{{participant|get_item:column.name}}">
-                                {{participant|get_item:column.name}}
+{#    {% if not allow_organizer_teams %}#}
+        {% if not object_list %}
+            <p><em>There are no participants.</em></p>
+        {% else %}
+            {% if not allow_organizer_teams %}
+                {% for item in pending_participants %}
+                    <div class="panel panel-default competitionUserBlock competitionUserBlock_{{ item.id }}">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">{{ item.user.username }}
+                                <span class="participationStatus label label-{{ item.status.codename }}">
+                                {% if item.status.codename == 'pending' %}
+                                    Participation pending approval
+                                {% elif item.status.codename == 'approved' %}
+                                    Participation approved
+                                {% elif item.status.codename == 'denied' %}
+                                    Participation denied
+                                {% else %}
+                                    Unknown Status
+                                {% endif %}
                             </span>
-                            <button type="button" class="pull-right btn btn-danger btn-sm revoke_button button {% if participant.status == "denied" %}hide{% endif %}" participant_id="{{ participant.pk }}">Revoke</button>
-                            <button type="button" class="pull-right btn btn-success btn-sm reinstate_button button {% if participant.status == "approved" %}hide{% endif %}" participant_id="{{ participant.pk }}">Reinstate</button>
-                        {% else %}
-                            {{ participant|get_item:column.name }}
-                        {% endif %}
-                    </td>
+                            </h3>
+                        </div>
+                        <div class="panel-body">
+                            {% if item.status.codename == 'denied' %}
+                                <p class="text-danger">Reason: {{ item.reason }}</p>
+                            {% endif %}
+                            <form class="custom process_request form-participate" id="process_request_{{ item.id }}">{% csrf_token %}
+                                <input type="hidden" name="participant_id" value="{{ item.id }}"/>
+                                <div class="row">
+                                    <div class="col-sm-4">
+                                        <div class="form-group">
+                                            <label for="status">Status:</label>
+                                            <select id="status" name="status" class="form-control">
+                                                <option value="approved">Approve</option>
+                                                <option value="denied">Deny</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-8">
+                                        <div class="form-group">
+                                            <label for="reason">Reason:</label>
+                                            <textarea id="reason" name="reason" class="form-control"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="submit" class="btn btn-primary pull-right" value="Process"/>
+                            </form>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <button type="button" data-toggle="modal" href="#message_all_modal" class="btn btn-primary">Send message to
+                all participants?
+            </button>
+
+            <table class="resultsTable dataTable table table-striped table-bordered">
+                <thead>
+                <tr>
+                    {% for column in columns %}
+                        <th>
+                            <a href="?order=
+                                    {{ column.name }}{% if direction == 'asc' and order == column.name %}&direction=desc{% endif %}">
+                                {{ column.label }} <i class="
+                                    {% if order == column.name %}{% if direction == 'asc' %}fi-arrow-down{% else %}fi-arrow-up{% endif %}{% endif %} right"></i>
+                            </a>
+                        </th>
                     {% endfor %}
                 </tr>
+                </thead>
+                <tbody>
+                {% for participant in participant_list %}
+                    <tr>
+                        {% for column in columns %}
+                            <td>
+                                {% if column.label == "STATUS" %}
+                                    <span class="label label-{{ participant|get_item:column.name }}">
+                                    {{ participant|get_item:column.name }}
+                                </span>
+                                    {% if not allow_organizer_teams %}
+                                        <button type="button"
+                                                class="pull-right btn btn-danger btn-sm revoke_button button {% if participant.status == "denied" %}hide{% endif %}"
+                                                participant_id="{{ participant.pk }}">Revoke
+                                        </button>
+                                        <button type="button"
+                                                class="pull-right btn btn-success btn-sm reinstate_button button {% if participant.status == "approved" %}hide{% endif %}"
+                                                participant_id="{{ participant.pk }}">Reinstate
+                                        </button>
+                                    {% endif %}
+                                {% else %}
+                                    {{ participant|get_item:column.name }}
+                                {% endif %}
+                            </td>
+                        {% endfor %}
+                    </tr>
                 {% endfor %}
-            </tbody>
-        </table>
+                </tbody>
+            </table>
         {% endif %}
+{#    {% endif %}#}
     </div>
 </div>
 <div class="modal fade" id="message_all_modal">
@@ -200,7 +234,7 @@
                 <h4 class="modal-title">Email Participants</h4>
             </div>
             <div class="modal-body">
-                <form id="message-form">
+                <form class="form-participate" id="message-form">
                     <div class="form-group">
                         <input id="subject_input" type="text" placeholder="Subject" class="form-control">
                             <div class="alert alert-danger" id="subject-alert" role="alert">
@@ -290,7 +324,7 @@
                                     'approved': '' };
 
     /* attach a submit handler to the form */
-    $("form").submit(function(event) {
+    $(".form-participate").submit(function(event) {
 
         /* stop form from submitting normally */
         event.preventDefault();
@@ -397,6 +431,15 @@
 
         };
     });
+
+$( document ).ready(function() {
+    $("#submit_button").click(function () {
+        $('#id_csv_file').click();
+    });
+    $('#id_csv_file').change(function(){
+        $('#choose-file').submit()
+    })
+});
 
     function removeErrorMessage(){
         $('#subject-alert').css({

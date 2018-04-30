@@ -139,7 +139,7 @@
                     {% if competition.enable_forum %}
                     <li><a href="{% url 'forum_detail' forum_pk=competition.forum.pk %}">Forums <i class="glyphicon glyphicon-log-in"></i></a></li>
                     {% endif %}
-                    {% if competition.enable_teams %}
+                    {% if competition.enable_teams and not competition.allow_organizer_teams %}
                         {% if my_status == "approved" %}
                             <li>
                                 <a href="{% url 'team_detail' competition_pk=competition.pk %}">Team
