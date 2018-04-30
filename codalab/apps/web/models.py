@@ -264,6 +264,7 @@ class Competition(ChaHubSaveMixin, models.Model):
     teams = models.ManyToManyField(Team, related_name='competition_teams', blank=True, null=True)
     hide_top_three = models.BooleanField(default=False, verbose_name="Hide Top Three Leaderboard")
     hide_chart = models.BooleanField(default=False, verbose_name="Hide Chart")
+    allow_organizer_teams = models.BooleanField(default=False, verbose_name="Allow Organizer Teams")
 
     competition_docker_image = models.CharField(max_length=128, default='', blank=True)
 
@@ -1328,6 +1329,7 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
     is_migrated = models.BooleanField(default=False) # Will be used to auto  migrate
 
     # Team of the user in the moment of the submission
+    # This field is not used anywhere we can see 4/18/2018
     team = models.ForeignKey(Team, related_name='team', null=True, blank=True)
 
     queue_name = models.TextField(null=True, blank=True)

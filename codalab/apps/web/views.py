@@ -11,6 +11,8 @@ import yaml
 import zipfile
 
 from decimal import Decimal
+
+from django.views.generic.base import ContextMixin
 from yaml.representer import SafeRepresenter
 
 from django.db import connection
@@ -29,7 +31,7 @@ from django.db.models import Q, Max, Min, Count
 from django.http import Http404, HttpResponseForbidden
 from django.http import HttpResponse, HttpResponseRedirect
 from django.http import StreamingHttpResponse
-from django.shortcuts import render_to_response, render
+from django.shortcuts import render_to_response, render, redirect
 from django.template import RequestContext, loader
 from django.utils.decorators import method_decorator
 from django.utils.html import strip_tags
@@ -41,6 +43,7 @@ from django.utils import timezone
 
 from mimetypes import MimeTypes
 
+from apps.teams.forms import OrganizerTeamsCSVForm
 from apps.jobs.models import Job
 from apps.web import forms
 from apps.web import models
@@ -51,12 +54,12 @@ from apps.common.competition_utils import get_most_popular_competitions, get_fea
 from apps.web.exceptions import ScoringException
 from apps.web.forms import CompetitionS3UploadForm, SubmissionS3UploadForm
 from apps.web.models import SubmissionScore, SubmissionScoreDef, get_current_phase, \
-    get_first_previous_active_and_next_phases
+    get_first_previous_active_and_next_phases, Competition
 
 from apps.authenz.models import ClUser
 from tasks import evaluate_submission, re_run_all_submissions_in_phase, create_competition, _make_url_sassy, \
     make_modified_bundle
-from apps.teams.models import TeamMembership, get_user_team, get_competition_teams, get_competition_pending_teams, get_competition_deleted_teams, get_last_team_submissions, get_user_requests, get_team_pending_membership
+from apps.teams.models import Team, TeamMembership, get_user_team, get_competition_teams, get_competition_pending_teams, get_competition_deleted_teams, get_last_team_submissions, get_user_requests, get_team_pending_membership
 
 from extra_views import UpdateWithInlinesView, InlineFormSet, NamedFormsetsMixin
 
@@ -999,7 +1002,7 @@ class MyCompetitionParticipantView(LoginRequiredMixin, ListView):
         context['pending_participants'] = filter(lambda participant_submission: participant_submission.status.codename == models.ParticipantStatus.PENDING, competition_participants)
         participant_submissions = models.CompetitionSubmission.objects.filter(participant__in=competition_participants_ids)
         for number, participant in enumerate(competition_participants):
-            team = get_user_team(participant, participant.competition)
+            team = get_user_team(participant.user, participant.competition)
             if team is not None:
                 team_name = team.name
             else:
@@ -1024,8 +1027,11 @@ class MyCompetitionParticipantView(LoginRequiredMixin, ListView):
 
         # If teams are enabled for this competition, add team information
         competition = models.Competition.objects.get(pk=self.kwargs.get('competition_id'))
-        if competition.enable_teams:
-            context['teams_enabled'] = True
+        context['allow_organizer_teams'] = competition.allow_organizer_teams
+        context['csv_form'] = OrganizerTeamsCSVForm(competition_pk=self.kwargs.get('competition_id'), creator_pk=competition.creator.pk)
+        if competition.enable_teams or competition.allow_organizer_teams:
+            if competition.enable_teams:
+                context['teams_enabled'] = True
             participant_memberships = TeamMembership.objects.filter(user__in=competition_participants_ids)
             teams_list = []
             for number, team in enumerate(get_competition_teams(competition)):
@@ -1034,7 +1040,7 @@ class MyCompetitionParticipantView(LoginRequiredMixin, ListView):
                     'name': team.name,
                     'creator': team.creator.username,
                     'creator_pk': team.creator.pk,
-                    'num_members': 0,
+                    'num_members': team.members.count(),
                     'num_pending': 0,
                     'status': team.status.codename,
                     'number': number + 1,
