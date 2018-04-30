@@ -464,6 +464,7 @@ class Base(Settings):
     # =========================================================================
     CHAHUB_API_URL = os.environ.get('CHAHUB_API_URL')
     CHAHUB_API_KEY = os.environ.get('CHAHUB_API_KEY')
+    CHAHUB_PRODUCER_ID = os.environ.get('CHAHUB_PRODUCER_ID')
 
 
     # =========================================================================

@@ -1,6 +1,6 @@
 from django.conf import settings
 
-from apps.customizer.models import Configuration
+from apps.web.utils import get_base_of_url
 from codalab import settings as codalab_settings
 
 
@@ -21,4 +21,8 @@ def common_settings(request):
         'local_ace_editor': codalab_settings.LOCAL_ACE_EDITOR,
         'is_dev': codalab_settings.IS_DEV,
         'USE_AWS': codalab_settings.USE_AWS,
+
+        # Just get the base of the URL
+        'CHAHUB_URL': get_base_of_url(settings.CHAHUB_API_URL),
+        'CHAHUB_PRODUCER_ID': settings.CHAHUB_PRODUCER_ID,
     }
