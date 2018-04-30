@@ -1975,6 +1975,7 @@ class CompetitionSubmissionWidgetView(WidgetMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super(CompetitionSubmissionWidgetView, self).get_context_data(**kwargs)
         context['phase'] = get_current_phase(self.object)
+        phase = context['phase']
         competition = self.object
 
         if settings.USE_AWS:
@@ -1983,8 +1984,6 @@ class CompetitionSubmissionWidgetView(WidgetMixin, DetailView):
         if competition.participants.filter(user__in=[self.request.user]).exists():
             participant = competition.participants.get(user=self.request.user)
             if participant.status.codename == models.ParticipantStatus.APPROVED:
-                phase = context['phase']
-
                 submissions = models.CompetitionSubmission.objects.filter(
                     participant=participant,
                     phase=phase
