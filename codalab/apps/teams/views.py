@@ -374,8 +374,6 @@ class CompetitionOrganizerTeams(FormView):
 
 @login_required
 def delete_organizer_team(request, team_pk, competition_pk):
-
-    if request.method == 'POST':
         try:
             comp = Competition.objects.get(pk=competition_pk)
             team_to_delete = Team.objects.get(pk=team_pk)
@@ -389,8 +387,6 @@ def delete_organizer_team(request, team_pk, competition_pk):
             return redirect('my_competition_participants', competition_id=comp.pk)
         except ObjectDoesNotExist:
             return HttpResponse(status=404)
-    else:
-        return HttpResponse(status=405)
 
 
 class CompetitionOrganizerCSVTeams(FormView):
