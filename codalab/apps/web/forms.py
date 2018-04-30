@@ -46,6 +46,7 @@ class CompetitionForm(forms.ModelForm):
             'enable_forum',
             'anonymous_leaderboard',
             'enable_teams',
+            'allow_organizer_teams',
             'require_team_approval',
             'competition_docker_image',
             'hide_top_three',
