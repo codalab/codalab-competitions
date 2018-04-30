@@ -267,7 +267,7 @@ class CompetitionOrganizerTeamsTests(TestCase):
 
         self.client.login(username='testadminuser', password='testadmin')
 
-        resp = self.client.get(
+        resp = self.client.post(
             reverse(
                 'delete_org_team',
                 kwargs={
@@ -291,7 +291,7 @@ class CompetitionOrganizerTeamsTests(TestCase):
 
         self.client.login(username='testclientuser', password='testclient')
 
-        resp = self.client.get(
+        resp = self.client.post(
             reverse(
                 'delete_org_team',
                 kwargs={
@@ -312,7 +312,7 @@ class CompetitionOrganizerTeamsTests(TestCase):
             status=TeamStatus.objects.get(codename=TeamStatus.APPROVED)
         )
 
-        resp = self.client.get(
+        resp = self.client.post(
             reverse(
                 'delete_org_team',
                 kwargs={
@@ -325,3 +325,38 @@ class CompetitionOrganizerTeamsTests(TestCase):
         assert resp.status_code == 302
         assert resp.url == 'http://testserver/accounts/login/?next=/teams/1/delete_org_team/1'
 
+    def test_organizer_teams_test_allowed_methods_for_delete(self):
+        new_team = Team.objects.create(
+            name="Test Team!", description="Test Team!",
+            competition=self.competition,
+            creator=self.creator,
+            allow_requests=False,
+            status=TeamStatus.objects.get(codename=TeamStatus.APPROVED)
+        )
+
+        self.client.login(username='testuser', password='test')
+
+        resp = self.client.get(
+            reverse(
+                'delete_org_team',
+                kwargs={
+                    'competition_pk': self.competition.pk,
+                    'team_pk': new_team.pk
+                }
+            )
+        )
+
+        assert resp.status_code == 405
+
+        resp = self.client.post(
+            reverse(
+                'delete_org_team',
+                kwargs={
+                    'competition_pk': self.competition.pk,
+                    'team_pk': new_team.pk
+                }
+            )
+        )
+
+        assert resp.status_code == 302
+        assert resp.url == 'http://testserver/my/competition/1/participants/'
