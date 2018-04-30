@@ -1,0 +1,206 @@
+{% load codalab_tags %}
+{% load static %}
+
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/riot/3.9.1/riot+compiler.min.js" integrity="sha256-+juQoCyuN9TkYFfIoWlKlLeUumBwxbekKF2+/vuV6So=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+
+    <script src="{% static 'riot/submission-form.tag' %}" type="riot/tag"></script>
+
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/imports.css">
+
+    <script>
+        // Setup CSRF
+        function csrfSafeMethod(method) {
+            // these HTTP methods do not require CSRF protection
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
+
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        var csrftoken = getCookie('csrftoken');
+
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+    </script>
+
+    <style>
+        body {
+            padding: 20px;
+        }
+
+        table {
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+<h3 class="title">Codalab leaderboard panel</h3>
+
+
+<div class="competition-view">
+    <div class="competition_results">
+        {% if phase == None %}
+
+        {% elif error %}
+            <p><strong>There is a problem with the leaderboard</strong></p>
+            <p>Are all of the leaderboard column names matched with scores saved in scores.txt?</p>
+            <pre>{{ error }}</pre>
+
+        {% elif phase.is_future and  block_leaderboard_view %}
+            <p>This phase has not started yet. The leaderboard is still hidden to participants but visible to organizers</p>
+        {% elif phase.is_blind and not is_owner and not request.user in competition_admins %}
+            <p>Competition organizers have chosen to keep the leaderboard private. Please check back later.</p>
+        {% else %}
+            {% if phase.is_blind and is_owner or phase.is_blind and request.user in competition_admins %}
+                <p>Competition organizers have chosen to keep the leaderboard private but as an organizer, you can access this page.</p>
+            {% endif %}
+
+            {% if request.user == phase.competition.creator or request.user in phase.competition.admins.all %}
+                <a class="icon-download btn btn-default" href="{% url "competitions:download_leaderboard_results" competition_pk=phase.competition.pk phase_pk=phase.pk %}">Download all submissions on leaderboard</a>
+            {% endif %}
+
+            <div class="leaderboard-result-table">
+                {% for group in groups %}
+                    <table class="resultsTable dataTable">
+                        <tr class="table-title">
+                            <th colspan="{{ group.total_span|add:phase.competition.enable_medical_image_viewer|add:phase.competition.allow_teams|add:phase.competition.enable_detailed_results }}">{{ group.label }}</th>
+                        </tr>
+                        <tr class="leaderboard-result-table-header">
+                            <th rowspan="2">#</th>
+                            <th rowspan="2">User</th>
+                            <th rowspan="2">Entries</th>
+                            <th rowspan="2">Date of Last Entry</th>
+                            {% if phase.competition.allow_teams %}
+                                <th rowspan="2">Team Name</th>
+                            {% endif %}
+                            {% for head in group.headers %}
+                                {% if head.subs %}
+                                    <th colspan="{{ head.subs|length }}">{{ head.label }}</th>
+                                {% else %}
+                                    <th rowspan="2"
+                                        {% if group.selection_key == head.key %} class="column-selectable column-selected" {% else %} class="column-selectable" {% endif %} name="{{ head.key }}">{{ head.label }}
+                                        <span class="glyphicon glyphicon-play ascending-sorting" aria-hidden="true"></span>
+                                    </th>
+                                {% endif %}
+                            {% endfor %}
+                            {% if phase.competition.enable_detailed_results %}
+                                <th style="padding: 4px 0;">Detailed Results</th>
+                            {% endif %}
+                            {% if phase.competition.enable_medical_image_viewer %}
+                                <th>Image Viewer</th>
+                            {% endif %}
+                        </tr>
+                        <tr>
+                            {% for head in group.headers %}
+                                {% if head.subs %}
+                                    {% for sub in head.subs %}
+                                        <th
+                                            {% if group.selection_key == sub.key %} class="column-selectable column-selected" {% else %} class="column-selectable" {% endif %} name="{{ sub.key }}">{{ sub.label }}
+                                            <span class="glyphicon glyphicon-play ascending-sorting" aria-hidden="true"></span>
+                                        </th>
+                                    {% endfor %}
+                                {% endif %}
+                            {% endfor %}
+                        </tr>
+                        {% if group.scores.items|length_is:"0" %}
+                            <tr class="noData">
+                                <td colspan="{{ group.total_span|add:phase.competition.enable_medical_image_viewer|add:phase.competition.enable_detailed_results }}">No data available in table</td>
+                            </tr>
+                        {% else %}
+                            {% for pk, scoredata in group.scores %}
+                                <tr {% if phase.competition.anonymous_leaderboard and request.user.username == scoredata.username %}style="background-color: #D7FFFA;"{% endif %}>
+                                    <td class="row-position">
+                                        {% if forloop.counter < 4 %}
+                                            <p class="leader-top3">{{ forloop.counter }}</p>
+                                        {% else %}
+                                            {{ forloop.counter }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if phase.competition.anonymous_leaderboard %}
+                                            {% if forloop.counter < 4 %}
+                                                <p class="leader-top3"><i>Anonymous</i></p><
+                                            {% else %}
+                                                <i>Anonymous</i>
+                                            {% endif %}
+                                        {% else %}
+                                            {% if forloop.counter < 4 %}
+                                                <p class="leader-top3">{{ scoredata.username }}</p>
+                                            {% else %}
+                                                {{ scoredata.username }}
+                                            {% endif %}
+                                        {% endif %}
+                                    </td>
+                                    <td> {{ scoredata.count }} </td>
+                                    <td> {{ scoredata.date|date:"m/d/y" }} </td>
+                                    {% if phase.competition.allow_teams %}
+                                        <td>{{ scoredata.team_name|default_if_none:"" }}</td>
+                                    {% endif %}
+                                    {% for head in group.headers %}
+                                        {% for head_or_sub in head|get_array_or_attr:'subs' %}
+                                            {% with scoredata.values|get_by_name:head_or_sub.key|first as v %}
+                                                {% if 'rnk' in v %}
+                                                    <td
+                                                        {% if group.selection_key == v.name %} class="column-selected" {% endif %} name={{ v.name }}>{{ v.val }} (<span class="rank">{{ v.rnk }}</span>)
+                                                    </td>
+                                                {% else %}
+                                                    <td
+                                                        {% if group.selection_key == v.name %} class="column-selected" {% endif %} name={{ v.name }}>{{ v.val }}
+                                                        <span class="rank hide">{{ v.hidden_rnk }}</span></td>
+                                                {% endif %}
+                                            {% endwith %}
+                                        {% endfor %}
+                                    {% endfor %}
+                                    {% if phase.competition.enable_detailed_results %}
+                                        <td>
+                                            <a href="/my/competition/submission/{{ scoredata.id }}/detailed_results" target="_blank">
+                                                View
+                                            </a></br>
+                                        </td>
+                                    {% endif %}
+                                    {#                            {% if phase.competition.enable_medical_image_viewer %}#}
+                                    {#                                {% with "http://cirrusweb.cloudapp.net:8080/Packages/MeVisLab/Private/Sources/Web/application/Presentation.html?module=CodaLabViewer&useTiling=1" as viewerlink %}#}
+                                    {#                                    <td>#}
+                                    {#                                        <a href="{{viewerlink}}&imageData={{phase.input_data.name|get_sas}}&overlayData={{scoredata.resultLocation|get_sas}}" onclick="window.open('{{viewerlink}}&imageData={{phase.input_data.name|get_sas}}&overlayData={{scoredata.resultLocation|get_sas}}', '_blank', 'width=1000, height=1000, location=0'); return false;">#}
+                                    {#                                            View results#}
+                                    {#                                        </a>#}
+                                    {#                                    </td>#}
+                                    {#                                {% endwith %}#}
+                                    {#                            {% endif %}#}
+                                </tr>
+                            {% endfor %}
+                        {% endif %}
+                    </table>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+
+</body>
+</html>
