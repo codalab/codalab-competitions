@@ -90,23 +90,6 @@ def get_allowed_teams(user,competition):
 
 
 def get_user_team(user, competition):
-    # team = get_competition_user_teams(competition, user)
-    #
-    # if team is not None:
-    #     return team
-    #
-    # user_requests = get_user_requests(user, competition)
-    # user_team = user_requests.filter(status=TeamMembershipStatus.objects.get(codename="approved")).all()
-    # if len(user_team) == 0:
-    #     user_team = None
-    #
-    # if user_team is not None:
-    #     for req in user_team:
-    #         if req.is_active:
-    #             team = req
-    #
-    # if team is not None:
-    #     team = team.team
     membership = TeamMembership.objects.filter(user=user, team__competition=competition).first()
     if membership:
         return membership.team
