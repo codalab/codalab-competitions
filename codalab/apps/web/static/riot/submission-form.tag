@@ -53,8 +53,6 @@
             $.post('/api/competition/' + self.opts.competition_id + '/submission/sas')
                 .success(function (data) {
                     self.do_upload(data.url)
-
-
                     self.sas_url = data.url
                     self.file_id = data.id
                     self.update()
@@ -109,7 +107,7 @@
             self.refs.form.reset()
 
             $.post(url, {
-                id: file.name,
+                id: self.file_id,
                 name: file.name,
                 type: "application/zip",
                 size: file.size

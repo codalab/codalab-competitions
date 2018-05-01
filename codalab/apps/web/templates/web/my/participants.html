@@ -107,7 +107,7 @@
                                     </button>
                                 {% else %}
                                     <a href="{% url "edit_org_team" competition_pk=competition_id pk=team.pk %}" class="pull-right button btn-primary btn-xs">Edit</a>
-                                    <a href="{% url "delete_org_team" competition_pk=competition_id team_pk=team.pk %}" class="pull-right button btn-danger btn-xs">Delete</a>
+                                    <button id="delete_team" class="pull-right button btn-danger btn-xs" onclick="confirm_team_delete({{ team.pk }})">Delete</button>
                                 {% endif %}
                             {% else %}
                                 {{ team|get_item:column.name }}
@@ -264,6 +264,20 @@
 {% endblock %}
 <script type="text/javascript">
 {% block js %}
+
+    var confirm_team_delete = function(team_pk) {
+        if (confirm("Do you want to delete this team?")) {
+            url = "{% url "delete_org_team" competition_pk=competition_id team_pk=0 %}"
+            url = url.replace("0", team_pk)
+
+            console.log(url)
+            $.post(url)
+                .success(function(data) {
+                    location.reload();
+                })
+        }
+    }
+
     var participant_status_update = function(status, reason, participant_id) {
         $.post(
             "{% url "competition-participation-status" pk=competition_id %}",
