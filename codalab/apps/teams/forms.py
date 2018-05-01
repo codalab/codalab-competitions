@@ -184,12 +184,15 @@ class OrganizerTeamsCSVForm(forms.Form):
         if self.cleaned_data.get('csv_file'):
             csv_team_list = [line.rstrip() for line in self.cleaned_data.get('csv_file')]
             for string_line in csv_team_list:
-                # String line is the literal line from a file.
-                # It's split on comma's, and every string from the split is stripped and turned into a list
-                list_line = [s.strip() for s in string_line.split(',')]
-                # Pop the first value in the list, the team name, out as our dictionary key and set the value
-                #  to the list of members, the rest of the list
-                teams_dict[list_line.pop(0)] = list_line
+                if string_line == '' or string_line == ' ':
+                    logger.log("String read from CSV is not readable.")
+                else:
+                    # String line is the literal line from a file.
+                    # It's split on comma's, and every string from the split is stripped and turned into a list
+                    list_line = [s.strip() for s in string_line.split(',')]
+                    # Pop the first value in the list, the team name, out as our dictionary key and set the value
+                    #  to the list of members, the rest of the list
+                    teams_dict[list_line.pop(0)] = list_line
         return teams_dict
 
     def clean(self):
