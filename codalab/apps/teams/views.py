@@ -361,6 +361,9 @@ class CompetitionOrganizerTeams(FormView):
         self.success_url = reverse("my_competition_participants", kwargs={'competition_id': competition.pk})
         return super(CompetitionOrganizerTeams, self).form_valid(form)
 
+    def form_invalid(self, form):
+        return self.render_to_response(self.get_context_data(form=form), status=400)
+
     def get_context_data(self, **kwargs):
         context = super(CompetitionOrganizerTeams, self).get_context_data(**kwargs)
         try:
@@ -421,6 +424,9 @@ class CompetitionOrganizerCSVTeams(FormView):
         form.save()
         self.success_url = reverse("my_competition_participants", kwargs={'competition_id': competition.pk})
         return super(CompetitionOrganizerCSVTeams, self).form_valid(form)
+
+    def form_invalid(self, form):
+        return self.render_to_response(self.get_context_data(form=form), status=400)
 
     def get_context_data(self, **kwargs):
         context = super(CompetitionOrganizerCSVTeams, self).get_context_data(**kwargs)
