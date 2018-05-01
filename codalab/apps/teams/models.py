@@ -178,7 +178,7 @@ class Team(models.Model):
     def __unicode__(self):
         return "[%s] %s - %s" % (self.status.codename, self.competition.title, self.name)
 
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, null=False, blank=False)
     competition = models.ForeignKey('web.Competition')
     description = models.TextField(null=True, blank=True)
     image = models.FileField(upload_to='team_logo', storage=PublicStorage, null=True, blank=True, verbose_name="Logo")
