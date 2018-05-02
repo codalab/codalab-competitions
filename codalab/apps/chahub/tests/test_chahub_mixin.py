@@ -2,6 +2,7 @@ import datetime
 import mock
 
 from django.test import TestCase
+from django.test.utils import override_settings
 
 from apps.authenz.models import ClUser
 from apps.web.models import CompetitionSubmission, Competition, CompetitionPhase, CompetitionParticipant, \
@@ -30,6 +31,7 @@ class ChahubMixinTests(TestCase):
         )
 
 
+    @override_settings(CHAHUB_API_URL='https://localhost/')
     def test_submission_mixin_save_only_retries_once(self):
         submission = CompetitionSubmission(phase=self.phase, participant=self.participant)
         with mock.patch('apps.web.models.CompetitionSubmission.send_to_chahub') as send_to_chahub_mock:
