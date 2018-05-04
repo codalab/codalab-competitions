@@ -83,6 +83,11 @@ class ChaHubSaveMixin(models.Model):
 
         logger.info("ChaHub :: Sending to ChaHub ({}) the following data: \n{}".format(url, data))
 
+        if os.environ.get('PYTEST'):
+            # For tests let's just assume Chahub isn't working properly.
+            # We can mock proper responses
+            return None
+
         try:
             return requests.post(url, data, headers={
                 'Content-type': 'application/json',
@@ -96,8 +101,8 @@ class ChaHubSaveMixin(models.Model):
         super(ChaHubSaveMixin, self).save(*args, **kwargs)
 
         # Make sure we're not sending these in tests
-        if settings.CHAHUB_API_URL and not os.environ.get('PYTEST'):
-            if self.get_chahub_is_valid():
+        if settings.CHAHUB_API_URL:
+            if self.get_chahub_is_valid() and not self.chahub_needs_retry:
                 logger.info("Chahub model mixin passed validation")
                 data = json.dumps(self.get_chahub_data())
                 data_hash = hashlib.md5(data).hexdigest()
