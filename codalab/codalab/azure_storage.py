@@ -63,12 +63,12 @@ class AzureStorage(Storage):
     @property
     def connection(self):
         if self._connection is None:
-	    self._connection = AzuriteBlobService(
-                self.account_name,
-                self.account_key,
-                timeout=4096,
-                protocol='http'
-            )
+            self._connection = AzuriteBlobService(
+                    self.account_name,
+                    self.account_key,
+                    timeout=4096,
+                    protocol='http'
+                )
 
         return self._connection
 
@@ -97,7 +97,7 @@ class AzureStorage(Storage):
         return name
 
     def url(self, name):
-	return "http://contest.mooc.buaa.edu.cn/azurite/%s/%s" % (self.azure_container, name)
+        return "http://contest.mooc.buaa.edu.cn/azurite/%s/%s" % (self.azure_container, name)
 
     def properties(self, name):
         return self.connection.get_blob_properties(

@@ -106,7 +106,7 @@
                           {% endif %}
                           </li>
                         <li>
-                            <a href="https://github.com/codalab/codalab-competitions/wiki" target="_blank">{% trans 'Help'%}</a>
+                            <a href="{% url 'competitions:docs' %}" target="_blank">{% trans 'Help'%}</a>
                         </li>
                         {% if user.is_authenticated %}
                             <li class="dropdown {% active request '/accounts/' %}">
@@ -168,13 +168,13 @@
     <footer class="navbar-fixed-bottom">
         <div class="container-fluid">
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="https://github.com/codalab/codalab/issues" target="_blank">{% trans 'Join us on Github for contact & bug reports'%}</a></li>
-                {% if SINGLE_COMPETITION_VIEW_PK %}
-                    <li><a href="http://codalab.org/" target="_blank">{% trans 'Powered by Codalab'%}</a></li>
-                {% else %}
-                    <li><a href="https://github.com/codalab/codalab/wiki/Project_About_CodaLab" target="_blank">{% trans 'About'%}</a></li>
-                    <li><a href="https://github.com/codalab/codalab/wiki/Privacy" target="_blank">{% trans 'Privacy and Terms'%}</a></li>
-                {% endif %}
+                <!--<li><a href="https://github.com/codalab/codalab/issues" target="_blank">{% trans 'Join us on Github for contact & bug reports'%}</a></li>-->
+                <!--{% if SINGLE_COMPETITION_VIEW_PK %}-->
+                    <!--<li><a href="http://codalab.org/" target="_blank">{% trans 'Powered by Codalab'%}</a></li>-->
+                <!--{% else %}-->
+                    <li><a href="http://www.nlsde.buaa.edu.cn/sysgk/sysjj.htm" target="_blank">{% trans 'About'%}</a></li>
+                    <!--<li><a href="https://github.com/codalab/codalab/wiki/Privacy" target="_blank">{% trans 'Privacy and Terms'%}</a></li>-->
+                <!--{% endif %}-->
 
                 <li><a>v{{ CODALAB_VERSION }}</a></li>
             </ul>
