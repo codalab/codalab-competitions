@@ -7,6 +7,8 @@ import json
 import logging
 import StringIO
 import traceback
+
+import requests
 import yaml
 import zipfile
 
@@ -823,7 +825,16 @@ def do_chahub_retries():
     if not settings.CHAHUB_API_URL:
         return
 
-    logger.info("Checking for objects needing to be re-sent to ChaHub")
+    logger.info("Checking whether ChaHub is online before sending retries")
+    try:
+        response = requests.get(settings.CHAHUB_API_URL)
+        if response.status_code != 200:
+            return
+    except requests.exceptions.RequestException:
+        # This base exception works for HTTP errors, Connection errors, etc.
+        return
+
+    logger.info("ChaHub is online, checking for objects needing to be re-sent to ChaHub")
     chahub_models = inheritors(ChaHubSaveMixin)
     for model in chahub_models:
         needs_retry = model.objects.filter(chahub_needs_retry=True)
@@ -889,8 +900,8 @@ def make_modified_bundle(competition_pk, exclude_datasets_flag):
         logger.info("Creating Competion dump")
         temp_comp_dump = CompetitionDump.objects.create(competition=competition)
         yaml_data = OrderedDict()
-        yaml_data['title'] = competition.title
-        yaml_data['description'] = competition.description.replace("/n", "").replace("\"", "").strip()
+        yaml_data['title'] = competition.title if competition.title else ''
+        yaml_data['description'] = competition.description.replace("/n", "").replace("\"", "").strip() if competition.description else ''
         if competition.competition_docker_image and competition.competition_docker_image != "":
             yaml_data['competition_docker_image'] = competition.competition_docker_image
         if competition.image:

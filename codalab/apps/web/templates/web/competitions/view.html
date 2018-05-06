@@ -4,6 +4,7 @@
 {% load codalab_tags %}
 {% load i18n %}
 {% load tz %}
+{% load humanize %}
 {% block head_title %}{% trans 'Competition' %}{% endblock head_title %}
 {% block page_title %}{% trans 'Competition' %}{% endblock page_title %}
 
@@ -57,7 +58,12 @@
 
 
             {% endif %}
-            <div class="organizer">{% trans 'Organized by'%} {{ competition.creator }} - {% trans 'Current server time:'%} {{ current_server_time|timezone:"Asia/Shanghai" }} {% trans 'UTC' %} </div>
+            <div class="organizer">
+                {% trans 'Organized by'%} {{ competition.creator }} - {% trans 'Current server time:'%}{{ current_server_time|timezone:"Asia/Shanghai" }} {% trans 'UTC' %}<br>
+                {% if competition.reward and competition.reward > 0 %}
+                     {% trans 'Reward' %} <b>{% trans '$' %}{{ competition.reward|intcomma }}</b>
+                {% endif %}
+            </div>
             <input type="hidden" id="competitionId" value="{{competition.id}}" />
             <input type="hidden" id="cstoken" value="{{csrf_token}}" />
             <div class="phase-container">
