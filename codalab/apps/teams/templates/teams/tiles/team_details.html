@@ -7,6 +7,7 @@
 {% load codalab_tags %}
 {% load team_tags %}
 {% load tz %}
+{% load i18n %}
 
 <div class="team-tile">
 	<input id="teamID" type="hidden" value="{{ team.id }}" />
@@ -22,12 +23,12 @@
 		</div>
 		<div class="col-sm-6 col-md-6">
 			<h3>{{ team.name }}</h3>
-			<p class="organizer">Created by {{ team.creator.username }}</p>
-			<p>{{ team.description|truncatewords_html:20 }}</p>
+			<p class="organizer">{% trans 'Created by'%} {{ team.creator.username }}</p>
+			<p>{{ team.description|safe|truncatewords_html:20 }}</p>
 		</div>
     	<div class="col-sm-4 col-md-4 right-panel">
 			{{ team.created_at|date:"M d, Y" }}<br>
-            <b>{{ team.active_members_count}}</b> member{% if team.active_members_count > 1 %}s{% endif %}<br>
+            <b>{{ team.active_members|length}}</b> {% trans 'member'%}{% if team.active_members|length > 1 %}s{% endif %}<br>
         </div>
 
         <br><br>
@@ -37,15 +38,15 @@
 			<div class="btn-group btn-group-justified">
 				{% if request.user == team.creator %}
 					{% if team.status.codename == 'pending' %}
-						<a class="btn btn-sm btn-primary" href="{% url 'team_delete' competition_pk=team.competition.pk team_pk=team.pk%}">Delete</a>
+						<a class="btn btn-sm btn-primary" href="{% url 'team_delete' competition_pk=team.competition.pk team_pk=team.pk%}">{% trans 'Delete'%}</a>
 					{% endif %}
 					{% if team.status.codename != 'deleted' and team.status.codename != 'denied' %}
-						<a class="btn btn-sm btn-primary" href="{% url 'team_edit' competition_pk=team.competition.pk team_pk=team.pk%}">Edit</a>
+						<a class="btn btn-sm btn-primary" href="{% url 'team_edit' competition_pk=team.competition.pk team_pk=team.pk%}">{% trans 'Edit'%}</a>
 					{% endif %}
 				{% else %}
 					{% if team.allow_requests %}
 						{% if not team|is_member:request.user and not team|has_applied:request.user %}
-							<a class="btn btn-sm btn-primary" href="{% url 'team_enrol' competition_pk=competition.pk team_pk=team.pk%}">Request enrolment</a>
+							<a class="btn btn-sm btn-primary" href="{% url 'team_enrol' competition_pk=competition.pk team_pk=team.pk%}">{% trans 'Request enrolment'%}</a>
 						{% endif %}
 					{% endif %}
 				{% endif %}

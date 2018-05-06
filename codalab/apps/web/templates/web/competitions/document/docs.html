@@ -1,0 +1,286 @@
+﻿{% load staticfiles %}
+{% load codalab_tags %}
+{% load i18n %}
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="description" content="">
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+{% block extra_headers %}
+    <link href="http://fonts.googleapis.com/css?family=Raleway:700,300" rel="stylesheet"
+        type="text/css">
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/style.css">
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/prettify.css">
+{% endblock extra_headers %}
+
+{% block content %}
+<nav>
+  <div class="container">
+      <h1><a href="http://contest.mooc.buaa.edu.cn/">BUAADATALAB</a></h1>
+    <a id="menu-toggle" href="#" class=" ">&#9776;</a> </div>
+</nav>
+<header>
+  <div class="container">
+    <h2 class="docs-header">BuaaDataLab 竞赛平台使用指南</h2>
+  </div>
+</header>
+<section>
+    <div class="container">
+        <ul class="docs-nav" id="menu-left" style="width: 160px">
+            <li><strong>平台介绍</strong></li>
+            <li><a href="#welcome" class=" ">平台功能</a></li>
+            <li><a href="#benefits" class=" ">竞赛流程</a></li>
+            <li><a href="#contact_us" class=" ">联系我们</a></li>
+            <li class="separator"></li>
+            <li><strong>举办竞赛</strong></li>
+            <li><a href="#view_type" class=" ">举办竞赛流程</a></li>
+            <li><a href="#animation_style" class=" ">构建竞赛包</a></li>
+            <li><a href="#bars_text" class=" ">YAML配置文件</a></li>
+            <li><a href="#vote_counter" class=" ">HTML页面文件</a></li>
+            <li><a href="#rating_icons" class=" ">评分程序</a></li>
+            <li><a href="#rating_titles" class=" ">数据文件</a></li>
+            <li><a href="#use_docker" class=" ">docker使用</a></li>
+        </ul>
+    <div class="docs-content" style="width: 700px">
+        <h2> 平台介绍</h2>
+        <h3 id="welcome"> 平台功能</h3>
+            <p> BuaaDataLab--北航数据工作站是一个竞赛发布平台，用于运行设计结果或代码提交的数据科学类竞赛。平台面向两类用户，竞赛的参与者和竞赛的举办者。</p>
+            <p> 在北航数据工作站上，你可以完成以下操作：</p>
+        <ul>
+            <li>参加平台已有的竞赛</li>
+            <li>使用数据集举办新的竞赛</li>
+        </ul>
+        <h3 id="benefits"> 竞赛流程</h3>
+            <p> 每个竞赛可以拥有多个阶段，不同阶段具有不同的目的，例如：训练阶段、测试阶段、比赛阶段等等。</p>
+        <h3 id="contact_us">联系我们</h3>
+            <p>邮箱：</p>
+        <hr>
+        <h2> 举办竞赛</h2>
+            <p> 举办竞赛之前，您需要准备的有：</p>
+            <ul>
+                <li>一个明确的数据问题</li>
+                <li>问题所涉及的数据集</li>
+                <li>py格式的评分程序</li>
+            </ul>
+        <h3 id="view_type"> 举办竞赛流程</h3>
+            <ul>
+                <li>举办竞赛</li>
+                <p>首先进入平台主页</p><img src="{{ STATIC_URL }}img/docs_img/homepage.png">
+                注册账号<img src="{{ STATIC_URL }}img/docs_img/register_page.png">
+                回到平台主页 <img src="{{ STATIC_URL }}img/docs_img/hold_competition1.png">
+                进入"我的竞赛" <img src="{{ STATIC_URL }}img/docs_img/hold_competition2.png">
+                进入"我举办的竞赛" <img src="{{ STATIC_URL }}img/docs_img/hold_competition3.png">
+                点击"创建比赛"进入上传界面 <img src="{{ STATIC_URL }}img/docs_img/hold_competition4.png">
+                点击"上传竞赛包"选择竞赛包上传 <img src="{{ STATIC_URL }}img/docs_img/upload_success.png">
+                至此，我们成功创建了一个竞赛，进入"我举办的竞赛"界面即可管理新创建的比赛。
+                <li>发布竞赛</li>
+                <p>创建新的竞赛之后，竞赛处于未发布状态，只有在竞赛管理页面将竞赛发布，其他用户才能参与该竞赛.</p>
+                <img src="{{ STATIC_URL }}img/docs_img/competition_operation.png">
+                <p>在竞赛管理页面还可以对竞赛进行删除、编辑、查看参与成员、查看提交等操作。</p>
+                <li>编辑竞赛</li>
+                在竞赛编辑页面可以对竞赛的各种设置进行修改，您可以选择在竞赛包中直接设置，也可以在竞赛创建之后用图形界面进行编辑。<img src="{{ STATIC_URL }}img/docs_img/competition_edit.png">
+                <li>撤销发布</li>
+                竞赛发布之后，还可以通过竞赛管理页面进行撤回。<img src="{{ STATIC_URL }}img/docs_img/unpublish.png">
+            </ul>
+        <h3 id="animation_style"> 构建竞赛包</h3>
+            <p>竞赛包主要包括四个部分：</p>
+            <ul>
+                <li>YAML配置文件</li>
+                <li>HTML页面文件</li>
+                <li>评分程序</li>
+                <li>数据文件</li>
+            </ul>
+            <p>如下是一个示例竞赛包<a href="https://github.com/codalab/competition-examples/tree/master/basic-competition-bundles/Compute_pi">compute_pi_competition_bundle.zip</a>的组成部分：</p>
+            <pre class="prettyprint">
+    compute_pi_competition_bundle.zip
+        |- competition.yaml
+        |- data.html
+        |- evaluation.html
+        |- logo.jpg
+        |- overview.html
+        |- program.zip
+        |- reference.zip
+        |- terms_and_conditions.html
+            </pre>
+            <p>其中competiiton.yaml是竞赛的配置文件，data.html,evaluation.html,overview.html,terms_and_conditions.html属于HTML页面文件，program.zip包括评分程序，reference.zip为数据文件。</p>
+        <h4 id="bars_text"> YAML配置文件</h4>
+            <p>YAML配置文件中关于竞赛的设置，在上传竞赛之后可以通过编辑竞赛进行更改。YAML配置文件的主要内容示例：</p>
+            <pre class="prettyprint">
+    # 创建一个示例竞赛
+    ---
+    # 竞赛标题
+    title: Example Competition
+    # 关于竞赛的描述
+    description: This is a competition to test the competition bundle system. It should be able to create a competition from this bundle. The goal is to compute the closest value of pi possible.
+    # 竞赛的徽标或图片
+    image: logo.jpg
+    # 参与者参与该竞赛是否需要主办方的同意？
+    has_registration: True
+    # 竞赛的结束时间。缺省表示竞赛永远开放不结束。
+    end_date: 2019-12-31
+    # 您可以在此指定竞赛的管理员，添加他们的datalab用户名，他们自动被添加到竞赛中
+    admin_names: tony,eric
+    # 竞赛提交程序的运行环境，默认为ckcollab/codalab-legacy，关于docker image的使用，请查看docker使用部分
+    competition_docker_image：ckcollab/codalab-legacy
+    # 每个竞赛都有一组html页面，使潜在的参与者可以阅读并回顾，同时便于参赛者用来与竞赛进行互动。这里是关于这些页面的说明。 
+        # 竞赛的基本概述（第一印象）
+        overview: overview.html
+        # 竞赛评价使用的标准，即评分规则。
+        evaluation: evaluation.html
+        # 参与竞赛的条款，包括数据授权，提交格式等等。
+        terms: terms_and_conditions.html
+        # 下面数据的页面。
+        data: data.html
+        # 其他说明的页面
+        page_name: extra.html
+    # 竞赛分阶段进行，每个竞赛至少有一个阶段，某些阶段可包括多个小阶段。
+    phases:
+        # 竞赛第一阶段
+        1:
+            # 阶段序号
+            phasenumber: 1
+            # 该阶段的标签或名称
+            label: "Training"
+            # 本阶段的开始时间--也就是参与者可以下载数据、提交结果的最初时间。
+            start_date: 2013-06-30
+            # 每个参与者能够提交的最大数目。
+            max_submissions: 100
+            # 包含评分程序的压缩文件。
+            scoring_program: program.zip
+            # 包括评分用参考答案的压缩文件。
+            reference_data: reference.zip
+            # 你可以从以下颜色中选择你喜欢的主题：
+            # white（白色）, orange（橙色）, yellow（黄色）, green（绿色）, blue（蓝色）, purple（紫色）
+            color: orange
+            # 每次提交的最长执行时间（单位：秒），默认时间为300s
+            execution_time_limit: 300
+            # 竞赛参与者在同一天内可提交的最大次数，默认值是没有限制
+            max_submissions_per_day: 15
+            # 此阶段涉及的数据集，通过外部存储数据的URL进行访问
+                datasets: 
+                # 第一个数据集
+                1:
+                    # 数据集名称
+                    name: Data 1
+                    # 数据集的存储url
+                    url: http://spreadsheets.google.com/pub?key=pyj6tScZqmEfbZyl0qjbiRQ&output=xls
+                    # 关于数据的简短描述，用来向使用者标明数据的组成部分。
+                    description: Example Dataset
+                # 第二个数据集，数据集的个数没有限制。
+                2:
+                    # 数据集名称
+                    name: Data 2
+                    # 数据集的存储url
+                    url: http://spreadsheets.google.com/pub?key=0AgogXXPMARyldGJqTDRfNHBWODJMRWlZaVhNclhNZXc&output=xls 
+                    # 简短的描述
+                    description: Example Dataset
+        # 竞赛第二阶段（在本示例中是最主要的阶段）
+        2:
+            # 阶段序号
+            phasenumber: 2
+            # 该阶段的标签或名称
+            label: "Challenge"
+            # 本阶段的开始时间
+            start_date: 2019-09-30
+            # 本阶段中每个参与者能够提交的最大数目
+            max_submissions: 3
+            # 本阶段的评分程序
+            scoring_program: program.zip
+            # 用于评分的参考答案
+            reference_data: reference.zip
+            # 数据集
+            datasets: 
+                # 第一个数据集
+                1:
+                    # 数据集名称
+                    name: Challenge Data
+                    # 数据集的存储url
+                    url: http://spreadsheets.google.com/pub?key=t9GL1nIZdtxszJbjKErN2Hg&output=xls
+                    # 数据集的描述
+                    description: Example challenge data
+    # 排行榜或计分板的设置
+    leaderboards:                 
+        Results: &RESULTS         # 排行榜的依据是 &RESULTS.         
+            label: RESULTS        # 排行榜的表名叫做"RESULT".
+            rank: 1
+    columns:                      
+        set1_score:               # 这一列默认显示set1_score的结果
+            leaderboard: *RESULTS # 在表中以 &RESULTS的形式显示
+            label: Set 1          # 排行榜上这一列的名称是 Set 1
+            numeric_format: 4     # 默认显示4位小数
+            rank: 2               # 这是第二列
+        set2_score:
+            leaderboard: *RESULTS
+            label: Set 2
+            numeric_format: 4
+            rank: 3
+        ave_score:                # 平均排行
+            leaderboard: *RESULTS
+            label: < Rank >      
+            numeric_format: 4
+            rank: 1
+            computed:             # 该列会显示所有得分列的平均排名
+                operation: Avg
+                fields: set1_score, set2_score
+        ExecutionTime:            # 该列会展示执行时间
+            leaderboard: *RESULTS
+            label: ExecutionTime 
+            numeric_format: 2
+            rank: 4
+            </pre>
+        <h4 id="vote_counter"> HTML页面文件</h4>
+            <ul>
+                <li>data.html 数据集页面</li>
+                <li>evaluation.html 竞赛评价使用的标准，即评分规则</li>
+                <li>overview.html 竞赛的基本概述</li>
+                <li>terms_and_conditions.html 参与竞赛的条款，包括数据授权，提交格式等等</li>
+                <li>extra.html 其他说明的页面（可选）</li>
+            </ul>
+        <h4 id="rating_icons"> 评分程序</h4>
+            <pre class="prettyprint">
+    program.zip
+        |- evaluate.py 
+        |- metadata  
+        |- readme.txt 
+        |- Supporting modules and libraries.
+            </pre>
+            <ul>
+                <li>evaluate.py是实际运行的评分程序</li>
+                    <p>评分程序通过读取参赛者提交的答案和参考答案，对参赛者的提交进行评分。最终将得分输出到score.txt文件中。其中参赛者提交的答案或参赛者提交程序运行后得到的答案文件存储在input文件夹下的res文件夹，参考答案位于output文件夹下的ref文件夹下。input文件夹和output文件夹由系统默认指定。</p>
+                <li>metadata内包括运行评分程序的命令</li>
+                <pre class="prettyprint">
+    示例：command: python $program/evaluate.py $input $output <br>
+    其中input和output分别为输入输出文件夹，由系统默认指定。
+                </pre>
+                <li>readme.txt是关于评分程序的说明</li>
+                <li>支持的模块和库（可选）</li>
+            </ul>
+        <h4 id="rating_titles"> 数据文件</h4>
+            <pre class="prettyprint">
+    reference.zip 
+        |- answer.txt 
+            </pre>
+            <ul>
+                <li>answer.txt 竞赛的正确答案</li>
+            </ul>
+        <h4 id="use_docker"> docker使用</h4>
+            <p>如果您举办的比赛支持代码提交，提交的代码在平台默认的docker容器ckcollab/codalab-legacy中运行。docker是一个开源的应用容器引擎，可以将应用及依赖打包到一个可移植的容器中。ckcollab/codalab-legacy容器支持python程序的运行，如果您发布的比赛支持其他依赖包，平台允许您定制自己的docker容器，您只需在本地下载docker镜像，进行修改后上传到dockerhub，平台会自动拉取您自定义的镜像，并在其中运行提交的程序。</p>
+            自定义docker容器的方法：
+            <pre class="prettyprint">
+    1、在您本机<a href="https://github.com/codalab/codalab-competitions/wiki/Installing-Docker">安装docker</a>（Linux环境），创建一个仓库，例如myrepo/codalab
+    2、在命令行键入 docker run -it -u root ckcollab/codalab-legacy /bin/bash  
+    3、命令行前的提示符会出现一串字符，类似root@78e82f680994$，其中78e82f680994是新的容器ID，请记录下来 
+    4、在命令行安装您需要的依赖包等 
+    5、用exit命令退出命令行 
+    6、提交修改 docker commit 78e82f680994 myrepo/codalab:latest（这里的latest可以替换为版本号或名称等） 
+    7、在dockerhub注册账号并用docker login命令登录 
+    8、docker push myrepo/codalab:latest 
+            </pre>
+            <p>完成自定义docker容器之后，您可以通过在yaml文件中配置达到使用自定义容器的目的，或者在竞赛编辑界面填写自定义docker容器的名称即可。</p>
+            </pre>
+    </div>
+  </div>
+</section>
+{% endblock content %}

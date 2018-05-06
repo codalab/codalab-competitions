@@ -11,7 +11,7 @@ from .models import Forum, Thread, Post
 
 
 User = get_user_model()
-
+ 
 
 class ForumBaseMixin(object):
     """

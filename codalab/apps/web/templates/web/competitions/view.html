@@ -141,7 +141,7 @@
                     {% endif %}
                     {% if competition.enable_teams %}
                         {% if my_status == "approved" %}
-                            <li>
+                            <li> 
                                 <a href="{% url 'team_detail' competition_pk=competition.pk %}">{% trans 'Team' %}
                                     <i class="glyphicon glyphicon-cog"></i>
                                     {% if new_team_submission > 0 %}

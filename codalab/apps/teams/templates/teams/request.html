@@ -2,6 +2,7 @@
 {% load staticfiles %}
 {% load codalab_tags %}
 {% load tz %}
+{% load i18n %}
 
 {% block head_title %}New Request{% endblock head_title %}
 {% block page_title %}New Request{% endblock page_title %}
@@ -19,20 +20,20 @@
         <div class="row">
             <div class="col-lg-12">
                 <h2>{{ competition.title }}</h2>
-                <a href="{% url 'team_detail' competition_pk=competition.pk %}" class="btn btn-default pull-left">Go back</a>
+                <a href="{% url 'team_detail' competition_pk=competition.pk %}" class="btn btn-default pull-left">{% trans 'Go back'%}</a>
             </div>
         </div>
     </div>
 <form method="POST" action="">{% csrf_token %}
     {% if errors %}
         <div class="alert alert-error">
-            There were errors processing the form, please try reloading the page!
+            {% trans 'There were errors processing the form, please try reloading the page!'%}
         </div>
     {% endif %}
 
     {% if saved_successfully %}
         <div class="alert alert-success">
-            Saved successfully!
+            {% trans 'Saved successfully!'%}
         </div>
     {% endif %}
 
@@ -43,7 +44,7 @@
             {% endfor %}
         </div>
     {% endif %}
-    <h3><b>Team Information</b></h3>
+    <h3><b>{% trans 'Team Information'%}</b></h3>
     <div class="row">
         <div class="col-sm-12">
             <table class="table table-striped affiliation">
@@ -61,7 +62,7 @@
     <hr />
     <div class="row">
         <div class="col-sm-4 col-sm-offset-4">
-            <button type="submit" class="medium button blue btn btn-primary btn-block">Submit</button>
+            <button type="submit" class="medium button blue btn btn-primary btn-block">{% trans 'Submit'%}</button>
         </div>
     </div>
 </form>

@@ -35,5 +35,6 @@ urlpatterns = patterns(
     url(r'^(?P<pk>\d+)/public_submissions/(?P<phase>\d+)$', views.CompetitionPublicSubmissionByPhases.as_view(), name='public_submissions_phase'),
     url(r'^(?P<competition_pk>\d+)/dumps/$', views.competition_dumps_view, name='dumps'),
     url(r'^(?P<pk>\d+)/delete_dump/$', views.CompetitionDumpDeleteView.as_view(), name="delete_dump"),
-
+    #hhm add 2018.4.19
+    url(r'^docs$', views.my_documents,name="docs"),
 )

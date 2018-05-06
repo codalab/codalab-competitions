@@ -2,7 +2,7 @@
 {% load staticfiles %}
 {% load codalab_tags %}
 {% load tz %}
-
+{% load i18n %}
 {% block head_title %}Edit Team{% endblock head_title %}
 {% block page_title %}Edit Team{% endblock page_title %}
 
@@ -28,13 +28,13 @@
 <form action="" data-abide enctype="multipart/form-data" method="POST">{% csrf_token %}
     {% if errors %}
         <div class="alert alert-error">
-            There were errors processing the form, please try reloading the page!
+            {% trans 'There were errors processing the form, please try reloading the page!'%}
         </div>
     {% endif %}
 
     {% if saved_successfully %}
         <div class="alert alert-success">
-            Saved successfully!
+            {% trans 'Saved successfully!'%}
         </div>
     {% endif %}
 
@@ -45,7 +45,7 @@
             {% endfor %}
         </div>
     {% endif %}
-    <h3><b>Team Information</b></h3>
+    <h3><b>{% trans 'Team Information'%}</b></h3>
     <div class="row">
         <div class="col-sm-12">
             {{ form.non_field_errors }}
@@ -59,7 +59,7 @@
     <hr />
     <div class="row">
         <div class="col-sm-4 col-sm-offset-4">
-            <button type="submit" class="medium button blue btn btn-primary btn-block">Submit</button>
+            <button type="submit" class="medium button blue btn btn-primary btn-block">{% trans 'Submit'%}</button>
         </div>
     </div>
 </form>

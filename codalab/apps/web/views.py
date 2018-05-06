@@ -60,6 +60,7 @@ from apps.teams.models import TeamMembership, get_user_team, get_competition_tea
 from extra_views import UpdateWithInlinesView, InlineFormSet, NamedFormsetsMixin
 
 from .utils import check_bad_scores
+from django.shortcuts import render
 
 try:
     import azure
@@ -73,6 +74,7 @@ User = get_user_model()
 
 ############################################################
 # General: template views
+
 
 
 class MyAdminView(TemplateView):
@@ -154,6 +156,9 @@ class UserSettingsView(LoginRequiredMixin, UpdateView):
 ############################################################
 # Competitions: template views
 
+def my_documents(request):
+    return render(request, 'web/competitions/document/docs.html')
+
 def competition_index(request):
     """
     View that list all competitions.
@@ -186,6 +191,7 @@ def competition_index(request):
     return render(request, "web/competitions/index.html", {
         'competitions': competitions,
     })
+
 
 
 @login_required
