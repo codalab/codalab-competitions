@@ -12,6 +12,9 @@
 
     <script src="{{ STATIC_URL }}js/vendor/jquery.tablesorter.min.js"></script>
 
+    <!--hhm add 2018.5.2 -->
+    <script src="{{ STATIC_URL }}js/echarts.min.js"></script>
+    
     <style>
     #public_submission_table th b {
         cursor: pointer;
@@ -19,7 +22,7 @@
     </style>
 {% endblock %}
 
-{% block content %}
+{% block content %} 
 
 {% if request.user.is_staff %}
     <a href="{% url "competitions:download" competition_pk=competition.pk %}" class="btn btn-primary">{% trans 'DOWNLOAD COMPETITION BUNDLE!' %}</a>
@@ -283,6 +286,15 @@
             {% else %}
                 {% include "web/competitions/_chart.html" %}
             {% endif %}
+        </div>
+    </div>
+    <div class="row">
+        <div align="center" class="col-md-8">
+        {% if active_phase.is_blind %}
+            <!-- Do nothing -->
+        {% else %}
+            {% include "web/competitions/_chart1.html" %}
+        {% endif %}
         </div>
     </div>
 </div>

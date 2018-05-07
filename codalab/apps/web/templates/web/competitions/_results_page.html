@@ -1,5 +1,9 @@
 {% load codalab_tags %}
 {% load i18n %}
+
+<link href="https://cdn.bootcss.com/semantic-ui/2.3.1/semantic.min.css" rel="stylesheet">
+<script src="https://cdn.bootcss.com/semantic-ui/2.3.1/semantic.min.js"></script>
+
 {% if phase == None %}
 
 {% elif error %}
@@ -62,6 +66,7 @@
                     {% if phase.competition.enable_medical_image_viewer %}
                         <th>{% trans 'Image Viewer' %}</th>
                     {% endif %}
+                    
                 </tr>
                 <tr>
                     {% for head in group.headers %}
@@ -121,9 +126,10 @@
                             {% endfor %}
                             {% if phase.competition.enable_detailed_results %}
                                 <td>
-                                    <a href="/my/competition/submission/{{scoredata.id}}/detailed_results" target="_blank">
+                                    <!-- <a href="/my/competition/submission/{{scoredata.id}}/detailed_results" target="_blank">
                                         {% trans 'View' %}
-                                    </a></br>
+                                    </a></br> -->
+                                    <button type="button" onclick="display_alert('{{scoredata.username}}')">查看</button>
                                 </td>
                             {% endif %}
 {#                            {% if phase.competition.enable_medical_image_viewer %}#}
@@ -141,4 +147,25 @@
             </table>
         {% endfor %}
     </div>
+
+    <!--hhm add 2018.5.3-->
+    <div class="ui modal" style="width: 800px;height:450px;margin:auto auto;">
+        <div align="center" class="col-md-8"></div>
+            {% include "web/competitions/_chart2.html" %}
+        </div>
+    </div>
+    <script type="text/javascript">
+        console.log('graph_data:','{{graph.chart1_data}}')
+        function display_alert(username)
+        {
+            draw_chart(username);
+            $('.ui.modal')
+                .modal('show',username)
+                ;
+            
+        }
+    </script>
+
+
+
 {% endif %}

@@ -117,6 +117,9 @@
                             data-is-public="{% if submission.is_public %}True{% endif %}">
                             <td>{{ forloop.counter }}</td>
                             {% for column in columns %}
+                                <script>
+                                    console.log('{{column.name}}')
+                                </script>
                                 {% if column.name == 'filename' %}
                                     <td>
                                         <a href="/my/competition/submission/{{ submission.id }}/input.zip">{{ submission.filename }}</a>

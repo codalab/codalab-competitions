@@ -1,0 +1,60 @@
+{% load codalab_tags %}
+<meta charset="UTF-8">
+<canvas id="chart_user" width="400" height="200"></canvas>
+<script>
+    // console.log({{graph.chart1_data}})
+    function draw_chart(username){
+    var ctx = document.getElementById("chart_user");
+    var local_highscore = 0
+    var score = new Array();
+    var day = new Array();
+    var i=0;
+    // var username="admin"
+    {% for data in chart1_data %}
+        if("{{data.user_name}}" == username){
+            score.push({{data.score}})
+            day.push('{{data.day}}')
+            i++;
+        }
+    {% endfor %}
+    var chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: day,
+            datasets: [
+                {
+                    type: 'line',
+                    label: '分数',
+                    yAxisID: 'score',
+                    // data: [{% for data in graph.chart1_data %}{{ data.score|floatformat }}, {% endfor %}],
+                    //data: [{% for high_score in graph.high_scores %}{{ high_score|floatformat }}, {% endfor %}],
+                    data: score,
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    backgroundColor: 'rgba(255, 255, 255, 0.0)'
+                }
+            ]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    id: "score",
+                    position: "left",
+                    scaleLabel: {
+                        display: true,
+                        labelString: '提交得分',
+                        fontColor: 'rgba(255,99,132,1)',
+                    },
+                    ticks: {
+                        beginAtZero: true,
+                        suggestedMin: -0.1,
+                        suggestedMax: 1.2,
+                        // Reverse the score axis if we're doing descending (1 is better than 0)
+                        //reverse: "{{ graph.sorting }}" !== "desc"
+                    }
+                }]
+                
+            }
+        }
+    });
+    }
+</script>
