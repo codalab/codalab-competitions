@@ -1,0 +1,77 @@
+{% load codalab_tags %}
+<meta charset="UTF-8">
+<canvas id="chart_summary" width="400" height="200"></canvas>
+<script>
+    var ctx = document.getElementById("chart_summary");
+    var local_highscore = 0
+    var scoreMax = 0
+    var measure=new Array();
+    var count=new Array();
+    var i=0;
+    for(i=0;i<5;i++){
+        count[i]=0;
+    }
+    {% for data in graph.chart1_data %}
+        if({{data.score}}>scoreMax){
+            scoreMax = {{data.score}}
+        }
+    {% endfor %}
+    scoreMax = Math.ceil(scoreMax)
+    var scale = scoreMax/4
+    console.log("scale=",scale)
+    // measure[0]="0~"+(scoreMax/5)
+    // measure[1]=(scoreMax/5)+"~"+(scoreMax/5*2)
+    // measure[2]=(scoreMax/5*2)+"~"+(scoreMax/5*3)
+    // measure[3]=(scoreMax/5*3)+"~"+(scoreMax/5*4)
+    // measure[4]=(scoreMax/5*4)+"~"+(scoreMax)
+    measure[0]="0~"+scale
+    measure[1]=scale+"~"+scale*2
+    measure[2]=scale*2+"~"+(scale*3)
+    measure[3]=(scale*3)+"~"+scale*4
+    //console.log({{graph.chart1_data}})
+    {% for data in graph.chart1_data %}
+        i={{data.score}}/(scoreMax/4);
+        i=Math.floor(i);
+        count[i]++;
+    {% endfor %}
+    console.log("scoreMax=",scoreMax)
+    console.log("count:")
+    console.log(count)
+    console.log("measure:",measure)
+    var chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            // labels: [{% for data in graph.chart1_data %}"{{ data.submission_id }}",{% endfor %}],
+            labels: measure,
+            datasets: [
+                {
+                    type: 'bar',
+                    label: '提交数',
+                    yAxisID: 'count',
+                    // data: [{% for data in graph.chart1_data %}{{ data.score|floatformat }}, {% endfor %}],
+                    data: count,
+                }
+            ]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    id: "count",
+                    position: "left",
+                    scaleLabel: {
+                        display: true,
+                        labelString: '提交得分',
+                    },
+                    ticks: {
+                        beginAtZero: true,
+                        suggestedMin: 0,
+                        //suggestedMax: 20,
+                        // Reverse the score axis if we're doing descending (1 is better than 0)
+                        reverse: "{{ graph.sorting }}" !== "desc"
+                    }
+                }]
+                
+            }
+        }
+    });
+</script>

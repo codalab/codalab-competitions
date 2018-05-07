@@ -38,6 +38,8 @@ from django.views.generic import View, TemplateView, DetailView, ListView, Updat
 from django.utils.html import strip_tags
 from django.utils import timezone
 
+#hhm add 2018.5.4
+from apps.authenz.models import ClUser
 
 from mimetypes import MimeTypes
 
@@ -502,6 +504,7 @@ class CompetitionDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super(CompetitionDetailView, self).get_context_data(**kwargs)
         competition = context['object']
+        
         all_phases = competition.phases.all()
 
         # This assumes the tabs were created in the correct order
@@ -526,6 +529,7 @@ class CompetitionDetailView(DetailView):
         try:
             truncate_date = connection.ops.date_trunc_sql('day', 'submitted_at')
             score_def = SubmissionScoreDef.objects.filter(competition=competition).order_by('ordering').first()
+            
             if score_def:
                 qs = SubmissionScore.objects.filter(result__phase__competition=competition, scoredef=score_def)
                 qs = qs.extra({'day': truncate_date}).values('day')
@@ -534,12 +538,27 @@ class CompetitionDetailView(DetailView):
                 else:
                     best_value = Min('value')
                 qs = qs.annotate(high_score=best_value, count=Count('pk'))
+                #hhm add 2018.5.3
+                # get submission_id and score for this competition
+                chart1_data=[]
+                qs_hhm = SubmissionScore.objects.filter(result__phase__competition=competition, scoredef=score_def)
+                #get user_id in table web_competitionsubmission
+                submission_id_list = qs_hhm.values("result","value")
+                #user_id_list=[]
+                for s in submission_id_list:
+                    submission = models.CompetitionSubmission.objects.get(id=s['result'])
+                    participant = ClUser.objects.filter(id=submission.participant_id)
+                    user =models.CompetitionParticipant.objects.get(id=submission.participant_id)
+                    user_name = ClUser.objects.get(id=user.user_id)
+                    chart1_data.append({'user_name': user_name.username,'submission_id':s['result'],'score':s['value'],'day':submission.submitted_at})
+                    
                 context['graph'] = {
                     'days': [s['day'].strftime('%d %B %Y')  # ex 24 May 2017
                            for s in qs],
                     'high_scores': [s['high_score'] for s in qs],
                     'counts': [s['count'] for s in qs],
                     'sorting': score_def.sorting,
+                    'chart1_data': chart1_data,
                 }
                 my_leaders = []
                 my_leaders = self.get_object().get_top_three()
@@ -664,7 +683,7 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                         'is_in_leaderboard': submission.id == id_of_submission_in_leaderboard,
                         'exception_details': submission.exception_details,
                         'description': submission.description,
-                        'team_name': submission.team_name,
+                        'team_name': submission.team_name, 
                         'method_name': submission.method_name,
                         'method_description': submission.method_description,
                         'project_url': submission.project_url,
@@ -727,6 +746,10 @@ class CompetitionResultsPage(TemplateView):
         try:
             context['block_leaderboard_view'] = True
             competition = models.Competition.objects.get(pk=self.kwargs['id'])
+            
+            # hhm add 2018.5.4
+            score_def = SubmissionScoreDef.objects.filter(competition=competition).order_by('ordering').first()
+            
             phase = competition.phases.get(pk=self.kwargs['phase'])
             is_owner = self.request.user.id == competition.creator_id
             context['competition_admins'] = competition.admins.all()
@@ -748,6 +771,25 @@ class CompetitionResultsPage(TemplateView):
             if user == phase.competition.creator or user in phase.competition.admins.all():
                 context['block_leaderboard_view'] = False
 
+            #hhm add 2018.5.3
+            # get submission_id and score for this competition
+            chart1_data=[]
+            qs_hhm = SubmissionScore.objects.filter(result__phase__competition=competition, scoredef=score_def)
+            #get user_id in table web_competitionsubmission
+            submission_id_list = qs_hhm.values("result","value")
+            #user_id_list=[]
+            for s in submission_id_list:
+                submission = models.CompetitionSubmission.objects.get(id=s['result'])
+                participant = ClUser.objects.filter(id=submission.participant_id)
+                
+                user =models.CompetitionParticipant.objects.get(id=submission.participant_id)
+                
+                user_name = ClUser.objects.get(id=user.user_id)
+                
+                chart1_data.append({'user_name': user_name.username,'submission_id':s['result'],'score':s['value'],'day':submission.submitted_at})
+                #user_id_list.append(submission.participant_id)
+            
+            context['chart1_data'] = chart1_data
             return context
         except:
             context['error'] = traceback.format_exc()

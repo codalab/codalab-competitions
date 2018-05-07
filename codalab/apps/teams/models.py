@@ -141,7 +141,7 @@ def get_team_submissions_inf(team, phase):
         if leaderboard_entry:
             id_of_submission_in_leaderboard = leaderboard_entry[0].result.pk
     submission_info_list = []
-    for submission in submissions:
+    for submission in submissions: 
         submission_info = {
             'id': submission.id,
             'number': submission.submission_number,

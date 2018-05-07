@@ -1067,7 +1067,7 @@ class CompetitionPhase(models.Model):
             for header in headers:
                 header['subs'].sort(key=sortkey, reverse=False)
             # compute total column span
-            column_span = 4
+            column_span = 4 
             for gHeader in headers:
                 n = len(gHeader['subs'])
                 column_span += n if n > 0 else 1

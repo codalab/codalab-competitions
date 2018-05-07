@@ -14,7 +14,7 @@ from django.conf import settings
 
 register = template.Library()
 
-
+ 
 @register.filter
 def filename(value):
     return os.path.basename(value.file.name)
