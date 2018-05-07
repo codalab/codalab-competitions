@@ -4,6 +4,7 @@
 {% load codalab_tags %}
 {% load i18n %}
 {% load tz %}
+{% load humanize %}
 {% block head_title %}{% trans 'Competition' %}{% endblock head_title %}
 {% block page_title %}{% trans 'Competition' %}{% endblock page_title %}
 
@@ -60,7 +61,12 @@
 
 
             {% endif %}
-            <div class="organizer">{% trans 'Organized by'%} {{ competition.creator }} - {% trans 'Current server time:'%} {{ current_server_time|timezone:"Asia/Shanghai" }} {% trans 'UTC' %} </div>
+            <div class="organizer">
+                {% trans 'Organized by'%} {{ competition.creator }} - {% trans 'Current server time:'%}{{ current_server_time|timezone:"Asia/Shanghai" }} {% trans 'UTC' %}<br>
+                {% if competition.reward and competition.reward > 0 %}
+                     {% trans 'Reward' %} <b>{% trans '$' %}{{ competition.reward|intcomma }}</b>
+                {% endif %}
+            </div>
             <input type="hidden" id="competitionId" value="{{competition.id}}" />
             <input type="hidden" id="cstoken" value="{{csrf_token}}" />
             <div class="phase-container">
@@ -104,7 +110,9 @@
                                 <div class="date">{{next_phase.start_date|timezone:"Asia/Shanghai" }} {% trans 'UTC' %}</div>
                             </div>
                         </div>
-                    {% else %}
+                    {% endif %}
+
+                    {% if not previous_phase or not active_phase or not next_phase %}
                         <div class="col-sm-4">
                             <div class="phase">
                                 <h4>{% trans 'End' %}</h4>
@@ -113,7 +121,6 @@
                             </div>
                         </div>
                     {% endif %}
-
                 </div>
             </div>
         </div>
@@ -233,58 +240,35 @@
         </div>
     </section>
         <div class="row">
-        <div class="col-md-4">
-            {% if top_three_leaders and not active_phase.is_blind %}
-                <div class="panel">
-                    <div class="panel-body">
-                        <center><h4>{% trans "Top Three"%}</h4></center>
-                        <table class="table table-responsive">
-                            <thead>
-                                <tr>
-                                    <th>{% trans "Rank"%}</th>
-                                    <th>{% trans "Username"%}</th>
-                                    <th>{% trans "Score"%}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for leader in top_three_leaders %}
-                                    <tr>
-                                        <td class="leader">{{ forloop.counter }}</td>
-                                        <td class="leader">{{ leader.username }}</td>
-                                        <td class="leader">{{ leader.score }}</td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            {% else %}
-                <div class="panel">
-                    <div class="panel-body">
-                        <center><h4>{% trans "Top Three"%}</h4></center>
-                        <table class="table table-responsive">
-                            <thead>
-                                <tr>
-                                    <th>{% trans "Rank"%}</th>
-                                    <th>{% trans "Username"%}</th>
-                                    <th>{% trans "Score"%}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>{% trans "No data"%}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+        <div class="col-sm-4">
+            {% if competition.show_top_three and top_three %}
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>{% trans "Username"%}</th>
+                        <th>{% trans "Score"%}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for leader in top_three %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ leader.username }}</td>
+                            <td>{{ leader.score }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
             {% endif %}
         </div>
-        <div align="center" class="col-md-8">
-            {% if active_phase.is_blind %}
-                <!-- Do nothing -->
+        <div class="col-sm-8">
+            {% if competition.show_chart %}
+                {% if graph %}
+                    {% include "web/competitions/_chart.html" %}
+                {% endif %}
             {% else %}
-                {% include "web/competitions/_chart.html" %}
+                <!-- Do nothing -->
             {% endif %}
         </div>
     </div>

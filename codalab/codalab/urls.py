@@ -25,6 +25,9 @@ urlpatterns = patterns('',
 
     url(r'^', include('pin_passcode.urls')),
 
+    # Switch User
+    url(r"^su/", include("django_switchuser.urls")),
+
     # Static files
     url(r'^static/(?P<path>.*)$', 'django.views.static.serve',
         {'document_root': settings.STATIC_ROOT}),
