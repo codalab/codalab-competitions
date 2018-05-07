@@ -134,6 +134,10 @@
                     {% endif %}
                     {% if competition.enable_forum %}
                     <li><a href="{% url 'forum_detail' forum_pk=competition.forum.pk %}">{% trans 'Forums' %} <i class="glyphicon glyphicon-log-in"></i></a></li>
+                    {% endif %} 
+                    <li><a href="{% url 'wechat_records' search_name='' %}">{% trans 'Chat Records' %} </a></li>
+                    {% if competition.enable_wechar_records %}
+                    <li><a href="{% url 'wechat_records' forum_pk=competition.forum.pk %}">{% trans 'Chat Records' %} </a></li>
                     {% endif %}
                     {% if competition.enable_teams %}
                         {% if my_status == "approved" %}

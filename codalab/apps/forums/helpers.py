@@ -27,3 +27,4 @@ def send_mail(context_data=None, from_email=None, html_file=None, text_file=None
     message = EmailMultiAlternatives(subject, text, from_email, [to_email])
     message.attach_alternative(html, 'text/html')
     message.send()
+ 

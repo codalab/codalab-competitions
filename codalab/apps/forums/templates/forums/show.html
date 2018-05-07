@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load url from future %}
+
+{% block page_title %}Chat Records{% endblock page_title %}
+
+{% block extra_headers %}
+    <link rel="stylesheet" href="{{ STATIC_URL }}forums/forums.css">
+    <!-- <link href="https://cdn.bootcss.com/semantic-ui/2.3.1/semantic.min.css" rel="stylesheet"> -->
+    <link href="https://cdn.bootcss.com/semantic-ui/2.3.1/components/list.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcss.com/semantic-ui/2.3.1/components/segment.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcss.com/semantic-ui/2.3.1/components/input.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcss.com/semantic-ui/2.3.1/components/icon.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcss.com/semantic-ui/2.3.1/components/item.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcss.com/semantic-ui/2.3.1/components/divider.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcss.com/semantic-ui/2.3.1/components/header.min.css" rel="stylesheet">
+{% endblock extra_headers %}
+
+{% block content %}
+    <div class="ui input">
+        <input id="search_name" type="text" placeholder="输入昵称查询" style="width:400px;height:40px;">&nbsp;&nbsp;&nbsp;&nbsp;<button id="search_msg_button" href="" class="btn btn-default pull-left"style="width:120px;height:40px;">查询</button>
+    </div>
+    <script>
+        $('#search_msg_button').click(function(){
+            var name=$('#search_name').val()
+            var url='/forums/'+name+'/wechat'
+            window.location.href=url
+        })
+    </script>
+    <br><br>
+    <div class="ui segment">   
+    <!--<div class="html ui top attacher segment">-->
+    <div class="container-fluid">
+        <div class="ui list">
+            {% for res in result %}
+                <div class="item"style="font-size:14px">
+                    <div class="right floated content">
+                        <div class="time">{{res.msg_time}}</div>
+                    </div>
+                    <div class="content">
+                        <div class="header"><i class="hand point right icon"></i>{{res.msg_from}}</div>
+                        <br>
+                        {% if res.msg_type == 0 %}
+                            <div class="description">{{res.msg_content}}</div>
+                        {% endif %}
+                        {% if res.msg_type == 1 %}
+                            [分享了一个文件]&nbsp;&nbsp;<a href={{res.ref_url}}>{{res.msg_content}}</a>
+                        {% endif %}
+                        {% if res.msg_type == 2 %}
+                            [分享了一个链接]&nbsp;&nbsp;<a href={{res.ref_url}}>{{res.msg_content}}</a>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="ui divider"></div>
+            {% endfor %}
+        </div>
+    </div>
+    </div>
+{% endblock content %}

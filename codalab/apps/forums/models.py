@@ -17,7 +17,7 @@ class Forum(models.Model):
         competition = kwargs['instance']
         if not hasattr(competition, 'forum'):
             Forum.objects.create(competition=competition)
-
+ 
 
 class Thread(models.Model):
     """
