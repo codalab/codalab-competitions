@@ -24,6 +24,10 @@
             <span class="sr-only">{ upload_progress }%</span>
         </div>
     </div>
+    <div class="alert alert-danger" show="{ error }">
+        <strong>Error</strong><br>
+        <p>{ error }</p>
+    </div>
 
     <script>
         var self = this
@@ -113,12 +117,10 @@
                 size: file.size
             })
                 .success(function (data) {
-                    console.log("finalize SUCCESS!")
-                    console.log(data)
+                    self.error = undefined
                 })
                 .error(function (data) {
-                    console.log("finalalize ERROR")
-                    console.log(data)
+                    self.error = data.responseJSON.detail
                 })
                 .always(function() {
                     self.upload_progress = 0
