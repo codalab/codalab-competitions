@@ -294,16 +294,16 @@ class CompetitionEdit(LoginRequiredMixin, NamedFormsetsMixin, UpdateWithInlinesV
         # inlines[0] = pages
         # inlines[1] = phases
         for phase_form in inlines[1]:
-            if phase_form.cleaned_data["input_data_organizer_dataset"]:
+            if phase_form.cleaned_data.get("input_data_organizer_dataset"):
                 phase_form.instance.input_data = phase_form.cleaned_data["input_data_organizer_dataset"].data_file.file.name
 
-            if phase_form.cleaned_data["reference_data_organizer_dataset"]:
+            if phase_form.cleaned_data.get("reference_data_organizer_dataset"):
                 phase_form.instance.reference_data = phase_form.cleaned_data["reference_data_organizer_dataset"].data_file.file.name
 
-            if phase_form.cleaned_data["scoring_program_organizer_dataset"]:
+            if phase_form.cleaned_data.get("scoring_program_organizer_dataset"):
                 phase_form.instance.scoring_program = phase_form.cleaned_data["scoring_program_organizer_dataset"].data_file.file.name
 
-            if phase_form.cleaned_data["ingestion_program_organizer_dataset"]:
+            if phase_form.cleaned_data.get("ingestion_program_organizer_dataset"):
                 phase_form.instance.ingestion_program = phase_form.cleaned_data["ingestion_program_organizer_dataset"].data_file.file.name
 
             phase_form.instance.save()
@@ -524,21 +524,20 @@ class CompetitionDetailView(DetailView):
 
         context["first_phase"], context["previous_phase"], context['active_phase'], context["next_phase"] = get_first_previous_active_and_next_phases(competition)
 
-        # Top 3 Leaderboard
-        # Get the month from submitted_at
         try:
             truncate_date = connection.ops.date_trunc_sql('day', 'submitted_at')
             score_def = SubmissionScoreDef.objects.filter(competition=competition).order_by('ordering').first()
             
             if score_def:
-                qs = SubmissionScore.objects.filter(result__phase__competition=competition, scoredef=score_def)
-                qs = qs.extra({'day': truncate_date}).values('day')
-                if score_def.sorting == 'asc':
-                    best_value = Max('value')
-                else:
-                    best_value = Min('value')
-                qs = qs.annotate(high_score=best_value, count=Count('pk'))
-                #hhm add 2018.5.3
+                if not score_def.computed:
+                    qs = SubmissionScore.objects.filter(result__phase__competition=competition, scoredef=score_def)
+                    qs = qs.extra({'day': truncate_date}).values('day')
+                    if score_def.sorting == 'asc':
+                        best_value = Max('value')
+                    else:
+                        best_value = Min('value')
+                    qs = qs.annotate(high_score=best_value, count=Count('pk'))
+                    #hhm add 2018.5.3
                 # get submission_id and score for this competition
                 chart1_data=[]
                 qs_hhm = SubmissionScore.objects.filter(result__phase__competition=competition, scoredef=score_def)
@@ -560,12 +559,34 @@ class CompetitionDetailView(DetailView):
                     'sorting': score_def.sorting,
                     'chart1_data': chart1_data,
                 }
-                my_leaders = []
-                my_leaders = self.get_object().get_top_three()
-                context['top_three_leaders'] = my_leaders
+                # Below is where we refactored top_three context.
+
+
+            if context['active_phase']:
+                try:
+                    scores = context['active_phase'].scores()
+                    headers = list(sorted(scores[0]['headers'], key=lambda x: x.get('ordering')))
+                    default_score_key = headers[0]['key']
+
+                    top_three_list = []
+
+                    for group in scores:
+                        for _, scoredata in group['scores']:
+                            try:
+                                default_score = next(val for val in scoredata['values'] if val['name'] == default_score_key)
+                                top_three_list.append({
+                                    "username": scoredata['username'],
+                                    "score": default_score['val']
+                                })
+                            except (KeyError, StopIteration):
+                                pass
+                    context['top_three'] = top_three_list[0:3]
+                except (KeyError, IndexError):
+                    pass
         except ObjectDoesNotExist:
             context['top_three_leaders'] = None
             context['graph'] = None
+            print("Could not find a score def!")
 
         if settings.USE_AWS:
             context['submission_upload_form'] = forms.SubmissionS3UploadForm
@@ -803,6 +824,7 @@ class CompetitionPublicSubmission(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(CompetitionPublicSubmission, self).get_context_data(**kwargs)
         context['active_phase'] = None
+        competition = None
 
         try:
             competition = models.Competition.objects.get(pk=self.kwargs['pk'])
@@ -815,7 +837,7 @@ class CompetitionPublicSubmission(TemplateView):
             context['error'] = traceback.print_exc()
 
         # In case all phases are close, lets get last phase
-        if context['active_phase'] is None:
+        if context['active_phase'] is None and competition:
             context['active_phase'] = competition.phases.all().order_by("phasenumber").reverse()[0]
         return context
 
@@ -1168,7 +1190,10 @@ class MyCompetitionSubmissionOutput(View):
     This view serves the files associated with a submission.
     """
     def get(self, request, *args, **kwargs):
-        submission = models.CompetitionSubmission.objects.get(pk=kwargs.get('submission_id'))
+        try:
+            submission = models.CompetitionSubmission.objects.get(pk=kwargs.get('submission_id'))
+        except ObjectDoesNotExist:
+            raise Http404()
         competition = submission.phase.competition
         filetype = kwargs.get('filetype')
 
@@ -1263,7 +1288,7 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
             raise Http404()
 
         # find the active phase
-        if (phase_id != None):
+        if phase_id:
             context['selected_phase_id'] = int(phase_id)
             active_phase = competition.phases.filter(id=phase_id)[0]
         else:
@@ -1375,6 +1400,9 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
         except Exception:
             sys.exc_clear()
         context['phase'] = active_phase
+
+        if competition.creator == self.request.user or self.request.user in competition.admins.all():
+            context['is_admin_or_owner'] = True
 
         return context
 
