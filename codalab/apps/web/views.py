@@ -1350,7 +1350,15 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
         sort_data_table(self.request, context, submission_info_list)
         # complete context
         context['columns'] = columns
-        context['submission_info_list'] = submission_info_list
+
+        paginator = Paginator(submission_info_list, 25)
+        page = self.request.GET.get('page')
+        if page is None:
+            # If we don't get page back in the request dict, default to 1st page.
+            page = 1
+
+        context['submission_info_list'] = paginator.page(page)
+        # context['submission_info_list'] = submission_info_list
 
         # We need a way to check if next phase.auto_migration = True
         try:
