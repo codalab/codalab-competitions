@@ -4,4 +4,4 @@
 sleep 10
 
 # Start site worker
-celery -A codalab worker -B -l info -Q site-worker,submission-updates -n site-worker -Ofast -Ofair --logfile=/var/log/site_worker.log --concurrency=2
+celery -A codalab worker -B -l info -Q site-worker,submission-updates -n site-worker -Ofast -Ofair --concurrency=2 --config=codalab.settings
