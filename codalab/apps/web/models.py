@@ -1851,6 +1851,8 @@ class CompetitionDefBundle(models.Model):
                 datasets = {}
 
             phase_spec['start_date'] = CompetitionDefBundle.localize_datetime(phase_spec['start_date'])
+            if 'ingestion_program_only_during_scoring' not in phase_spec:
+                phase_spec['ingestion_program_only_during_scoring'] = False
 
             # First phase can't have auto_migration=True, remove that here
             if index == 0:
@@ -2020,7 +2022,6 @@ class CompetitionDefBundle(models.Model):
                         assert False, "Invalid file-type or could not find file {} for input_data.".format(phase_spec['input_data'])
 
             phase.auto_migration = bool(phase_spec.get('auto_migration', False))
-            phase.ingestion_program_only_during_scoring = bool(phase_spec.get('ingestion_program_only_during_scoring', False))
             phase.save()
             logger.debug("CompetitionDefBundle::unpack saved scoring program and reference data (pk=%s)", self.pk)
             eft,cr_=ExternalFileType.objects.get_or_create(name="Data", codename="data")
