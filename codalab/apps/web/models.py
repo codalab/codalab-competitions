@@ -287,7 +287,6 @@ class Competition(ChaHubSaveMixin, models.Model):
     def __unicode__(self):
         return self.title
 
-
     def get_chahub_is_valid(self):
         return self.published
 
