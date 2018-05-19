@@ -60,6 +60,9 @@
                     </div>
                 {% endif %}
             </div>
+            {% if field.label == 'URL Redirect' %}
+                <div class="col-sm-offset-3 hidden alert alert-danger" role="alert">It is recommended to uncheck Registration Required if you are using a URL Redirect. </div>
+            {% endif %}
         {% endfor %}
     </fieldset>
     <fieldset>
@@ -442,6 +445,14 @@ $('document').ready(function () {
             }
         };
     });
+
+    $('#id_url_redirect').on('focus', function (){
+        if ($('input#id_has_registration').init()[0].checked) {
+            $('.alert-danger').removeClass('hidden')
+        }else{
+            $('.alert-danger').addClass('hidden')
+        }
+     });
   });
 {% endblock js %}
 </script>
