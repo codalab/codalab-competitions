@@ -168,7 +168,7 @@ services:
     container_name: worker_site
       
   worker_compute:
-    image: codalab/competitions-v1-compute-worker:latest
+    image: codalab/competitions-v1-compute-worker:staging
     privileged: true
     volumes:
       - ${LOGGING_DIR}/worker_compute:/var/log/

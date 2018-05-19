@@ -90,6 +90,7 @@ class CompetitionPhaseForm(forms.ModelForm):
             'phase_never_ends',
             'force_best_submission_to_leaderboard',
             'ingestion_program_organizer_dataset',
+            'ingestion_program_only_during_scoring',
             # 'default_docker_image`,
             # 'disable_custom_docker_image',
             # 'scoring_program_docker_image',

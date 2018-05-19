@@ -893,6 +893,7 @@ class CompetitionPhase(models.Model):
         related_name="ingestion_program_organizer_dataset",
         on_delete=models.SET_NULL
     )
+    ingestion_program_only_during_scoring = models.BooleanField(default=False, help_text="Run ingestion program during scoring, instead of during prediction?")
 
     # Should really just make a util function to do this
     def get_starting_kit(self):

@@ -183,7 +183,7 @@ def predict(submission, job_id):
     else:
         raise ValueError("Program is missing.")
 
-    if submission.phase.ingestion_program:
+    if submission.phase.ingestion_program and not submission.phase.ingestion_program_only_during_scoring:
         # Keep stdout/stder for ingestion
         submission.ingestion_program_stdout_file.save('ingestion_program_stdout_file.txt', ContentFile(''))
         submission.ingestion_program_stderr_file.save('ingestion_program_stderr_file.txt', ContentFile(''))
@@ -388,7 +388,6 @@ def score(submission, job_id):
     #                 )
     #             )
 
-
     submission.history_file.save('history.txt', ContentFile('\n'.join(lines)))
 
     score_csv = submission.phase.competition.get_results_csv(submission.phase.pk)
@@ -495,7 +494,6 @@ def score(submission, job_id):
     lines.append("automatic-submission: %s" % is_automatic_submission)
     submission.inputfile.save('input.txt', ContentFile('\n'.join(lines)))
 
-
     # Generate metadata-only bundle describing the computation.
     lines = []
     program_value = submission.phase.scoring_program.name
@@ -508,6 +506,15 @@ def score(submission, job_id):
     lines.append("stderr: %s" % _make_url_sassy(submission.stderr_file.name, permission='w'))
     lines.append("private_output: %s" % _make_url_sassy(submission.private_output_file.name, permission='w'))
     lines.append("output: %s" % _make_url_sassy(submission.output_file.name, permission='w'))
+
+    if submission.phase.ingestion_program and submission.phase.ingestion_program_only_during_scoring:
+        # Keep stdout/stder for ingestion
+        submission.ingestion_program_stdout_file.save('ingestion_program_stdout_file.txt', ContentFile(''))
+        submission.ingestion_program_stderr_file.save('ingestion_program_stderr_file.txt', ContentFile(''))
+
+        # For the ingestion program we have to include the actual ingestion program...
+        lines.append("ingestion_program: %s" % _make_url_sassy(submission.phase.ingestion_program.name))
+
     submission.runfile.save('run.txt', ContentFile('\n'.join(lines)))
 
     # Create stdout.txt & stderr.txt
