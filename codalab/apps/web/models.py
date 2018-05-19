@@ -893,7 +893,7 @@ class CompetitionPhase(models.Model):
         related_name="ingestion_program_organizer_dataset",
         on_delete=models.SET_NULL
     )
-    ingestion_program_only_during_scoring = models.BooleanField(default=False, help_text="Run ingestion program during scoring, instead of during prediction?")
+    ingestion_program_only_during_scoring = models.BooleanField(default=False, blank=True, help_text="Run ingestion program during scoring, instead of during prediction?")
 
     # Should really just make a util function to do this
     def get_starting_kit(self):
@@ -2020,6 +2020,7 @@ class CompetitionDefBundle(models.Model):
                         assert False, "Invalid file-type or could not find file {} for input_data.".format(phase_spec['input_data'])
 
             phase.auto_migration = bool(phase_spec.get('auto_migration', False))
+            phase.ingestion_program_only_during_scoring = bool(phase_spec.get('ingestion_program_only_during_scoring', False))
             phase.save()
             logger.debug("CompetitionDefBundle::unpack saved scoring program and reference data (pk=%s)", self.pk)
             eft,cr_=ExternalFileType.objects.get_or_create(name="Data", codename="data")
