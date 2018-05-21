@@ -32,7 +32,6 @@ class CompetitionForm(forms.ModelForm):
             'disallow_leaderboard_modifying',
             'force_submission_to_leaderboard',
             'image',
-            'has_registration',
             'end_date',
             'published',
             'enable_medical_image_viewer',
@@ -51,6 +50,8 @@ class CompetitionForm(forms.ModelForm):
             'competition_docker_image',
             'hide_top_three',
             'hide_chart',
+            'has_registration',
+            'url_redirect',
         )
         widgets = {'description': TinyMCE(attrs={'rows' : 20, 'class' : 'competition-editor-description'},
                                           mce_attrs={"theme": "advanced", "cleanup_on_startup": True, "theme_advanced_toolbar_location": "top", "gecko_spellcheck": True})}
