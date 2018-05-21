@@ -442,6 +442,16 @@ $('document').ready(function () {
             }
         };
     });
+
+    var toggle_url_redirect_disable = function() {
+        if ($('input#id_has_registration')[0].checked){
+            $('input#id_url_redirect').attr("disabled", "disabled")
+        }else{
+            $('input#id_url_redirect').removeAttr("disabled", "disabled")
+        }
+    };
+    toggle_url_redirect_disable();
+    $('input#id_has_registration').on('click', toggle_url_redirect_disable);
   });
 {% endblock js %}
 </script>

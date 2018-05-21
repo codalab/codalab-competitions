@@ -635,10 +635,14 @@ var Competition;
                 request = $.ajax({
                     url: '/api/competition/' + competitionId + '/participate/',
                     type: 'post',
-                    dataType: 'text',
+                    dataType: 'json',
                     data: values,
                     success: function(response, textStatus, jqXHR) {
                         $('.content form').replaceWith(Competition.displayRegistrationStatus(competitionId));
+                        var data = JSON.parse(response)
+                        if(data.url_redirect) {
+                            window.location.href = data.url_redirect
+                        }
                     },
                     error: function(jsXHR, textStatus, errorThrown) {
                         alert('There was a problem registering for this competition.');
