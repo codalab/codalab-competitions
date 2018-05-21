@@ -231,7 +231,7 @@ class Competition(ChaHubSaveMixin, models.Model):
     )
     title = models.CharField(max_length=100)
     description = models.TextField(null=True, blank=True)
-    url_redirect = models.URLField(null=True, blank=True, verbose_name="URL Redirect", help_text="(Note: You should not require participant approval (Registration Required) if this is enabled because upon redirect participants will not be approved.")
+    url_redirect = models.URLField(null=True, blank=True, verbose_name="URL Redirect", help_text="(NOTE: You should not have Registration Required above checked if using URL redirection, because upon redirect participants will not be approved and unable to participate.)")
     image = models.FileField(upload_to=_uuidify('logos'), storage=PublicStorage, null=True, blank=True, verbose_name="Logo")
     image_url_base = models.CharField(max_length=255)
     has_registration = models.BooleanField(default=False, verbose_name="Registration Required")
