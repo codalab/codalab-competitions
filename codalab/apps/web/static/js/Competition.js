@@ -641,7 +641,8 @@ var Competition;
                         $('.content form').replaceWith(Competition.displayRegistrationStatus(competitionId));
                         var data = JSON.parse(response)
                         if(data.url_redirect) {
-                            window.location.href = data.url_redirect
+                            document.location.href = data.url_redirect
+                            return false
                         }
                     },
                     error: function(jsXHR, textStatus, errorThrown) {
