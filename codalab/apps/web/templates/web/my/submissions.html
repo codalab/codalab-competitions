@@ -7,6 +7,19 @@
 {% block page_title %}Submissions{% endblock page_title %}
 {% block head_title %}Submissions{% endblock %}
 
+{% block extra_headers %}
+    <!--<link rel="stylesheet" href="{{ STATIC_URL }}css/codalab.css">-->
+    <style>
+        .finished-submission {
+            background-color: rgba(0, 255, 0, 0.1) !important;
+        }
+
+        .failed-submission {
+            background-color: rgba(255, 0, 0, 0.1) !important;
+        }
+    </style>
+{% endblock %}
+
 {% block content %}
     <div class="submissions">
         <div class="well submission-phase-select">
@@ -110,9 +123,9 @@
                                 data-exception="{{ submission.exception_details|escape }}"
                             {% endif %}
                             {% if submission.status_name == "Finished" %}
-                                style="background-color: rgba(0, 255, 0, 0.1);"
+                                class="finished-submission"
                             {% elif submission.status_name == "Failed" %}
-                                style="background-color: rgba(255, 0, 0, 0.1);"
+                                class="failed-submission"
                             {% endif %}
                             data-description="{{ submission.description|default_if_none:""|escape }}"
                             data-method-name="{{ submission.method_name|default_if_none:""|escape }}"
@@ -123,7 +136,7 @@
                             data-organization-or-affiliation="{{ submission.organization_or_affiliation|default_if_none:""|escape }}"
                             data-bibtex="{{ submission.bibtex|default_if_none:""|escape }}"
                             data-is-public="{% if submission.is_public %}True{% endif %}">
-                            <td>{{ forloop.counter }}</td>
+                            <td>{{ forloop.counter|offset_for_loop_counter:submission_info_list.number }} </td>
                             {% for column in columns %}
                                 {% if column.name == 'filename' %}
                                     <td>
