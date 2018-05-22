@@ -3,7 +3,7 @@
 {#<h1>Submit or view results</h1>#}
 
 <div id="submissions_phase_buttons">
-  {% for phase in competition.phases.all %}
+  {% for phase in competition.get_phases_including_subphases %}
     {% if phase == active_phase %}
       <!-- active, dont change bg color -->
         <button class="btn active phase-btn-{{ phase.color }} btn-sm" id="submissions_phase_{{phase.id}}">{{phase.label}}</button>

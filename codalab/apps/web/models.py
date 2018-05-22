@@ -595,6 +595,9 @@ class Competition(ChaHubSaveMixin, models.Model):
     def get_participant_count(self):
         return self.participants.all().count()
 
+    def get_phases_including_subphases(self):
+        return CompetitionPhase.objects.with_subphases().filter(competition=self)
+
 post_save.connect(Forum.competition_post_save, sender=Competition)
 
 
@@ -804,6 +807,16 @@ class _LeaderboardManagementMode(object):
 LeaderboardManagementMode = _LeaderboardManagementMode()
 
 
+class PhaseManager(models.Manager):
+    use_for_related_fields = True
+
+    def get_queryset(self):
+        return super(PhaseManager, self).get_queryset().filter(parent=None)
+
+    def with_subphases(self):
+        return super(PhaseManager, self).get_queryset()
+
+
 # Competition Phase
 class CompetitionPhase(models.Model):
     """
@@ -894,6 +907,11 @@ class CompetitionPhase(models.Model):
         on_delete=models.SET_NULL
     )
     ingestion_program_only_during_scoring = models.BooleanField(default=False, blank=True, help_text="Run ingestion program during scoring, instead of during prediction?")
+
+    is_parallel_parent = models.BooleanField(default=False, blank=True, help_text="This phase itself does no processing, it is just a placeholder for subphases to do their magic")
+    parent = models.ForeignKey('CompetitionPhase', null=True, blank=True, help_text="Parent phase MUST be a 'parallel parent' type phase", related_name="sub_phases")
+
+    objects = PhaseManager()
 
     # Should really just make a util function to do this
     def get_starting_kit(self):
@@ -1851,8 +1869,14 @@ class CompetitionDefBundle(models.Model):
                 datasets = {}
 
             phase_spec['start_date'] = CompetitionDefBundle.localize_datetime(phase_spec['start_date'])
-            if 'ingestion_program_only_during_scoring' not in phase_spec:
-                phase_spec['ingestion_program_only_during_scoring'] = False
+
+            phase_spec.setdefault('ingestion_program_only_during_scoring', False)
+            phase_spec.setdefault('is_parallel_parent', False)
+            if 'parent_phasenumber' in phase_spec:
+                phase_spec['parent'] = CompetitionPhase.objects.get(
+                    competition=comp,
+                    phasenumber=phase_spec.pop('parent_phasenumber')
+                )
 
             # First phase can't have auto_migration=True, remove that here
             if index == 0:
@@ -1915,9 +1939,11 @@ class CompetitionDefBundle(models.Model):
                         phase.reference_data_organizer_dataset = data_set
                     except OrganizerDataSet.DoesNotExist:
                         assert False, "Invalid file-type or could not find file {} for reference_data".format(phase_spec['reference_data'])
+            elif phase.is_parallel_parent:
+                logger.info("Parallel parent, no reference data required")
             else:
-                raise OrganizerDataSet.DoesNotExist("No reference data was supplied with the competition bundle!")
                 logger.info("No reference data found. Halting.")
+                raise OrganizerDataSet.DoesNotExist("No reference data was supplied with the competition bundle!")
 
             if hasattr(phase, 'ingestion_program') and phase.ingestion_program:
                 if phase_spec["ingestion_program"].endswith(".zip"):
