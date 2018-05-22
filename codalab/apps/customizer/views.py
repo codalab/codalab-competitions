@@ -1,5 +1,8 @@
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
+from django.http import HttpResponseForbidden
+from django.utils.decorators import method_decorator
 from django.views.generic import UpdateView
 
 from .forms import ConfigurationForm
@@ -11,6 +14,14 @@ class ConfigurationFormView(UpdateView):
     model = Configuration
     form_class = ConfigurationForm
     template_name = 'customizer/index.html'
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        # Verify we are logged in and we have the appropriate permissions
+        if request.user.is_authenticated:
+            if request.user.is_superuser:
+                return super(ConfigurationFormView, self).dispatch(request, *args, **kwargs)
+        return HttpResponseForbidden()
 
     def get_object(self):
         # We're forcing the usage of only 1 configuration object here
