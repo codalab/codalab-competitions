@@ -3,6 +3,7 @@
 {% load codalab_tags %}
 {% load tz %}
 {% load humanize %}
+
 {% block head_title %}Competition{% endblock %}
 {% block page_title %}Competition{% endblock page_title %}
 
@@ -64,68 +65,72 @@
             </div>
             <input type="hidden" id="competitionId" value="{{competition.id}}" />
             <input type="hidden" id="cstoken" value="{{csrf_token}}" />
-            <div class="phase-container">
-                <div class="row">
-                    {% if previous_phase and active_phase %}
-                        <div class="col-sm-4">
-                            <div class="phase">
-                                <h4>Previous</h4>
-                                <span class="phase-label label phase-label-{% if previous_phase.color %}{{ previous_phase.color }}{% else %}default{% endif %}">{{previous_phase.label}}</span>
-                                <div class="date">{{previous_phase.start_date|utc}} UTC</div>
+            {% if not competition.has_single_phase %}
+                <div class="phase-container">
+                    <div class="row">
+                        {% if previous_phase and active_phase %}
+                            <div class="col-sm-4">
+                                <div class="phase">
+                                    <h4>Previous</h4>
+                                    <span class="phase-label label phase-label-{% if previous_phase.color %}{{ previous_phase.color }}{% else %}default{% endif %}">{{previous_phase.label}}</span>
+                                    <div class="date">{{previous_phase.start_date|utc}} UTC</div>
+                                </div>
                             </div>
-                        </div>
-                    {% endif %}
+                        {% endif %}
 
-                    {% if active_phase %}
-                        <div class="col-sm-4">
-                            <div class="phase current">
-                                <h4><span class="glyphicon glyphicon-play"></span> Current</h4>
-                                <span class="phase-label label phase-label-{% if active_phase.color %}{{ active_phase.color }}{% else %}default{% endif %}">{{active_phase.label}}</span>
-                                <div class="date">{{active_phase.start_date|utc}} UTC</div>
+                        {% if active_phase %}
+                            <div class="col-sm-4">
+                                <div class="phase current">
+                                    <h4><span class="glyphicon glyphicon-play"></span> Current</h4>
+                                    <span class="phase-label label phase-label-{% if active_phase.color %}{{ active_phase.color }}{% else %}default{% endif %}">{{active_phase.label}}</span>
+                                    <div class="date">{{active_phase.start_date|utc}} UTC</div>
+                                </div>
                             </div>
-                        </div>
-                    {% endif %}
+                        {% endif %}
 
-                    {# If we haven't begun the competition yet, show the first phase #}
-                    {% if not active_phase %}
-                        <div class="col-sm-4">
-                            <div class="phase">
-                                <h4>First phase</h4>
-                                <span class="phase-label label phase-label-{% if first_phase.color %}{{ first_phase.color }}{% else %}default{% endif %}">{{first_phase.label}}</span>
-                                <div class="date">{{first_phase.start_date|utc}} UTC</div>
+                        {# If we haven't begun the competition yet, show the first phase #}
+                        {% if not active_phase %}
+                            <div class="col-sm-4">
+                                <div class="phase">
+                                    <h4>First phase</h4>
+                                    <span class="phase-label label phase-label-{% if first_phase.color %}{{ first_phase.color }}{% else %}default{% endif %}">{{first_phase.label}}</span>
+                                    <div class="date">{{first_phase.start_date|utc}} UTC</div>
+                                </div>
                             </div>
-                        </div>
-                    {% endif %}
+                        {% endif %}
 
-                    {% if next_phase %}
-                        <div class="col-sm-4">
-                            <div class="phase">
-                                <h4>Next</h4>
-                                <span class="phase-label label phase-label-{% if next_phase.color %}{{ next_phase.color }}{% else %}default{% endif %}">{{next_phase.label}}</span>
-                                <div class="date">{{next_phase.start_date|utc}} UTC</div>
+                        {% if next_phase %}
+                            <div class="col-sm-4">
+                                <div class="phase">
+                                    <h4>Next</h4>
+                                    <span class="phase-label label phase-label-{% if next_phase.color %}{{ next_phase.color }}{% else %}default{% endif %}">{{next_phase.label}}</span>
+                                    <div class="date">{{next_phase.start_date|utc}} UTC</div>
+                                </div>
                             </div>
-                        </div>
-                    {% endif %}
+                        {% endif %}
 
-                    {% if not previous_phase or not active_phase or not next_phase %}
-                        <div class="col-sm-4">
-                            <div class="phase">
-                                <h4>End</h4>
-                                <span class="phase-label label competition-end">Competition Ends</span>
-                                <div class="date">{% if competition.end_date %}{{competition.end_date|utc}} UTC{% else %}Never{% endif %}</div>
+                        {% if not previous_phase or not active_phase or not next_phase %}
+                            <div class="col-sm-4">
+                                <div class="phase">
+                                    <h4>End</h4>
+                                    <span class="phase-label label competition-end">Competition Ends</span>
+                                    <div class="date">{% if competition.end_date %}{{competition.end_date|utc}} UTC{% else %}Never{% endif %}</div>
+                                </div>
                             </div>
-                        </div>
-                    {% endif %}
+                        {% endif %}
+                    </div>
                 </div>
-            </div>
+            {% endif %}
         </div>
     </div>
     <section class="competition-tabs">
         <ul class="nav nav-tabs" id="competition_tab_nav">
             {% for tab, contents in tabs.items %}
                 {% if tab.codename == "participate" %}
-                    {# Put this before participate tab #}
-                    <li><a href="#phases" role="tab" data-toggle="tab">Phases</a></li>
+                    {% if not competition.has_single_phase %}
+                        {# Put this before participate tab #}
+                        <li><a href="#phases" role="tab" data-toggle="tab">Phases</a></li>
+                    {% endif %}
                 {% endif %}
                 <li><a href="#{{tab.codename|slugify}}" role="tab" data-toggle="tab">{{tab.name}}</a></li>
                 {% if tab.codename == "results" %}
@@ -240,6 +245,11 @@
                 <table class="table">
                     <thead>
                     <tr>
+                        <th>
+                            <a id="top_three_pointer" data-toggle="tab" href="#{{"results"|slugify}}" class="glyphicon glyphicon-chevron-up"></a>
+                        </th>
+                    </tr>
+                    <tr>
                         <th>#</th>
                         <th>Username</th>
                         <th>Score</th>
@@ -306,6 +316,10 @@
             });
 
             $('#learn_the_details .col-sm-9 a').on('click', function() {
+                show_location('#' + $(this).attr('href').split('#')[1]);
+            });
+
+            $('#top_three_pointer').on('click', function() {
                 show_location('#' + $(this).attr('href').split('#')[1]);
             });
         });

@@ -282,6 +282,10 @@ class Competition(ChaHubSaveMixin, models.Model):
         ordering = ['end_date']
 
     @property
+    def has_single_phase (self):
+        return len(self.phases.all()) == 1
+
+    @property
     def pagecontent(self):
         items = list(self.pagecontainers.all())
         return items[0] if len(items) > 0 else None
