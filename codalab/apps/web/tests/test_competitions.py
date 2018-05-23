@@ -18,7 +18,7 @@ from apps.web.models import (Competition,
                              CompetitionSubmissionStatus,
                              ParticipantStatus,
                              PhaseLeaderBoard,
-                             PhaseLeaderBoardEntry, CompetitionDump)
+                             PhaseLeaderBoardEntry, CompetitionDump, get_first_previous_active_and_next_phases)
 
 User = get_user_model()
 
@@ -286,3 +286,61 @@ class CompetitionEditPermissionsTests(CompetitionTest):
             )
 
         self.assertTrue(construct_inlines_mock.called)
+
+
+class CompetitionCurrentPhaseHandling(TestCase):
+    def setUp(self):
+        self.user = User.objects.create(email='test@user.com', username='testuser')
+        self.competition = Competition.objects.create(creator=self.user, modified_by=self.user)
+        self.participant_1 = CompetitionParticipant.objects.create(
+            user=self.user,
+            competition=self.competition,
+            status=ParticipantStatus.objects.get_or_create(name='approved', codename=ParticipantStatus.APPROVED)[0]
+        )
+
+
+    def test_get_previous_next_active_phase_works_two_simple_phases(self):
+        self.phase_1 = CompetitionPhase.objects.create(
+            competition=self.competition,
+            phasenumber=1,
+            start_date=datetime.datetime.now() - datetime.timedelta(days=30),
+        )
+        self.phase_2 = CompetitionPhase.objects.create(
+            competition=self.competition,
+            phasenumber=2,
+            start_date=datetime.datetime.now() - datetime.timedelta(days=15),
+        )
+
+        first_phase, previous_phase, active_phase, next_phase = get_first_previous_active_and_next_phases(self.competition)
+        assert first_phase == self.phase_1
+        assert previous_phase == self.phase_1
+        assert active_phase == self.phase_2
+        assert next_phase is None
+
+    def test_get_previous_next_active_phase_works_many_phases(self):
+        self.phase_1 = CompetitionPhase.objects.create(
+            competition=self.competition,
+            phasenumber=1,
+            start_date=datetime.datetime.now() - datetime.timedelta(days=30),
+        )
+        self.phase_2 = CompetitionPhase.objects.create(
+            competition=self.competition,
+            phasenumber=2,
+            start_date=datetime.datetime.now() - datetime.timedelta(days=15),
+        )
+        self.phase_3 = CompetitionPhase.objects.create(
+            competition=self.competition,
+            phasenumber=3,
+            start_date=datetime.datetime.now() - datetime.timedelta(days=5),
+        )
+        self.phase_4 = CompetitionPhase.objects.create(
+            competition=self.competition,
+            phasenumber=4,
+            start_date=datetime.datetime.now() + datetime.timedelta(days=15),
+        )
+
+        first_phase, previous_phase, active_phase, next_phase = get_first_previous_active_and_next_phases(self.competition)
+        assert first_phase == self.phase_1
+        assert previous_phase == self.phase_2
+        assert active_phase == self.phase_3
+        assert next_phase == self.phase_4
