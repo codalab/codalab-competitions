@@ -231,6 +231,7 @@ class Competition(ChaHubSaveMixin, models.Model):
     )
     title = models.CharField(max_length=100)
     description = models.TextField(null=True, blank=True)
+    url_redirect = models.URLField(null=True, blank=True, verbose_name="URL Redirect", help_text="(NOTE: You should not have Registration Required above checked if using URL redirection, because upon redirect participants will not be approved and unable to participate.)")
     image = models.FileField(upload_to=_uuidify('logos'), storage=PublicStorage, null=True, blank=True, verbose_name="Logo")
     image_url_base = models.CharField(max_length=255)
     has_registration = models.BooleanField(default=False, verbose_name="Registration Required")
@@ -264,6 +265,7 @@ class Competition(ChaHubSaveMixin, models.Model):
     teams = models.ManyToManyField(Team, related_name='competition_teams', blank=True, null=True)
     hide_top_three = models.BooleanField(default=False, verbose_name="Hide Top Three Leaderboard")
     hide_chart = models.BooleanField(default=False, verbose_name="Hide Chart")
+    allow_organizer_teams = models.BooleanField(default=False, verbose_name="Allow Organizer Teams")
 
     competition_docker_image = models.CharField(max_length=128, default='', blank=True)
 
@@ -343,6 +345,7 @@ class Competition(ChaHubSaveMixin, models.Model):
             "html_text": html_text,
             "active": active,
             "prize": self.reward,
+            "url_redirect": self.url_redirect
         }
 
     def save(self, *args, **kwargs):
@@ -1328,6 +1331,7 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
     is_migrated = models.BooleanField(default=False) # Will be used to auto  migrate
 
     # Team of the user in the moment of the submission
+    # This field is not used anywhere we can see 4/18/2018
     team = models.ForeignKey(Team, related_name='team', null=True, blank=True)
 
     queue_name = models.TextField(null=True, blank=True)
