@@ -17,6 +17,8 @@ from apps.web.models import SubmissionScoreSet
 from apps.web.utils import clean_html_script
 from apps.web.tasks import _make_url_sassy
 
+from apps.authenz.models import ClUser
+
 User = get_user_model()
 
 
@@ -30,7 +32,6 @@ class CompetitionForm(forms.ModelForm):
             'disallow_leaderboard_modifying',
             'force_submission_to_leaderboard',
             'image',
-            'has_registration',
             'end_date',
             'published',
             'enable_medical_image_viewer',
@@ -44,10 +45,13 @@ class CompetitionForm(forms.ModelForm):
             'enable_forum',
             'anonymous_leaderboard',
             'enable_teams',
+            'allow_organizer_teams',
             'require_team_approval',
             'competition_docker_image',
             'hide_top_three',
             'hide_chart',
+            'has_registration',
+            'url_redirect',
         )
         widgets = {'description': TinyMCE(attrs={'rows' : 20, 'class' : 'competition-editor-description'},
                                           mce_attrs={"theme": "advanced", "cleanup_on_startup": True, "theme_advanced_toolbar_location": "top", "gecko_spellcheck": True})}
@@ -55,7 +59,6 @@ class CompetitionForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user')
         super(CompetitionForm, self).__init__(*args, **kwargs)
-        self.fields["admins"].widget.attrs["style"] = "width: 100%;"
 
         # Get public queues and include current queue instance if it's selected
         filters = Q(is_public=True) | Q(owner=user) | Q(organizers__in=[user])

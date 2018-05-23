@@ -11,9 +11,6 @@
             Size (mb)
         </th>
         <th>
-            Filetype:
-        </th>
-        <th>
             Phase
         </th>
         </thead>
@@ -23,13 +20,10 @@
                 <tr>
                     <td>
                         <a href="{% url 'datasets_download' dataset_key=phase.starting_kit_organizer_dataset.key %}"
-                           class="btn btn-primary phase-btn-{{ phase.color }}">{{ phase.label }}</a>
+                           class="btn btn-primary phase-btn-{{ phase.color }}">{{ phase.starting_kit_organizer_dataset.type }}</a>
                     </td>
                     <td style="padding-top: 12px;">
                         {{ phase.get_starting_kit_size_mb|floatformat:3 }}
-                    </td>
-                    <td style="padding-top: 12px;">
-                        {{ phase.starting_kit_organizer_dataset.type }}
                     </td>
                     <td style="padding-top: 12px;">
                         #{{ phase.phasenumber }} {{ phase.label }}
@@ -40,13 +34,10 @@
                 <tr>
                     <td>
                         <a href="{% url 'datasets_download' dataset_key=phase.public_data_organizer_dataset.key %}"
-                           class="btn btn-primary phase-btn-{{ phase.color }}">{{ phase.label }}</a>
+                           class="btn btn-primary phase-btn-{{ phase.color }}">{{ phase.public_data_organizer_dataset.type }}</a>
                     </td>
                     <td style="padding-top: 12px;">
                         {{ phase.get_public_data_size_mb|floatformat:3 }}
-                    </td>
-                    <td style="padding-top: 12px;">
-                        {{ phase.public_data_organizer_dataset.type }}
                     </td>
                     <td style="padding-top: 12px;">
                         #{{ phase.phasenumber }} {{ phase.label }}

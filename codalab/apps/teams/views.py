@@ -1,3 +1,7 @@
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ObjectDoesNotExist
+from django.shortcuts import redirect
+from django.utils.decorators import method_decorator
 from django.utils.timezone import now
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
@@ -7,8 +11,9 @@ from apps.web.views import LoginRequiredMixin
 
 from .models import Team, TeamStatus, TeamMembership, TeamMembershipStatus, get_user_requests, get_competition_teams, get_user_team, get_allowed_teams, get_team_pending_membership, get_competition_user_pending_teams, get_team_submissions_inf
 from apps.teams import forms
+from apps.teams.forms import OrganizerTeamForm, OrganizerTeamsCSVForm
 from django.views.generic import View, TemplateView, DetailView, ListView, FormView, UpdateView, CreateView, DeleteView
-from django.http import Http404, QueryDict
+from django.http import Http404, QueryDict, HttpResponseForbidden, HttpResponse
 
 User = get_user_model()
 
@@ -318,4 +323,113 @@ class TeamCancelView(TeamDetailView):
         if error is not None:
             context['error'] = error
         context['team'] = team
+        return context
+
+
+class CompetitionOrganizerTeams(FormView):
+    form_class = OrganizerTeamForm
+    template_name = 'teams/competitions/organizer_teams.html'
+
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        competition = Competition.objects.get(pk=self.kwargs['competition_pk'])
+        if self.request.user != competition.creator:
+            if self.request.user not in competition.admins.all():
+                return HttpResponseForbidden(status=403)
+        return super(CompetitionOrganizerTeams, self).dispatch(*args, **kwargs)
+
+    def get_form(self, form_class=None):
+        if self.kwargs.get('pk'):
+            current_team = Team.objects.get(pk=self.kwargs['pk'])
+            return form_class(instance=current_team, **self.get_form_kwargs())
+        else:
+            return form_class(**self.get_form_kwargs())
+
+    def get_form_kwargs(self):
+        kwargs = super(CompetitionOrganizerTeams, self).get_form_kwargs()
+        competition = Competition.objects.get(pk=self.kwargs['competition_pk'])
+        kwargs['competition_pk'] = self.kwargs['competition_pk']
+        kwargs['creator_pk'] = competition.creator.pk
+        return kwargs
+
+    def form_valid(self, form):
+        try:
+            competition = Competition.objects.get(pk=self.kwargs['competition_pk'])
+        except ObjectDoesNotExist:
+            print("Could not find a competition for that PK!")
+        form.save()
+        self.success_url = reverse("my_competition_participants", kwargs={'competition_id': competition.pk})
+        return super(CompetitionOrganizerTeams, self).form_valid(form)
+
+    def form_invalid(self, form):
+        return self.render_to_response(self.get_context_data(form=form), status=400)
+
+    def get_context_data(self, **kwargs):
+        context = super(CompetitionOrganizerTeams, self).get_context_data(**kwargs)
+        try:
+            if self.kwargs.get('pk'):
+                team = Team.objects.get(pk=self.kwargs.get('pk'))
+                context['initial_team_members'] = ','.join(list(team.members.all().values_list('username', flat=True)))
+        except ObjectDoesNotExist:
+            print("Could not find a team for that PK!")
+        return context
+
+
+@login_required
+def delete_organizer_team(request, team_pk, competition_pk):
+
+    if request.method == 'POST':
+        try:
+            comp = Competition.objects.get(pk=competition_pk)
+            team_to_delete = Team.objects.get(pk=team_pk)
+
+            if request.user != comp.creator:
+                if request.user not in comp.admins.all():
+                    return HttpResponseForbidden(status=403)
+
+            print("Deleting team {0} from competition {1}".format(team_to_delete, comp))
+            team_to_delete.delete()
+            return redirect('my_competition_participants', competition_id=comp.pk)
+        except ObjectDoesNotExist:
+            return HttpResponse(status=404)
+    else:
+        return HttpResponse(status=405)
+
+
+class CompetitionOrganizerCSVTeams(FormView):
+    form_class = OrganizerTeamsCSVForm
+    template_name = 'teams/competitions/organizer_csv_teams.html'
+
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        competition = Competition.objects.get(pk=self.kwargs['competition_pk'])
+        if self.request.user != competition.creator:
+            if self.request.user not in competition.admins.all():
+                return HttpResponseForbidden(status=403)
+        return super(CompetitionOrganizerCSVTeams, self).dispatch(*args, **kwargs)
+
+    # success_url = reverse('competitions:participants')
+    def get_form_kwargs(self):
+        kwargs = super(CompetitionOrganizerCSVTeams, self).get_form_kwargs()
+        competition = Competition.objects.get(pk=self.kwargs['competition_pk'])
+        kwargs['competition_pk'] = self.kwargs['competition_pk']
+        kwargs['creator_pk'] = competition.creator.pk
+        return kwargs
+
+    def form_valid(self, form):
+        try:
+            competition = Competition.objects.get(pk=self.kwargs['competition_pk'])
+        except ObjectDoesNotExist:
+            print("Could not find a competition for that PK!")
+        form.save()
+        self.success_url = reverse("my_competition_participants", kwargs={'competition_id': competition.pk})
+        return super(CompetitionOrganizerCSVTeams, self).form_valid(form)
+
+    def form_invalid(self, form):
+        return self.render_to_response(self.get_context_data(form=form), status=400)
+
+    def get_context_data(self, **kwargs):
+        context = super(CompetitionOrganizerCSVTeams, self).get_context_data(**kwargs)
+        competition = Competition.objects.get(pk=self.kwargs['competition_pk'])
+        context['competition'] = competition
         return context

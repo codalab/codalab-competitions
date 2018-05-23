@@ -58,7 +58,7 @@
                         {% else %}
                             <a class="btn btn-primary" target="_self" href="{% url 'competitions:create' %}">Create Competition</a>
                         {% endif %}
-
+                            <a class="btn btn-primary" href="{% url 'queues:list' %}">Worker Queue Management</a>
                         <br><br>
 
                         {% for competition in my_competitions %}

@@ -90,25 +90,9 @@ def get_allowed_teams(user,competition):
 
 
 def get_user_team(user, competition):
-    team = get_competition_user_teams(competition, user)
-
-    if team is not None:
-        return team
-
-    user_requests = get_user_requests(user, competition)
-    user_team = user_requests.filter(status=TeamMembershipStatus.objects.get(codename="approved")).all()
-    if len(user_team) == 0:
-        user_team = None
-
-    if user_team is not None:
-        for req in user_team:
-            if req.is_active:
-                team = req
-
-    if team is not None:
-        team = team.team
-
-    return team
+    membership = TeamMembership.objects.filter(user=user, team__competition=competition).first()
+    if membership:
+        return membership.team
 
 
 def get_team_submissions(team, phase=None):
@@ -194,14 +178,14 @@ class Team(models.Model):
     def __unicode__(self):
         return "[%s] %s - %s" % (self.status.codename, self.competition.title, self.name)
 
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, null=False, blank=False)
     competition = models.ForeignKey('web.Competition')
     description = models.TextField(null=True, blank=True)
     image = models.FileField(upload_to='team_logo', storage=PublicStorage, null=True, blank=True, verbose_name="Logo")
     image_url_base = models.CharField(max_length=255)
     allow_requests = models.BooleanField(default=True, verbose_name="Allow requests")
     creator = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='team_creator')
-    members = models.ManyToManyField(settings.AUTH_USER_MODEL, through='TeamMembership', blank=True, null=True)
+    members = models.ManyToManyField(settings.AUTH_USER_MODEL, through='TeamMembership', blank=True, null=True, related_name='teams')
     created_at = models.DateTimeField(null=True, auto_now_add=True)
     last_modified = models.DateTimeField(auto_now_add=True)
     status = models.ForeignKey(TeamStatus, null=True)
@@ -283,18 +267,6 @@ class TeamMembershipStatus(models.Model):
 
 
 class TeamMembership(models.Model):
-    def __unicode__(self):
-        return "%s - %s" % (self.team_id, self.user_id)
-
-    @property
-    def is_active(self):
-        if self.start_date is not None and now() < self.start_date:
-            return False
-        if self.end_date is not None and now() > self.end_date:
-            return False
-
-        return True
-
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
     team = models.ForeignKey(Team)
     is_invitation = models.BooleanField(default=False)
@@ -304,3 +276,27 @@ class TeamMembership(models.Model):
     message = models.TextField(null=True, blank=True)
     status = models.ForeignKey(TeamMembershipStatus, null=True)
     reason = models.CharField(max_length=100,null=True,blank=True)
+
+    def __unicode__(self):
+        return "%s - %s" % (self.team_id, self.user_id)
+
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        other_memberships = TeamMembership.objects.filter(user=self.user, team__competition=self.team.competition).exclude(pk=self.pk)
+        if len(other_memberships) != 0:
+            print("Removing user: {0} from other memberships in competition: {1}".format(self.user, self.team.competition))
+            other_memberships.delete()
+        super(TeamMembership, self).save(
+            force_insert=force_insert,
+            force_update=force_update,
+            using=using,
+            update_fields=update_fields
+        )
+
+    @property
+    def is_active(self):
+        if self.start_date is not None and now() < self.start_date:
+            return False
+        if self.end_date is not None and now() > self.end_date:
+            return False
+
+        return True
