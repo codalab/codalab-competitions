@@ -92,6 +92,7 @@ class CompetitionPhaseForm(forms.ModelForm):
             'ingestion_program_organizer_dataset',
             'ingestion_program_only_during_scoring',
             'is_parallel_parent',
+            'parent',
             # 'default_docker_image`,
             # 'disable_custom_docker_image',
             # 'scoring_program_docker_image',
@@ -109,27 +110,23 @@ class CompetitionPhaseForm(forms.ModelForm):
             # 'phasenumber': forms.HiddenInput
         }
 
-    def clean_reference_data_organizer_dataset(self):
-        # If no reference_data
-        if not self.instance.reference_data and not self.cleaned_data["reference_data_organizer_dataset"]:
-            raise forms.ValidationError("Phase has no reference_data set or chosen in the form, but it is required")
+    def clean(self):
+        if not self.cleaned_data['is_parallel_parent']:
+            # If no reference_data
+            if not self.instance.reference_data and not self.cleaned_data["reference_data_organizer_dataset"]:
+                raise forms.ValidationError("Phase has no reference_data set or chosen in the form, but it is required")
 
-        # If we were using org dataset but do not select a new one
-        if self.instance.reference_data_organizer_dataset and not self.cleaned_data["reference_data_organizer_dataset"]:
-            raise forms.ValidationError("Phase has no reference_data set or chosen in the form, but it is required")
+            # If we were using org dataset but do not select a new one
+            if self.instance.reference_data_organizer_dataset and not self.cleaned_data["reference_data_organizer_dataset"]:
+                raise forms.ValidationError("Phase has no reference_data set or chosen in the form, but it is required")
 
-        return self.cleaned_data["reference_data_organizer_dataset"]
+            # If no scoring_data
+            if not self.instance.scoring_program and not self.cleaned_data["scoring_program_organizer_dataset"]:
+                raise forms.ValidationError("Phase has no scoring_program set or chosen in the form, but it is required")
 
-    def clean_scoring_program_organizer_dataset(self):
-        # If no scoring_data
-        if not self.instance.scoring_program and not self.cleaned_data["scoring_program_organizer_dataset"]:
-            raise forms.ValidationError("Phase has no scoring_program set or chosen in the form, but it is required")
-
-        # If we were using org dataset but do not select a new one
-        if self.instance.scoring_program_organizer_dataset and not self.cleaned_data["scoring_program_organizer_dataset"]:
-            raise forms.ValidationError("Phase has no scoring_program set or chosen in the form, but it is required")
-
-        return self.cleaned_data["scoring_program_organizer_dataset"]
+            # If we were using org dataset but do not select a new one
+            if self.instance.scoring_program_organizer_dataset and not self.cleaned_data["scoring_program_organizer_dataset"]:
+                raise forms.ValidationError("Phase has no scoring_program set or chosen in the form, but it is required")
 
 
 class PageForm(forms.ModelForm):

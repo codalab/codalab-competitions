@@ -229,6 +229,12 @@ class PhasesInline(InlineFormSet):
     form_class = forms.CompetitionPhaseForm
     extra = 0
 
+    # def get_formset_kwargs(self):
+    #     kwargs = super(PhasesInline, self).get_formset_kwargs()
+    #     # We're overriding this just to include subphases
+    #     kwargs['queryset'] = self.object.get_phases_including_subphases()
+    #     return kwargs
+
 
 class PagesInline(InlineFormSet):
     model = models.Page
@@ -287,6 +293,17 @@ class CompetitionEdit(LoginRequiredMixin, NamedFormsetsMixin, UpdateWithInlinesV
         kwargs['user'] = self.request.user
         return kwargs
 
+    # def get_inlines(self):
+    #     inlines = super(CompetitionEdit, self).get_inlines()
+    #
+    #     for inline in inlines:
+    #         print(inline.queryset)
+    #
+    #     # index 1 is phases
+    #     inlines[1].queryset = self.object.get_phases_including_subphases()
+    #
+    #     return inlines
+
     def forms_valid(self, form, inlines):
         form.instance.modified_by = self.request.user
 
@@ -322,6 +339,12 @@ class CompetitionEdit(LoginRequiredMixin, NamedFormsetsMixin, UpdateWithInlinesV
                 models.CompetitionParticipant.objects.create(user=admin, competition=form.instance, status=approved_status)
 
         return save_result
+
+    def forms_invalid(self, form, inlines):
+        print("Errahs:", form.errors)
+        for inline in inlines:
+            print("inline:", inline.errors)
+        return super(CompetitionEdit, self).forms_invalid(form, inlines)
 
     def get_context_data(self, **kwargs):
         context = super(CompetitionEdit, self).get_context_data(**kwargs)
@@ -363,6 +386,7 @@ class CompetitionEdit(LoginRequiredMixin, NamedFormsetsMixin, UpdateWithInlinesV
             Q(uploaded_by=self.request.user, type="Ingestion Program") | Q(pk__in=ingestion_program_ids)
         ).select_related('uploaded_by')
 
+        # Re-note from above, [1] is the phases inline form index
         for inline_form in inline_formsets[1].forms:
             inline_form.fields['public_data_organizer_dataset'].queryset = public_data_organizer_dataset
             inline_form.fields['starting_kit_organizer_dataset'].queryset = starting_kit_organizer_dataset
@@ -370,6 +394,10 @@ class CompetitionEdit(LoginRequiredMixin, NamedFormsetsMixin, UpdateWithInlinesV
             inline_form.fields['reference_data_organizer_dataset'].queryset = reference_data_organizer_dataset
             inline_form.fields['scoring_program_organizer_dataset'].queryset = scoring_program_organizer_dataset
             inline_form.fields['ingestion_program_organizer_dataset'].queryset = ingestion_program_organizer_dataset
+
+            # We only want other phases in this competition with `is_parallel_parent` set to be listed
+            # as an option for parent selection
+            inline_form.fields['parent'].queryset = self.object.phases.filter(is_parallel_parent=True)
         return inline_formsets
 
     def get(self, request, *args, **kwargs):
@@ -506,7 +534,7 @@ class CompetitionDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super(CompetitionDetailView, self).get_context_data(**kwargs)
         competition = context['object']
-        all_phases = competition.phases.all()
+        all_phases = competition.phases.without_subphases()
 
         # This assumes the tabs were created in the correct order
         # TODO Add a rank, order by on ContentCategory

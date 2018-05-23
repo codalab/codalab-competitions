@@ -595,8 +595,9 @@ class Competition(ChaHubSaveMixin, models.Model):
     def get_participant_count(self):
         return self.participants.all().count()
 
-    def get_phases_including_subphases(self):
-        return CompetitionPhase.objects.with_subphases().filter(competition=self)
+    def get_phases_without_parents(self):
+        return self.phases.filter(parent=None)
+
 
 post_save.connect(Forum.competition_post_save, sender=Competition)
 
@@ -810,11 +811,11 @@ LeaderboardManagementMode = _LeaderboardManagementMode()
 class PhaseManager(models.Manager):
     use_for_related_fields = True
 
-    def get_queryset(self):
-        return super(PhaseManager, self).get_queryset().filter(parent=None)
+    # def get_queryset(self):
+    #     return super(PhaseManager, self).get_queryset()
 
-    def with_subphases(self):
-        return super(PhaseManager, self).get_queryset()
+    def without_subphases(self):
+        return super(PhaseManager, self).get_queryset().filter(parent=None)
 
 
 # Competition Phase
@@ -909,7 +910,7 @@ class CompetitionPhase(models.Model):
     ingestion_program_only_during_scoring = models.BooleanField(default=False, blank=True, help_text="Run ingestion program during scoring, instead of during prediction?")
 
     is_parallel_parent = models.BooleanField(default=False, blank=True, help_text="This phase itself does no processing, it is just a placeholder for subphases to do their magic")
-    parent = models.ForeignKey('CompetitionPhase', null=True, blank=True, help_text="Parent phase MUST be a 'parallel parent' type phase", related_name="sub_phases")
+    parent = models.ForeignKey('CompetitionPhase', null=True, blank=True, help_text="Parent phase MUST be a 'parallel parent' type phase. If you can't select the parent phase here, set it to be a 'parallel parent' phase and save this form, then it should appear in the dropdown", related_name="sub_phases")
 
     objects = PhaseManager()
 
@@ -952,7 +953,7 @@ class CompetitionPhase(models.Model):
         ordering = ['phasenumber']
 
     def __unicode__(self):
-        return "%s - %s" % (self.competition.title, self.phasenumber)
+        return "%s - %s - %s" % (self.competition.title, self.phasenumber, self.label)
 
     @property
     def is_active(self):
@@ -2424,7 +2425,7 @@ def add_submission_to_leaderboard(submission):
 
 
 def get_current_phase(competition):
-    all_phases = competition.phases.all().order_by('start_date')
+    all_phases = competition.phases.without_subphases().order_by('start_date')
     phase_iterator = iter(all_phases)
     active_phase = None
     for phase in phase_iterator:
@@ -2444,7 +2445,7 @@ def get_first_previous_active_and_next_phases(competition):
     active_phase = None
     next_phase = None
 
-    all_phases = competition.phases.all().order_by('start_date')
+    all_phases = competition.phases.without_subphases().order_by('start_date')
     phase_iterator = iter(all_phases)
     trailing_phase_holder = None
 

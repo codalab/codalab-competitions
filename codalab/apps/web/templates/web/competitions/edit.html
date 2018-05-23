@@ -188,6 +188,12 @@
                         </h3>
                     </div>
                     <div class="panel-body">
+                        {% if form.errors %}
+                            <div class="alert alert-danger">
+                                {{ form.errors }}
+                            </div>
+                        {% endif %}
+
                         {% for field in form %}
                             {% if field.is_hidden %}
                                 {{ field }}
