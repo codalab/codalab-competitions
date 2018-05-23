@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block head_title %}Widgets{% endblock head_title %}
+{% block page_title %}Widgets{% endblock page_title %}
+
+{% block content %}
+    <a href="{% url 'competitions:view' pk=competition.pk %}" class="btn btn-default pull-left">Go back to competition</a>
+
+    <div class="row">
+        <div class="col-md-12">
+
+            <p><b>NOTE: These widgets use the current active phase of the competition to submit/display data.</b></p>
+
+            <h3>Submissions</h3>
+            <p>Embed this HTML into your page to allow someone to make submissions to this competition:</p>
+            <div class="field-container">
+                <textarea style="width: 100%;"><iframe src="{% if request.is_secure %}https{% else %}http{% endif %}://{{ CODALAB_SITE_DOMAIN }}/competitions/submission_widget/{{ competition.pk }}/" style="height: 500px; width: 100%; border: none;"></iframe></textarea>
+            </div>
+
+            <h3>Leaderboard</h3>
+            <p>Embed this HTML into your page to display the leaderboard:</p>
+            <div class="field-container">
+                <textarea style="width: 100%;"><iframe src="{% if request.is_secure %}https{% else %}http{% endif %}://{{ CODALAB_SITE_DOMAIN }}/competitions/leaderboard_widget/{{ competition.pk }}/" style="height: 500px; width: 100%; border: none;"></iframe></textarea>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

@@ -280,6 +280,8 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
                     to_email=comp.creator.email
                 )
 
+        if comp.url_redirect:
+            response_data['url_redirect'] = comp.url_redirect
         return Response(json.dumps(response_data), content_type="application/json")
 
     def _get_userstatus(self, request, pk=None, participant_id=None):
@@ -558,14 +560,11 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
         obj.phase = phase
 
         blob_name = self.request.DATA['id'] if 'id' in self.request.DATA else ''
+        obj.readable_filename = self.request.DATA['name']
 
         if len(blob_name) <= 0:
             raise ParseError(detail='Invalid or missing tracking ID.')
         if settings.USE_AWS:
-            # obj.readable_filename = os.path.basename(blob_name)
-            # Get file name from url and ensure we aren't getting GET params along with it
-            obj.readable_filename = blob_name.split('/')[-1]
-            obj.readable_filename = obj.readable_filename.split('?')[0]
             obj.s3_file = blob_name
         else:
             obj.file.name = blob_name

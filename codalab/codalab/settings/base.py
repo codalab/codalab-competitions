@@ -273,6 +273,7 @@ class Base(Settings):
     ACCOUNT_USERNAME_REQUIRED = True
     ACCOUNT_EMAIL_VERIFICATION = os.environ.get('ACCOUNT_EMAIL_VERIFICATION', 'mandatory')
     ACCOUNT_SIGNUP_FORM_CLASS = 'apps.authenz.forms.CodalabSignupForm'
+    ACCOUNT_LOGOUT_ON_GET = True
 
     # Django Analytical configuration
     # GOOGLE_ANALYTICS_PROPERTY_ID = 'UA-42847758-2'
@@ -407,6 +408,11 @@ class Base(Settings):
     RABBITMQ_HOST = os.environ.get('RABBITMQ_HOST', 'rabbit')
     RABBITMQ_PORT = os.environ.get('RABBITMQ_PORT', '5672')
     RABBITMQ_MANAGEMENT_PORT = os.environ.get('RABBITMQ_MANAGEMENT_PORT', '15672')
+
+    if DEBUG and SSL_CERTIFICATE:
+        # To make RABBITMQ api calls work locally over SSL we need this set for requests
+        # to recognize our cert
+        os.environ.setdefault('REQUESTS_CA_BUNDLE', SSL_CERTIFICATE)
 
 
     # =========================================================================

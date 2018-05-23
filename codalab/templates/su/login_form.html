@@ -23,11 +23,9 @@
                 {% csrf_token %}
                 <label for="user_id">Login as:</label>
                 <p>
-                <select name="user_id">
-                    {% for user in su_state.available_users %}
-                        <option value="{{ user.id }}">{% su_user_long_label user %}</option>
-                    {% endfor %}
-                </select>
+                <div class="field-container" style="width:75%">
+                    <select id="user_id" name="user_id"></select>
+                </div>
                 </p>
                 <input class="btn btn-success btn-large" type="submit" value="Switch-User"/>
             </form>
@@ -35,4 +33,20 @@
             {% include "su/logout_form.html" %}
         </div>
     {% endif %}
+
+    <script>
+
+        $('document').ready(function () {
+            $("#user_id").select2({
+                width: "100%",
+                ajax: {
+                    url: '/user_lookup/',
+                    delay: 250
+                },
+                cache: true,
+                minimumInputLength: 1
+            });
+        });
+
+    </script>
 {% endblock %}

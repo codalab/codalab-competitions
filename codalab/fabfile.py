@@ -51,8 +51,8 @@ def hosts(key):
 def compute_worker_init(BROKER_URL, BROKER_USE_SSL=False):
     """Initializes compute worker by installing docker and the compute worker image
 
-    Meant to be used with `hosts` like so:
-        fab hosts:prod_workers compute_worker_initialize:url,True
+    Meant to be used with `hosts` like so, for an SSL'd server:
+        fab hosts:prod_workers compute_worker_initialize:pyamqp://blahblah/,True
     """
     # Get proper SSL flag value
     BROKER_USE_SSL = bool(BROKER_USE_SSL)
@@ -81,6 +81,15 @@ def compute_worker_update():
     run('docker pull codalab/competitions-v1-compute-worker:latest')
     run('docker pull {}'.format(django_settings.DOCKER_DEFAULT_WORKER_IMAGE))
     compute_worker_run()
+
+
+def compute_worker_update_docker():
+    """Updates base docker installation version to latest
+
+    Meant to be used with `hosts` like so:
+        fab hosts:prod_workers compute_worker_update_docker
+    """
+    run('curl https://get.docker.com | sudo sh')
 
 
 def compute_worker_docker_restart():
