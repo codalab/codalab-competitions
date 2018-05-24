@@ -7,19 +7,6 @@
 {% block page_title %}Submissions{% endblock page_title %}
 {% block head_title %}Submissions{% endblock %}
 
-{% block extra_headers %}
-    <!--<link rel="stylesheet" href="{{ STATIC_URL }}css/codalab.css">-->
-    <style>
-        .finished-submission {
-            background-color: rgba(0, 255, 0, 0.1) !important;
-        }
-
-        .failed-submission {
-            background-color: rgba(255, 0, 0, 0.1) !important;
-        }
-    </style>
-{% endblock %}
-
 {% block content %}
     <div class="submissions">
         <div class="well submission-phase-select">
