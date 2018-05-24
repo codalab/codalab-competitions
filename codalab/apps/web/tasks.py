@@ -515,6 +515,14 @@ def score(submission, job_id):
         # For the ingestion program we have to include the actual ingestion program...
         lines.append("ingestion_program: %s" % _make_url_sassy(submission.phase.ingestion_program.name))
 
+        # Also, let's pass the submission for the ingestion program to work with, potentially
+        if settings.USE_AWS:
+            submission_file = submission.s3_file
+        else:
+            submission_file = submission.file.name
+
+        lines.append("submission: %s" % _make_url_sassy(submission_file))
+
     submission.runfile.save('run.txt', ContentFile('\n'.join(lines)))
 
     # Create stdout.txt & stderr.txt
