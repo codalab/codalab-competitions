@@ -43,7 +43,11 @@
                     </label>
                     <div class="col-sm-9">
                         <div class="field-container">
-                            {{ field }}
+                            <select multiple id="id_admins" name="admins">
+                                {% for admin in competition.admins.all %}
+                                    <option value="{{ admin.pk }}" selected>{{ admin }}</option>
+                                {% endfor %}
+                            </select>
                             {{ field.errors }}
                         </div>
                     </div>
