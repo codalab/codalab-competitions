@@ -626,6 +626,18 @@ class CompetitionDetailView(DetailView):
         except ObjectDoesNotExist:
             pass
 
+        # if settings.SINGLE_COMPETITION_VIEW_PK:
+        context['participant_count'] = competition.get_participant_count
+        context['submission_count'] = 0
+        for phase in competition.phases.all():
+            context['submission_count'] += phase.submissions.all().count()
+        if competition.end_date:
+            current_date_time = timezone.now()
+            comp_end_time = competition.end_date
+            if comp_end_time > current_date_time:
+                time_left = comp_end_time - current_date_time
+                context['time_remaining'] = time_left.days
+
         if competition.creator == self.request.user or self.request.user in competition.admins.all():
             context['is_admin_or_owner'] = True
 
