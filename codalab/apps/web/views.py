@@ -1367,7 +1367,6 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
             page = 1
 
         context['submission_info_list'] = paginator.page(page)
-        # context['submission_info_list'] = submission_info_list
 
         # We need a way to check if next phase.auto_migration = True
         try:

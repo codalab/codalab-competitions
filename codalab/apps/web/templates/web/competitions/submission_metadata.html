@@ -83,15 +83,15 @@
         </table>
         <nav aria-label="Page navigation example">
             <ul class="pagination">
-                    {% if submission_list.has_previous %}
-                        <li><a href="?page=1">&laquo; first</a></li>
-                        <li><a href="?page={{ submission_list.previous_page_number }}">previous</a></li>
-                    {% endif %}
+                {% if submission_list.has_previous %}
+                    <li><a href="?page=1">&laquo; first</a></li>
+                    <li><a href="?page={{ submission_list.previous_page_number }}">previous</a></li>
+                {% endif %}
 
-                    {% if submission_list.has_next %}
-                        <li><a href="?page={{ submission_list.next_page_number }}">next</a></li>
-                        <li><a href="?page={{ submission_list.paginator.num_pages }}">last &raquo;</a></li>
-                    {% endif %}
+                {% if submission_list.has_next %}
+                    <li><a href="?page={{ submission_list.next_page_number }}">next</a></li>
+                    <li><a href="?page={{ submission_list.paginator.num_pages }}">last &raquo;</a></li>
+                {% endif %}
             </ul>
         </nav>
         Page {{ submission_list.number }} of {{ submission_list.paginator.num_pages }}.

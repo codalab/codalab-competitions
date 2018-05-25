@@ -18,7 +18,7 @@ register = template.Library()
 @register.filter
 def offset_for_loop_counter(counter, page_number):
         # Order of operations matters
-        return counter + ((page_number-1) * 25)
+        return counter + ((page_number - 1) * 25)
 
 
 @register.filter
