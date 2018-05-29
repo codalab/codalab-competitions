@@ -2,6 +2,7 @@ import StringIO
 import zipfile
 
 import mock
+import pytz
 from django.core.files.base import ContentFile
 
 from django.core.urlresolvers import reverse
@@ -415,4 +416,86 @@ class CompetitionCurrentPhaseHandling(TestCase):
         assert first_phase == self.phase_1
         assert previous_phase == self.phase_2
         assert active_phase == self.phase_3
+        assert next_phase is None
+
+    def test_get_previous_next_active_phase_works_with_competition_that_never_ends(self):
+        self.competition.end_date = None
+        self.competition.save()
+
+        self.phase_1 = CompetitionPhase.objects.create(
+            competition=self.competition,
+            phasenumber=1,
+            start_date=datetime(2017, 6, 18, 23, 59),
+        )
+        self.phase_2 = CompetitionPhase.objects.create(
+            competition=self.competition,
+            phasenumber=2,
+            start_date=datetime(2017, 6, 30, 23, 59),
+            phase_never_ends=True,
+        )
+        self.phase_3 = CompetitionPhase.objects.create(
+            competition=self.competition,
+            phasenumber=3,
+            start_date=datetime(2018, 5, 13, 23, 59),
+        )
+
+        first_phase, previous_phase, active_phase, next_phase = get_first_previous_active_and_next_phases(self.competition)
+        assert first_phase == self.phase_1
+        assert previous_phase == self.phase_2
+        assert active_phase == self.phase_3
+        assert next_phase is None
+
+    def test_get_previous_next_active_phase_works_with_competition_that_has_ended(self):
+        self.competition.end_date = datetime(2018, 5, 25, 23, 59, tzinfo=pytz.utc)
+        self.competition.save()
+
+        self.phase_1 = CompetitionPhase.objects.create(
+            competition=self.competition,
+            phasenumber=1,
+            start_date=datetime(2017, 6, 18, 23, 59),
+        )
+        self.phase_2 = CompetitionPhase.objects.create(
+            competition=self.competition,
+            phasenumber=2,
+            start_date=datetime(2017, 6, 30, 23, 59),
+        )
+        self.phase_3 = CompetitionPhase.objects.create(
+            competition=self.competition,
+            phasenumber=3,
+            start_date=datetime(2018, 5, 13, 23, 59),
+        )
+
+        first_phase, previous_phase, active_phase, next_phase = get_first_previous_active_and_next_phases(
+            self.competition)
+        assert first_phase == self.phase_1
+        assert previous_phase == self.phase_3
+        assert active_phase is None
+        assert next_phase is None
+
+    def test_get_previous_next_active_phase_works_with_competition_that_has_ended_but_has_phase_that_never_ends(self):
+        self.competition.end_date = datetime(2018, 5, 25, 23, 59, tzinfo=pytz.utc)
+        self.competition.save()
+
+        self.phase_1 = CompetitionPhase.objects.create(
+            competition=self.competition,
+            phasenumber=1,
+            start_date=datetime(2017, 6, 18, 23, 59),
+        )
+        self.phase_2 = CompetitionPhase.objects.create(
+            competition=self.competition,
+            phasenumber=2,
+            start_date=datetime(2017, 6, 30, 23, 59),
+            phase_never_ends=True,
+        )
+        self.phase_3 = CompetitionPhase.objects.create(
+            competition=self.competition,
+            phasenumber=3,
+            start_date=datetime(2018, 5, 13, 23, 59),
+        )
+
+        first_phase, previous_phase, active_phase, next_phase = get_first_previous_active_and_next_phases(
+            self.competition)
+        assert first_phase == self.phase_1
+        assert previous_phase == self.phase_3
+        assert active_phase == self.phase_2
         assert next_phase is None

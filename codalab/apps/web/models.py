@@ -2407,10 +2407,14 @@ def get_first_previous_active_and_next_phases(competition):
         if not first_phase:
             first_phase = phase
 
-        # Get an active phase that isn't also never-ending, unless we don't have any active_phases
+        # Has the phase start date passed
         if phase.start_date <= now():
+            # Whether or not phase is actually active, keep track of previous phase
             previous_phase = trailing_phase_holder
-            active_phase = phase
+
+            # If the competition has not ended OR is this a never ending phase?
+            if phase.phase_never_ends or not competition.end_date or competition.end_date >= now():
+                active_phase = phase
         else:
             # we have an active phase but this one isn't active so it must be next
             if active_phase and not next_phase:
@@ -2418,6 +2422,10 @@ def get_first_previous_active_and_next_phases(competition):
 
         # Hold this to store "previous phase"
         trailing_phase_holder = phase
+
+    if competition.end_date and competition.end_date <= now():
+        # Competition has ended, so previous phase was last phase
+        previous_phase = trailing_phase_holder
 
     return first_phase, previous_phase, active_phase, next_phase
 
