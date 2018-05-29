@@ -2399,7 +2399,7 @@ def get_first_previous_active_and_next_phases(competition):
     active_phase = None
     next_phase = None
 
-    all_phases = competition.phases.all().order_by('start_date')
+    all_phases = competition.phases.all().order_by('start_date', 'phasenumber')
     phase_iterator = iter(all_phases)
     trailing_phase_holder = None
 
@@ -2408,7 +2408,7 @@ def get_first_previous_active_and_next_phases(competition):
             first_phase = phase
 
         # Get an active phase that isn't also never-ending, unless we don't have any active_phases
-        if phase.is_active:
+        if phase.start_date <= now():
             previous_phase = trailing_phase_holder
             active_phase = phase
         else:
