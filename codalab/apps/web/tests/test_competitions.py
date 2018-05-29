@@ -370,22 +370,45 @@ class CompetitionCurrentPhaseHandling(TestCase):
         assert active_phase == self.phase_3
         assert next_phase is None
 
-    def test_get_previous_next_active_phase_works_with_neverending_second_phase(self):
+    def test_get_previous_next_active_phase_works_without_neverending_second_phase(self):
         self.phase_1 = CompetitionPhase.objects.create(
             competition=self.competition,
             phasenumber=1,
-            start_date=datetime(2017, 6, 18),
+            start_date=datetime(2017, 6, 18, 23, 59),
         )
         self.phase_2 = CompetitionPhase.objects.create(
             competition=self.competition,
             phasenumber=2,
-            start_date=datetime(2017, 6, 30),
+            start_date=datetime(2017, 6, 30, 23, 59),
+        )
+        self.phase_3 = CompetitionPhase.objects.create(
+            competition=self.competition,
+            phasenumber=3,
+            start_date=datetime(2018, 5, 13, 23, 59),
+        )
+
+        first_phase, previous_phase, active_phase, next_phase = get_first_previous_active_and_next_phases(self.competition)
+        assert first_phase == self.phase_1
+        assert previous_phase == self.phase_2
+        assert active_phase == self.phase_3
+        assert next_phase is None
+
+    def test_get_previous_next_active_phase_works_with_neverending_second_phase(self):
+        self.phase_1 = CompetitionPhase.objects.create(
+            competition=self.competition,
+            phasenumber=1,
+            start_date=datetime(2017, 6, 18, 23, 59),
+        )
+        self.phase_2 = CompetitionPhase.objects.create(
+            competition=self.competition,
+            phasenumber=2,
+            start_date=datetime(2017, 6, 30, 23, 59),
             phase_never_ends=True,
         )
         self.phase_3 = CompetitionPhase.objects.create(
             competition=self.competition,
             phasenumber=3,
-            start_date=datetime(2018, 5, 13),
+            start_date=datetime(2018, 5, 13, 23, 59),
         )
 
         first_phase, previous_phase, active_phase, next_phase = get_first_previous_active_and_next_phases(self.competition)
