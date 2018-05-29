@@ -808,16 +808,6 @@ class _LeaderboardManagementMode(object):
 LeaderboardManagementMode = _LeaderboardManagementMode()
 
 
-class PhaseManager(models.Manager):
-    use_for_related_fields = True
-
-    # def get_queryset(self):
-    #     return super(PhaseManager, self).get_queryset()
-
-    def without_subphases(self):
-        return super(PhaseManager, self).get_queryset().filter(parent=None)
-
-
 # Competition Phase
 class CompetitionPhase(models.Model):
     """
@@ -910,9 +900,14 @@ class CompetitionPhase(models.Model):
     ingestion_program_only_during_scoring = models.BooleanField(default=False, blank=True, help_text="Run ingestion program during scoring, instead of during prediction?")
 
     is_parallel_parent = models.BooleanField(default=False, blank=True, help_text="This phase itself does no processing, it is just a placeholder for subphases to do their magic")
-    parent = models.ForeignKey('CompetitionPhase', null=True, blank=True, help_text="Parent phase MUST be a 'parallel parent' type phase. If you can't select the parent phase here, set it to be a 'parallel parent' phase and save this form, then it should appear in the dropdown", related_name="sub_phases")
-
-    objects = PhaseManager()
+    parent = models.ForeignKey(
+        'CompetitionPhase',
+        null=True,
+        blank=True,
+        help_text="Parent phase MUST be a 'parallel parent' type phase. If you can't select the parent phase here, set "
+                  "it to be a 'parallel parent' phase and save this form, then it should appear in the dropdown",
+        related_name="sub_phases"
+    )
 
     # Should really just make a util function to do this
     def get_starting_kit(self):
@@ -961,7 +956,7 @@ class CompetitionPhase(models.Model):
         if self.phase_never_ends:
             return True
         else:
-            next_phase = self.competition.phases.filter(phasenumber=self.phasenumber+1)
+            next_phase = self.competition.phases.filter(phasenumber=self.phasenumber + 1, parent=None)
             if (next_phase is not None) and (len(next_phase) > 0):
                 # there is a phase following this phase, thus this phase is active if the current date
                 # is between the start of this phase and the start of the next phase
@@ -2425,7 +2420,7 @@ def add_submission_to_leaderboard(submission):
 
 
 def get_current_phase(competition):
-    all_phases = competition.phases.without_subphases().order_by('start_date')
+    all_phases = models.CompetitionPhase.objects.filter(competition=competition, parent=None).order_by('start_date')
     phase_iterator = iter(all_phases)
     active_phase = None
     for phase in phase_iterator:
@@ -2445,7 +2440,7 @@ def get_first_previous_active_and_next_phases(competition):
     active_phase = None
     next_phase = None
 
-    all_phases = competition.phases.without_subphases().order_by('start_date')
+    all_phases = CompetitionPhase.objects.filter(competition=competition, parent=None).order_by('start_date')
     phase_iterator = iter(all_phases)
     trailing_phase_holder = None
 
@@ -2453,27 +2448,25 @@ def get_first_previous_active_and_next_phases(competition):
         if not first_phase:
             first_phase = phase
 
-        # Get an active phase that isn't also never-ending, unless we don't have any active_phases
-        if phase.is_active:
+        # Has the phase start date passed
+        if phase.start_date <= now():
+            # Whether or not phase is actually active, keep track of previous phase
             previous_phase = trailing_phase_holder
-            if active_phase is None:
-                active_phase = phase
-            elif not phase.phase_never_ends:
-                active_phase = phase
 
-            try:
-                next_phase = next(phase_iterator)
-            except StopIteration:
-                pass
-
-            if not active_phase.phase_never_ends:
-                # The phase has a definite ending, so we can stop here using this
-                # as the active phase and next (if applicable) is already grabbed
-                # from the iterator
-                break
+            # If the competition has not ended OR is this a never ending phase?
+            if phase.phase_never_ends or not competition.end_date or competition.end_date >= now():
+                active_phase = phase
+        else:
+            # we have an active phase but this one isn't active so it must be next
+            if active_phase and not next_phase:
+                next_phase = phase
 
         # Hold this to store "previous phase"
         trailing_phase_holder = phase
+
+    if competition.end_date and competition.end_date <= now():
+        # Competition has ended, so previous phase was last phase
+        previous_phase = trailing_phase_holder
 
     return first_phase, previous_phase, active_phase, next_phase
 

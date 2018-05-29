@@ -635,41 +635,46 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
         if phase.auto_migration and not phase.is_migrated and not phase.competition.is_migrating_delayed:
             raise PermissionDenied(
                 detail="Failed, competition phase is being migrated, please try again in a few minutes")
-        kwargs['phase'] = phase
-        print(kwargs['phase'])
 
-        obj = serializer.save(**kwargs)
-
-        blob_name = self.request.data['id'] if 'id' in self.request.data else ''
-
-        if len(blob_name) <= 0:
-            raise ParseError(detail='Invalid or missing tracking ID.')
-        if settings.USE_AWS:
-            # obj.readable_filename = os.path.basename(blob_name)
-            # Get file name from url and ensure we aren't getting GET params along with it
-            obj.readable_filename = blob_name.split('/')[-1]
-            obj.readable_filename = obj.readable_filename.split('?')[0]
-            obj.s3_file = blob_name
+        if not phase.is_parallel_parent:
+            phases_to_run_on = [phase]
         else:
-            obj.file.name = blob_name
+            phases_to_run_on = phase.sub_phases.all()
 
-        obj.description = escape(self.request.query_params.get('description', ""))
-        if not phase.disable_custom_docker_image:
-            obj.docker_image = escape(self.request.query_params.get('docker_image', ""))
-        if not obj.docker_image:
-            obj.docker_image = phase.competition.competition_docker_image or settings.DOCKER_DEFAULT_WORKER_IMAGE
-        obj.team_name = escape(self.request.query_params.get('team_name', ""))
-        obj.organization_or_affiliation = escape(self.request.query_params.get('organization_or_affiliation', ""))
-        obj.method_name = escape(self.request.query_params.get('method_name', ""))
-        obj.method_description = escape(self.request.query_params.get('method_description', ""))
-        obj.project_url = escape(self.request.query_params.get('project_url', ""))
-        obj.publication_url = escape(self.request.query_params.get('publication_url', ""))
-        obj.bibtex = escape(self.request.query_params.get('bibtex', ""))
-        if phase.competition.queue:
-            obj.queue_name = phase.competition.queue.name or ''
-        obj.save()
+        for phase in phases_to_run_on:
+            kwargs['phase'] = phase
+            obj = serializer.save(**kwargs)
 
-        evaluate_submission.delay(obj.pk, obj.phase.is_scoring_only)
+            blob_name = self.request.data['id'] if 'id' in self.request.data else ''
+
+            if len(blob_name) <= 0:
+                raise ParseError(detail='Invalid or missing tracking ID.')
+            if settings.USE_AWS:
+                # obj.readable_filename = os.path.basename(blob_name)
+                # Get file name from url and ensure we aren't getting GET params along with it
+                obj.readable_filename = blob_name.split('/')[-1]
+                obj.readable_filename = obj.readable_filename.split('?')[0]
+                obj.s3_file = blob_name
+            else:
+                obj.file.name = blob_name
+
+            obj.description = escape(self.request.query_params.get('description', ""))
+            if not phase.disable_custom_docker_image:
+                obj.docker_image = escape(self.request.query_params.get('docker_image', ""))
+            if not obj.docker_image:
+                obj.docker_image = phase.competition.competition_docker_image or settings.DOCKER_DEFAULT_WORKER_IMAGE
+            obj.team_name = escape(self.request.query_params.get('team_name', ""))
+            obj.organization_or_affiliation = escape(self.request.query_params.get('organization_or_affiliation', ""))
+            obj.method_name = escape(self.request.query_params.get('method_name', ""))
+            obj.method_description = escape(self.request.query_params.get('method_description', ""))
+            obj.project_url = escape(self.request.query_params.get('project_url', ""))
+            obj.publication_url = escape(self.request.query_params.get('publication_url', ""))
+            obj.bibtex = escape(self.request.query_params.get('bibtex', ""))
+            if phase.competition.queue:
+                obj.queue_name = phase.competition.queue.name or ''
+            obj.save()
+
+            evaluate_submission.delay(obj.pk, obj.phase.is_scoring_only)
 
      # def post_save(self, obj, created):
      #     if created:

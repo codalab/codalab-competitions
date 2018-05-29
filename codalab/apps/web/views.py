@@ -534,7 +534,7 @@ class CompetitionDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super(CompetitionDetailView, self).get_context_data(**kwargs)
         competition = context['object']
-        all_phases = competition.phases.without_subphases()
+        all_phases = models.CompetitionPhase.objects.filter(competition=competition, parent=None)
 
         # This assumes the tabs were created in the correct order
         # TODO Add a rank, order by on ContentCategory
@@ -1216,7 +1216,10 @@ class MyCompetitionSubmissionOutput(View):
             else:
                 temp_file_name = file.name
             if file_name:
-                return StreamingHttpResponse(file.readlines(), content_type='text/plain')
+                try:
+                    return StreamingHttpResponse(file.readlines(), content_type='text/plain')
+                except ValueError:
+                    raise Http404()
             else:
                 raise Http404()
         else:
