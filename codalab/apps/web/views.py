@@ -2088,7 +2088,7 @@ class CompetitionLeaderboardWidgetView(WidgetMixin, DetailView):
 
 @login_required
 def user_lookup(request):
-    search = request.GET.get('term')
+    search = request.GET.get('term', '')
     filters = Q()
     show_emails = False
 
