@@ -730,9 +730,18 @@ def competition_submission_metadata_page(request, competition_id, phase_id):
     if request.user.id != competition.creator_id and request.user not in competition.admins.all():
         raise Http404()
 
+    # Page does not display subs without these statuses
+    subs = selected_phase.submissions.filter(status__name__in=['Finished', 'Failed']).order_by('submitted_at')
+
+    paginator = Paginator(subs, 25)
+    page = request.GET.get('page', 1)
+
+    submission_list = paginator.page(page)
+
     return render(request, "web/competitions/submission_metadata.html", {
         'competition': competition,
         'selected_phase': selected_phase,
+        'submission_list': submission_list,
         'stretch_100_percent_width': True
     })
 
@@ -1350,7 +1359,14 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
         sort_data_table(self.request, context, submission_info_list)
         # complete context
         context['columns'] = columns
-        context['submission_info_list'] = submission_info_list
+
+        paginator = Paginator(submission_info_list, 25)
+        page = self.request.GET.get('page')
+        if page is None:
+            # If we don't get page back in the request dict, default to 1st page.
+            page = 1
+
+        context['submission_info_list'] = paginator.page(page)
 
         # We need a way to check if next phase.auto_migration = True
         try:
