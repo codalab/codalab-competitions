@@ -1170,10 +1170,12 @@ class MyCompetitionSubmissionOutput(View):
             raise Http404()
         competition = submission.phase.competition
         filetype = kwargs.get('filetype')
+        content_type = 'text/plain'
 
         # Check competition admin permissions or user permissions
         if filetype == "detailed_results.html":
             published_to_leaderboard = models.PhaseLeaderBoardEntry.objects.filter(result=submission).exists()
+            content_type = "text/html"
         else:
             published_to_leaderboard = False
 
@@ -1200,7 +1202,7 @@ class MyCompetitionSubmissionOutput(View):
             else:
                 temp_file_name = file.name
             if file_name:
-                return StreamingHttpResponse(file.readlines(), content_type='text/plain')
+                return StreamingHttpResponse(file.readlines(), content_type=content_type)
             else:
                 raise Http404()
         else:
