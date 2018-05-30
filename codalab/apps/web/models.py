@@ -345,7 +345,8 @@ class Competition(ChaHubSaveMixin, models.Model):
             "html_text": html_text,
             "active": active,
             "prize": self.reward,
-            "url_redirect": self.url_redirect
+            "url_redirect": self.url_redirect,
+            "published": self.published
         }
 
     def save(self, *args, **kwargs):
