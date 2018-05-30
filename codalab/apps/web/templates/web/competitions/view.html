@@ -124,13 +124,15 @@
             <hr>
             <div class="competition-status">
                 <h4></h4>
-                <ul class="list-inline">
-                    <li style="margin-left: 10%; margin-right: 10%">Participants:{{ participant_count }}</li>
-                    <li style="margin-left: 10%; margin-right: 10%">Submissions: {{ submission_count }}</li>
-                    {#                    {% if competition.reward %}#}
-                    {#                        <li>Reward: {{ competition.reward }}</li>{% endif %}#}
+                <ul class="list-inline text-center">
+                    <li>Participants:{{ participant_count }}</li>
+                    <li>Submissions: {{ submission_count }}</li>
+                    {% if competition.reward %}
+                        <li>Reward: {{ competition.reward }}</li>
+                    {% endif %}
                     {% if time_remaining %}
-                        <li style="margin-left: 10%; margin-right: 10%">Days Left: {{ time_remaining }}</li>{% endif %}
+                        <li>Days Left: {{ time_remaining }}</li>
+                    {% endif %}
                 </ul>
             </div>
         </div>
