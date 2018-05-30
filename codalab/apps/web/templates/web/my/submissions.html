@@ -106,9 +106,14 @@
                     <tbody>
                     {% for submission in submission_info_list %}
                         <tr id="{{ submission.id }}"
-                                {% if submission.exception_details %}
-                            data-exception="{{ submission.exception_details|escape }}"
-                                {% endif %}
+                            {% if submission.exception_details %}
+                                data-exception="{{ submission.exception_details|escape }}"
+                            {% endif %}
+                            {% if submission.status_name == "Finished" %}
+                                class="finished-submission"
+                            {% elif submission.status_name == "Failed" %}
+                                class="failed-submission"
+                            {% endif %}
                             data-description="{{ submission.description|default_if_none:""|escape }}"
                             data-method-name="{{ submission.method_name|default_if_none:""|escape }}"
                             data-method-description="{{ submission.method_description|default_if_none:""|escape }}"
@@ -118,7 +123,7 @@
                             data-organization-or-affiliation="{{ submission.organization_or_affiliation|default_if_none:""|escape }}"
                             data-bibtex="{{ submission.bibtex|default_if_none:""|escape }}"
                             data-is-public="{% if submission.is_public %}True{% endif %}">
-                            <td>{{ forloop.counter }}</td>
+                            <td>{{ forloop.counter|offset_for_loop_counter:submission_info_list.number }} </td>
                             {% for column in columns %}
                                 {% if column.name == 'filename' %}
                                     <td>
@@ -166,6 +171,21 @@
                 </table>
             </div>
         {% endif %}
+
+        <nav aria-label="Page navigation example">
+            <ul class="pagination">
+                    {% if submission_info_list.has_previous %}
+                        <li><a href="?page=1">&laquo; first</a></li>
+                        <li><a href="?page={{ submission_info_list.previous_page_number }}">previous</a></li>
+                    {% endif %}
+
+                    {% if submission_info_list.has_next %}
+                        <li><a href="?page={{ submission_info_list.next_page_number }}">next</a></li>
+                        <li><a href="?page={{ submission_info_list.paginator.num_pages }}">last &raquo;</a></li>
+                    {% endif %}
+            </ul>
+        </nav>
+        Page {{ submission_info_list.number }} of {{ submission_info_list.paginator.num_pages }}.
 
         {% include "web/common/_submission_details_template.html" %}
 
