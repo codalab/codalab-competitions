@@ -1613,7 +1613,7 @@ class SubmissionResultGroupPhase(models.Model):
 class SubmissionScoreDef(models.Model):
     """Defines the columns of a Leaderboard."""
     competition = models.ForeignKey(Competition)
-    key = models.SlugField(max_length=50)
+    key = models.CharField(max_length=50)
     label = models.CharField(max_length=50)
     sorting = models.SlugField(max_length=20, default='asc', choices=(('asc', 'Ascending'),('desc','Descending')))
     numeric_format = models.CharField(max_length=20, blank=True, null=True)
