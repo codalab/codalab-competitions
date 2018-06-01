@@ -11,14 +11,8 @@ class Migration(SchemaMigration):
 
         # Changing field 'SubmissionScoreDef.key'
         db.alter_column(u'web_submissionscoredef', 'key', self.gf('django.db.models.fields.CharField')(max_length=50))
-        # Removing index on 'SubmissionScoreDef', fields ['key']
-        db.delete_index(u'web_submissionscoredef', ['key'])
-
 
     def backwards(self, orm):
-        # Adding index on 'SubmissionScoreDef', fields ['key']
-        db.create_index(u'web_submissionscoredef', ['key'])
-
 
         # Changing field 'SubmissionScoreDef.key'
         db.alter_column(u'web_submissionscoredef', 'key', self.gf('django.db.models.fields.SlugField')(max_length=50))
@@ -464,7 +458,7 @@ class Migration(SchemaMigration):
             'computed': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'groups': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['web.SubmissionResultGroup']", 'through': u"orm['web.SubmissionScoreDefGroup']", 'symmetrical': 'False'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'key': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
+            'key': ('django.db.models.fields.CharField', [], {'max_length': '50', 'db_index': 'True'}),
             'label': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
             'numeric_format': ('django.db.models.fields.CharField', [], {'max_length': '20', 'null': 'True', 'blank': 'True'}),
             'ordering': ('django.db.models.fields.PositiveIntegerField', [], {'default': '1'}),
