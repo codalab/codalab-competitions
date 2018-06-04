@@ -501,7 +501,42 @@ def score(submission, job_id):
         lines.append("program: %s" % _make_url_sassy(program_value))
     else:
         raise ValueError("Program is missing.")
-    lines.append("input: %s" % _make_url_sassy(submission.inputfile.name))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    # If we're a parent submission, combine all child submission outputs
+    if CompetitionSubmission.objects.filter(parent_submission=submission).exists():
+        parallel_submission_inputs = []
+        child_submissions = submission.child_submissions.all().prefetch_related('phase')
+        for child_submission in child_submissions:
+            parallel_submission_inputs.append('{phase_number}: {output}'.format(
+                phase_number=child_submission.phase.phase_number,
+                output=_make_url_sassy(child_submission.output_file.name),
+            ))
+        submission.inputfile.save('input.txt', ContentFile('\n'.join(parallel_submission_inputs)))
+    else:
+        lines.append("input: %s" % _make_url_sassy(submission.inputfile.name))
+
+
+
+
+
+
+
+
     lines.append("stdout: %s" % _make_url_sassy(submission.stdout_file.name, permission='w'))
     lines.append("stderr: %s" % _make_url_sassy(submission.stderr_file.name, permission='w'))
     lines.append("private_output: %s" % _make_url_sassy(submission.private_output_file.name, permission='w'))
@@ -671,6 +706,44 @@ def update_submission(job_id, args, secret):
                         [email],
                         fail_silently=False
                     )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                # check here that all sub-submissions completed successfully
+                if submission.parent_submission:
+                    total_children_submission_count = submission.parent_submission.child_submissions.all().count()
+                    successfully_finished_children_count = submission.parent_submission.child_submissions.filter(
+                        status__name=CompetitionSubmissionStatus.FINISHED
+                    ).count()
+                    if total_children_submission_count == successfully_finished_children_count:
+                        # This evaluates the submission with scoring only
+                        evaluate_submission.delay(submission.parent_submission.pk, True)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             else:
                 logger.debug("update_submission_task entering scoring phase (pk=%s)", submission.pk)
                 # url_name = pathname2url(submission_prediction_output_filename(submission))

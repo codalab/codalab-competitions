@@ -1365,6 +1365,8 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
 
     queue_name = models.TextField(null=True, blank=True)
 
+    parent_submission = models.ForeignKey('CompetitionSubmission', null=True, blank=True, related_name="child_submissions")
+
     class Meta:
         unique_together = (('submission_number','phase','participant'),)
 
@@ -1429,13 +1431,21 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
 
         # only at save on object creation should it be submitted
         if not self.pk:
-            if not ignore_submission_limits:
+            subnum = CompetitionSubmission.objects.filter(phase=self.phase, participant=self.participant).aggregate(
+                Max('submission_number')
+            )['submission_number__max']
+            if subnum is not None:
+                self.submission_number = subnum + 1
+            else:
+                self.submission_number = 1
+
+            print("SAVING SUBMISSION #", self.submission_number)
+            print("SAVING SUBMISSION PHASE =", self.phase)
+
+            # Subphases (phases with parents) should ignore limits
+            if not ignore_submission_limits or not self.phase.parent:
                 print "This is a new submission, getting the submission number."
-                subnum = CompetitionSubmission.objects.filter(phase=self.phase, participant=self.participant).aggregate(Max('submission_number'))['submission_number__max']
-                if subnum is not None:
-                    self.submission_number = subnum + 1
-                else:
-                    self.submission_number = 1
+
 
                 failed_count = CompetitionSubmission.objects.filter(phase=self.phase,
                                                                     participant=self.participant,
@@ -1475,14 +1485,6 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
                     if submissions_from_today_count + 1 - failed_count > self.phase.max_submissions_per_day or self.phase.max_submissions_per_day == 0:
                         print 'PERMISSION DENIED'
                         raise PermissionDenied("The maximum number of submissions this day have been reached.")
-            else:
-                # Make sure we're incrementing the number if we're forcing in a new entry
-                while CompetitionSubmission.objects.filter(
-                    phase=self.phase,
-                    participant=self.participant,
-                    submission_number=self.submission_number
-                ).exists():
-                    self.submission_number += 1
 
             self.status = CompetitionSubmissionStatus.objects.get_or_create(codename=CompetitionSubmissionStatus.SUBMITTING)[0]
 

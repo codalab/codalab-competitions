@@ -4,6 +4,7 @@ Defines Django views for 'apps.api' app for competitions
 import json
 import logging
 import os
+from copy import copy
 from datetime import timedelta
 
 from uuid import uuid4
@@ -636,14 +637,23 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
             raise PermissionDenied(
                 detail="Failed, competition phase is being migrated, please try again in a few minutes")
 
+        if phase.parent:
+            raise PermissionDenied("Cannot directly submit to a sub-phase")
+
         if not phase.is_parallel_parent:
             phases_to_run_on = [phase]
         else:
-            phases_to_run_on = phase.sub_phases.all()
+            # Run the submission against all subphases
+            phases_to_run_on = [phase] + list(phase.sub_phases.all())
+
+        # If we are dealing with a parallel parent, we need to make a parent submission
+        parent_submission = None
+
+        print("Running on:", phases_to_run_on)
 
         for phase in phases_to_run_on:
-            kwargs['phase'] = phase
-            obj = serializer.save(**kwargs)
+            print("PHASE: ", phase)
+            obj = serializer.save(phase=phase, **kwargs)
 
             blob_name = self.request.data['id'] if 'id' in self.request.data else ''
 
@@ -672,9 +682,30 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
             obj.bibtex = escape(self.request.query_params.get('bibtex', ""))
             if phase.competition.queue:
                 obj.queue_name = phase.competition.queue.name or ''
+
+            if phase.parent:
+                # This phase has parents so this should be child submission
+                obj.parent_submission = parent_submission
+
             obj.save()
 
-            evaluate_submission.delay(obj.pk, obj.phase.is_scoring_only)
+            if phase.is_parallel_parent and parent_submission is None:
+                # First submission we make will be our parent submission
+                parent_submission = copy(obj)
+
+            print("parent sub ==", parent_submission.pk)
+            print("this sub ==", obj.pk)
+
+            if parent_submission and obj.pk == parent_submission.pk:
+                print("DIS IS DA PARENT SUBMISSION DURRR {}".format(obj.pk))
+            else:
+                print("RUNNING NON PARENT SUBMISSION {}".format(obj))
+                # Only evaluate submission that aren't parent submissions
+                evaluate_submission.delay(obj.pk, obj.phase.is_scoring_only)
+
+            # Reset obj reference, so parent_submission stays set properly and such
+            del obj
+
 
      # def post_save(self, obj, created):
      #     if created:
