@@ -4,7 +4,6 @@ Defines Django views for 'apps.api' app for competitions
 import json
 import logging
 import os
-from copy import copy
 from datetime import timedelta
 
 from uuid import uuid4
@@ -627,24 +626,24 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
         if not kwargs['participant'].is_approved:
             raise PermissionDenied()
         phase_id = self.request.query_params.get('phase_id', "")
-        for phase in webmodels.CompetitionPhase.objects.filter(competition=self.kwargs['competition_id'],
-                                                               id=phase_id):
-            if phase.is_active is True:
-                break
-        if phase is None or phase.is_active is False:
+        submission_phase = webmodels.CompetitionPhase.objects.filter(
+            competition=self.kwargs['competition_id'],
+            id=phase_id
+        ).first()
+        if submission_phase is None or submission_phase.is_active is False:
             raise PermissionDenied(detail='Competition phase is closed.')
-        if phase.auto_migration and not phase.is_migrated and not phase.competition.is_migrating_delayed:
+        if submission_phase.auto_migration and not submission_phase.is_migrated and not submission_phase.competition.is_migrating_delayed:
             raise PermissionDenied(
                 detail="Failed, competition phase is being migrated, please try again in a few minutes")
 
-        if phase.parent:
+        if submission_phase.parent:
             raise PermissionDenied("Cannot directly submit to a sub-phase")
 
-        if not phase.is_parallel_parent:
-            phases_to_run_on = [phase]
+        if not submission_phase.is_parallel_parent:
+            phases_to_run_on = [submission_phase]
         else:
             # Run the submission against all subphases
-            phases_to_run_on = [phase] + list(phase.sub_phases.all())
+            phases_to_run_on = [submission_phase] + list(submission_phase.sub_phases.all())
 
         # If we are dealing with a parallel parent, we need to make a parent submission
         parent_submission = None
@@ -653,7 +652,7 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
 
         for phase in phases_to_run_on:
             print("PHASE: ", phase)
-            obj = serializer.save(phase=phase, **kwargs)
+            obj = CompetitionSubmission.objects.create(phase=phase, **kwargs)
 
             blob_name = self.request.data['id'] if 'id' in self.request.data else ''
 
@@ -691,7 +690,7 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
 
             if phase.is_parallel_parent and parent_submission is None:
                 # First submission we make will be our parent submission
-                parent_submission = copy(obj)
+                parent_submission = obj
 
             print("parent sub ==", parent_submission.pk)
             print("this sub ==", obj.pk)
@@ -702,10 +701,6 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
                 print("RUNNING NON PARENT SUBMISSION {}".format(obj))
                 # Only evaluate submission that aren't parent submissions
                 evaluate_submission.delay(obj.pk, obj.phase.is_scoring_only)
-
-            # Reset obj reference, so parent_submission stays set properly and such
-            del obj
-
 
      # def post_save(self, obj, created):
      #     if created:
