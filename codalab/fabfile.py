@@ -154,7 +154,9 @@ def compute_worker_run():
         "-v /var/run/docker.sock:/var/run/docker.sock "
         "-v /tmp/codalab:/tmp/codalab "
         "-d --restart unless-stopped "
-        "--name compute_worker -- "
+        "--name compute_worker "
+        "--log-opt max-size=50m "
+        "--log-opt max-file=3 -- "
         "codalab/competitions-v1-compute-worker:latest")
 
 
