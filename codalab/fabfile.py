@@ -59,8 +59,23 @@ def compute_worker_init(BROKER_URL, BROKER_USE_SSL=False):
 
     # Make .env file settings for worker
     env_file = 'BROKER_URL={}'.format(BROKER_URL)
+
     if BROKER_USE_SSL:
         env_file += "\nBROKER_USE_SSL=True"
+
+    # Custom hostname?
+    host_group_name = env['tasks'][0].split(':')[1]
+
+    config = yaml.load(open('server_config.yaml').read())
+
+    # if the configuration has an entry for custom hostnames, add them to the server
+    if 'hostnames' in config[host_group_name]:
+        host_name_index = env['hosts'].index(env['host_string'])
+        hostname = config[host_group_name]['hostnames'][host_name_index]
+    else:
+        hostname = env['host_string']
+    env_file += "\nCODALAB_HOSTNAME={}".format(hostname)
+
     run('echo "{}" > .env'.format(env_file))
 
     # Install docker
@@ -139,7 +154,9 @@ def compute_worker_run():
         "-v /var/run/docker.sock:/var/run/docker.sock "
         "-v /tmp/codalab:/tmp/codalab "
         "-d --restart unless-stopped "
-        "--name compute_worker -- "
+        "--name compute_worker "
+        "--log-opt max-size=50m "
+        "--log-opt max-file=3 -- "
         "codalab/competitions-v1-compute-worker:latest")
 
 
