@@ -175,7 +175,7 @@
         <nav aria-label="Page navigation example">
             <ul class="pagination">
                     {% if submission_info_list.has_previous %}
-                        <li><a href="?page=1"{% if selected_phase %}&phase={{ selected_phase.pk }}{% endif %}>&laquo; first</a></li>
+                        <li><a href="?page=1{% if selected_phase %}&phase={{ selected_phase.pk }}{% endif %}">&laquo; first</a></li>
                         <li><a href="?page={{ submission_info_list.previous_page_number }}{% if selected_phase %}&phase={{ selected_phase.pk }}{% endif %}">previous</a></li>
                     {% endif %}
 
