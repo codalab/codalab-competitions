@@ -1258,7 +1258,10 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
         # find the active phase
         if phase_id:
             context['selected_phase_id'] = int(phase_id)
-            active_phase = competition.phases.filter(id=phase_id)[0]
+            try:
+                active_phase = competition.phases.get(id=phase_id)
+            except ObjectDoesNotExist:
+                raise Http404()
         else:
             phases = list(competition.phases.all())
             active_phase = phases[0]
