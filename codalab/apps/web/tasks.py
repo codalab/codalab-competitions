@@ -720,17 +720,6 @@ def update_submission(job_id, args, secret):
 
 
 
-                # check here that all sub-submissions completed successfully
-                if submission.parent_submission:
-                    total_children_submission_count = submission.parent_submission.child_submissions.all().count()
-                    successfully_finished_children_count = submission.parent_submission.child_submissions.filter(
-                        status__name=CompetitionSubmissionStatus.FINISHED
-                    ).count()
-                    if total_children_submission_count == successfully_finished_children_count:
-                        # This evaluates the submission with scoring only
-                        evaluate_submission.delay(submission.parent_submission.pk, True)
-
-
 
 
 
@@ -746,6 +735,7 @@ def update_submission(job_id, args, secret):
 
             else:
                 logger.debug("update_submission_task entering scoring phase (pk=%s)", submission.pk)
+
                 # url_name = pathname2url(submission_prediction_output_filename(submission))
                 # submission.prediction_output_file.name = url_name
                 # submission.prediction_stderr_file.name = pathname2url(predict_submission_stdout_filename(submission))
@@ -757,6 +747,15 @@ def update_submission(job_id, args, secret):
                     logger.debug("update_submission_task scoring phase entered (pk=%s)", submission.pk)
                 except Exception:
                     logger.exception("update_submission_task failed to enter scoring phase (pk=%s)", submission.pk)
+
+            # check here that all sub-submissions completed successfully
+            if submission.parent_submission:
+                # We want to do this as a separate task because submission status should be saved by this point
+                check_children_submissions.apply_async((submission.parent_submission.pk,))
+            else:
+                logger.info("This is NOT a parent submission!")
+
+
             return result
 
         if status != 'failed':
@@ -818,6 +817,33 @@ def update_submission(job_id, args, secret):
         return JobTaskResult(status=result)
 
     run_job_task(job_id, update_it, handle_update_exception)
+
+
+
+@app.task(queue='site-worker')
+def check_children_submissions(parent_id):
+    # check here that all sub-submissions completed successfully
+    parent = CompetitionSubmission.objects.get(pk=parent_id)
+    total_children_submission_count = parent.child_submissions.all().count()
+    successfully_children_count = parent.child_submissions.all().filter(
+        status__codename=CompetitionSubmissionStatus.FINISHED
+    ).count()
+    failed_children_count = parent.child_submissions.all().filter(
+        status__codename=CompetitionSubmissionStatus.FAILED
+    ).count()
+    logger.info(
+        "This has a parent submission, total sibling count: {}, total successfully finished: {}, total failed count: {}".format(
+            total_children_submission_count, successfully_children_count, failed_children_count
+        ))
+    if total_children_submission_count == successfully_children_count:
+        logger.info("All children finished successfully, starting parent submission to aggregate scores")
+        # This evaluates the submission with scoring only
+        evaluate_submission.delay(parent.pk, True)
+    elif failed_children_count > 0:
+        logger.info("A child has failed, so the parent will never start")
+        _set_submission_status(parent.id, CompetitionSubmissionStatus.FAILED)
+    else:
+        logger.info("Children have not finished yet.")
 
 
 @app.task(queue='site-worker', soft_time_limit=60 * 60 * 1)
