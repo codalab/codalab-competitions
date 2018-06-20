@@ -1737,6 +1737,9 @@ def download_leaderboard_results(request, competition_pk, phase_pk):
             submission_metadata_file_string = "\n".join(["%s: %s" % (field, getattr(submission, field)) for field in metadata_fields])
             zip_file.writestr(submission_metadata_file_name, submission_metadata_file_string.encode('utf-8'))
 
+            if submission.competition.enable_detailed_results:
+                zip_file.writestr("detailed_results.html", submission.detailed_results_file.read())
+
         zip_file.close()
 
         resp = HttpResponse(zip_buffer.getvalue(), mimetype = "application/x-zip-compressed")
