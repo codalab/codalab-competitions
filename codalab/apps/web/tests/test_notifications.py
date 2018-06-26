@@ -143,6 +143,21 @@ class CompetitionMessageParticipantsTests(CompetitionTest):
 
         self.assertFalse(send_mass_email_mock.called)
 
+    def test_msg_participants_email_not_sent_when_participant_disables_admin_status_updates(self):
+        self.participant_user.allow_admin_status_updates = False
+        self.participant_user.save()
+
+        self.client.login(username="organizer", password="pass")
+
+        with mock.patch('apps.web.tasks.send_mass_email.apply_async') as send_mass_email_mock:
+            resp = self.client.post(
+                reverse("competitions:competition_message_participants", kwargs={"competition_id": self.competition.pk}),
+                data={"subject": "test", "body": 'Test body'}
+            )
+            self.assertEquals(resp.status_code, 200)
+
+        self.assertFalse(send_mass_email_mock.called)
+
     def test_msg_participants_email_not_sent_to_denied_participants(self):
         self.participant.status = ParticipantStatus.objects.get(codename=ParticipantStatus.APPROVED)
         self.participant.save()
