@@ -101,7 +101,6 @@
                           <li class="{% active request '/my/' %}">
                           {% if not user.is_authenticated %}
                           <a href="{% url 'account_login' %}?next={{request.path}}" target="_self">My Competitions</a>
-                          <a href="{% url "social:begin" "chahub" %}">Chahub SIGN IN</a>
                           {% endif %}
                           </li>
                         <li>
