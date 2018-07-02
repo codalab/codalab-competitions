@@ -853,11 +853,11 @@ def do_phase_migrations():
 
 def _get_or_default(obj, field_name, default=None):
     if hasattr(obj, field_name):
-        if getattr(obj, field_name):
+        if getattr(obj, field_name) != None:
             return getattr(obj, field_name)
-    elif default:
+    if default != None:
         return default
-    elif obj._meta.get_field(field_name).get_default():
+    elif obj._meta.get_field(field_name).get_default() != None:
         return obj._meta.get_field(field_name).get_default()
     else:
         return None
