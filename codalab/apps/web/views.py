@@ -1258,7 +1258,10 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
         # find the active phase
         if phase_id:
             context['selected_phase_id'] = int(phase_id)
-            active_phase = competition.phases.filter(id=phase_id)[0]
+            try:
+                active_phase = competition.phases.get(id=phase_id)
+            except ObjectDoesNotExist:
+                raise Http404()
         else:
             phases = list(competition.phases.all())
             active_phase = phases[0]
@@ -1733,6 +1736,9 @@ def download_leaderboard_results(request, competition_pk, phase_pk):
             submission_metadata_file_name = "%s - %s method.txt" % (username_or_team_name, submission.submission_number)
             submission_metadata_file_string = "\n".join(["%s: %s" % (field, getattr(submission, field)) for field in metadata_fields])
             zip_file.writestr(submission_metadata_file_name, submission_metadata_file_string.encode('utf-8'))
+
+            if submission.competition.enable_detailed_results:
+                zip_file.writestr("detailed_results.html", submission.detailed_results_file.read())
 
         zip_file.close()
 
