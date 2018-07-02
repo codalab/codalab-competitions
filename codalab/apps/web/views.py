@@ -1258,7 +1258,10 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
         # find the active phase
         if phase_id:
             context['selected_phase_id'] = int(phase_id)
-            active_phase = competition.phases.filter(id=phase_id)[0]
+            try:
+                active_phase = competition.phases.get(id=phase_id)
+            except ObjectDoesNotExist:
+                raise Http404()
         else:
             phases = list(competition.phases.all())
             active_phase = phases[0]
@@ -1734,6 +1737,9 @@ def download_leaderboard_results(request, competition_pk, phase_pk):
             submission_metadata_file_string = "\n".join(["%s: %s" % (field, getattr(submission, field)) for field in metadata_fields])
             zip_file.writestr(submission_metadata_file_name, submission_metadata_file_string.encode('utf-8'))
 
+            if submission.competition.enable_detailed_results:
+                zip_file.writestr("detailed_results.html", submission.detailed_results_file.read())
+
         zip_file.close()
 
         resp = HttpResponse(zip_buffer.getvalue(), mimetype = "application/x-zip-compressed")
@@ -2003,67 +2009,68 @@ class CompetitionSubmissionWidgetView(WidgetMixin, DetailView):
         if settings.USE_AWS:
             context['form'] = forms.SubmissionS3UploadForm
 
-        if competition.participants.filter(user__in=[self.request.user]).exists():
-            participant = competition.participants.get(user=self.request.user)
-            if participant.status.codename == models.ParticipantStatus.APPROVED:
-                submissions = models.CompetitionSubmission.objects.filter(
-                    participant=participant,
-                    phase=phase
-                ).select_related('status').order_by('submitted_at')
+        if self.request.user.is_authenticated():
+            if competition.participants.filter(user__in=[self.request.user]).exists():
+                participant = competition.participants.get(user=self.request.user)
+                if participant.status.codename == models.ParticipantStatus.APPROVED:
+                    submissions = models.CompetitionSubmission.objects.filter(
+                        participant=participant,
+                        phase=phase
+                    ).select_related('status').order_by('submitted_at')
 
-                # find which submission is in the leaderboard, if any and only if phase allows seeing results.
-                id_of_submission_in_leaderboard = -1
-                if not phase.is_blind:
-                    leaderboard_entry = models.PhaseLeaderBoardEntry.objects.filter(
-                        board__phase=phase,
-                        result__participant__user=self.request.user
-                    ).select_related('result', 'result__participant')
-                    if leaderboard_entry:
-                        id_of_submission_in_leaderboard = leaderboard_entry[0].result.pk
-                submission_info_list = []
-                for submission in submissions:
-                    try:
-                        default_score = float(submission.get_default_score())
-                    except (TypeError, ValueError):
-                        default_score = '---'
-                    submission_info = {
-                        'id': submission.id,
-                        'number': submission.submission_number,
-                        'filename': submission.get_filename(),  # left as call for legacy update of readable_filename on subs.
-                        'submitted_at': submission.submitted_at,
-                        'status_name': submission.status.name,
-                        'is_finished': submission.status.codename == 'finished',
-                        'is_in_leaderboard': submission.id == id_of_submission_in_leaderboard,
-                        'exception_details': submission.exception_details,
-                        'description': submission.description,
-                        'team_name': submission.team_name,
-                        'method_name': submission.method_name,
-                        'method_description': submission.method_description,
-                        'project_url': submission.project_url,
-                        'publication_url': submission.publication_url,
-                        'bibtex': submission.bibtex,
-                        'organization_or_affiliation': submission.organization_or_affiliation,
-                        'is_public': submission.is_public,
-                        'score': default_score,
-                    }
-                    submission_info_list.append(submission_info)
-                context['submission_info_list'] = submission_info_list
-                context['phase'] = phase
+                    # find which submission is in the leaderboard, if any and only if phase allows seeing results.
+                    id_of_submission_in_leaderboard = -1
+                    if not phase.is_blind:
+                        leaderboard_entry = models.PhaseLeaderBoardEntry.objects.filter(
+                            board__phase=phase,
+                            result__participant__user=self.request.user
+                        ).select_related('result', 'result__participant')
+                        if leaderboard_entry:
+                            id_of_submission_in_leaderboard = leaderboard_entry[0].result.pk
+                    submission_info_list = []
+                    for submission in submissions:
+                        try:
+                            default_score = float(submission.get_default_score())
+                        except (TypeError, ValueError):
+                            default_score = '---'
+                        submission_info = {
+                            'id': submission.id,
+                            'number': submission.submission_number,
+                            'filename': submission.get_filename(),  # left as call for legacy update of readable_filename on subs.
+                            'submitted_at': submission.submitted_at,
+                            'status_name': submission.status.name,
+                            'is_finished': submission.status.codename == 'finished',
+                            'is_in_leaderboard': submission.id == id_of_submission_in_leaderboard,
+                            'exception_details': submission.exception_details,
+                            'description': submission.description,
+                            'team_name': submission.team_name,
+                            'method_name': submission.method_name,
+                            'method_description': submission.method_description,
+                            'project_url': submission.project_url,
+                            'publication_url': submission.publication_url,
+                            'bibtex': submission.bibtex,
+                            'organization_or_affiliation': submission.organization_or_affiliation,
+                            'is_public': submission.is_public,
+                            'score': default_score,
+                        }
+                        submission_info_list.append(submission_info)
+                    context['submission_info_list'] = submission_info_list
+                    context['phase'] = phase
 
-        try:
-            last_submission = models.CompetitionSubmission.objects.filter(
-                participant__user=self.request.user,
-                phase=context['phase']
-            ).latest('submitted_at')
-            context['last_submission_team_name'] = last_submission.team_name
-            context['last_submission_method_name'] = last_submission.method_name
-            context['last_submission_method_description'] = last_submission.method_description
-            context['last_submission_project_url'] = last_submission.project_url
-            context['last_submission_publication_url'] = last_submission.publication_url
-            context['last_submission_bibtex'] = last_submission.bibtex
-            context['last_submission_organization_or_affiliation'] = last_submission.organization_or_affiliation
-        except ObjectDoesNotExist:
-            pass
+            try:
+                last_submission = models.CompetitionSubmission.objects.filter(
+                    participant__user=self.request.user,
+                    phase=context['phase']
+                ).latest('submitted_at')
+                context['last_submission_team_name'] = last_submission.team_name
+                context['last_submission_method_name'] = last_submission.method_name
+                context['last_submission_method_description'] = last_submission.method_description
+                context['last_submission_project_url'] = last_submission.project_url
+                context['last_submission_publication_url'] = last_submission.publication_url
+                context['last_submission_bibtex'] = last_submission.bibtex
+                context['last_submission_organization_or_affiliation'] = last_submission.organization_or_affiliation
+            except ObjectDoesNotExist:
+                pass
         return context
 
 
