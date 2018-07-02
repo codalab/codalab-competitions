@@ -5,7 +5,7 @@ BASE_URL = settings.SOCIAL_AUTH_CHAHUB_BASE_URL
 
 
 class ChahubOAuth2(BaseOAuth2):
-    """Github OAuth authentication backend"""
+    """Chahub OAuth authentication backend"""
     name = 'chahub'
     API_URL = '{}/api/v1/'.format(BASE_URL)
     AUTHORIZATION_URL = '{}/oauth/authorize/'.format(BASE_URL)
