@@ -13,6 +13,7 @@ admin.autodiscover()
 urlpatterns = [
     url(r'', include('apps.web.urls')),
     url(r'^accounts/', include('allauth.urls')),
+    url(r'^social/', include('social_django.urls', namespace='social')),
     url(r'^clients/', include('apps.authenz.urls')),
     url(r'^api/', include('apps.api.routers')),
     url(r'^search/', include('haystack.urls')),

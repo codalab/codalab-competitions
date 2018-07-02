@@ -196,6 +196,7 @@ class Base(Configuration):
     AUTHENTICATION_BACKENDS = (
         "django.contrib.auth.backends.ModelBackend",
         "allauth.account.auth_backends.AuthenticationBackend",
+        "apps.chahub_auth.oauth_backends.ChahubOAuth2",
         'guardian.backends.ObjectPermissionBackend',
     )
 
@@ -256,6 +257,7 @@ class Base(Configuration):
         'allauth.socialaccount',
         'tinymce',
         'oauth2_provider',
+        'social_django',
 
         # Search
         'haystack',
@@ -286,6 +288,23 @@ class Base(Configuration):
     ACCOUNT_USERNAME_REQUIRED = True
     ACCOUNT_EMAIL_VERIFICATION = os.environ.get('ACCOUNT_EMAIL_VERIFICATION', 'mandatory')
     ACCOUNT_SIGNUP_FORM_CLASS = 'apps.authenz.forms.CodalabSignupForm'
+
+    # =========================================================================
+    # Social Auth
+    # =========================================================================
+
+    # Generic
+    SOCIAL_AUTH_STRATEGY = 'social_django.strategy.DjangoStrategy'
+    SOCIAL_AUTH_STORAGE = 'social_django.models.DjangoStorage'
+    SOCIAL_AUTH_ADMIN_USER_SEARCH_FIELDS = ['username', 'first_name', 'email']
+
+    SOCIAL_AUTH_CHAHUB_KEY = os.environ.get('SOCIAL_AUTH_CODALAB_KEY')
+    SOCIAL_AUTH_CHAHUB_SECRET = os.environ.get('SOCIAL_AUTH_CODALAB_SECRET')
+
+    SOCIAL_AUTH_CHAHUB_BASE_URL = os.environ.get('SOCIAL_AUTH_CHAHUB_BASE_URL', 'https://codalabchahub.herokuapp.com')
+
+    # User Models
+    SOCIAL_AUTH_USER_MODEL = 'authenz.ClUser'
 
     # Django Analytical configuration
     # GOOGLE_ANALYTICS_PROPERTY_ID = 'UA-42847758-2'

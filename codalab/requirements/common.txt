@@ -152,3 +152,6 @@ git+https://github.com/bkjones/pyrabbit.git@e8a9f74ed5c6bba958994fb9a72c396e6a99
 
 #Extras added
 git+https://github.com/Tthomas63/django-switchuser.git
+
+social-auth-core==1.7.0
+social-auth-app-django==2.1.0
