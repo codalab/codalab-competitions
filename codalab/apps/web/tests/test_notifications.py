@@ -1,4 +1,5 @@
 import mock
+import pytest
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -203,35 +204,75 @@ class AccountSettingsTests(TestCase):
         self.assertFalse(updated_user.organizer_status_updates)
 
 
-class SendMassEmailTests(TestCase):
+# class SendMassEmailTests(TestCase):
+#
+#     def setUp(self):
+#         self.user = User.objects.create_user(username="user", password="pass", email="user@test.com")
+#         self.competition = Competition.objects.create(creator=self.user, modified_by=self.user)
 
-    def setUp(self):
-        self.user = User.objects.create_user(username="user", password="pass", email="user@test.com")
-        self.competition = Competition.objects.create(creator=self.user, modified_by=self.user)
+    # def test_send_mass_email_works(self):
+    #     task_args = {
+    #         "competition_pk": self.competition.pk,
+    #         "body": "Body",
+    #         "subject": "Subject",
+    #         "from_email": "no-reply@test.com",
+    #         "to_emails": ["%s@test.com" % i for i in range(0, 10)]
+    #     }
+    #     tasks.send_mass_email(**task_args)
+    #
+    #     self.assertEquals(len(mail.outbox), 10)
 
-    def test_send_mass_email_works(self):
-        task_args = {
-            "competition_pk": self.competition.pk,
-            "body": "Body",
-            "subject": "Subject",
-            "from_email": "no-reply@test.com",
-            "to_emails": ["%s@test.com" % i for i in range(0, 10)]
-        }
-        tasks.send_mass_email(**task_args)
+    # def test_send_mass_email_has_valid_links(self):
+    #
+    #     task_args = {
+    #         "competition_pk": self.competition.pk,
+    #         "body": "Body",
+    #         "subject": "Subject",
+    #         "from_email": "no-reply@test.com",
+    #         "to_emails": ["test@test.com"]
+    #     }
+    #     tasks.send_mass_email(**task_args)
+    #
+    #     m = mail.outbox[0]
+    #     self.assertIn("http://example.com/my/settings", m.body)
+    #     self.assertIn("http://example.com/competitions/%s" % self.competition.pk, m.body)
 
-        self.assertEquals(len(mail.outbox), 10)
 
-    def test_send_mass_email_has_valid_links(self):
+@pytest.fixture
+def codalab_test_dictionary():
+    temp_dict = {}
+    temp_dict['user'] = User.objects.create_user(username="user", password="pass", email="user@test.com")
+    temp_dict['competition'] = Competition.objects.create(creator=temp_dict['user'], modified_by=temp_dict['user'])
+    return temp_dict
 
-        task_args = {
-            "competition_pk": self.competition.pk,
-            "body": "Body",
-            "subject": "Subject",
-            "from_email": "no-reply@test.com",
-            "to_emails": ["test@test.com"]
-        }
-        tasks.send_mass_email(**task_args)
 
-        m = mail.outbox[0]
-        self.assertIn("http://example.com/my/settings", m.body)
-        self.assertIn("http://example.com/competitions/%s" % self.competition.pk, m.body)
+@pytest.mark.django_db(transaction=False)
+def test_send_mass_email_works(mailoutbox, codalab_test_dictionary):
+    competition = codalab_test_dictionary['competition']
+    task_args = {
+        "competition_pk": competition.pk,
+        "body": "Body",
+        "subject": "Subject",
+        "from_email": "no-reply@test.com",
+        "to_emails": ["%s@test.com" % i for i in range(0, 10)]
+    }
+    tasks.send_mass_email(**task_args)
+
+    assert(len(mailoutbox) == 10)
+
+
+@pytest.mark.django_db(transaction=False)
+def test_send_mass_email_has_valid_links(mailoutbox, codalab_test_dictionary):
+    competition = codalab_test_dictionary['competition']
+    task_args = {
+        "competition_pk": competition.pk,
+        "body": "Body",
+        "subject": "Subject",
+        "from_email": "no-reply@test.com",
+        "to_emails": ["test@test.com"]
+    }
+    tasks.send_mass_email(**task_args)
+
+    m = mailoutbox[0]
+    assert "http://example.com/my/settings" in m.body
+    assert "http://example.com/competitions/%s" % competition.pk in m.body

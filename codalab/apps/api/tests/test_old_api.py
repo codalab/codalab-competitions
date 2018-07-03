@@ -4,6 +4,7 @@ test for competition creation via api
 """
 import sys
 import os
+import pytest
 import json
 from django.utils import timezone
 
@@ -107,122 +108,122 @@ class CompetitionsPhase(TestCase):
 # The new one should be in the list and have the published flag set to true
 # Check turning off works
 
-class ParticipationStatusEmailTests(TestCase):
+# class ParticipationStatusEmailTests(TestCase):
+#
+#     def _participant_join_competition(self, cleanup_email=False):
+#         self.client.login(username="participant", password="pass")
+#         resp = self.client.post(reverse('competition-participate', kwargs={'pk': self.competition.pk}))
+#         self.client.logout()
+#
+#         if cleanup_email:
+#             mail.outbox = []
+#
+#         return resp
+#
+#     def setUp(self):
+#         statuses = ['unknown', 'denied', 'approved', 'pending']
+#         for s in statuses:
+#             ParticipantStatus.objects.get_or_create(name=s, codename=s)
+#
+#         self.organizer_user = User.objects.create_user(username="organizer", password="pass")
+#         self.participant_user = User.objects.create_user(username="participant", password="pass")
+#         self.competition = Competition.objects.create(
+#             title="Test Competition",
+#             creator=self.organizer_user,
+#             modified_by=self.organizer_user,
+#             has_registration=True
+#         )
 
-    def _participant_join_competition(self, cleanup_email=False):
-        self.client.login(username="participant", password="pass")
-        resp = self.client.post(reverse('competition-participate', kwargs={'pk': self.competition.pk}))
-        self.client.logout()
-
-        if cleanup_email:
-            mail.outbox = []
-
-        return resp
-
-    def setUp(self):
-        statuses = ['unknown', 'denied', 'approved', 'pending']
-        for s in statuses:
-            ParticipantStatus.objects.get_or_create(name=s, codename=s)
-
-        self.organizer_user = User.objects.create_user(username="organizer", password="pass")
-        self.participant_user = User.objects.create_user(username="participant", password="pass")
-        self.competition = Competition.objects.create(
-            title="Test Competition",
-            creator=self.organizer_user,
-            modified_by=self.organizer_user,
-            has_registration=True
-        )
-
-    def test_attempting_to_join_competition_sends_emails(self):
-        resp = self._participant_join_competition()
-
-        self.assertEquals(resp.status_code, 200)
-
-        subjects = [m.subject for m in mail.outbox]
-        self.assertIn('Application to Test Competition sent', subjects)
-        self.assertIn('%s applied to your competition' % self.participant_user, subjects)
-
-    def test_participation_update_emails_contain_valid_links(self):
-        self._participant_join_competition()
-
-        for m in mail.outbox:
-            self.assertIn("http://example.com/my/settings", m.body)
-            self.assertIn("http://example.com/competitions/%s" % self.competition.pk, m.body)
-
-    def test_attempting_to_join_competition_auto_approved_sends_emails(self):
-        self.competition.has_registration = False
-        self.competition.save()
-        resp = self._participant_join_competition()
-
-        self.assertEquals(resp.status_code, 200)
-
-        subjects = [m.subject for m in mail.outbox]
-        self.assertIn('Accepted into Test Competition!', subjects)
-        self.assertIn('%s accepted into your competition!' % self.participant_user, subjects)
-
-    def test_attempting_to_join_competition_not_logged_in_doesnt_send_email(self):
-        resp = self.client.post(reverse('competition-participate', kwargs={'pk': self.competition.pk}))
-
-        self.assertEquals(resp.status_code, 403)
-        self.assertEqual(len(mail.outbox), 0)
-
-    def test_participation_status_update_approved_sends_email(self):
-        self._participant_join_competition(cleanup_email=True)
-
-        participant = CompetitionParticipant.objects.get(competition=self.competition, user=self.participant_user)
-
-        self.client.login(username="organizer", password="pass")
-        resp = self.client.post(
-            reverse('competition-participation-status', kwargs={'pk': self.competition.pk}),
-            {
-                "status": "approved",
-                "participant_id": participant.pk,
-                "reason": ""
-            }
-        )
-
-        self.assertEquals(resp.status_code, 200)
-
-        subjects = [m.subject for m in mail.outbox]
-        self.assertIn('Accepted into %s!' % self.competition, subjects)
-        self.assertIn('%s accepted into your competition!' % self.participant_user, subjects)
-
-    def test_participation_status_update_revoked_sends_email(self):
-        self._participant_join_competition(cleanup_email=True)
-
-        participant = CompetitionParticipant.objects.get(competition=self.competition, user=self.participant_user)
-
-        self.client.login(username="organizer", password="pass")
-        resp = self.client.post(
-            reverse('competition-participation-status', kwargs={'pk': self.competition.pk}),
-            {
-                "status": "denied",
-                "participant_id": participant.pk,
-                "reason": ""
-            }
-        )
-
-        self.assertEquals(resp.status_code, 200)
-
-        subjects = [m.subject for m in mail.outbox]
-        self.assertIn('Permission revoked from Test Competition!', subjects)
-        self.assertIn("%s's permission revoked from your competition!" % self.participant_user, subjects)
-
-    def test_participation_status_update_not_sent_when_participant_disables_status_notifications(self):
-        self.participant_user.participation_status_updates = False
-        self.participant_user.save()
-
-        self._participant_join_competition()
-
-        self.assertEqual(len(mail.outbox), 1)
-
-    def test_organizer_not_notified_participant_joining_competition_if_opted_out(self):
-        self.organizer_user.organizer_status_updates = False
-        self.organizer_user.save()
-
-        self._participant_join_competition()
-
-        self.assertEqual(len(mail.outbox), 1)
+    # def test_attempting_to_join_competition_sends_emails(self):
+    #     resp = self._participant_join_competition()
+    #
+    #     self.assertEquals(resp.status_code, 200)
+    #
+    #     subjects = [m.subject for m in mail.outbox]
+    #     self.assertIn('Application to Test Competition sent', subjects)
+    #     self.assertIn('%s applied to your competition' % self.participant_user, subjects)
+    #
+    # def test_participation_update_emails_contain_valid_links(self):
+    #     self._participant_join_competition()
+    #
+    #     for m in mail.outbox:
+    #         self.assertIn("http://example.com/my/settings", m.body)
+    #         self.assertIn("http://example.com/competitions/%s" % self.competition.pk, m.body)
+    #
+    # def test_attempting_to_join_competition_auto_approved_sends_emails(self):
+    #     self.competition.has_registration = False
+    #     self.competition.save()
+    #     resp = self._participant_join_competition()
+    #
+    #     self.assertEquals(resp.status_code, 200)
+    #
+    #     subjects = [m.subject for m in mail.outbox]
+    #     self.assertIn('Accepted into Test Competition!', subjects)
+    #     self.assertIn('%s accepted into your competition!' % self.participant_user, subjects)
+    #
+    # def test_attempting_to_join_competition_not_logged_in_doesnt_send_email(self):
+    #     resp = self.client.post(reverse('competition-participate', kwargs={'pk': self.competition.pk}))
+    #
+    #     self.assertEquals(resp.status_code, 403)
+    #     self.assertEqual(len(mail.outbox), 0)
+    #
+    # def test_participation_status_update_approved_sends_email(self):
+    #     self._participant_join_competition(cleanup_email=True)
+    #
+    #     participant = CompetitionParticipant.objects.get(competition=self.competition, user=self.participant_user)
+    #
+    #     self.client.login(username="organizer", password="pass")
+    #     resp = self.client.post(
+    #         reverse('competition-participation-status', kwargs={'pk': self.competition.pk}),
+    #         {
+    #             "status": "approved",
+    #             "participant_id": participant.pk,
+    #             "reason": ""
+    #         }
+    #     )
+    #
+    #     self.assertEquals(resp.status_code, 200)
+    #
+    #     subjects = [m.subject for m in mail.outbox]
+    #     self.assertIn('Accepted into %s!' % self.competition, subjects)
+    #     self.assertIn('%s accepted into your competition!' % self.participant_user, subjects)
+    #
+    # def test_participation_status_update_revoked_sends_email(self):
+    #     self._participant_join_competition(cleanup_email=True)
+    #
+    #     participant = CompetitionParticipant.objects.get(competition=self.competition, user=self.participant_user)
+    #
+    #     self.client.login(username="organizer", password="pass")
+    #     resp = self.client.post(
+    #         reverse('competition-participation-status', kwargs={'pk': self.competition.pk}),
+    #         {
+    #             "status": "denied",
+    #             "participant_id": participant.pk,
+    #             "reason": ""
+    #         }
+    #     )
+    #
+    #     self.assertEquals(resp.status_code, 200)
+    #
+    #     subjects = [m.subject for m in mail.outbox]
+    #     self.assertIn('Permission revoked from Test Competition!', subjects)
+    #     self.assertIn("%s's permission revoked from your competition!" % self.participant_user, subjects)
+    #
+    # def test_participation_status_update_not_sent_when_participant_disables_status_notifications(self):
+    #     self.participant_user.participation_status_updates = False
+    #     self.participant_user.save()
+    #
+    #     self._participant_join_competition()
+    #
+    #     self.assertEqual(len(mail.outbox), 1)
+    #
+    # def test_organizer_not_notified_participant_joining_competition_if_opted_out(self):
+    #     self.organizer_user.organizer_status_updates = False
+    #     self.organizer_user.save()
+    #
+    #     self._participant_join_competition()
+    #
+    #     self.assertEqual(len(mail.outbox), 1)
 
 
 class ParticipationStatusPermissionsTests(TestCase):
@@ -337,3 +338,169 @@ class CompetitionPublishTests(TestCase):
 
         self.assertEquals(resp.status_code, 200)
 
+
+@pytest.fixture
+def codalab_old_api_dictionary():
+    temp_dict = {}
+    statuses = ['unknown', 'denied', 'approved', 'pending']
+    for s in statuses:
+        ParticipantStatus.objects.get_or_create(name=s, codename=s)
+
+    temp_dict['organizer_user'] = User.objects.create_user(username="organizer", password="pass")
+    temp_dict['participant_user'] = User.objects.create_user(username="participant", password="pass")
+    temp_dict['competition'] = Competition.objects.create(
+        title="Test Competition",
+        creator=temp_dict['organizer_user'],
+        modified_by=temp_dict['organizer_user'],
+        has_registration=True
+    )
+
+    return temp_dict
+
+
+@pytest.mark.django_db(transaction=False)
+def test_attempting_to_join_competition_sends_emails(mailoutbox, codalab_old_api_dictionary, client):
+    # resp = self._participant_join_competition()
+    competition = codalab_old_api_dictionary['competition']
+    participant_user = codalab_old_api_dictionary['participant_user']
+    client.login(username="participant", password="pass")
+    resp = client.post(reverse('competition-participate', kwargs={'pk': competition.pk}))
+    client.logout()
+
+    assert resp.status_code == 200
+
+    subjects = [m.subject for m in mailoutbox]
+    assert 'Application to Test Competition sent' in subjects
+    assert '%s applied to your competition' % participant_user in subjects
+
+
+@pytest.mark.django_db(transaction=False)
+def test_participation_update_emails_contain_valid_links(mailoutbox, codalab_old_api_dictionary, client):
+    # self._participant_join_competition()
+    competition = codalab_old_api_dictionary['competition']
+    participant_user = codalab_old_api_dictionary['participant_user']
+
+    client.login(username="participant", password="pass")
+    resp = client.post(reverse('competition-participate', kwargs={'pk': competition.pk}))
+    client.logout()
+
+    for m in mailoutbox:
+        assert "http://example.com/my/settings" in m.body
+        assert "http://example.com/competitions/%s" % competition.pk in m.body
+
+
+@pytest.mark.django_db(transaction=False)
+def test_attempting_to_join_competition_auto_approved_sends_emails(mailoutbox, codalab_old_api_dictionary, client):
+    competition = codalab_old_api_dictionary['competition']
+    participant_user = codalab_old_api_dictionary['participant_user']
+    competition.has_registration = False
+    competition.save()
+    # resp = self._participant_join_competition()
+
+    client.login(username="participant", password="pass")
+    resp = client.post(reverse('competition-participate', kwargs={'pk': competition.pk}))
+    client.logout()
+
+    assert resp.status_code == 200
+
+    subjects = [m.subject for m in mailoutbox]
+    assert 'Accepted into Test Competition!' in subjects
+    assert '%s accepted into your competition!' % participant_user in subjects
+
+
+@pytest.mark.django_db(transaction=False)
+def test_attempting_to_join_competition_not_logged_in_doesnt_send_email(mailoutbox, codalab_old_api_dictionary, client):
+    competition = codalab_old_api_dictionary['competition']
+    resp = client.post(reverse('competition-participate', kwargs={'pk': competition.pk}))
+
+    assert resp.status_code == 403
+    assert len(mailoutbox) == 0
+
+
+@pytest.mark.django_db(transaction=False)
+def test_participation_status_update_approved_sends_email(mailoutbox, codalab_old_api_dictionary, client):
+    # self._participant_join_competition(cleanup_email=True)
+    competition = codalab_old_api_dictionary['competition']
+    participant_user = codalab_old_api_dictionary['participant_user']
+
+    client.login(username="participant", password="pass")
+    resp = client.post(reverse('competition-participate', kwargs={'pk': competition.pk}))
+    client.logout()
+
+    participant = CompetitionParticipant.objects.get(competition=competition, user=participant_user)
+
+    client.login(username="organizer", password="pass")
+    resp = client.post(
+        reverse('competition-participation-status', kwargs={'pk': competition.pk}),
+        {
+            "status": "approved",
+            "participant_id": participant.pk,
+            "reason": ""
+        }
+    )
+
+    assert resp.status_code == 200
+
+    subjects = [m.subject for m in mailoutbox]
+    assert 'Accepted into %s!' % competition in subjects
+    assert '%s accepted into your competition!' % participant_user in subjects
+
+
+@pytest.mark.django_db(transaction=False)
+def test_participation_status_update_revoked_sends_email(mailoutbox, codalab_old_api_dictionary, client):
+    competition = codalab_old_api_dictionary['competition']
+    participant_user = codalab_old_api_dictionary['participant_user']
+    # self._participant_join_competition(cleanup_email=True)
+    client.login(username="participant", password="pass")
+    resp = client.post(reverse('competition-participate', kwargs={'pk': competition.pk}))
+    client.logout()
+
+    participant = CompetitionParticipant.objects.get(competition=competition, user=participant_user)
+
+    client.login(username="organizer", password="pass")
+    resp = client.post(
+        reverse('competition-participation-status', kwargs={'pk': competition.pk}),
+        {
+            "status": "denied",
+            "participant_id": participant.pk,
+            "reason": ""
+        }
+    )
+
+    assert resp.status_code == 200
+
+    subjects = [m.subject for m in mailoutbox]
+    print(subjects)
+    assert 'Permission revoked from Test Competition!', subjects
+    assert "%s's permission revoked from your competition!" % participant_user in subjects
+
+
+@pytest.mark.django_db(transaction=False)
+def test_participation_status_update_not_sent_when_participant_disables_status_notifications(mailoutbox, codalab_old_api_dictionary, client):
+    competition = codalab_old_api_dictionary['competition']
+    participant_user = codalab_old_api_dictionary['participant_user']
+    participant_user.participation_status_updates = False
+    participant_user.save()
+
+    # self._participant_join_competition()
+    client.login(username="participant", password="pass")
+    resp = client.post(reverse('competition-participate', kwargs={'pk': competition.pk}))
+    client.logout()
+
+    assert len(mailoutbox) == 1
+
+
+@pytest.mark.django_db(transaction=False)
+def test_organizer_not_notified_participant_joining_competition_if_opted_out(mailoutbox, codalab_old_api_dictionary, client):
+    competition = codalab_old_api_dictionary['competition']
+    participant_user = codalab_old_api_dictionary['participant_user']
+    organizer_user = codalab_old_api_dictionary['organizer_user']
+    organizer_user.organizer_status_updates = False
+    organizer_user.save()
+
+    # self._participant_join_competition()
+    client.login(username="participant", password="pass")
+    resp = client.post(reverse('competition-participate', kwargs={'pk': competition.pk}))
+    client.logout()
+
+    assert len(mailoutbox) == 1

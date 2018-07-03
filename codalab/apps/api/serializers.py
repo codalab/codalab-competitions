@@ -18,6 +18,7 @@ class DefaultContentSerial(serializers.ModelSerializer):
     category_codename = serializers.SlugField(source='category.codename')
     category_name = serializers.CharField(source='category.name')
     initial_visibility = serializers.SlugField(source='initial_visibility.codename')
+
     class Meta:
         model = webmodels.DefaultContentItem
 
@@ -27,6 +28,7 @@ class PageSerial(serializers.ModelSerializer):
 
     class Meta:
         model = webmodels.Page
+        fields = ['container']
 
     def validate_container(self,attr,source):
         ## The container, if not supplied will be supplied by the view
@@ -42,6 +44,9 @@ class CompetitionDatasetSerial(serializers.ModelSerializer):
     source_address_info = serializers.CharField()
     competition_id = serializers.IntegerField()
     phase_id = serializers.IntegerField()
+
+    class Meta:
+        fields = ['dataset_id', 'source_url', 'source_address_info', 'competition_id', 'phase_id']
 
     def validata_phase_id(self,attr,source):
         if not attr[source]:
@@ -60,8 +65,9 @@ class CompetitionSubmissionSerial(serializers.ModelSerializer):
 
     class Meta:
         model = webmodels.CompetitionSubmission
-        fields = ('id','status','status_details','submitted_at','submission_number', 'file', 'filename', 'exception_details', 'description')
-        read_only_fields = ('participant', 'phase', 'id','status_details','submitted_at','submission_number', 'exception_details')
+        fields = ['id', 'status', 'status_details', 'submitted_at', 'submission_number', 'file', 'filename',
+                  'exception_details', 'description']
+        read_only_fields = ['participant', 'phase', 'id','status_details','submitted_at','submission_number', 'exception_details']
 
 
 class PhaseSerial(serializers.ModelSerializer):
@@ -70,6 +76,7 @@ class PhaseSerial(serializers.ModelSerializer):
     class Meta:
         model = webmodels.CompetitionPhase
         read_only_fields = ['datasets']
+        fields = ['start_date']
 
 
 class CompetitionPhaseSerial(serializers.ModelSerializer):
@@ -78,13 +85,14 @@ class CompetitionPhaseSerial(serializers.ModelSerializer):
 
     class Meta:
         model = webmodels.Competition
-        fields = ['end_date','phases']
+        fields = ['end_date', 'phases']
 
 
 class LeaderBoardSerial(serializers.ModelSerializer):
-    entries =  CompetitionSubmissionSerial(read_only=True, source='submissions')
+    entries = CompetitionSubmissionSerial(read_only=True, source='submissions')
     class Meta:
         model = webmodels.PhaseLeaderBoard
+        fields = ['entries']
 
 
 class CompetitionDataSerial(serializers.ModelSerializer):
@@ -92,6 +100,7 @@ class CompetitionDataSerial(serializers.ModelSerializer):
     phases = serializers.RelatedField(many=True, queryset=CompetitionPhase.objects.all())
     class Meta:
         model = webmodels.Competition
+        fields = ['image_url', 'phases']
 
 
 class PhaseRel(serializers.RelatedField):
@@ -120,16 +129,19 @@ class PhaseRel(serializers.RelatedField):
 
 class CompetitionSerial(serializers.ModelSerializer):
     phases = PhaseRel(many=True,read_only=False, queryset=CompetitionPhase.objects.all())
-    image_url = serializers.CharField(source='image_url',read_only=True)
+    image_url = serializers.CharField(read_only=True)
     pages = PageSerial(source='pagecontent.pages', read_only=True)
 
     class Meta:
         model = webmodels.Competition
         read_only_fields = ['image_url_base']
+        fields = ['phases', 'image_url', 'pages', 'creator', 'modified_by', 'id', 'title', 'description']
+        # fields = '__all__'
 
 
 class CompetitionFilter(django_filters.FilterSet):
     creator = django_filters.CharFilter(name="creator__username")
+
     class Meta:
         model = webmodels.Competition
         fields = ['creator']
@@ -151,3 +163,4 @@ class CompetitionScoresSerial(serializers.ModelSerializer):
 
     class Meta:
         model = webmodels.CompetitionSubmission
+        fields = ['competition_id', 'phase_id', 'phasenumber', 'participant_id', 'status', 'status_details', 'scores']
