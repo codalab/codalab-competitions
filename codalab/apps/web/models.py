@@ -1780,15 +1780,18 @@ class CompetitionDefBundle(models.Model):
                 )
 
         participate_category = ContentCategory.objects.get(name="Participate")
-        Page.objects.create(
-            category=participate_category,
-            container=pc,
-            codename="get_data",
-            competition=comp,
-            label="Get Data",
-            rank=0,
-            html=zf.read(comp_spec['html']['data'])
-        )
+        try:
+            Page.objects.create(
+                category=participate_category,
+                container=pc,
+                codename="get_data",
+                competition=comp,
+                label="Get Data",
+                rank=0,
+                html=zf.read(comp_spec['html']['data'])
+            )
+        except KeyError:
+            assert False, "No HTML file with key `data` specified. This is required."
         Page.objects.create(
             category=participate_category,
             container=pc,
