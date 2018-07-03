@@ -128,6 +128,9 @@ class CompetitionPhaseForm(forms.ModelForm):
             if self.instance.scoring_program_organizer_dataset and not self.cleaned_data["scoring_program_organizer_dataset"]:
                 raise forms.ValidationError("Phase has no scoring_program set or chosen in the form, but it is required")
 
+        if not self.cleaned_data['is_scoring_only'] and self.cleaned_data['is_parallel_parent']:
+            raise forms.ValidationError("Parallel parent phases must be in 'results only' mode.")
+
 
 class PageForm(forms.ModelForm):
     class Meta:

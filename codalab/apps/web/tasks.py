@@ -251,7 +251,7 @@ def _prepare_compute_worker_run(job_id, submission, is_prediction):
         submission.docker_image = docker_image
         submission.save()
 
-    logger.info("@@@ Docker image set to: {} @@@".format(docker_image))
+    logger.info("Docker image set to: {}".format(docker_image))
 
     data = {
         "id": job_id,
@@ -462,18 +462,36 @@ def score(submission, job_id):
     # dataset provided by the competition organizer. Results are provided by the participant
     # either indirectly (has_generated_predictions is True i.e. participant provides a program
     # which is run to generate results) ordirectly (participant uploads results directly).
+
     lines = []
+
+    # Get reference data
     ref_value = submission.phase.reference_data.name
     if len(ref_value) > 0:
         lines.append("ref: %s" % _make_url_sassy(ref_value))
-    if settings.USE_AWS:
-        res_value = submission.prediction_output_file.name if has_generated_predictions else submission.s3_file
+
+    # Get prediction results data
+
+    # If we're a parent submission, combine all child submission outputs
+    if CompetitionSubmission.objects.filter(parent_submission=submission).exists():
+        logger.info("This is a parent submission")
+        child_submissions = submission.child_submissions.all().prefetch_related('phase')
+        for child_submission in child_submissions:
+            new_result_line = 'res_{phasenumber}: {output}'.format(
+                phasenumber=child_submission.phase.phasenumber,
+                output=_make_url_sassy(child_submission.output_file.name),
+            )
+            lines.append(new_result_line)
+            logger.info("Adding children result: {}".format(new_result_line))
     else:
-        res_value = submission.prediction_output_file.name if has_generated_predictions else submission.file.name
-    if len(res_value) > 0:
-        lines.append("res: %s" % _make_url_sassy(res_value))
-    else:
-        raise ValueError("Results are missing.")
+        if settings.USE_AWS:
+            res_value = submission.prediction_output_file.name if has_generated_predictions else submission.s3_file
+        else:
+            res_value = submission.prediction_output_file.name if has_generated_predictions else submission.file.name
+        if len(res_value) > 0:
+            lines.append("res: %s" % _make_url_sassy(res_value))
+        else:
+            raise ValueError("Results are missing.")
 
     lines.append("history: %s" % _make_url_sassy(submission.history_file.name))
     lines.append("scores: %s" % _make_url_sassy(submission.scores_file.name))
@@ -502,41 +520,7 @@ def score(submission, job_id):
     else:
         raise ValueError("Program is missing.")
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    # If we're a parent submission, combine all child submission outputs
-    if CompetitionSubmission.objects.filter(parent_submission=submission).exists():
-        parallel_submission_inputs = []
-        child_submissions = submission.child_submissions.all().prefetch_related('phase')
-        for child_submission in child_submissions:
-            parallel_submission_inputs.append('{phase_number}: {output}'.format(
-                phase_number=child_submission.phase.phase_number,
-                output=_make_url_sassy(child_submission.output_file.name),
-            ))
-        submission.inputfile.save('input.txt', ContentFile('\n'.join(parallel_submission_inputs)))
-    else:
-        lines.append("input: %s" % _make_url_sassy(submission.inputfile.name))
-
-
-
-
-
-
-
-
+    lines.append("input: %s" % _make_url_sassy(submission.inputfile.name))
     lines.append("stdout: %s" % _make_url_sassy(submission.stdout_file.name, permission='w'))
     lines.append("stderr: %s" % _make_url_sassy(submission.stderr_file.name, permission='w'))
     lines.append("private_output: %s" % _make_url_sassy(submission.private_output_file.name, permission='w'))

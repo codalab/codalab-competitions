@@ -1870,11 +1870,15 @@ class CompetitionDefBundle(models.Model):
 
             phase_spec.setdefault('ingestion_program_only_during_scoring', False)
             phase_spec.setdefault('is_parallel_parent', False)
+            phase_spec.setdefault('is_scoring_only', False)
             if 'parent_phasenumber' in phase_spec:
                 phase_spec['parent'] = CompetitionPhase.objects.get(
                     competition=comp,
                     phasenumber=phase_spec.pop('parent_phasenumber')
                 )
+
+            if phase_spec['is_parallel_parent'] and not phase_spec['is_scoring_only']:
+                raise Exception("Failed to create competition: phases marked is_parallel_parent must also be is_scoring_only")
 
             # First phase can't have auto_migration=True, remove that here
             if index == 0:

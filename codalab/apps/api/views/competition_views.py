@@ -620,7 +620,6 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
         try:
             kwargs['participant'] = webmodels.CompetitionParticipant.objects.get(
                 competition=self.kwargs['competition_id'], user=self.request.user)
-            print("Participant is {}".format(kwargs['participant']))
         except ObjectDoesNotExist:
             raise PermissionDenied()
         if not kwargs['participant'].is_approved:
@@ -648,10 +647,7 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
         # If we are dealing with a parallel parent, we need to make a parent submission
         parent_submission = None
 
-        print("Running on:", phases_to_run_on)
-
         for phase in phases_to_run_on:
-            print("PHASE: ", phase)
             obj = CompetitionSubmission.objects.create(phase=phase, **kwargs)
 
             blob_name = self.request.data['id'] if 'id' in self.request.data else ''
@@ -692,24 +688,11 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
                 # First submission we make will be our parent submission
                 parent_submission = obj
 
-            print("parent sub ==", parent_submission.pk)
-            print("this sub ==", obj.pk)
-
             if parent_submission and obj.pk == parent_submission.pk:
-                print("DIS IS DA PARENT SUBMISSION DURRR {}".format(obj.pk))
+                pass
             else:
-                print("RUNNING NON PARENT SUBMISSION {}".format(obj))
                 # Only evaluate submission that aren't parent submissions
                 evaluate_submission.delay(obj.pk, obj.phase.is_scoring_only)
-
-     # def post_save(self, obj, created):
-     #     if created:
-     #    evaluate_submission.apply_async((obj.pk, obj.phase.is_scoring_only))
-
-    # def perform_update(self, serializer):
-    #     if CompetitionSubmission.objects.get(pk=serializer.pk):
-    #         obj = serializer.save()
-    #         evaluate_submission.apply_async((obj.pk, obj.phase.is_scoring_only))
 
     def handle_exception(self, exc):
         if type(exc) is DjangoPermissionDenied:
