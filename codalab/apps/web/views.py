@@ -434,7 +434,6 @@ def competition_message_participants(request, competition_id):
         competition=competition,
         status=models.ParticipantStatus.objects.get(codename="approved"),
         user__organizer_direct_message_updates=True,
-        user__allow_admin_status_updates=True,
     )
     emails = [p.user.email for p in participants]
     subject = request.POST.get('subject')
