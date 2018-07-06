@@ -248,6 +248,7 @@ class UserSettingsForm(forms.ModelForm):
             'participation_status_updates',
             'organizer_status_updates',
             'organizer_direct_message_updates',
+            'allow_admin_status_updates',
             'organization_or_affiliation',
             'email_on_submission_finished_successfully',
             'team_name',
