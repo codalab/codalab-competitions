@@ -253,7 +253,6 @@ class LeaderboardInline(InlineFormSet):
 class CompetitionCreationMixin(object):
 
     def dispatch(self, request, *args, **kwargs):
-        print('dispatch method called')
         if not (request.user.is_superuser or request.user.is_staff) and settings.SINGLE_COMPETITION_VIEW_PK:
             return HttpResponseForbidden()
         else:
