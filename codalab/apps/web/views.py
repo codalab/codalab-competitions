@@ -250,22 +250,35 @@ class LeaderboardInline(InlineFormSet):
     extra = 0
 
 
-class CompetitionUpload(LoginRequiredMixin, CreateView):
+class CompetitionCreationMixin(object):
+
+    def dispatch(self, request, *args, **kwargs):
+        if not (request.user.is_superuser or request.user.is_staff) and settings.SINGLE_COMPETITION_VIEW_PK:
+            return HttpResponseForbidden()
+        else:
+            return super(CompetitionCreationMixin, self).dispatch(request, *args, **kwargs)
+
+
+class CompetitionUpload(LoginRequiredMixin, CompetitionCreationMixin, CreateView):
     model = models.CompetitionDefBundle
     template_name = 'web/competitions/upload_competition.html'
 
 
-class CompetitionS3Upload(LoginRequiredMixin, FormView):
+class CompetitionS3Upload(LoginRequiredMixin, CompetitionCreationMixin, FormView):
     form_class = CompetitionS3UploadForm
     template_name = 'web/competitions/upload_s3_competition.html'
 
     def form_valid(self, form):
         competition_def_bundle = form.save(commit=False)
-        competition_def_bundle.owner = self.request.user
-        competition_def_bundle.save()
-        job = Job.objects.create_job('create_competition', {'comp_def_id': competition_def_bundle.pk})
-        create_competition.apply_async((job.pk, competition_def_bundle.pk,))
-        return HttpResponse(json.dumps({'token': job.pk}), status=201, content_type="application/json")
+
+        if self.request.user.is_superuser or self.request.user.is_staff or not settings.SINGLE_COMPETITION_VIEW_PK:
+            competition_def_bundle.owner = self.request.user
+            competition_def_bundle.save()
+            job = Job.objects.create_job('create_competition', {'comp_def_id': competition_def_bundle.pk})
+            create_competition.apply_async((job.pk, competition_def_bundle.pk,))
+            return HttpResponse(json.dumps({'token': job.pk}), status=201, content_type="application/json")
+        else:
+            return PermissionDenied()
 
 
 class CompetitionEdit(LoginRequiredMixin, NamedFormsetsMixin, UpdateWithInlinesView):
