@@ -266,13 +266,15 @@ def _prepare_compute_worker_run(job_id, submission, is_prediction):
             "output_url": _make_url_sassy(output, permission='w'),
             "ingestion_program_output_url": _make_url_sassy(submission.ingestion_program_stdout_file.name, permission='w'),
             "ingestion_program_stderr_url": _make_url_sassy(submission.ingestion_program_stderr_file.name, permission='w'),
-            "detailed_results_url": _make_url_sassy(submission.detailed_results_file.name, permission='w'),
             "private_output_url": _make_url_sassy(submission.private_output_file.name, permission='w'),
             "secret": submission.secret,
             "execution_time_limit": submission.phase.execution_time_limit,
             "predict": is_prediction,
         }
     }
+
+    if submission.phase.competition.enable_detailed_results:
+        data["task_args"]["detailed_results_url"] = _make_url_sassy(submission.detailed_results_file.name, permission='w')
 
     logger.info("Passing task args to compute worker: %s", data["task_args"])
 
