@@ -620,65 +620,79 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
         try:
             kwargs['participant'] = webmodels.CompetitionParticipant.objects.get(
                 competition=self.kwargs['competition_id'], user=self.request.user)
-            print("Participant is {}".format(kwargs['participant']))
         except ObjectDoesNotExist:
             raise PermissionDenied()
         if not kwargs['participant'].is_approved:
             raise PermissionDenied()
         phase_id = self.request.query_params.get('phase_id', "")
-        for phase in webmodels.CompetitionPhase.objects.filter(competition=self.kwargs['competition_id'],
-                                                               id=phase_id):
-            if phase.is_active is True:
-                break
-        if phase is None or phase.is_active is False:
+        submission_phase = webmodels.CompetitionPhase.objects.filter(
+            competition=self.kwargs['competition_id'],
+            id=phase_id
+        ).first()
+        if submission_phase is None or submission_phase.is_active is False:
             raise PermissionDenied(detail='Competition phase is closed.')
-        if phase.auto_migration and not phase.is_migrated and not phase.competition.is_migrating_delayed:
+        if submission_phase.auto_migration and not submission_phase.is_migrated and not submission_phase.competition.is_migrating_delayed:
             raise PermissionDenied(
                 detail="Failed, competition phase is being migrated, please try again in a few minutes")
-        kwargs['phase'] = phase
-        print(kwargs['phase'])
 
-        obj = serializer.save(**kwargs)
+        if submission_phase.parent:
+            raise PermissionDenied("Cannot directly submit to a sub-phase")
 
-        blob_name = self.request.data['id'] if 'id' in self.request.data else ''
-
-        if len(blob_name) <= 0:
-            raise ParseError(detail='Invalid or missing tracking ID.')
-        if settings.USE_AWS:
-            # obj.readable_filename = os.path.basename(blob_name)
-            # Get file name from url and ensure we aren't getting GET params along with it
-            obj.readable_filename = blob_name.split('/')[-1]
-            obj.readable_filename = obj.readable_filename.split('?')[0]
-            obj.s3_file = blob_name
+        if not submission_phase.is_parallel_parent:
+            phases_to_run_on = [submission_phase]
         else:
-            obj.file.name = blob_name
+            # Run the submission against all subphases
+            phases_to_run_on = [submission_phase] + list(submission_phase.sub_phases.all())
 
-        obj.description = escape(self.request.query_params.get('description', ""))
-        if not phase.disable_custom_docker_image:
-            obj.docker_image = escape(self.request.query_params.get('docker_image', ""))
-        if not obj.docker_image:
-            obj.docker_image = phase.competition.competition_docker_image or settings.DOCKER_DEFAULT_WORKER_IMAGE
-        obj.team_name = escape(self.request.query_params.get('team_name', ""))
-        obj.organization_or_affiliation = escape(self.request.query_params.get('organization_or_affiliation', ""))
-        obj.method_name = escape(self.request.query_params.get('method_name', ""))
-        obj.method_description = escape(self.request.query_params.get('method_description', ""))
-        obj.project_url = escape(self.request.query_params.get('project_url', ""))
-        obj.publication_url = escape(self.request.query_params.get('publication_url', ""))
-        obj.bibtex = escape(self.request.query_params.get('bibtex', ""))
-        if phase.competition.queue:
-            obj.queue_name = phase.competition.queue.name or ''
-        obj.save()
+        # If we are dealing with a parallel parent, we need to make a parent submission
+        parent_submission = None
 
-        evaluate_submission.delay(obj.pk, obj.phase.is_scoring_only)
+        for phase in phases_to_run_on:
+            obj = CompetitionSubmission.objects.create(phase=phase, **kwargs)
 
-     # def post_save(self, obj, created):
-     #     if created:
-     #    evaluate_submission.apply_async((obj.pk, obj.phase.is_scoring_only))
+            blob_name = self.request.data['id'] if 'id' in self.request.data else ''
 
-    # def perform_update(self, serializer):
-    #     if CompetitionSubmission.objects.get(pk=serializer.pk):
-    #         obj = serializer.save()
-    #         evaluate_submission.apply_async((obj.pk, obj.phase.is_scoring_only))
+            if len(blob_name) <= 0:
+                raise ParseError(detail='Invalid or missing tracking ID.')
+            if settings.USE_AWS:
+                # obj.readable_filename = os.path.basename(blob_name)
+                # Get file name from url and ensure we aren't getting GET params along with it
+                obj.readable_filename = blob_name.split('/')[-1]
+                obj.readable_filename = obj.readable_filename.split('?')[0]
+                obj.s3_file = blob_name
+            else:
+                obj.file.name = blob_name
+
+            obj.description = escape(self.request.query_params.get('description', ""))
+            if not phase.disable_custom_docker_image:
+                obj.docker_image = escape(self.request.query_params.get('docker_image', ""))
+            if not obj.docker_image:
+                obj.docker_image = phase.competition.competition_docker_image or settings.DOCKER_DEFAULT_WORKER_IMAGE
+            obj.team_name = escape(self.request.query_params.get('team_name', ""))
+            obj.organization_or_affiliation = escape(self.request.query_params.get('organization_or_affiliation', ""))
+            obj.method_name = escape(self.request.query_params.get('method_name', ""))
+            obj.method_description = escape(self.request.query_params.get('method_description', ""))
+            obj.project_url = escape(self.request.query_params.get('project_url', ""))
+            obj.publication_url = escape(self.request.query_params.get('publication_url', ""))
+            obj.bibtex = escape(self.request.query_params.get('bibtex', ""))
+            if phase.competition.queue:
+                obj.queue_name = phase.competition.queue.name or ''
+
+            if phase.parent:
+                # This phase has parents so this should be child submission
+                obj.parent_submission = parent_submission
+
+            obj.save()
+
+            if phase.is_parallel_parent and parent_submission is None:
+                # First submission we make will be our parent submission
+                parent_submission = obj
+
+            if parent_submission and obj.pk == parent_submission.pk:
+                pass
+            else:
+                # Only evaluate submission that aren't parent submissions
+                evaluate_submission.delay(obj.pk, obj.phase.is_scoring_only)
 
     def handle_exception(self, exc):
         if type(exc) is DjangoPermissionDenied:

@@ -162,7 +162,7 @@
                     <div class="tab-pane" id="phases">
                         <div class="tab-inner">
                             <div class="phase-list">
-                                {% for phase in competition.phases.all %}
+                                {% for phase in competition.get_phases_without_parents %}
                                     <div class="phase-list-item panel phase-list-item-{% if phase.color %}{{ phase.color }}{% else %}default{% endif %}">
                                         <div class="panel-heading">
                                             <h3 class="panel-title">{{ phase.label }}</h3>

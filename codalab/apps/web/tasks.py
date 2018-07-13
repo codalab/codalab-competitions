@@ -251,7 +251,7 @@ def _prepare_compute_worker_run(job_id, submission, is_prediction):
         submission.docker_image = docker_image
         submission.save()
 
-    logger.info("@@@ Docker image set to: {} @@@".format(docker_image))
+    logger.info("Docker image set to: {}".format(docker_image))
 
     data = {
         "id": job_id,
@@ -266,13 +266,15 @@ def _prepare_compute_worker_run(job_id, submission, is_prediction):
             "output_url": _make_url_sassy(output, permission='w'),
             "ingestion_program_output_url": _make_url_sassy(submission.ingestion_program_stdout_file.name, permission='w'),
             "ingestion_program_stderr_url": _make_url_sassy(submission.ingestion_program_stderr_file.name, permission='w'),
-            "detailed_results_url": _make_url_sassy(submission.detailed_results_file.name, permission='w'),
             "private_output_url": _make_url_sassy(submission.private_output_file.name, permission='w'),
             "secret": submission.secret,
             "execution_time_limit": submission.phase.execution_time_limit,
             "predict": is_prediction,
         }
     }
+
+    if submission.phase.competition.enable_detailed_results:
+        data["task_args"]["detailed_results_url"] = _make_url_sassy(submission.detailed_results_file.name, permission='w')
 
     logger.info("Passing task args to compute worker: %s", data["task_args"])
 
@@ -462,18 +464,36 @@ def score(submission, job_id):
     # dataset provided by the competition organizer. Results are provided by the participant
     # either indirectly (has_generated_predictions is True i.e. participant provides a program
     # which is run to generate results) ordirectly (participant uploads results directly).
+
     lines = []
+
+    # Get reference data
     ref_value = submission.phase.reference_data.name
     if len(ref_value) > 0:
         lines.append("ref: %s" % _make_url_sassy(ref_value))
-    if settings.USE_AWS:
-        res_value = submission.prediction_output_file.name if has_generated_predictions else submission.s3_file
+
+    # Get prediction results data
+
+    # If we're a parent submission, combine all child submission outputs
+    if CompetitionSubmission.objects.filter(parent_submission=submission).exists():
+        logger.info("This is a parent submission")
+        child_submissions = submission.child_submissions.all().prefetch_related('phase')
+        for child_submission in child_submissions:
+            new_result_line = 'res_{phasenumber}: {output}'.format(
+                phasenumber=child_submission.phase.phasenumber,
+                output=_make_url_sassy(child_submission.output_file.name),
+            )
+            lines.append(new_result_line)
+            logger.info("Adding children result: {}".format(new_result_line))
     else:
-        res_value = submission.prediction_output_file.name if has_generated_predictions else submission.file.name
-    if len(res_value) > 0:
-        lines.append("res: %s" % _make_url_sassy(res_value))
-    else:
-        raise ValueError("Results are missing.")
+        if settings.USE_AWS:
+            res_value = submission.prediction_output_file.name if has_generated_predictions else submission.s3_file
+        else:
+            res_value = submission.prediction_output_file.name if has_generated_predictions else submission.file.name
+        if len(res_value) > 0:
+            lines.append("res: %s" % _make_url_sassy(res_value))
+        else:
+            raise ValueError("Results are missing.")
 
     lines.append("history: %s" % _make_url_sassy(submission.history_file.name))
     lines.append("scores: %s" % _make_url_sassy(submission.scores_file.name))
@@ -501,6 +521,7 @@ def score(submission, job_id):
         lines.append("program: %s" % _make_url_sassy(program_value))
     else:
         raise ValueError("Program is missing.")
+
     lines.append("input: %s" % _make_url_sassy(submission.inputfile.name))
     lines.append("stdout: %s" % _make_url_sassy(submission.stdout_file.name, permission='w'))
     lines.append("stderr: %s" % _make_url_sassy(submission.stderr_file.name, permission='w'))
@@ -671,8 +692,36 @@ def update_submission(job_id, args, secret):
                         [email],
                         fail_silently=False
                     )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             else:
                 logger.debug("update_submission_task entering scoring phase (pk=%s)", submission.pk)
+
                 # url_name = pathname2url(submission_prediction_output_filename(submission))
                 # submission.prediction_output_file.name = url_name
                 # submission.prediction_stderr_file.name = pathname2url(predict_submission_stdout_filename(submission))
@@ -684,6 +733,15 @@ def update_submission(job_id, args, secret):
                     logger.debug("update_submission_task scoring phase entered (pk=%s)", submission.pk)
                 except Exception:
                     logger.exception("update_submission_task failed to enter scoring phase (pk=%s)", submission.pk)
+
+            # check here that all sub-submissions completed successfully
+            if submission.parent_submission:
+                # We want to do this as a separate task because submission status should be saved by this point
+                check_children_submissions.apply_async((submission.parent_submission.pk,))
+            else:
+                logger.info("This is NOT a parent submission!")
+
+
             return result
 
         if status != 'failed':
@@ -745,6 +803,33 @@ def update_submission(job_id, args, secret):
         return JobTaskResult(status=result)
 
     run_job_task(job_id, update_it, handle_update_exception)
+
+
+
+@app.task(queue='site-worker')
+def check_children_submissions(parent_id):
+    # check here that all sub-submissions completed successfully
+    parent = CompetitionSubmission.objects.get(pk=parent_id)
+    total_children_submission_count = parent.child_submissions.all().count()
+    successfully_children_count = parent.child_submissions.all().filter(
+        status__codename=CompetitionSubmissionStatus.FINISHED
+    ).count()
+    failed_children_count = parent.child_submissions.all().filter(
+        status__codename=CompetitionSubmissionStatus.FAILED
+    ).count()
+    logger.info(
+        "This has a parent submission, total sibling count: {}, total successfully finished: {}, total failed count: {}".format(
+            total_children_submission_count, successfully_children_count, failed_children_count
+        ))
+    if total_children_submission_count == successfully_children_count:
+        logger.info("All children finished successfully, starting parent submission to aggregate scores")
+        # This evaluates the submission with scoring only
+        evaluate_submission.delay(parent.pk, True)
+    elif failed_children_count > 0:
+        logger.info("A child has failed, so the parent will never start")
+        _set_submission_status(parent.id, CompetitionSubmissionStatus.FAILED)
+    else:
+        logger.info("Children have not finished yet.")
 
 
 @app.task(queue='site-worker', soft_time_limit=60 * 60 * 1)

@@ -595,6 +595,10 @@ class Competition(ChaHubSaveMixin, models.Model):
     def get_participant_count(self):
         return self.participants.all().count()
 
+    def get_phases_without_parents(self):
+        return self.phases.filter(parent=None)
+
+
 post_save.connect(Forum.competition_post_save, sender=Competition)
 
 
@@ -895,6 +899,16 @@ class CompetitionPhase(models.Model):
     )
     ingestion_program_only_during_scoring = models.BooleanField(default=False, blank=True, help_text="Run ingestion program during scoring, instead of during prediction?")
 
+    is_parallel_parent = models.BooleanField(default=False, blank=True, help_text="This phase itself does no processing, it is just a placeholder for subphases to do their magic")
+    parent = models.ForeignKey(
+        'CompetitionPhase',
+        null=True,
+        blank=True,
+        help_text="Parent phase MUST be a 'parallel parent' type phase. If you can't select the parent phase here, set "
+                  "it to be a 'parallel parent' phase and save this form, then it should appear in the dropdown",
+        related_name="sub_phases"
+    )
+
     # Should really just make a util function to do this
     def get_starting_kit(self):
         from apps.web.tasks import _make_url_sassy
@@ -934,7 +948,7 @@ class CompetitionPhase(models.Model):
         ordering = ['phasenumber']
 
     def __unicode__(self):
-        return "%s - %s" % (self.competition.title, self.phasenumber)
+        return "%s - %s - %s" % (self.competition.title, self.phasenumber, self.label)
 
     @property
     def is_active(self):
@@ -942,7 +956,7 @@ class CompetitionPhase(models.Model):
         if self.phase_never_ends:
             return True
         else:
-            next_phase = self.competition.phases.filter(phasenumber=self.phasenumber+1)
+            next_phase = self.competition.phases.filter(phasenumber=self.phasenumber + 1, parent=None)
             if (next_phase is not None) and (len(next_phase) > 0):
                 # there is a phase following this phase, thus this phase is active if the current date
                 # is between the start of this phase and the start of the next phase
@@ -1351,6 +1365,8 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
 
     queue_name = models.TextField(null=True, blank=True)
 
+    parent_submission = models.ForeignKey('CompetitionSubmission', null=True, blank=True, related_name="child_submissions")
+
     class Meta:
         unique_together = (('submission_number','phase','participant'),)
 
@@ -1415,13 +1431,21 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
 
         # only at save on object creation should it be submitted
         if not self.pk:
-            if not ignore_submission_limits:
+            subnum = CompetitionSubmission.objects.filter(phase=self.phase, participant=self.participant).aggregate(
+                Max('submission_number')
+            )['submission_number__max']
+            if subnum is not None:
+                self.submission_number = subnum + 1
+            else:
+                self.submission_number = 1
+
+            print("SAVING SUBMISSION #", self.submission_number)
+            print("SAVING SUBMISSION PHASE =", self.phase)
+
+            # Subphases (phases with parents) should ignore limits
+            if not ignore_submission_limits or not self.phase.parent:
                 print "This is a new submission, getting the submission number."
-                subnum = CompetitionSubmission.objects.filter(phase=self.phase, participant=self.participant).aggregate(Max('submission_number'))['submission_number__max']
-                if subnum is not None:
-                    self.submission_number = subnum + 1
-                else:
-                    self.submission_number = 1
+
 
                 failed_count = CompetitionSubmission.objects.filter(phase=self.phase,
                                                                     participant=self.participant,
@@ -1461,14 +1485,6 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
                     if submissions_from_today_count + 1 - failed_count > self.phase.max_submissions_per_day or self.phase.max_submissions_per_day == 0:
                         print 'PERMISSION DENIED'
                         raise PermissionDenied("The maximum number of submissions this day have been reached.")
-            else:
-                # Make sure we're incrementing the number if we're forcing in a new entry
-                while CompetitionSubmission.objects.filter(
-                    phase=self.phase,
-                    participant=self.participant,
-                    submission_number=self.submission_number
-                ).exists():
-                    self.submission_number += 1
 
             self.status = CompetitionSubmissionStatus.objects.get_or_create(codename=CompetitionSubmissionStatus.SUBMITTING)[0]
 
@@ -1851,8 +1867,18 @@ class CompetitionDefBundle(models.Model):
                 datasets = {}
 
             phase_spec['start_date'] = CompetitionDefBundle.localize_datetime(phase_spec['start_date'])
-            if 'ingestion_program_only_during_scoring' not in phase_spec:
-                phase_spec['ingestion_program_only_during_scoring'] = False
+
+            phase_spec.setdefault('ingestion_program_only_during_scoring', False)
+            phase_spec.setdefault('is_parallel_parent', False)
+            phase_spec.setdefault('is_scoring_only', False)
+            if 'parent_phasenumber' in phase_spec:
+                phase_spec['parent'] = CompetitionPhase.objects.get(
+                    competition=comp,
+                    phasenumber=phase_spec.pop('parent_phasenumber')
+                )
+
+            if phase_spec['is_parallel_parent'] and not phase_spec['is_scoring_only']:
+                raise Exception("Failed to create competition: phases marked is_parallel_parent must also be is_scoring_only")
 
             # First phase can't have auto_migration=True, remove that here
             if index == 0:
@@ -1915,9 +1941,11 @@ class CompetitionDefBundle(models.Model):
                         phase.reference_data_organizer_dataset = data_set
                     except OrganizerDataSet.DoesNotExist:
                         assert False, "Invalid file-type or could not find file {} for reference_data".format(phase_spec['reference_data'])
+            elif phase.is_parallel_parent:
+                logger.info("Parallel parent, no reference data required")
             else:
-                raise OrganizerDataSet.DoesNotExist("No reference data was supplied with the competition bundle!")
                 logger.info("No reference data found. Halting.")
+                raise OrganizerDataSet.DoesNotExist("No reference data was supplied with the competition bundle!")
 
             if hasattr(phase, 'ingestion_program') and phase.ingestion_program:
                 if phase_spec["ingestion_program"].endswith(".zip"):
@@ -2398,7 +2426,7 @@ def add_submission_to_leaderboard(submission):
 
 
 def get_current_phase(competition):
-    all_phases = competition.phases.all().order_by('start_date')
+    all_phases = models.CompetitionPhase.objects.filter(competition=competition, parent=None).order_by('start_date')
     phase_iterator = iter(all_phases)
     active_phase = None
     for phase in phase_iterator:
@@ -2418,7 +2446,7 @@ def get_first_previous_active_and_next_phases(competition):
     active_phase = None
     next_phase = None
 
-    all_phases = competition.phases.all().order_by('start_date')
+    all_phases = CompetitionPhase.objects.filter(competition=competition, parent=None).order_by('start_date')
     phase_iterator = iter(all_phases)
     trailing_phase_holder = None
 
@@ -2426,27 +2454,25 @@ def get_first_previous_active_and_next_phases(competition):
         if not first_phase:
             first_phase = phase
 
-        # Get an active phase that isn't also never-ending, unless we don't have any active_phases
-        if phase.is_active:
+        # Has the phase start date passed
+        if phase.start_date <= now():
+            # Whether or not phase is actually active, keep track of previous phase
             previous_phase = trailing_phase_holder
-            if active_phase is None:
-                active_phase = phase
-            elif not phase.phase_never_ends:
-                active_phase = phase
 
-            try:
-                next_phase = next(phase_iterator)
-            except StopIteration:
-                pass
-
-            if not active_phase.phase_never_ends:
-                # The phase has a definite ending, so we can stop here using this
-                # as the active phase and next (if applicable) is already grabbed
-                # from the iterator
-                break
+            # If the competition has not ended OR is this a never ending phase?
+            if phase.phase_never_ends or not competition.end_date or competition.end_date >= now():
+                active_phase = phase
+        else:
+            # we have an active phase but this one isn't active so it must be next
+            if active_phase and not next_phase:
+                next_phase = phase
 
         # Hold this to store "previous phase"
         trailing_phase_holder = phase
+
+    if competition.end_date and competition.end_date <= now():
+        # Competition has ended, so previous phase was last phase
+        previous_phase = trailing_phase_holder
 
     return first_phase, previous_phase, active_phase, next_phase
 
