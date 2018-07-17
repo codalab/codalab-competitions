@@ -1,6 +1,5 @@
 from django.db import models
 from django.contrib.auth import models as auth_models
-from django_extensions.db.fields import UUIDField
 
 
 class ClUser(auth_models.AbstractUser):
@@ -12,6 +11,7 @@ class ClUser(auth_models.AbstractUser):
     organizer_status_updates = models.BooleanField(default=True)
     organizer_direct_message_updates = models.BooleanField(default=True)
     email_on_submission_finished_successfully = models.BooleanField(default=False)
+    allow_admin_status_updates = models.BooleanField(default=True)
 
     # Profile details
     organization_or_affiliation = models.CharField(max_length=255, null=True, blank=True)
@@ -30,3 +30,5 @@ class ClUser(auth_models.AbstractUser):
     rabbitmq_queue_limit = models.PositiveIntegerField(default=5, blank=True)
     rabbitmq_username = models.CharField(max_length=36, null=True, blank=True)
     rabbitmq_password = models.CharField(max_length=36, null=True, blank=True)
+
+ClUser._meta.get_field('username').db_index = True

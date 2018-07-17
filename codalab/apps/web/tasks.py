@@ -860,6 +860,18 @@ def do_phase_migrations():
         c.check_future_phase_sumbmissions()
 
 
+def _get_or_default(obj, field_name, default=None):
+    if hasattr(obj, field_name):
+        if getattr(obj, field_name) != None:
+            return getattr(obj, field_name)
+    if default != None:
+        return default
+    elif obj._meta.get_field(field_name).get_default() != None:
+        return obj._meta.get_field(field_name).get_default()
+    else:
+        return None
+
+
 @task(queue='site-worker', soft_time_limit=60 * 60 * 24)
 def make_modified_bundle(competition_pk, exclude_datasets_flag):
     # The following lines help dump this in a nice format
@@ -909,29 +921,27 @@ def make_modified_bundle(competition_pk, exclude_datasets_flag):
         logger.info("Creating Competion dump")
         temp_comp_dump = CompetitionDump.objects.create(competition=competition)
         yaml_data = OrderedDict()
-        yaml_data['title'] = competition.title if competition.title else ''
-        yaml_data['description'] = competition.description.replace("/n", "").replace("\"", "").strip() if competition.description else ''
-        if competition.competition_docker_image and competition.competition_docker_image != "":
-            yaml_data['competition_docker_image'] = competition.competition_docker_image
+        yaml_data['title'] = _get_or_default(competition, 'title')
+        yaml_data['description'] = competition.description.replace("/n", "").replace("\"", "").strip() if competition.description else None
+        temp_comp_dump.status = "Adding end-date"
+        temp_comp_dump.save()
+        logger.info("Adding end-date")
+        yaml_data['start_date'] = _get_or_default(competition, 'start_date')
+        yaml_data['end_date'] = _get_or_default(competition, 'end_date')
+        yaml_data['competition_docker_image'] = _get_or_default(competition, 'competition_docker_image')
         if competition.image:
             yaml_data['image'] = 'logo.png'
         else:
             logger.info("No image for competition.")
-        yaml_data['has_registration'] = competition.has_registration
-        yaml_data['html'] = dict()
-        yaml_data['phases'] = {}
-        comp_su_list = ""
+        yaml_data['has_registration'] = _get_or_default(competition, 'has_registration')
+        yaml_data['force_submission_to_leaderboard'] = _get_or_default(competition, 'force_submission_to_leaderboard')
+        yaml_data['disallow_leaderboard_modifying'] = _get_or_default(competition, 'disallow_leaderboard_modifying')
+        yaml_data['enable_detailed_results'] = _get_or_default(competition, 'enable_detailed_results')
         temp_comp_dump.status = "Adding admins"
         temp_comp_dump.save()
-        for su in competition.admins.all():
-            logger.info("Adding admin")
-            comp_su_list = comp_su_list + su.username + ","
-        yaml_data['admin_names'] = comp_su_list
-        temp_comp_dump.status = "Adding end-date"
-        temp_comp_dump.save()
-        logger.info("Adding end-date")
-        if competition.end_date is not None:
-            yaml_data['end_date'] = competition.end_date
+        yaml_data['admin_names'] = ','.join(list(competition.admins.all().values_list('username', flat=True))) if competition.admins.all() else None
+        yaml_data['html'] = dict()
+        yaml_data['phases'] = {}
         zip_buffer = StringIO.StringIO()
         zip_name = "{0}.zip".format(competition.title)
         zip_file = zipfile.ZipFile(zip_buffer, "w")
@@ -962,15 +972,17 @@ def make_modified_bundle(competition_pk, exclude_datasets_flag):
             temp_comp_dump.save()
             logger.info("Adding phase")
             phase_dict = dict()
-            phase_dict['phasenumber'] = phase.phasenumber
-            phase_dict['label'] = phase.label
-            phase_dict['start_date'] = phase.start_date
-            phase_dict['max_submissions'] = phase.max_submissions
-            phase_dict['color'] = phase.color
-            phase_dict['max_submissions_per_day'] = phase.max_submissions_per_day
+            phase_dict['phasenumber'] = _get_or_default(phase, 'phasenumber', 999)
+            phase_dict['label'] = _get_or_default(phase, 'label')
+            phase_dict['description'] = _get_or_default(phase, 'description')
+            phase_dict['start_date'] = _get_or_default(phase, 'start_date')
+            phase_dict['max_submissions'] = _get_or_default(phase, 'max_submissions')
+            phase_dict['color'] = _get_or_default(phase, 'color', 'white')
+            phase_dict['max_submissions_per_day'] = _get_or_default(phase, 'max_submissions_per_day')
+            phase_dict['is_scoring_only'] = _get_or_default(phase, 'is_scoring_only')
+            phase_dict['auto_migration'] = _get_or_default(phase, 'auto_migration')
             # Write the programs/data to zip
             data_types = ['reference_data', 'scoring_program', 'input_data', 'starting_kit', 'public_data', 'ingestion_program']
-            # data_types = []
             try:
                 for data_type in data_types:
                     logger.info("Current data type is {}".format(data_type))
@@ -986,7 +998,6 @@ def make_modified_bundle(competition_pk, exclude_datasets_flag):
                                         'name': file_name
                                     }
                                 else:
-                                    # logger.info("Datafield is {}".format(data_field))
                                     file_name = "{}_{}.zip".format(data_type, phase.phasenumber)
                                     phase_dict[data_type] = file_name
                                     file_cache[data_field.file.name] = {
@@ -996,7 +1007,6 @@ def make_modified_bundle(competition_pk, exclude_datasets_flag):
                             else:
                                 if exclude_datasets_flag:
                                     data_field = getattr(phase, data_type + '_organizer_dataset')
-                                    # file_name = file_cache[data_field.name]['name']
                                     phase_dict[data_type] = data_field.key
                                 else:
                                     file_name = file_cache[str(data_field.name)]['name']

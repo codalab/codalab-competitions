@@ -231,6 +231,7 @@ class Competition(ChaHubSaveMixin, models.Model):
     )
     title = models.CharField(max_length=100)
     description = models.TextField(null=True, blank=True)
+    url_redirect = models.URLField(null=True, blank=True, verbose_name="URL Redirect", help_text="(NOTE: You should not have Registration Required above checked if using URL redirection, because upon redirect participants will not be approved and unable to participate.)")
     image = models.FileField(upload_to=_uuidify('logos'), storage=PublicStorage, null=True, blank=True, verbose_name="Logo")
     image_url_base = models.CharField(max_length=255)
     has_registration = models.BooleanField(default=False, verbose_name="Registration Required")
@@ -344,6 +345,8 @@ class Competition(ChaHubSaveMixin, models.Model):
             "html_text": html_text,
             "active": active,
             "prize": self.reward,
+            "url_redirect": self.url_redirect,
+            "published": self.published
         }
 
     def save(self, *args, **kwargs):
@@ -1610,7 +1613,7 @@ class SubmissionResultGroupPhase(models.Model):
 class SubmissionScoreDef(models.Model):
     """Defines the columns of a Leaderboard."""
     competition = models.ForeignKey(Competition)
-    key = models.SlugField(max_length=50)
+    key = models.CharField(max_length=50, db_index=True)
     label = models.CharField(max_length=50)
     sorting = models.SlugField(max_length=20, default='asc', choices=(('asc', 'Ascending'),('desc','Descending')))
     numeric_format = models.CharField(max_length=20, blank=True, null=True)
@@ -1777,15 +1780,18 @@ class CompetitionDefBundle(models.Model):
                 )
 
         participate_category = ContentCategory.objects.get(name="Participate")
-        Page.objects.create(
-            category=participate_category,
-            container=pc,
-            codename="get_data",
-            competition=comp,
-            label="Get Data",
-            rank=0,
-            html=zf.read(comp_spec['html']['data'])
-        )
+        try:
+            Page.objects.create(
+                category=participate_category,
+                container=pc,
+                codename="get_data",
+                competition=comp,
+                label="Get Data",
+                rank=0,
+                html=zf.read(comp_spec['html']['data'])
+            )
+        except KeyError:
+            assert False, "No HTML file with key `data` specified. This is required."
         Page.objects.create(
             category=participate_category,
             container=pc,
@@ -2397,7 +2403,7 @@ def get_first_previous_active_and_next_phases(competition):
     active_phase = None
     next_phase = None
 
-    all_phases = competition.phases.all().order_by('start_date')
+    all_phases = competition.phases.all().order_by('start_date', 'phasenumber')
     phase_iterator = iter(all_phases)
     trailing_phase_holder = None
 
@@ -2405,27 +2411,25 @@ def get_first_previous_active_and_next_phases(competition):
         if not first_phase:
             first_phase = phase
 
-        # Get an active phase that isn't also never-ending, unless we don't have any active_phases
-        if phase.is_active:
+        # Has the phase start date passed
+        if phase.start_date <= now():
+            # Whether or not phase is actually active, keep track of previous phase
             previous_phase = trailing_phase_holder
-            if active_phase is None:
-                active_phase = phase
-            elif not phase.phase_never_ends:
-                active_phase = phase
 
-            try:
-                next_phase = next(phase_iterator)
-            except StopIteration:
-                pass
-
-            if not active_phase.phase_never_ends:
-                # The phase has a definite ending, so we can stop here using this
-                # as the active phase and next (if applicable) is already grabbed
-                # from the iterator
-                break
+            # If the competition has not ended OR is this a never ending phase?
+            if phase.phase_never_ends or not competition.end_date or competition.end_date >= now():
+                active_phase = phase
+        else:
+            # we have an active phase but this one isn't active so it must be next
+            if active_phase and not next_phase:
+                next_phase = phase
 
         # Hold this to store "previous phase"
         trailing_phase_holder = phase
+
+    if competition.end_date and competition.end_date <= now():
+        # Competition has ended, so previous phase was last phase
+        previous_phase = trailing_phase_holder
 
     return first_phase, previous_phase, active_phase, next_phase
 

@@ -460,6 +460,9 @@ class Base(Settings):
     SINGLE_COMPETITION_VIEW_PK = os.environ.get('SINGLE_COMPETITION_VIEW_PK')
     CUSTOM_HEADER_LOGO = os.environ.get('CUSTOM_HEADER_LOGO')
 
+    # NOTE! The above values are secondarily controlled via Configuration model objects,
+    # which take precedence over these Env vars
+
 
     # =========================================================================
     # ChaHub

@@ -284,6 +284,8 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
                     to_email=comp.creator.email
                 )
 
+        if comp.url_redirect:
+            response_data['url_redirect'] = comp.url_redirect
         return Response(json.dumps(response_data), content_type="application/json")
 
     def _get_userstatus(self, request, pk=None, participant_id=None):

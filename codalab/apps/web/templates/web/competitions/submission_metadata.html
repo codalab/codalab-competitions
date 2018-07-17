@@ -26,7 +26,7 @@
 
     <h4>Submissions</h4>
 
-    {% if selected_phase.submissions.all %}
+    {% if submission_list %}
         <table class="table table-striped table-bordered">
             <thead>
                 <tr style="text-align: center; font-weight: bold;">
@@ -50,9 +50,16 @@
             </thead>
             <tbody>
 
-                {% for submission in selected_phase.submissions.all %}
+                {% for submission in submission_list %}
+
                     {% for metadata in submission.metadatas.all %}
-                        <tr>
+                        {% if metadata.submission.status.name == "Failed" %}
+                            <tr class="failed-submission">
+                        {% elif metadata.submission.status.name == "Finished" %}
+                            <tr class="finished-submission">
+                        {% else %}
+                            <tr>
+                        {% endif %}
                             <td>{{ metadata.submission.participant.user.username }}</td>
                             <td>{{ metadata.submission.submitted_at|date:"Y-m-d h:m" }}</td>
                             <td>{{ metadata.hostname }}</td>
@@ -74,6 +81,20 @@
                 {% endfor %}
             </tbody>
         </table>
+        <nav aria-label="Page navigation example">
+            <ul class="pagination">
+                {% if submission_list.has_previous %}
+                    <li><a href="?page=1{% if selected_phase %}&phase={{ selected_phase.pk }}{% endif %}">&laquo; first</a></li>
+                    <li><a href="?page={{ submission_list.previous_page_number }}{% if selected_phase %}&phase={{ selected_phase.pk }}{% endif %}">previous</a></li>
+                {% endif %}
+
+                {% if submission_list.has_next %}
+                    <li><a href="?page={{ submission_list.next_page_number }}{% if selected_phase %}&phase={{ selected_phase.pk }}{% endif %}">next</a></li>
+                    <li><a href="?page={{ submission_list.paginator.num_pages }}{% if selected_phase %}&phase={{ selected_phase.pk }}{% endif %}">last &raquo;</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+        Page {{ submission_list.number }} of {{ submission_list.paginator.num_pages }}.
     {% else %}
         <i>No submissions!</i>
     {% endif %}

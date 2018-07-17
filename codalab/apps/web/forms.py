@@ -1,6 +1,7 @@
 import os
 
 from django import forms
+from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth import get_user_model
@@ -32,7 +33,6 @@ class CompetitionForm(forms.ModelForm):
             'disallow_leaderboard_modifying',
             'force_submission_to_leaderboard',
             'image',
-            'has_registration',
             'end_date',
             'published',
             'enable_medical_image_viewer',
@@ -51,6 +51,8 @@ class CompetitionForm(forms.ModelForm):
             'competition_docker_image',
             'hide_top_three',
             'hide_chart',
+            'has_registration',
+            'url_redirect',
         )
         widgets = {'description': TinyMCE(attrs={'rows' : 20, 'class' : 'competition-editor-description'},
                                           mce_attrs={"theme": "advanced", "cleanup_on_startup": True, "theme_advanced_toolbar_location": "top", "gecko_spellcheck": True})}
@@ -138,6 +140,18 @@ class PageForm(forms.ModelForm):
         widgets = { 'html' : TinyMCE(attrs={'rows' : 20, 'class' : 'competition-editor-page-html'},
                                      mce_attrs={"theme" : "advanced", "cleanup_on_startup" : True, "theme_advanced_toolbar_location" : "top", "gecko_spellcheck" : True}),
                     'DELETE' : forms.HiddenInput, 'container' : forms.HiddenInput}
+
+    def clean_label(self):
+        cleaned_data = super(PageForm, self).clean()
+        label = cleaned_data.get('label')
+        if label:
+            existing_website = models.Page.objects.filter(
+                competition=self.instance.competition,
+                label=label
+            ).exclude(pk=self.instance.pk)
+            if existing_website.exists():
+                raise forms.ValidationError('Website Name is invalid. This name is already in use.', code='invalid')
+        return label
 
     def save(self, commit=True):
 
@@ -247,6 +261,7 @@ class UserSettingsForm(forms.ModelForm):
             'participation_status_updates',
             'organizer_status_updates',
             'organizer_direct_message_updates',
+            'allow_admin_status_updates',
             'organization_or_affiliation',
             'email_on_submission_finished_successfully',
             'team_name',

@@ -43,7 +43,11 @@
                     </label>
                     <div class="col-sm-9">
                         <div class="field-container">
-                            <select multiple id="id_admins" name="admins"></select>
+                            <select multiple id="id_admins" name="admins">
+                                {% for admin in competition.admins.all %}
+                                    <option value="{{ admin.pk }}" selected>{{ admin }}</option>
+                                {% endfor %}
+                            </select>
                             {{ field.errors }}
                         </div>
                     </div>
@@ -133,7 +137,9 @@
                                         <div class="col-sm-9">
                                             <div class="field-container page-container">
                                                 {{ field }}
-                                                {{ field.errors }}
+                                                <div class="form-group {% if field.errors %}alert alert-danger{% endif %}">
+                                                    {{ field.errors }}
+                                                </div>
                                             </div>
                                         </div>
                                     {% endif %}
@@ -300,6 +306,20 @@
         </div>
     </div>
 </form>
+
+<style>
+    .alert-danger {
+        width: 100%;
+        margin-top: 0.5em;
+        margin-left: 0 !important;
+        margin-bottom: -5px;
+    }
+
+    .errorlist {
+        list-style-type: none;
+        text-align: left;
+    }
+</style>
 {% endblock content %}
 
 {% block jsincludes %}
@@ -442,6 +462,16 @@ $('document').ready(function () {
             }
         };
     });
+
+    var toggle_url_redirect_disable = function() {
+        if ($('input#id_has_registration')[0].checked){
+            $('input#id_url_redirect').attr("disabled", "disabled")
+        }else{
+            $('input#id_url_redirect').removeAttr("disabled", "disabled")
+        }
+    };
+    toggle_url_redirect_disable();
+    $('input#id_has_registration').on('click', toggle_url_redirect_disable);
   });
 {% endblock js %}
 </script>
