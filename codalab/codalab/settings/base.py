@@ -2,6 +2,7 @@ import re
 import uuid
 
 from datetime import timedelta
+from distutils.util import strtobool
 from textwrap import dedent
 
 from configurations import importer
@@ -363,6 +364,7 @@ class Base(Settings):
     AWS_STORAGE_PRIVATE_BUCKET_NAME = os.environ.get('AWS_STORAGE_PRIVATE_BUCKET_NAME')
     AWS_S3_CALLING_FORMAT = os.environ.get('AWS_S3_CALLING_FORMAT', 'boto.s3.connection.OrdinaryCallingFormat')
     AWS_S3_HOST = os.environ.get('AWS_S3_HOST', 's3-us-west-2.amazonaws.com')
+    AWS_S3_SECURE_URLS = strtobool(os.environ.get('AWS_S3_SECURE_URLS', "True"))
     AWS_QUERYSTRING_AUTH = os.environ.get(
         # This stops signature/auths from appearing in saved URLs
         'AWS_QUERYSTRING_AUTH',
