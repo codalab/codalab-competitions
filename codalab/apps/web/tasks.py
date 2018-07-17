@@ -312,18 +312,27 @@ def _make_url_sassy(path, permission='r', duration=60 * 60 * 24):
             method = 'GET'
 
         # Remove the beginning of the URL (before bucket name) so we just have the path to the file
-        path = path.split(settings.AWS_STORAGE_PRIVATE_BUCKET_NAME)[-1]
+        path = path.split("{}/".format(settings.AWS_STORAGE_PRIVATE_BUCKET_NAME))[-1]
+
+        # Path could also be in a format <bucket>.<url> so check that as well
+        path = path.split("{}.{}".format(settings.AWS_STORAGE_PRIVATE_BUCKET_NAME, settings.AWS_S3_HOST))[-1]
 
         # Spaces replaced with +'s, so we have to replace those...
         path = path.replace('+', ' ')
 
-        return BundleStorage.connection.generate_url(
+        url = BundleStorage.connection.generate_url(
             expires_in=duration,
             method=method,
             bucket=settings.AWS_STORAGE_PRIVATE_BUCKET_NAME,
             key=path,
             query_auth=True,
+            force_http=not settings.AWS_S3_SECURE_URLS,
         )
+        # Replace the default URL with the proper AWS_S3_HOST if we have one
+        if settings.AWS_S3_HOST:
+            return url.replace("s3.amazonaws.com", settings.AWS_S3_HOST)
+        else:
+            return url
     else:
         sassy_url = make_blob_sas_url(
             settings.BUNDLE_AZURE_ACCOUNT_NAME,

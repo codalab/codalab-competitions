@@ -1,6 +1,7 @@
 import os
 
 from django import forms
+from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth import get_user_model
@@ -139,6 +140,18 @@ class PageForm(forms.ModelForm):
         widgets = { 'html' : TinyMCE(attrs={'rows' : 20, 'class' : 'competition-editor-page-html'},
                                      mce_attrs={"theme" : "advanced", "cleanup_on_startup" : True, "theme_advanced_toolbar_location" : "top", "gecko_spellcheck" : True}),
                     'DELETE' : forms.HiddenInput, 'container' : forms.HiddenInput}
+
+    def clean_label(self):
+        cleaned_data = super(PageForm, self).clean()
+        label = cleaned_data.get('label')
+        if label:
+            existing_website = models.Page.objects.filter(
+                competition=self.instance.competition,
+                label=label
+            ).exclude(pk=self.instance.pk)
+            if existing_website.exists():
+                raise forms.ValidationError('Website Name is invalid. This name is already in use.', code='invalid')
+        return label
 
     def save(self, commit=True):
 
