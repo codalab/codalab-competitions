@@ -115,15 +115,11 @@ class OrganizerTeamForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super(OrganizerTeamForm, self).clean()
         if cleaned_data.get('name'):
+            existing_team_with_name = Team.objects.filter(name=self.cleaned_data.get('name'))
             if hasattr(self, 'instance'):
-                if self.instance.pk:
-                    existing_team_with_name = Team.objects.filter(name=self.cleaned_data.get('name')).exclude(pk=self.instance.pk)
-                    if existing_team_with_name:
-                        raise ValidationError('Invalid value for name. A team already exists with that name.', code='invalid')
-            else:
-                existing_team_with_name = Team.objects.filter(name=self.cleaned_data.get('name'))
-                if existing_team_with_name:
-                    raise ValidationError('Invalid value for name. A team already exists with that name.', code='invalid')
+                existing_team_with_name = existing_team_with_name.exclude(pk=self.instance.pk)
+            if existing_team_with_name:
+                raise ValidationError({'name': ['Invalid value for name. A team already exists with that name.']}, code='invalid')
         return cleaned_data
 
     def clean_text_members(self):

@@ -6,6 +6,8 @@ import datetime
 import os.path
 import re
 import itertools
+
+from django.conf import settings
 from django.core.files.storage import Storage
 from django.core.exceptions import ImproperlyConfigured
 from io import RawIOBase
@@ -82,7 +84,7 @@ class AzureStorage(Storage):
         return name
 
     def url(self, name):
-        return "https://%s%s/%s/%s" % (self.account_name, azure.BLOB_SERVICE_HOST_BASE, self.azure_container, name)
+        return "https://%s%s/%s/%s" % (self.account_name, settings.AZURE_BLOB_SERVICE_HOST_BASE or azure.BLOB_SERVICE_HOST_BASE, self.azure_container, name)
 
     def properties(self, name):
         return self.connection.get_blob_properties(
