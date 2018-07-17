@@ -150,13 +150,7 @@ class PageForm(forms.ModelForm):
                 label=label
             ).exclude(pk=self.instance.pk)
             if existing_website.exists():
-                raise forms.ValidationError(
-                    {
-                        'name': ['Invalid value for website name. A website already exists with that name.']
-                    },
-                    code='invalid'
-                )
-
+                raise forms.ValidationError('Website Name is invalid. This name is already in use.', code='invalid')
         return label
 
     def save(self, commit=True):
