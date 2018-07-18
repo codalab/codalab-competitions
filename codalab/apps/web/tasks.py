@@ -6,6 +6,7 @@ import io
 import json
 import logging
 import StringIO
+import os
 import traceback
 
 import requests
@@ -36,6 +37,7 @@ from django.template import Context
 from django.template.loader import render_to_string
 from django.contrib.sites.models import Site
 
+from apps.authenz.models import ClUser
 from apps.chahub.models import ChaHubSaveMixin
 from apps.jobs.models import (Job,
                               run_job_task,
@@ -61,7 +63,7 @@ from apps.web.models import (add_submission_to_leaderboard,
                              SubmissionScore,
                              SubmissionScoreDef,
                              CompetitionSubmissionMetadata, BundleStorage, SubmissionResultGroup,
-                             SubmissionScoreDefGroup)
+                             SubmissionScoreDefGroup, OrganizerDataSet, CompetitionParticipant)
 from apps.coopetitions.models import DownloadRecord
 
 import time
@@ -850,6 +852,69 @@ def do_chahub_retries():
         for instance in needs_retry:
             # Saving forces chahub update
             instance.save()
+
+
+@task(queue='site-worker')
+def send_chahub_general_stats():
+    if not settings.CHAHUB_API_URL:
+        logger.info("No Chahub API URL, skipping sending general stats")
+        return
+
+    logger.info("Checking whether ChaHub is online before sending retries")
+    chahub_online = True
+    try:
+        response = requests.get(settings.CHAHUB_API_URL)
+        if response.status_code != 200:
+            chahub_online = False
+    except requests.exceptions.RequestException:
+        # This base exception works for HTTP errors, Connection errors, etc.
+        # logger.info("There was an error")
+        chahub_online = False
+
+    if not chahub_online:
+        logger.info("Chahub is down? Retrying in 5 minutes")
+        send_chahub_general_stats.apply_async(eta=timezone.now() + datetime.timedelta(minutes=5))
+        return
+
+    # TODO: Move this check to base.py
+    assert settings.CHAHUB_API_URL.endswith("/"), "ChaHub API url must end with a slash"
+
+    url = "{}{}".format(settings.CHAHUB_API_URL, "update_producer/")
+
+    # url = self.get_chahub_url()
+
+    # all_comps = Competition.objects.all()
+    #
+    # # Make a list of organizer ID's
+    # organizer_list = []
+    # for competition in all_comps:
+    #     organizer_list.append(competition.creator_id)
+
+    # Convert to set to remove duplicates
+    # organizer_set = set(organizer_list)
+
+    # organizer_count = len(organizer_set)
+
+    raw_data = {
+        'competition_count': Competition.objects.count(),
+        'dataset_count': OrganizerDataSet.objects.count(),
+        'participant_count': CompetitionParticipant.objects.count(),
+        'submission_count': CompetitionSubmission.objects.count(),
+        'user_count': ClUser.objects.count(),
+        'organizer_count': Competition.objects.all().distinct('creator').count(),
+    }
+
+    data = json.dumps(raw_data)
+
+    logger.info("ChaHub :: Sending to ChaHub ({}) the following data: \n{}".format(url, data))
+
+    try:
+        requests.post(url, data, headers={
+            'Content-type': 'application/json',
+            'X-CHAHUB-API-KEY': settings.CHAHUB_API_KEY,
+        })
+    except requests.ConnectionError:
+        logger.info("There was an error")
 
 
 @task(queue='site-worker')

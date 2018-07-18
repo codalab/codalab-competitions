@@ -448,6 +448,10 @@ class Base(Settings):
             'task': 'apps.web.tasks.do_chahub_retries',
             'schedule': timedelta(seconds=600),
         },
+        'chahub_general_statistics': {
+            'task': 'apps.web.tasks.send_chahub_general_stats',
+            'schedule': timedelta(seconds=86400),
+        },
     }
     CELERY_TIMEZONE = 'UTC'
 
