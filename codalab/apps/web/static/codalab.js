@@ -123,7 +123,7 @@ var Competition;
                         buttonId: 'fileUploadButton',
                         sasEndpoint: '/api/competition/' + competitionId + '/submission/sas',
                         allowedFileTypes: ['application/zip', 'application/x-zip-compressed'],
-                        maxFileSizeInBytes: 1024 * 1024 * 1024,
+                        maxFileSizeInBytes: 20 * 1024 * 1024 * 1024,  // 20GB
                         validateBeforeFilePrompt: function() {
                             if ($('#submission_method_name').length == 0) {
                                 // if we dont have submision method field, just skip this check
@@ -1079,7 +1079,7 @@ var CodaLab;
                 buttonId: 'uploadButton',
                 sasEndpoint: '/api/competition/create/sas',
                 allowedFileTypes: ['application/zip', 'application/x-zip-compressed'],
-                maxFileSizeInBytes: 1024 * 1024 * 1024,
+                maxFileSizeInBytes: 20 * 1024 * 1024 * 1024,  // 20GB
 
                 beforeSelection: function(info, valid) {
                     $('#uploadButton').addClass('disabled');
