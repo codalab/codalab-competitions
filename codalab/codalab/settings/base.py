@@ -380,6 +380,7 @@ class Base(Settings):
     BUNDLE_AZURE_ACCOUNT_NAME = os.environ.get('BUNDLE_AZURE_ACCOUNT_NAME', AZURE_ACCOUNT_NAME)
     BUNDLE_AZURE_ACCOUNT_KEY = os.environ.get('BUNDLE_AZURE_ACCOUNT_KEY', AZURE_ACCOUNT_KEY)
     BUNDLE_AZURE_CONTAINER = os.environ.get('BUNDLE_AZURE_CONTAINER', 'bundles')
+    AZURE_BLOB_SERVICE_HOST_BASE = os.environ.get('AZURE_BLOB_SERVICE_HOST_BASE')
 
 
     # =========================================================================
