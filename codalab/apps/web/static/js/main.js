@@ -305,7 +305,7 @@ var CodaLab;
                             if (info.files[0].errors[0].kind === 'type-error') {
                                 $('#details').html('<div class="alert alert-error">Please select a valid file. Only ZIP files are accepted.</div>');
                             } else {
-                                $('#details').html('<div class="alert alert-error">The files that you selected is too large. There is a 1GB size limit.</div>');
+                                $('#details').html('<div class="alert alert-error">The files that you selected is too large. There is a 20GB size limit.</div>');
                             }
                         }
                         $('#uploadButton').removeClass('disabled');

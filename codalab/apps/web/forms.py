@@ -1,6 +1,7 @@
 import os
 
 from django import forms
+from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth import get_user_model
@@ -140,6 +141,18 @@ class PageForm(forms.ModelForm):
                                      mce_attrs={"theme" : "advanced", "cleanup_on_startup" : True, "theme_advanced_toolbar_location" : "top", "gecko_spellcheck" : True}),
                     'DELETE' : forms.HiddenInput, 'container' : forms.HiddenInput}
 
+    def clean_label(self):
+        cleaned_data = super(PageForm, self).clean()
+        label = cleaned_data.get('label')
+        if label:
+            existing_website = models.Page.objects.filter(
+                competition=self.instance.competition,
+                label=label
+            ).exclude(pk=self.instance.pk)
+            if existing_website.exists():
+                raise forms.ValidationError('Website Name is invalid. This name is already in use.', code='invalid')
+        return label
+
     def save(self, commit=True):
 
         instance = super(PageForm, self).save(commit=False)
@@ -248,6 +261,7 @@ class UserSettingsForm(forms.ModelForm):
             'participation_status_updates',
             'organizer_status_updates',
             'organizer_direct_message_updates',
+            'allow_admin_status_updates',
             'organization_or_affiliation',
             'email_on_submission_finished_successfully',
             'team_name',

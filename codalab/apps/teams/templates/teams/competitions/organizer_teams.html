@@ -15,7 +15,9 @@
         <a href="{% url "competitions:view" pk=form.competition.pk %}" class="pull-right">Go Back to Competition Homepage</a>
     </div>
     <div id="main_container" class="container-fluid">
-        {{ form.non_field_errors }}
+        <div class="form-group {% if form.non_field_errors %}alert alert-danger{% endif %}">
+            {{ form.non_field_errors }}
+        </div>
         <form action="" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <div id="panel_container" class="panel panel-default">
@@ -46,24 +48,39 @@
             margin: 0 auto;
             padding: 1em;
         }
+
         #id_name {
             width: 40%;
         }
+
         .form-group {
             width: 96%;
             margin: 0.5em auto;
         }
+
         #panel_container {
             margin: 1em auto;
             width: 80%;
             padding-bottom: 2em;
             padding-top: 1em;
         }
+
         #pull-middle {
             text-align: center;
         }
+
         #submit_button {
             margin: 1em auto;
+        }
+
+        .alert.alert-danger {
+            width: 80%;
+            margin: 1em auto;
+        }
+
+        .alert.alert-danger ul{
+            list-style-type: none;
+            text-align: center;
         }
     </style>
 {% endblock %}
