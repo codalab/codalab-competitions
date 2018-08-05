@@ -8,13 +8,28 @@
         <form action="" method="post">
             {% csrf_token %}
             <table class="table table-bordered">
-                {{ form.as_table }}
+                <tr>
+                    <th><label for="id_name">Name:</label><span class="alert-error">{{ form.name.errors }}</span></th>
+                    <td>{{ form.name }}</td>
+                </tr>
+                <tr>
+                    <th><label for="id_is_public">Is public:</label><span class="alert-error">{{ form.is_public.errors }}</span></th>
+                    <td>{{ form.is_public }}</td>
+                </tr>
+                <tr>
+                    <th><label for="id_organizers">Organizers:</label></th>
+                    <td><select multiple="multiple" id="id_organizers" name="organizers">
+                        {% for user in object.organizers.all %}
+                            <option value="{{ user.pk }}" selected>{{ user }}</option>
+                        {% endfor %}
+                    </select><br/><span class="helptext">(Organizers allowed to view this queue when they assign their competition to a queue) </span>
+                    </td>
+                </tr>
             </table>
 
             <input type="submit" value="Save" class="btn btn-primary" style="float: right;">
         </form>
     </div>
-
 
     <style>
         .select2-container {
@@ -24,7 +39,16 @@
 
     <script type="text/javascript">
         $('document').ready(function () {
-            $("#id_organizers").select2()
+            $("#id_organizers").select2({
+                width: "100%",
+                dropdownAutoWidth: true,
+                ajax: {
+                    url: '/user_lookup/',
+                    delay: 250
+                },
+                cache: true,
+                minimumInputLength: 1
+            });
         })
     </script>
 {% endblock %}
