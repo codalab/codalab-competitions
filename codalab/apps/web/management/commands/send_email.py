@@ -56,11 +56,12 @@ class Command(BaseCommand):
         assert options['subject'], "Subject argument is required"
 
         if options['only_active_users']:
-            competition_owners = [c.creator for c in Competition.objects.all().distinct('creator').order_by('creator')]
+            competition_owners_query = Competition.objects.filter(creator__allow_admin_status_updates=True).distinct('creator').order_by('creator')
+            competition_owners = [c.creator for c in competition_owners_query]
             active_users_query = CompetitionSubmission.objects.filter(
                 started_at__gte=now() - timedelta(days=60),
-                participant__user__allow_admin_status_updates=True).distinct(
-                'participant__user'
+                participant__user__allow_admin_status_updates=True
+            ).distinct('participant__user'
             ).order_by('participant__user').select_related('participant')
             active_users = [s.participant.user for s in active_users_query]
             combined = set().union(competition_owners, active_users)

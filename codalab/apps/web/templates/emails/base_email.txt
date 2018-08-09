@@ -1,11 +1,7 @@
 Hello {{ user.username }},
+{% block title %}{% endblock %}
 
-{% block title %}
-{% endblock %}
-
-{% block content %}
-{% endblock %}
-
+{% block content %}{% endblock %}
 
 Thanks,
 
