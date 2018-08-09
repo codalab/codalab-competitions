@@ -69,7 +69,7 @@ class Command(BaseCommand):
 
             if options['dry_run']:
                 print("If this were a real run, I'd send the following to {} users:".format(len(combined)))
-                html_content, text_content = self._render_template(options['template'], combined[0])
+                html_content, text_content = self._render_template(options['template'], list(combined)[0])
                 print(text_content)
                 print(html_content)
             else:
