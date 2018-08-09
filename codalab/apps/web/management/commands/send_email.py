@@ -5,10 +5,7 @@ from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core.mail import EmailMultiAlternatives
 from django.template import Context, Template
-from django.template.loader import render_to_string
-from django.utils import timezone
 from django.core.management.base import BaseCommand
-from django.utils.html import strip_tags
 from django.utils.timezone import now
 
 from lxml import html
