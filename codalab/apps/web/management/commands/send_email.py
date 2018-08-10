@@ -10,6 +10,7 @@ from django.utils.timezone import now
 
 from lxml import html
 
+from apps.authenz.models import ClUser
 from apps.web.models import CompetitionSubmission, Competition
 
 
@@ -48,12 +49,20 @@ class Command(BaseCommand):
             dest='template',
             action="store",
             help="Template to use for email, it extends the base email template",
+        ),
+        make_option(
+            '--email_to', '-e',
+            dest='email_to',
+            action="store",
+            help="Overrides other behaviors (like 'send only to active users') and sends to only the specified email",
         )
     )
 
     def handle(self, *args, **options):
         assert options['template'], "Template argument is required"
         assert options['subject'], "Subject argument is required"
+
+        users_to_send_to = []
 
         if options['only_active_users']:
             competition_owners_query = Competition.objects.filter(creator__allow_admin_status_updates=True).distinct('creator').order_by('creator')
@@ -64,26 +73,29 @@ class Command(BaseCommand):
             ).distinct('participant__user'
             ).order_by('participant__user').select_related('participant')
             active_users = [s.participant.user for s in active_users_query]
-            combined = set().union(competition_owners, active_users)
+            users_to_send_to = set().union(competition_owners, active_users)
 
-            assert combined, "No users to send to, no template to render!"
+        if options['email_to']:
+            # Filter instead of get here to return a list
+            users_to_send_to = ClUser.objects.filter(email=options['email_to'])
 
-            if options['dry_run']:
-                print("If this were a real run, I'd send the following to {} users:".format(len(combined)))
-                html_content, text_content = self._render_template(options['template'], list(combined)[0])
-                print(text_content)
-                print(html_content)
-            else:
-                for user in combined:
-                    html_content, text_content = self._render_template(options['template'], user)
-                    self._send_email(
-                        options['subject'],
-                        html_content,
-                        text_content,
-                        user.email,
-                    )
+        assert users_to_send_to, "No users to send to, no template to render!"
+
+        if options['dry_run']:
+            print("If this were a real run, I'd send the following to {} users:".format(len(users_to_send_to)))
+            html_content, text_content = self._render_template(options['template'], list(users_to_send_to)[0])
+            print(text_content)
+            print("\n\n------------- HTML BELOW -------------\n\n")
+            print(html_content)
         else:
-            raise NotImplemented()
+            for user in users_to_send_to:
+                html_content, text_content = self._render_template(options['template'], user)
+                self._send_email(
+                    options['subject'],
+                    html_content,
+                    text_content,
+                    user.email,
+                )
 
     def _render_template(self, template_file, user):
         context = {
