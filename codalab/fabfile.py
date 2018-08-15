@@ -52,7 +52,7 @@ def compute_worker_init(BROKER_URL, BROKER_USE_SSL=False):
     """Initializes compute worker by installing docker and the compute worker image
 
     Meant to be used with `hosts` like so, for an SSL'd server:
-        fab hosts:prod_workers compute_worker_initialize:pyamqp://blahblah/,True
+        fab hosts:prod_workers compute_worker_init:pyamqp://blahblah/,True
     """
     # Get proper SSL flag value
     BROKER_USE_SSL = bool(BROKER_USE_SSL)
