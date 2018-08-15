@@ -1354,6 +1354,15 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
         '''Generated from the result scoring step of evaluation a submission'''
         return self.metadatas.get(is_scoring=True)
 
+    @property
+    def run_time(self):
+        if self.started_at and self.completed_at:
+            return self.completed_at - self.started_at
+        elif self.started_at:
+            return now() - self.started_at
+        else:
+            return None
+
     def get_chahub_is_valid(self):
         return self.phase.competition.published
 

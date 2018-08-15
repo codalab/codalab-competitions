@@ -112,12 +112,12 @@ def health(request):
 def simple_health(request):
     if not request.user.is_staff:
         return HttpResponse(status=404)
-    qs = CompetitionSubmission.objects.filter(submitted_at__gte=now() - timedelta(days=2))
+    qs = CompetitionSubmission.objects.all()
     qs = qs.order_by('-submitted_at')
     qs = qs.select_related('phase__competition')
     qs = qs.select_related('participant__user__username')
     return render(request, "health/simple_health.html", {
-        "submissions": qs,
+        "submissions": qs[:100],
     })
 
 
