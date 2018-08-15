@@ -118,7 +118,7 @@ def simple_health(request):
     qs = qs.select_related('participant__user__username')
     qs = qs.prefetch_related('phase', 'status')
     return render(request, "health/simple_health.html", {
-        "submissions": qs[:100],
+        "submissions": qs[:250],
     })
 
 
