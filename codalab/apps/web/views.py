@@ -1024,7 +1024,7 @@ class MyCompetitionParticipantView(LoginRequiredMixin, ListView):
         context['pending_participants'] = filter(lambda participant_submission: participant_submission.status.codename == models.ParticipantStatus.PENDING, competition_participants)
         participant_submissions = models.CompetitionSubmission.objects.filter(participant__in=competition_participants_ids)
         for number, participant in enumerate(competition_participants):
-            team = get_user_team(participant.user, participant.competition)
+            team = get_user_team(participant, participant.competition)
             if team is not None:
                 team_name = team.name
             else:
