@@ -17,9 +17,8 @@ class CompetitionTeamsTests(TestCase):
         self.creator.save()
 
         self.competition = Competition.objects.create(creator=self.creator, modified_by=self.creator)
-        # self.competition.admins.add(self.admin)
-        self.competition.save()
 
+        # Not sure why this status doesn't exist?
         self.part_status = ParticipantStatus.objects.create(
             name='Approved',
             codename=ParticipantStatus.APPROVED,
@@ -33,9 +32,7 @@ class CompetitionTeamsTests(TestCase):
             reason="Creator"
         )
 
-    # def test_organizer_teams_permissions(self):
     def test_organizer_is_member_after_creating_team(self):
-        # Creator and Admin should be allowed.
         self.client.login(username='testuser', password='test')
 
         resp = self.client.post(
@@ -49,9 +46,6 @@ class CompetitionTeamsTests(TestCase):
         new_team.status = TeamStatus.objects.get(codename=TeamStatus.APPROVED)
         new_team.save()
 
-        # requests.post(url=reverse('team_new', kwargs={'competition_pk': self.competition.pk}), data={'name': "Test Team", 'description': "A team for automated tests!", 'allow_requests': False})
-
         assert resp.status_code == 302
         assert resp.url == 'http://testserver/teams/1/'
-        # user_team = get_user_team(self.creator_part, self.competition)
         assert get_user_team(self.creator_part, self.competition) != None
