@@ -102,8 +102,11 @@ class ChaHubSaveMixin(models.Model):
 
         # Make sure we're not sending these in tests
         if settings.CHAHUB_API_URL:
-            if self.get_chahub_is_valid() and not self.chahub_needs_retry:
-                logger.info("Chahub model mixin passed validation")
+            is_valid = self.get_chahub_is_valid()
+
+            logger.info("ChaHub :: {}={} is_valid = {}".format(self.__class__.__name__, self.pk, is_valid))
+
+            if is_valid and not self.chahub_needs_retry:
                 data = json.dumps(self.get_chahub_data())
                 data_hash = hashlib.md5(data).hexdigest()
 
@@ -124,5 +127,3 @@ class ChaHubSaveMixin(models.Model):
 
                     # We save at the beginning, but then again at the end to save our new chahub timestamp and such
                     super(ChaHubSaveMixin, self).save(force_update=True)
-            else:
-                logger.info("ChaHub :: Model failed validation")
