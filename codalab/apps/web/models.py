@@ -331,7 +331,7 @@ class Competition(ChaHubSaveMixin, models.Model):
             submitted_at__gt=now() - datetime.timedelta(days=30)
         ).exists()
 
-        return {
+        return [{
             "remote_id": self.id,
             "title": self.title,
             "created_by": str(self.creator),
@@ -347,7 +347,7 @@ class Competition(ChaHubSaveMixin, models.Model):
             "prize": self.reward,
             "url_redirect": self.url_redirect,
             "published": self.published
-        }
+        }]
 
     def save(self, *args, **kwargs):
         # Make sure the image_url_base is set from the actual storage implementation
