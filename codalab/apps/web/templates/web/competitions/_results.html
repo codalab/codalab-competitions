@@ -1,9 +1,9 @@
 <div id="results_phase_buttons">
   {% for phase in competition.phases.all %}
     {% if phase.is_active %}
-      <button class="btn active phase-btn-{{ phase.color }}" id="results_phase_{{phase.id}}">{{phase.label}}</button>
+      <button class="btn btn-sm active phase-btn-{{ phase.color }}" id="results_phase_{{phase.id}}">{{phase.label}}</button>
     {% else %}
-      <button class="btn phase-btn-{{ phase.color }}" id="results_phase_{{phase.id}}">{{phase.label}}</button>
+      <button class="btn btn-sm phase-btn-{{ phase.color }}" id="results_phase_{{phase.id}}">{{phase.label}}</button>
     {% endif %}
   {% endfor %}
 </div>

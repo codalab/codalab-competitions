@@ -506,6 +506,8 @@ class Competition(ChaHubSaveMixin, models.Model):
                 submission.save()
 
                 evaluate_submission.apply_async((new_submission.pk, current_phase.is_scoring_only))
+
+
         except PhaseLeaderBoard.DoesNotExist:
             pass
 
@@ -1354,6 +1356,8 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
     team = models.ForeignKey(Team, related_name='team', null=True, blank=True)
 
     queue_name = models.TextField(null=True, blank=True)
+
+    task_id = models.CharField(default='', max_length=64)
 
     class Meta:
         unique_together = (('submission_number','phase','participant'),)
