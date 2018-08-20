@@ -96,6 +96,7 @@
                     <th>Filename</th>
                     <th>Submission date</th>
                     <th>Status</th>
+                    <th>Cancel</th>
                     <th class="text-center"><span class="glyphicon glyphicon-ok"></span></th>
                 </tr>
                 </thead>
@@ -132,6 +133,7 @@
                             <td>{{ submission_info.filename }}</td>
                             <td>{{ submission_info.submitted_at|date:"m/d/Y H:i:s" }}</td>
                             <td class="statusName">{{ submission_info.status_name }}</td>
+                            <td><a href="{% url 'competitions:submission_cancel' pk=submission_info.id %}">Cancel</a></td>
                             {% if submission_info.is_in_leaderboard %}
                                 <td class="status submitted text-center"><span
                                         class="glyphicon glyphicon-ok text-success"></span></td>

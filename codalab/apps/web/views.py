@@ -45,7 +45,7 @@ from apps.web.exceptions import ScoringException
 from apps.web.forms import CompetitionS3UploadForm, SubmissionS3UploadForm, CompetitionGCSUploadForm, \
     OrganizerDataSetModelForm
 from apps.web.models import SubmissionScore, SubmissionScoreDef, get_current_phase, \
-    get_first_previous_active_and_next_phases, CompetitionDefBundle
+    get_first_previous_active_and_next_phases, CompetitionDefBundle, CompetitionSubmission, CompetitionSubmissionStatus
 
 from tasks import evaluate_submission, re_run_all_submissions_in_phase, create_competition, _make_url_sassy, \
     make_modified_bundle
@@ -54,6 +54,8 @@ from apps.teams.models import TeamMembership, get_user_team, get_competition_tea
 from extra_views import UpdateWithInlinesView, InlineFormSet, NamedFormsetsMixin
 
 from .utils import check_bad_scores
+
+from codalab.celery import app
 
 try:
     import azure
@@ -1499,21 +1501,26 @@ class SubmissionDelete(LoginRequiredMixin, DeleteView):
         return obj
 
 
-class SubmissionCancel(LoginRequiredMixin, View):
+class SubmissionCancel(LoginRequiredMixin, CreateView):
+    http_method_names = ['get']
     model = models.CompetitionSubmission
     template_name = "web/my/submission_cancel.html"
 
-    # def get_object(self, queryset=None):
-    #     obj = super(SubmissionDelete, self).get_object(queryset)
-    #
-    #     is_admin = self.request.user in obj.phase.competition.admins.all()
-    #     # Check user is owner, competition creator, or competition admin
-    #     if obj.participant.user != self.request.user and obj.phase.competition.creator != self.request.user and not is_admin:
-    #         raise Http404()
-    #     self.success_url = reverse("competitions:view", kwargs={"pk": obj.phase.competition.pk})
-    #     return obj
-
-
+    def get(self, request, *args, **kwargs):
+        submission_pk = kwargs.get('pk')
+        submission = CompetitionSubmission.objects.get(pk=submission_pk)
+        competition = submission.phase.competition
+        is_admin = request.user in competition.admins.all() or request.user == competition.creator
+        print("Is current user admin?: {}".format(is_admin))
+        # If we're an admin or we made the submission
+        if is_admin or request.user == submission.participant.user:
+            # Terminate the task in celery, then set the status to cancelled. Return to detail view
+            app.control.revoke(submission.task_id, terminate=True)
+            submission.status = CompetitionSubmissionStatus.objects.get(codename=CompetitionSubmissionStatus.CANCELLED)
+            submission.save()
+            return HttpResponseRedirect(reverse("competitions:view", kwargs={"pk": competition.pk}) + "#participate-submit_results")
+        else:
+            return HttpResponseForbidden()
 
 
 
