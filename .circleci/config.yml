@@ -39,10 +39,11 @@ jobs:
           command: cp circlec_dev_setup.py codalab/codalab/settings/local.py
       - run:
           name: Sync DB and Migrate
-          command: cd codalab && python manage.py syncdb && python manage.py migrate
+#          command: cd codalab && python manage.py syncdb && python manage.py migrate
+          command: cd codalab && python manage.py syncdb --migrate
       - run:
           name: Run PyTest
-          command: py.test
+          command: cd codalab && py.test
 #  test:
 #    working_directory: codalab
 #    docker:
