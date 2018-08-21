@@ -1,0 +1,69 @@
+#machine:
+#  python:
+#    version: 2.7.10
+#  environment:
+#    DJANGO_SETTINGS_MODULE: codalab.settings
+#    DJANGO_CONFIGURATION: Dev
+#
+#dependencies:
+#  pre:
+#    - pip install -r codalab/requirements/common.txt
+#    - cp ~/codalab-competitions/circlec_dev_setup.py ~/codalab-competitions/codalab/codalab/settings/local.py
+#
+#test:
+#  override:
+#    - (cd codalab && py.test)
+
+version: 2
+jobs:
+  build:
+#    working_directory: ~/project/codalab-competitions
+    environment:
+      DJANGO_SETTINGS_MODULE: codalab.settings
+      DJANGO_CONFIGURATION: Dev
+    docker:
+      - image: circleci/python:2.7.15
+    steps:
+      - checkout
+      - run:
+          name: Set ENV Vars
+          command: export DJANGO_SETTINGS_MODULE="codalab.settings" && export DJANGO_CONFIGURATION="Dev"
+      - run:
+          name: CHOWN Python Library Dirs
+          command: sudo chown -R $(whoami) /usr/local/
+      - run:
+          name: PIP Install Requirements
+          command: pip install -r codalab/requirements/common.txt
+      - run:
+          name: Copy settings
+          command: cp circlec_dev_setup.py codalab/codalab/settings/local.py
+      - run:
+          name: Sync DB and Migrate
+          command: cd codalab && python manage.py syncdb && python manage.py migrate
+      - run:
+          name: Run PyTest
+          command: py.test
+#  test:
+#    working_directory: codalab
+#    docker:
+#      - image: python:2.7.15-alpine3.7
+#    steps:
+#      - checkout
+#      - run:
+#          name: Run PyTest
+#          command: python -m pytest
+#      - run:
+#          name: What is Going on?
+#          command: ls -all
+#      - store_artifacts:
+#          path: test-results.xml
+#          prefix: tests
+#      - store_artifacts:
+#          path: coverage
+#          prefix: coverage
+#workflows:
+#  version: 2
+#  build_and_test:
+#    jobs:
+#      - build
+#      - test
