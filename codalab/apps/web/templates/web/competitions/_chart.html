@@ -52,7 +52,7 @@
                         suggestedMin: -0.1,
                         suggestedMax: 1.2,
                         // Reverse the score axis if we're doing descending (1 is better than 0)
-                        reverse: "{{ graph.sorting }}" !== "asc"
+                        reverse: "{{ graph.sorting }}" === "asc"
                     }
                 }]
             }
