@@ -73,6 +73,48 @@ def _put_blob(url, file_path):
     )
 
 
+def dynamic_date_count(date_obj):
+    # All units off seconds
+    secs_left = abs(date_obj.seconds)
+    mins_left = abs(date_obj.seconds / 60)
+    hours_left = abs((date_obj.seconds / 60) / 60)
+
+    # All units off days
+    days_left = abs(date_obj.days)
+    weeks_left = abs(date_obj.days / 7) # Divide days by 7
+    months_left = abs(weeks_left / 4)
+    years_left = abs(months_left / 12)
+
+    if years_left > 1:
+        return "~{} years left".format(years_left)
+    else:
+        if months_left > 1:
+            return "~{} months left".format(months_left)
+        else:
+            if weeks_left > 1:
+                return "~{} weeks left".format(weeks_left)
+            else:
+                if days_left > 1:
+                    return "~{} days left".format(days_left)
+                else:
+                    if hours_left > 1:
+                        return "~{} hours left".format(hours_left)
+                    else:
+                        if days_left > 1:
+                            return "~{} days left".format(days_left)
+                        else:
+                            if hours_left > 1:
+                                return "~{} hours left".format(hours_left)
+                            else:
+                                if mins_left > 1:
+                                    return "~{} mins left".format(mins_left)
+                                else:
+                                    if secs_left > 1:
+                                        return "~{} secs left".format(secs_left)
+                                    else:
+                                        return "Competition Ending"
+
+
 def inheritors(klass):
     subclasses = set()
     work = [klass]

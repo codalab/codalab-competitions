@@ -18,8 +18,20 @@
     <script src="https://cdn.jsdelivr.net/npm/riot@3.11/riot+compiler.min.js"></script>
 
     <style>
+        body {
+            background-color: rgba(233, 233, 233, 1)
+        }
+
         #public_submission_table th b {
             cursor: pointer;
+        }
+
+        .header-count {
+            margin-left: 1% !important;
+            margin-right: 1% !important;
+            font-size: 16px !important;
+            font-weight: bolder !important;
+            font-family: "Segoe UI", "SansSerif";
         }
     </style>
 {% endblock %}
@@ -44,11 +56,11 @@
         <hr>
     {% endif %}
 
-    <div class="competition-view row well">
-        <div style="padding: 0;" class="col-sm-2">
+    <div class="competition-view row well" style="padding: 0px;">
+        <div align="center" style="border: 2px solid rgba(0, 0, 0, 0.1); padding: 0; background-color: rgba(233, 233, 233, 1);" class="col-sm-2">
             {#                <div class="img-container">#}
             {% if competition.image_url %}
-                <img class="" style="width: 168px; height: auto; border: solid 1px #dddddd;"
+                <img class="" style="width: 120px; height: auto; border: solid 1px #dddddd;"
                      src="{{ competition.image_url }}">
             {% else %}
                 <img class="img-responsive" style="width: 168px; height: auto;"
@@ -56,14 +68,16 @@
             {% endif %}
             {#                </div>#}
         </div>
-        <div align="center" style="padding-top: 5vh;" class="col-sm-10">
+        <div align="center" style="padding: 0;" class="col-sm-10">
             <div class="row">
                 {#                {% if competition.end_date %}#}
-                <div style="border: 1px solid rgba(255,79,79,1); border-radius: 5px; background-color: rgba(255,79,79,1); max-width: 10vw; padding-top: 5px; padding-bottom: 5px;" class="well">
+                <div style="border: 1px solid rgba(255,79,79,1); border-radius: 5px; background-color: rgba(255,79,79,1); max-width: 15vw; padding-top: 5px; padding-bottom: 5px; margin: 0; margin-top: 2vh; margin-bottom: 2vh;" class="well">
                     {#                <div style="background-color: #ff4f4f" class="well">#}
-                    <i style="color: white; font-size: 20px;" class="large glyphicon glyphicon-bell"></i>
+{#                    <i style="color: white; font-size: 20px;" class="large glyphicon glyphicon-bell"></i>#}
                     <div style="color: white;" class="date">
-                        {% if competition.end_date %}{{ competition.end_date|utc }} UTC{% else %}Never{% endif %}
+{#                        {% if competition.end_date %}{{ competition.end_date|utc }} UTC{% else %}Never{% endif %}#}
+{#                        {{ competition.end_date|timeuntil:timezone_now }}#}
+                        {{ competition.end_date|timeuntil:timezone_now }}
                     </div>
                 </div>
                 {#                {% endif %}#}
@@ -71,31 +85,36 @@
                 <input type="hidden" id="competitionId" value="{{ competition.id }}"/>
                 <input type="hidden" id="cstoken" value="{{ csrf_token }}"/>
 
-                <div style="background-color: rgba(130, 165, 195, 0.5); max-height: 5vh; padding-top: 0; margin-bottom: 0;"
+                <div style="background-color: rgba(130, 165, 195, 0.5); max-width: 60vw !important; margin: 0 !important;"
                      class="well competition-status">
-                    <ul class="list-inline text-center">
-                        <li>Participants:{{ participant_count }}</li>
-                        <li>Submissions: {{ submission_count }}</li>
+                    <ul style="" class="list-inline">
+                        <li class="header-count">Server Time:{{ current_server_time|utc }} UTC</li>
+                        <li class="header-count">Start:{{ competition.start_date }}</li>
+                        {% if competition.end_date %}<li class="header-count">End:{{ competition.end_date }}</li>{% endif %}
+                        <li class="header-count">Participants:{{ participant_count }}</li>
+
+                        {% if competition.enable_teams %}<li class="header-count">Teams: {{ team_count }}</li>{% endif %}
+                        <li class="header-count">Submissions: {{ submission_count }}</li>
                         {% if competition.reward %}
-                            <li>Reward: {{ competition.reward }}</li>
+                            <li class="header-count">Reward: {{ competition.reward }}</li>
                         {% endif %}
-                        {% if time_remaining %}
-                            <li>Days Left: {{ time_remaining }}</li>
-                        {% endif %}
+{#                        {% if time_remaining %}#}
+{#                            <li>Days Left: {{ time_remaining }}</li>#}
+{#                        {% endif %}#}
                     </ul>
                 </div>
                 <div class="organizer">
-                    Organized by {{ competition.creator }} - Current server time: {{ current_server_time|utc }} UTC<br>
+                    Organized by {{ competition.creator }}<br>
                     {% if competition.reward and competition.reward > 0 %}
                         Reward <b>${{ competition.reward|intcomma }}</b>
                     {% endif %}
                 </div>
             </div>
         </div>
-        <div style="max-height: 10vh; padding-left: 7.5vw; margin-top: 20vh; padding-top: 5vh;" class="row">
-            <section class="competition-tabs">
+        <div align="center" style="max-height: 10vh; padding-left: 7.5vw; margin-top: 20vh; padding-top: 5vh;" class="row">
+            <section style="margin: 0 !important; max-width: 60vw !important;" class="competition-tabs">
                 {#                <ul class="nav nav-tabs" id="competition_tab_nav">#}
-                <ul style="" class="list-inline text-center" id="competition_tab_nav">
+                <ul style="margin-left: 10vw;" class="list-inline text-center nav nav-tabs" id="competition_tab_nav">
                     {% for tab, contents in tabs.items %}
                         {% if tab.codename == "participate" %}
                             {% if not competition.has_single_phase %}
@@ -103,22 +122,22 @@
                                 <li><a class="btn btn-primary" href="#phases" role="tab" data-toggle="tab">Phases</a></li>
                             {% endif %}
                         {% endif %}
-                        <li><a class="btn btn-primary" href="#{{ tab.codename|slugify }}" role="tab" data-toggle="tab">{{ tab.name }}</a></li>
+                        <li><a class="" href="#{{ tab.codename|slugify }}" role="tab" data-toggle="tab">{{ tab.name }}</a></li>
                         {% if tab.codename == "results" %}
                             {#         Put this after results tab#}
                             {% if competition.allow_public_submissions %}
                                 <!--<li><a href="#public_submissions" role="tab" data-toggle="tab">Public submissions</a></li>-->
-                                <li><a class="btn btn-primary" href="{% url 'competitions:public_submissions' pk=competition.pk %}">Public
+                                <li><a class="" href="{% url 'competitions:public_submissions' pk=competition.pk %}">Public
                                     Submissions</a></li>
                             {% endif %}
                             {% if competition.enable_forum %}
-                                <li><a class="btn btn-primary" href="{% url 'forum_detail' forum_pk=competition.forum.pk %}">Forums <i
+                                <li><a class=" href="{% url 'forum_detail' forum_pk=competition.forum.pk %}">Forums <i
                                         class="glyphicon glyphicon-log-in"></i></a></li>
                             {% endif %}
                             {% if competition.enable_teams %}
                                 {% if my_status == "approved" %}
                                     <li>
-                                        <a class="btn btn-primary" href="{% url 'team_detail' competition_pk=competition.pk %}">Team
+                                        <a class="" href="{% url 'team_detail' competition_pk=competition.pk %}">Team
                                             <i class="glyphicon glyphicon-cog"></i>
                                             {% if new_team_submission > 0 %}
                                                 <span class="label label-danger">{{ new_team_submission }}</span>
@@ -228,9 +247,10 @@
 
         {% endfor %}
     </div>
-    <div style="margin-top: 5vh;" class="row">
-        <div class="col-lg-12 well">
-            {% if competition.show_top_three and top_three %}
+    {% if competition.show_top_three and top_three %}
+        <div style="margin-top: 5vh;" class="row">
+            <div class="col-lg-12 well">
+
                 <table class="table">
                     <thead>
                     <tr>
@@ -243,6 +263,8 @@
                         <th>#</th>
                         <th>Username</th>
                         <th>Score</th>
+                        <th>Last Submission</th>
+                        <th>Team(?)</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -251,12 +273,15 @@
                             <td>{{ forloop.counter }}</td>
                             <td>{{ leader.username }}</td>
                             <td>{{ leader.score }}</td>
+                            <td>{{ leader.last_submission_date|date:'d-m-Y' }}</td>
+                            <td>{{ leader.team }}</td>
                         </tr>
                     {% endfor %}
                     </tbody>
                 </table>
-            {% endif %}
+            </div>
         </div>
+    {% endif %}
 {#        <div class="col-sm-8">#}
 {#            {% if competition.show_chart %}#}
 {#                {% if graph %}#}

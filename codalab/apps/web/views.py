@@ -49,11 +49,12 @@ from apps.web.models import SubmissionScore, SubmissionScoreDef, get_current_pha
 
 from tasks import evaluate_submission, re_run_all_submissions_in_phase, create_competition, _make_url_sassy, \
     make_modified_bundle
-from apps.teams.models import TeamMembership, get_user_team, get_competition_teams, get_competition_pending_teams, get_competition_deleted_teams, get_last_team_submissions, get_user_requests, get_team_pending_membership
+from apps.teams.models import TeamMembership, get_user_team, get_competition_teams, get_competition_pending_teams, \
+    get_competition_deleted_teams, get_last_team_submissions, get_user_requests, get_team_pending_membership, Team
 
 from extra_views import UpdateWithInlinesView, InlineFormSet, NamedFormsetsMixin
 
-from .utils import check_bad_scores
+from .utils import check_bad_scores, dynamic_date_count
 
 from codalab.celery import app
 
@@ -527,6 +528,17 @@ class CompetitionDetailView(DetailView):
 
         context["first_phase"], context["previous_phase"], context['active_phase'], context["next_phase"] = get_first_previous_active_and_next_phases(competition)
 
+        context["team_count"] = Team.objects.filter(competition=competition).count()
+
+        # if competition.end_date and competition.end_date != timezone.now():
+        #     temp_date_diff = competition.end_date - timezone.now()
+        #     context["time_left"] = dynamic_date_count(temp_date_diff)
+
+        # if competition.end_date and competition.end_date != timezone.now():
+        #     context['time_left'] = competition.end_date - timezone.now()
+
+        context['timezone_now'] = timezone.now()
+
         try:
             truncate_date = connection.ops.date_trunc_sql('day', 'submitted_at')
             score_def = SubmissionScoreDef.objects.filter(competition=competition).order_by('ordering').first()
@@ -557,13 +569,22 @@ class CompetitionDetailView(DetailView):
 
                     top_three_list = []
 
+                    print("############################################################################")
+
                     for group in scores:
                         for _, scoredata in group['scores']:
                             try:
                                 default_score = next(val for val in scoredata['values'] if val['name'] == default_score_key)
+                                temp_sub = CompetitionSubmission.objects.filter(participant__user__username=scoredata['username']).last()
+                                print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+                                print(temp_sub)
+                                print(temp_sub.submitted_at)
+                                print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
                                 top_three_list.append({
                                     "username": scoredata['username'],
-                                    "score": default_score['val']
+                                    "score": default_score['val'],
+                                    "last_submission_date": temp_sub.submitted_at,
+                                    "team": get_user_team(temp_sub.participant, competition).name
                                 })
                             except (KeyError, StopIteration):
                                 pass
@@ -1515,10 +1536,18 @@ class SubmissionCancel(LoginRequiredMixin, CreateView):
         # If we're an admin or we made the submission
         if is_admin or request.user == submission.participant.user:
             # Terminate the task in celery, then set the status to cancelled. Return to detail view
-            app.control.revoke(submission.task_id, terminate=True)
-            submission.status = CompetitionSubmissionStatus.objects.get(codename=CompetitionSubmissionStatus.CANCELLED)
-            submission.save()
-            return HttpResponseRedirect(reverse("competitions:view", kwargs={"pk": competition.pk}) + "#participate-submit_results")
+            if submission.status.codename == 'Running':
+                app.control.revoke(submission.task_id, terminate=True)
+                submission.status = CompetitionSubmissionStatus.objects.get(codename=CompetitionSubmissionStatus.CANCELLED)
+                submission.save()
+                return HttpResponseRedirect(
+                    reverse("competitions:view", kwargs={"pk": competition.pk}) + "#participate-submit_results"
+                )
+            else:
+                # We clicked cancel when the submission was not running. Still return them but don't do anything.
+                return HttpResponseRedirect(
+                    reverse("competitions:view", kwargs={"pk": competition.pk}) + "#participate-submit_results"
+                )
         else:
             return HttpResponseForbidden()
 
