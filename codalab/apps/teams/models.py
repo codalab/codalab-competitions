@@ -89,26 +89,83 @@ def get_allowed_teams(user,competition):
     return get_competition_teams(competition)
 
 
-def get_user_team(user, competition):
-    team = get_competition_user_teams(competition, user)
+# def get_user_team(user, competition):
+def get_user_team(participant, competition):
+    # The arg is called user, but it's really a participant
+    # This function just gets user's created teams that are approved
+    # and returns the first one or None
 
-    if team is not None:
-        return team
 
-    user_requests = get_user_requests(user, competition)
-    user_team = user_requests.filter(status=TeamMembershipStatus.objects.get(codename="approved")).all()
-    if len(user_team) == 0:
-        user_team = None
+    # team = get_competition_user_teams(competition, user)
 
-    if user_team is not None:
-        for req in user_team:
-            if req.is_active:
-                team = req
+    # team_list = Team.objects.filter(
+    #     competition=competition,
+    #     status=TeamStatus.objects.get(codename="approved"),
+    #     creator=user.user,
+    # ).all()
+    # if len(team_list) == 0:
+    #     team_list = None
+    # else:
+    #     team_list = team_list[0]
+    # return team_list
 
-    if team is not None:
-        team = team.team
+    # Then if the team isn't none we pick back up here and return that, else get all of our requests
+    # to other teams, and filter out where we're approved. We then see which one is active and set that to our team.
 
-    return team
+    # if team is not None:
+    #     return team
+    #
+    # user_requests = get_user_requests(user, competition)
+    # user_team = user_requests.filter(status=TeamMembershipStatus.objects.get(codename="approved")).all()
+    # if len(user_team) == 0:
+    #     user_team = None
+    #
+    # if user_team is not None:
+    #     for req in user_team:
+    #         if req.is_active:
+    #             team = req
+    #
+    # if team is not None:
+    #     team = team.team
+
+    user_created_teams = Team.objects.filter(competition=competition, creator=participant.user, status__codename='approved').select_related('status')
+    # print("HERE ARE USER CREATED TEAMS")
+    # print(user_created_teams)
+    # If we have user created teams
+    if user_created_teams is not None and len(user_created_teams) > 0:
+        return user_created_teams[0]
+    else:
+        # Else if no user created teams
+        # user_requested_teams = TeamMembership.objects.filter(user=participant.user, team__competition=competition)
+        # user_requested_teams = participant.user.comp_teams.all()
+        # if user_requested_teams is not None and len(user_requested_teams) > 0:
+        #     return user_requested_teams[0]
+        # user_approved_teams = user_requested_teams.filter(status__codename='approved')
+
+        user_approved_team_memberships = list(participant.user.team_memberships.filter(status__codename='approved').select_related('team', 'status'))
+
+        user_approved_active_teams = [membership for membership in user_approved_team_memberships if membership.is_active]
+
+        # print("HERE ARE USER REQEUSTED TEAMS")
+        # print(user_requested_teams)
+        #
+        # print("HERE ARE USER APPROVED TEAMS")
+        # print(user_approved_teams)
+
+        # print("HERE ARE USER APPROVED TEAM MEMBERSHIPS")
+        # print(user_approved_team_memberships)
+        #
+        # print("HERE ARE THE ACTIVE APPROVED TEAMS")
+        # print(user_approved_active_teams)
+
+        if user_approved_active_teams is not None and len(user_approved_active_teams) > 0:
+            return user_approved_active_teams[0].team
+        # elif user_approved_teams is not None and len(user_approved_teams) > 0:
+        #     return user_approved_teams[0]
+
+    return None
+
+    # return team
 
 
 def get_team_submissions(team, phase=None):
@@ -283,7 +340,7 @@ class TeamMembershipStatus(models.Model):
 
 
 class TeamMembership(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='team_memberships')
     team = models.ForeignKey(Team)
     is_invitation = models.BooleanField(default=False)
     is_request = models.BooleanField(default=False)
