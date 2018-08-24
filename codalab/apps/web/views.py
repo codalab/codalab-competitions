@@ -1112,11 +1112,8 @@ class MyCompetitionParticipantView(LoginRequiredMixin, ListView):
         for number, participant in enumerate(comp_participants):
             team = get_user_team(participant, competition)
             if team is not None:
-                print("TEAM IS NOT NONE")
                 team_name = team.name
-                print(team.name)
             else:
-                print("TEAM IS NONE")
                 team_name = ''
 
             participant_entry = {
