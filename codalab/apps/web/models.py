@@ -1782,7 +1782,8 @@ class CompetitionDefBundle(models.Model):
         # Populate competition pages
         pc,_ = PageContainer.objects.get_or_create(object_id=comp.id, content_type=ContentType.objects.get_for_model(comp))
         details_category = ContentCategory.objects.get(name="Learn the Details")
-        Page.objects.create(category=details_category, container=pc,  codename="overview", competition=comp,
+        home_category = ContentCategory.objects.get(name="Home")
+        Page.objects.create(category=home_category, container=pc,  codename="overview", competition=comp,
                                    label="Overview", rank=0, html=zf.read(comp_spec['html']['overview']))
         Page.objects.create(category=details_category, container=pc,  codename="evaluation", competition=comp,
                                    label="Evaluation", rank=1, html=zf.read(comp_spec['html']['evaluation']))

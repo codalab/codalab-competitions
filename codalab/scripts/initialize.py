@@ -92,25 +92,40 @@ def insert_data():
         ncv.save()
         content_visibility_items[codename] = ncv
 
-
-    ccs = [ { 'parent' : None,
-              'name' : "Learn the Details",
-              'codename' : "learn_the_details",
-              'visibility' : content_visibility_items['visible'],
-              'is_menu' : True,
-              'content_limit' : 1 },
-            { 'parent' : None,
-              'name' : "Participate",
-              'codename' : "participate",
-              'visibility' : content_visibility_items['visible'],
-              'is_menu' : True,
-              'content_limit' : 1 },
-            { 'parent' : None,
-              'name' : "Results",
-              'codename' : "results",
-              'visibility' : content_visibility_items['visible'],
-              'is_menu' : True,
-              'content_limit' : 1 } ]
+    ccs = [
+        {
+            'parent': None,
+            'name': "Home",
+            'codename': "home",
+            'visibility': content_visibility_items['visible'],
+            'is_menu': True,
+            'content_limit': 1
+        },
+        {
+            'parent': None,
+            'name': "Learn the Details",
+            'codename': "learn_the_details",
+            'visibility': content_visibility_items['visible'],
+            'is_menu': True,
+            'content_limit': 1
+        },
+        {
+            'parent': None,
+            'name': "Participate",
+            'codename': "participate",
+            'visibility': content_visibility_items['visible'],
+            'is_menu': True,
+            'content_limit': 1
+        },
+        {
+            'parent': None,
+            'name': "Results",
+            'codename': "results",
+            'visibility': content_visibility_items['visible'],
+            'is_menu': True,
+            'content_limit': 1
+        }
+    ]
 
     content_categories = dict()
     for category in ccs:
@@ -120,36 +135,48 @@ def insert_data():
         nc.save()
         content_categories[category['codename']] = nc
 
-    cis = [ { 'category' : content_categories['learn_the_details'],
-              'initial_visibility' : content_visibility_items['visible'],
-              'required' : True,
-              'rank' : 0,
-              'codename' : "overview",
-              'label' : "Overview" },
-            { 'category' : content_categories['learn_the_details'],
-              'initial_visibility' : content_visibility_items['visible'],
-              'required' : True,
-              'rank' : 1,
-              'codename' : "evaluate",
-              'label' : "Evaluate" },
-            { 'category' : content_categories['learn_the_details'],
-              'initial_visibility' : content_visibility_items['visible'],
-              'required' : True,
-              'rank' : 2,
-              'codename' : "terms_and_conditions",
-              'label' : "Terms and Conditions" },
-            { 'category' : content_categories['participate'],
-              'initial_visibility' : content_visibility_items['visible'],
-              'required' : True,
-              'rank' : 0,
-              'codename' : "get_data",
-              'label' : "Get Data" },
-            { 'category' : content_categories['participate'],
-              'initial_visibility' : content_visibility_items['visible'],
-              'required' : True,
-              'rank' : 1,
-              'codename' : 'submit_results',
-              'label' : "Submit / View Results" } ]
+    cis = [
+        {
+            'category': content_categories['home'],
+            'initial_visibility': content_visibility_items['visible'],
+            'required': True,
+            'rank': 0,
+            'codename': "overview",
+            'label': "Overview"
+        },
+        {
+            'category': content_categories['learn_the_details'],
+            'initial_visibility': content_visibility_items['visible'],
+            'required': True,
+            'rank': 1,
+            'codename': "evaluate",
+            'label': "Evaluate"
+        },
+        {
+            'category': content_categories['learn_the_details'],
+            'initial_visibility': content_visibility_items['visible'],
+            'required': True,
+            'rank': 2,
+            'codename': "terms_and_conditions",
+            'label': "Terms and Conditions"
+        },
+        {
+            'category': content_categories['participate'],
+            'initial_visibility': content_visibility_items['visible'],
+            'required': True,
+            'rank': 0,
+            'codename': "get_data",
+            'label': "Get Data"
+        },
+        {
+            'category': content_categories['participate'],
+            'initial_visibility': content_visibility_items['visible'],
+            'required': True,
+            'rank': 1,
+            'codename': 'submit_results',
+            'label': "Submit / View Results"
+        }
+    ]
 
     for dci in cis:
         from apps.web.models import DefaultContentItem
