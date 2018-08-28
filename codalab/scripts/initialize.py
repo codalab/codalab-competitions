@@ -92,6 +92,8 @@ def insert_data():
         ncv.save()
         content_visibility_items[codename] = ncv
 
+    # We're renaming these for AutoML/AutoTrackML
+
     ccs = [
         {
             'parent': None,
@@ -103,7 +105,7 @@ def insert_data():
         },
         {
             'parent': None,
-            'name': "Learn the Details",
+            'name': "Get Started",
             'codename': "learn_the_details",
             'visibility': content_visibility_items['visible'],
             'is_menu': True,
@@ -111,7 +113,7 @@ def insert_data():
         },
         {
             'parent': None,
-            'name': "Participate",
+            'name': "My Submissions",
             'codename': "participate",
             'visibility': content_visibility_items['visible'],
             'is_menu': True,

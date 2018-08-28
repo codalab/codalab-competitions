@@ -5,7 +5,7 @@
                 <li class="{% if forloop.first %}active{% endif %}"><a href="#{{tab.codename|slugify}}-{{content.codename|slugify}}" data-toggle="tab">{{content.label}}</a></li>
             {% endfor %}
             {% if tab.codename == 'learn_the_details' %}
-                <li><a href="#phases" role="tab" data-toggle="tab">Phases</a></li>
+                {% if not competition.has_single_phase %}<li><a href="#phases" role="tab" data-toggle="tab">Phases</a></li>{% endif %}
             {% endif %}
             {#                {% if not competition.has_single_phase %}#}
             {#                    Put this before participate tab#}
@@ -17,7 +17,7 @@
             {% for content in contents %}
                 <div class="tab-pane{% if forloop.first %} active{% endif %}" id="{{tab.codename|slugify}}-{{content.codename|slugify}}">
                     {% if content.codename == "submit_results" %}
-                        {% include "web/competitions/_submit_results.html" with competition=competition user=user %}
+{#                        {% include "web/competitions/_submit_results.html" with competition=competition user=user %}#}
                     {% elif content.codename == "get_starting_kit" %}
                         {% include "web/competitions/_get_starting_kit.html" with competition=competition user=user %}
                     {% else %}
@@ -46,41 +46,45 @@
                     {% endif %}
                 </div>
             {% endfor %}
-
-            <div class="tab-pane" id="phases">
-                <div class="tab-inner">
-                    <div class="phase-list">
-                        {% for phase in competition.phases.all %}
-                            <div class="phase-list-item panel phase-list-item-
+{#            {% if tab.codename == 'participate' %}#}
+{#                % if content.codename == "submit_results" %}#}
+{#                {% include "web/competitions/_submit_results.html" with competition=competition user=user %}#}
+{#            {% endif %}#}
+            {% if tab.codename == 'learn_the_details' %}
+                <div class="tab-pane" id="phases">
+                    <div class="tab-inner">
+                        <div class="phase-list">
+                            {% for phase in competition.phases.all %}
+                                <div class="phase-list-item panel phase-list-item-
                                                     {% if phase.color %}{{ phase.color }}{% else %}default{% endif %}">
+                                    <div class="panel-heading">
+                                        <h3 class="panel-title">{{ phase.label }}</h3>
+                                    </div>
+                                    <div class="panel-body">
+                                        <p><strong>Start:</strong> {{ phase.start_date }}</p>
+                                        {% if phase.description %}
+                                            <p><strong>Description:</strong> {{ phase.description }}</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                            <div class="phase-list-item panel phase-list-item-default phase-list-item-deadline">
                                 <div class="panel-heading">
-                                    <h3 class="panel-title">{{ phase.label }}</h3>
+                                    <h3 class="panel-title"><strong>Competition Ends</strong></h3>
                                 </div>
                                 <div class="panel-body">
-                                    <p><strong>Start:</strong> {{ phase.start_date }}</p>
-                                    {% if phase.description %}
-                                        <p><strong>Description:</strong> {{ phase.description }}</p>
+                                    <p> {% if competition.end_date %}
+                                        <strong>{{ competition.end_date }}</strong>
+                                    {% else %} <strong>Never</strong>
                                     {% endif %}
+                                    </p>
                                 </div>
                             </div>
-                        {% endfor %}
-                        <div class="phase-list-item panel phase-list-item-default phase-list-item-deadline">
-                            <div class="panel-heading">
-                                <h3 class="panel-title"><strong>Competition Ends</strong></h3>
-                            </div>
-                            <div class="panel-body">
-                                <p> {% if competition.end_date %}
-                                    <strong>{{ competition.end_date }}</strong>
-                                {% else %} <strong>Never</strong>
-                                {% endif %}
-                                </p>
-                            </div>
                         </div>
+
                     </div>
-
                 </div>
-            </div>
-
+            {% endif %}
         </div>
     </div>
 </div>

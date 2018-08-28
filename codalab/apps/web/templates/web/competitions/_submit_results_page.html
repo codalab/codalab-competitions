@@ -21,8 +21,8 @@
             <p>None</p>
         {% endif %}
 
-        <p><b>Max submissions per day: </b> {{ phase.max_submissions_per_day }}</p>
-        <p><b>Max submissions total: </b> {{ phase.max_submissions }}</p>
+        <p><b>Max submissions per day: </b> {{ current_user_sub_count_day }}/{{ phase.max_submissions_per_day }}</p>
+        <p><b>Max submissions total: </b> {{ current_user_sub_count }}/{{ phase.max_submissions }}</p>
     </div>
 
     {% if phase.is_active %}
@@ -98,6 +98,9 @@
                     <th>Submission date</th>
                     <th>Status</th>
                     <th class="text-center">Cancel</th>
+                    {% if phase.competition.enable_detailed_results %}
+                        <th class="text-center">Learning Curve</th>
+                    {% endif %}
                     <th class="text-center"><span class="glyphicon glyphicon-ok"></span></th>
                 </tr>
                 </thead>
@@ -139,6 +142,9 @@
                                 <td class="text-center"><a class="btn-sm btn-danger" href="{% url 'competitions:submission_cancel' pk=submission_info.id %}">Cancel</a></td>
                             {% else %}
                                 <td class="text-center"><a style="background-color: grey; color: white;" class="btn-sm disabled">Cancel</a></td>
+                            {% endif %}
+                            {% if phase.competition.enable_detailed_results %}
+                                <td class="text-center"><a href="{% url 'my_competition_detailed_results' submission_id=submission_info.id %}" class="btn btn-sm btn-primary">Learning Curve</a></td>
                             {% endif %}
                             {% if submission_info.is_in_leaderboard %}
                                 <td class="status submitted text-center"><span

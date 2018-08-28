@@ -580,12 +580,22 @@ class CompetitionDetailView(DetailView):
                                 print(temp_sub)
                                 print(temp_sub.submitted_at)
                                 print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-                                top_three_list.append({
+                                # top_three_list.append({
+                                #     "username": scoredata['username'],
+                                #     "score": default_score['val'],
+                                #     "last_submission_date": temp_sub.submitted_at,
+                                #     # "team": get_user_team(temp_sub.participant, competition).name
+                                # })
+                                temp_top_three_info = {
                                     "username": scoredata['username'],
                                     "score": default_score['val'],
                                     "last_submission_date": temp_sub.submitted_at,
-                                    "team": get_user_team(temp_sub.participant, competition).name
-                                })
+                                    # "team": get_user_team(temp_sub.participant, competition).name
+                                }
+                                if competition.enable_teams:
+                                    temp_team = get_user_team(temp_sub.participant, competition)
+                                    temp_top_three_info['team'] = temp_team.name if temp_team != None else ''
+                                top_three_list.append(temp_top_three_info)
                             except (KeyError, StopIteration):
                                 pass
                     context['top_three'] = top_three_list[0:10]
@@ -737,6 +747,9 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                     submission_info_list.append(submission_info)
                 context['submission_info_list'] = submission_info_list
                 context['phase'] = phase
+                now = timezone.now()
+                context['current_user_sub_count_day'] = participant.submissions.filter(submitted_at__day=now.day, submitted_at__month=now.month, submitted_at__year=now.year).count()
+                context['current_user_sub_count'] = participant.submissions.count()
 
         try:
             last_submission = models.CompetitionSubmission.objects.filter(

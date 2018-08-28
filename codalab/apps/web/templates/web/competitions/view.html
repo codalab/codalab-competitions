@@ -89,10 +89,10 @@
                 <div style="background-color: rgba(130, 165, 195, 0.5); max-width: 60vw !important; margin-left: 0; margin-right: 0; margin-top: 5vh;"
                      class="well competition-status">
                     <ul style="" class="list-inline">
-                        <li class="header-count">Server Time:{{ current_server_time|utc }} UTC</li>
-                        <li class="header-count">Start:{{ competition.start_date }}</li>
-                        {% if competition.end_date %}<li class="header-count">End:{{ competition.end_date }}</li>{% endif %}
-                        <li class="header-count">Participants:{{ participant_count }}</li>
+                        <li class="header-count">Server Time: {{ current_server_time|utc }} UTC</li>
+                        {% if competition.start_date %}<li class="header-count">Start: {{ competition.start_date }}</li>{% endif %}
+                        {% if competition.end_date %}<li class="header-count">End: {{ competition.end_date }}</li>{% endif %}
+                        <li class="header-count">Participants: {{ participant_count }}</li>
 
                         {% if competition.enable_teams %}<li class="header-count">Teams: {{ team_count }}</li>{% endif %}
                         <li class="header-count">Submissions: {{ submission_count }}</li>
@@ -235,7 +235,8 @@
                                 {% endif %}
                             {% endif %}
                             {% if my_status == "approved" %}
-                                {% include "web/competitions/_innertabs.html" %}
+{#                                {% include "web/competitions/_innertabs.html" %}#}
+                                {% include "web/competitions/_submit_results.html" with competition=competition user=user %}
                             {% endif %}
                         {% endif %}
                     {% elif tab.codename == 'results' %}

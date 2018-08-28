@@ -1781,14 +1781,16 @@ class CompetitionDefBundle(models.Model):
 
         # Populate competition pages
         pc,_ = PageContainer.objects.get_or_create(object_id=comp.id, content_type=ContentType.objects.get_for_model(comp))
-        details_category = ContentCategory.objects.get(name="Learn the Details")
-        home_category = ContentCategory.objects.get(name="Home")
+        # details_category = ContentCategory.objects.get(name="Learn the Details")
+        details_category = ContentCategory.objects.get(codename="learn_the_details")
+        # home_category = ContentCategory.objects.get(name="Home")
+        home_category = ContentCategory.objects.get(codename="home")
         Page.objects.create(category=home_category, container=pc,  codename="overview", competition=comp,
                                    label="Overview", rank=0, html=zf.read(comp_spec['html']['overview']))
         Page.objects.create(category=details_category, container=pc,  codename="evaluation", competition=comp,
                                    label="Evaluation", rank=1, html=zf.read(comp_spec['html']['evaluation']))
         Page.objects.create(category=details_category, container=pc,  codename="terms_and_conditions", competition=comp,
-                                   label="Terms and Conditions", rank=2, html=zf.read(comp_spec['html']['terms']))
+                                   label="Competition Rules", rank=2, html=zf.read(comp_spec['html']['terms']))
 
         default_pages = ('overview', 'evaluation', 'terms', 'data')
 
@@ -1804,23 +1806,25 @@ class CompetitionDefBundle(models.Model):
                     html=zf.read(page_data)
                 )
 
-        participate_category = ContentCategory.objects.get(name="Participate")
+        # Since we're changing these pages to learn the details for AutoML/TrackML, we changed the category and rank of these pages
+        # participate_category = ContentCategory.objects.get(name="Participate")
+        participate_category = ContentCategory.objects.get(codename="participate")
         Page.objects.create(
-            category=participate_category,
+            category=details_category,
             container=pc,
             codename="get_data",
             competition=comp,
             label="Get Data",
-            rank=0,
+            rank=25,
             html=zf.read(comp_spec['html']['data'])
         )
         Page.objects.create(
-            category=participate_category,
+            category=details_category,
             container=pc,
             codename="get_starting_kit",
             competition=comp,
             label="Files",
-            rank=1,
+            rank=26,
             html=""
         )
         Page.objects.create(
