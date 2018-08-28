@@ -45,15 +45,18 @@ from apps.web.exceptions import ScoringException
 from apps.web.forms import CompetitionS3UploadForm, SubmissionS3UploadForm, CompetitionGCSUploadForm, \
     OrganizerDataSetModelForm
 from apps.web.models import SubmissionScore, SubmissionScoreDef, get_current_phase, \
-    get_first_previous_active_and_next_phases, CompetitionDefBundle
+    get_first_previous_active_and_next_phases, CompetitionDefBundle, CompetitionSubmission, CompetitionSubmissionStatus
 
 from tasks import evaluate_submission, re_run_all_submissions_in_phase, create_competition, _make_url_sassy, \
     make_modified_bundle
-from apps.teams.models import TeamMembership, get_user_team, get_competition_teams, get_competition_pending_teams, get_competition_deleted_teams, get_last_team_submissions, get_user_requests, get_team_pending_membership
+from apps.teams.models import TeamMembership, get_user_team, get_competition_teams, get_competition_pending_teams, \
+    get_competition_deleted_teams, get_last_team_submissions, get_user_requests, get_team_pending_membership, Team
 
 from extra_views import UpdateWithInlinesView, InlineFormSet, NamedFormsetsMixin
 
-from .utils import check_bad_scores
+from .utils import check_bad_scores, dynamic_date_count
+
+from codalab.celery import app
 
 try:
     import azure
@@ -553,6 +556,17 @@ class CompetitionDetailView(DetailView):
 
         context["first_phase"], context["previous_phase"], context['active_phase'], context["next_phase"] = get_first_previous_active_and_next_phases(competition)
 
+        context["team_count"] = Team.objects.filter(competition=competition).count()
+
+        # if competition.end_date and competition.end_date != timezone.now():
+        #     temp_date_diff = competition.end_date - timezone.now()
+        #     context["time_left"] = dynamic_date_count(temp_date_diff)
+
+        # if competition.end_date and competition.end_date != timezone.now():
+        #     context['time_left'] = competition.end_date - timezone.now()
+
+        context['timezone_now'] = timezone.now()
+
         try:
             truncate_date = connection.ops.date_trunc_sql('day', 'submitted_at')
             score_def = SubmissionScoreDef.objects.filter(competition=competition).order_by('ordering').first()
@@ -583,17 +597,36 @@ class CompetitionDetailView(DetailView):
 
                     top_three_list = []
 
+                    print("############################################################################")
+
                     for group in scores:
                         for _, scoredata in group['scores']:
                             try:
                                 default_score = next(val for val in scoredata['values'] if val['name'] == default_score_key)
-                                top_three_list.append({
+                                temp_sub = CompetitionSubmission.objects.filter(participant__user__username=scoredata['username']).last()
+                                print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+                                print(temp_sub)
+                                print(temp_sub.submitted_at)
+                                print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+                                # top_three_list.append({
+                                #     "username": scoredata['username'],
+                                #     "score": default_score['val'],
+                                #     "last_submission_date": temp_sub.submitted_at,
+                                #     # "team": get_user_team(temp_sub.participant, competition).name
+                                # })
+                                temp_top_three_info = {
                                     "username": scoredata['username'],
-                                    "score": default_score['val']
-                                })
+                                    "score": default_score['val'],
+                                    "last_submission_date": temp_sub.submitted_at,
+                                    # "team": get_user_team(temp_sub.participant, competition).name
+                                }
+                                if competition.enable_teams:
+                                    temp_team = get_user_team(temp_sub.participant, competition)
+                                    temp_top_three_info['team'] = temp_team.name if temp_team != None else ''
+                                top_three_list.append(temp_top_three_info)
                             except (KeyError, StopIteration):
                                 pass
-                    context['top_three'] = top_three_list[0:3]
+                    context['top_three'] = top_three_list[0:10]
                 except (KeyError, IndexError):
                     pass
         except ObjectDoesNotExist:
@@ -653,6 +686,18 @@ class CompetitionDetailView(DetailView):
 
         except ObjectDoesNotExist:
             pass
+
+        # if settings.SINGLE_COMPETITION_VIEW_PK:
+        context['participant_count'] = competition.get_participant_count
+        context['submission_count'] = 0
+        for phase in competition.phases.all():
+            context['submission_count'] += phase.submissions.all().count()
+        if competition.end_date:
+            current_date_time = timezone.now()
+            comp_end_time = competition.end_date
+            if comp_end_time > current_date_time:
+                time_left = comp_end_time - current_date_time
+                context['time_remaining'] = time_left.days
 
         if competition.creator == self.request.user or self.request.user in competition.admins.all():
             context['is_admin_or_owner'] = True
@@ -730,6 +775,9 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                     submission_info_list.append(submission_info)
                 context['submission_info_list'] = submission_info_list
                 context['phase'] = phase
+                now = timezone.now()
+                context['current_user_sub_count_day'] = participant.submissions.filter(submitted_at__day=now.day, submitted_at__month=now.month, submitted_at__year=now.year).count()
+                context['current_user_sub_count'] = participant.submissions.count()
 
         try:
             last_submission = models.CompetitionSubmission.objects.filter(
@@ -1516,6 +1564,38 @@ class SubmissionDelete(LoginRequiredMixin, DeleteView):
             raise Http404()
         self.success_url = reverse("competitions:view", kwargs={"pk": obj.phase.competition.pk})
         return obj
+
+
+class SubmissionCancel(LoginRequiredMixin, CreateView):
+    http_method_names = ['get']
+    model = models.CompetitionSubmission
+    template_name = "web/my/submission_cancel.html"
+
+    def get(self, request, *args, **kwargs):
+        submission_pk = kwargs.get('pk')
+        submission = CompetitionSubmission.objects.get(pk=submission_pk)
+        competition = submission.phase.competition
+        is_admin = request.user in competition.admins.all() or request.user == competition.creator
+        print("Is current user admin?: {}".format(is_admin))
+        # If we're an admin or we made the submission
+        if is_admin or request.user == submission.participant.user:
+            # Terminate the task in celery, then set the status to cancelled. Return to detail view
+            if submission.status.codename == 'Running':
+                app.control.revoke(submission.task_id, terminate=True)
+                submission.status = CompetitionSubmissionStatus.objects.get(codename=CompetitionSubmissionStatus.CANCELLED)
+                submission.save()
+                return HttpResponseRedirect(
+                    reverse("competitions:view", kwargs={"pk": competition.pk}) + "#participate-submit_results"
+                )
+            else:
+                # We clicked cancel when the submission was not running. Still return them but don't do anything.
+                return HttpResponseRedirect(
+                    reverse("competitions:view", kwargs={"pk": competition.pk}) + "#participate-submit_results"
+                )
+        else:
+            return HttpResponseForbidden()
+
+
 
 def download_dataset(request, dataset_key):
     """

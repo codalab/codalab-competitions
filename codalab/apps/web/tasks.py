@@ -304,7 +304,19 @@ def compute_worker_run(data, priority=None, **kwargs):
         kwargs['queue_arguments'] = {'x-max-priority': priority}
     task_args = data['task_args'] if 'task_args' in data else None
     app = app_or_default()
-    app.send_task('compute_worker_run', args=(data["id"], task_args), queue='compute-worker', **kwargs)
+    task_result_obj = app.send_task('compute_worker_run', args=(data["id"], task_args), queue='compute-worker', **kwargs)
+    try:
+        logger.info("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+        logger.info("Got submission, and adding distributed task ID")
+        logger.info(task_result_obj.id)
+        logger.info("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+        submission = CompetitionSubmission.objects.get(id=data['task_args']['submission_id'])
+        submission.task_id = task_result_obj.id
+        submission.save()
+    except ObjectDoesNotExist:
+        logger.info("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+        logger.info("Could not find submission!")
+        logger.info("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
 
 
 def _make_url_sassy(path, permission='r', duration=60 * 60 * 24):

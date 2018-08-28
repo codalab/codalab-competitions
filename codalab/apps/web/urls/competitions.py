@@ -19,6 +19,7 @@ urlpatterns = [
     url(r'^(?P<id>\d+)/results_complete/(?P<phase>\d+)/data$', views.CompetitionCompleteResultsDownload.as_view(), name='competition_results_complete_download'),
     url(r'^message_participants/(?P<competition_id>\d+)', views.competition_message_participants, name="competition_message_participants"),
     url(r'^submission_delete/(?P<pk>\d+)', views.SubmissionDelete.as_view(), name="submission_delete"),
+    url(r'^submission_cancel/(?P<pk>\d+)', views.SubmissionCancel.as_view(), name="submission_cancel"),
     url(r'^download_yaml/(?P<competition_pk>\d+)', views.download_competition_yaml, name="download_yaml"),
     url(r'^make_modified_bundle/(?P<competition_pk>\d+)/', views.start_make_bundle_task, name="make_bundle"),
     url(r'^download/(?P<competition_pk>\d+)', views.download_competition_bundle, name="download"),

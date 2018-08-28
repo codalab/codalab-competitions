@@ -282,6 +282,10 @@ class Competition(ChaHubSaveMixin, models.Model):
         ordering = ['end_date']
 
     @property
+    def has_single_phase (self):
+        return len(self.phases.all()) == 1
+
+    @property
     def pagecontent(self):
         items = list(self.pagecontainers.all())
         return items[0] if len(items) > 0 else None
@@ -502,6 +506,8 @@ class Competition(ChaHubSaveMixin, models.Model):
                 submission.save()
 
                 evaluate_submission.apply_async((new_submission.pk, current_phase.is_scoring_only))
+
+
         except PhaseLeaderBoard.DoesNotExist:
             pass
 
@@ -1366,6 +1372,7 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
     queue_name = models.TextField(null=True, blank=True)
 
     parent_submission = models.ForeignKey('CompetitionSubmission', null=True, blank=True, related_name="child_submissions")
+    task_id = models.CharField(default='', max_length=64)
 
     class Meta:
         unique_together = (('submission_number','phase','participant'),)
@@ -1789,13 +1796,16 @@ class CompetitionDefBundle(models.Model):
 
         # Populate competition pages
         pc,_ = PageContainer.objects.get_or_create(object_id=comp.id, content_type=ContentType.objects.get_for_model(comp))
-        details_category = ContentCategory.objects.get(name="Learn the Details")
-        Page.objects.create(category=details_category, container=pc,  codename="overview", competition=comp,
+        # details_category = ContentCategory.objects.get(name="Learn the Details")
+        details_category = ContentCategory.objects.get(codename="learn_the_details")
+        # home_category = ContentCategory.objects.get(name="Home")
+        home_category = ContentCategory.objects.get(codename="home")
+        Page.objects.create(category=home_category, container=pc,  codename="overview", competition=comp,
                                    label="Overview", rank=0, html=zf.read(comp_spec['html']['overview']))
         Page.objects.create(category=details_category, container=pc,  codename="evaluation", competition=comp,
                                    label="Evaluation", rank=1, html=zf.read(comp_spec['html']['evaluation']))
         Page.objects.create(category=details_category, container=pc,  codename="terms_and_conditions", competition=comp,
-                                   label="Terms and Conditions", rank=2, html=zf.read(comp_spec['html']['terms']))
+                                   label="Competition Rules", rank=2, html=zf.read(comp_spec['html']['terms']))
 
         default_pages = ('overview', 'evaluation', 'terms', 'data')
 
@@ -1811,23 +1821,25 @@ class CompetitionDefBundle(models.Model):
                     html=zf.read(page_data)
                 )
 
-        participate_category = ContentCategory.objects.get(name="Participate")
+        # Since we're changing these pages to learn the details for AutoML/TrackML, we changed the category and rank of these pages
+        # participate_category = ContentCategory.objects.get(name="Participate")
+        participate_category = ContentCategory.objects.get(codename="participate")
         Page.objects.create(
-            category=participate_category,
+            category=details_category,
             container=pc,
             codename="get_data",
             competition=comp,
             label="Get Data",
-            rank=0,
+            rank=25,
             html=zf.read(comp_spec['html']['data'])
         )
         Page.objects.create(
-            category=participate_category,
+            category=details_category,
             container=pc,
             codename="get_starting_kit",
             competition=comp,
             label="Files",
-            rank=1,
+            rank=26,
             html=""
         )
         Page.objects.create(

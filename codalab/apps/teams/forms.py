@@ -11,6 +11,9 @@ import os
 
 class CustomImageField(ClearableFileInput):
 
+    template_with_initial = '%(initial_text)s: %(initial)s %(clear_template)s<br />%(input_text)s: %(input)s'
+    template_with_clear = '%(clear)s <label for="%(clear_checkbox_id)s">%(clear_checkbox_label)s</label>'
+
     def render(self, name, value, attrs=None):
         substitutions = {
             'initial_text': self.initial_text, 
