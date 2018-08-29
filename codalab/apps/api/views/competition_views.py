@@ -179,13 +179,13 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
         c = webmodels.Competition.objects.get(id=pk)
         response = {}
         if self.request.user == c.creator or self.request.user in c.admins.all():
-            phases_needing_reference_data = webmodels.CompetitionPhase.objects.filter(competition=c, reference_data='').count()
+            # phases_needing_reference_data = webmodels.CompetitionPhase.objects.filter(competition=c, reference_data='').count()
 
-            if phases_needing_reference_data > 0:
-                response = {
-                    "error": "Not all phases have reference data, it is required for each phase before publishing."
-                }
-                return Response(json.dumps(response), status=400, content_type="application/json")
+            # if phases_needing_reference_data > 0:
+            #     response = {
+            #         "error": "Not all phases have reference data, it is required for each phase before publishing."
+            #     }
+            #     return Response(json.dumps(response), status=400, content_type="application/json")
 
             c.published = True
             c.save()
