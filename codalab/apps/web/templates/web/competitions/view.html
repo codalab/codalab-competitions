@@ -33,6 +33,54 @@
             font-weight: bolder !important;
             font-family: "Segoe UI", "SansSerif";
         }
+
+        .comp-view-well {
+            padding: 0;
+            margin-bottom: 0;
+        }
+
+        .comp-view-image {
+            width: 120px;
+            height: auto;
+            border: solid 1px #dddddd;
+        }
+
+        .comp-view-countdown-well {
+            border: 1px solid rgba(255, 79, 79, 1);
+            border-radius: 5px;
+            background-color: rgba(255, 79, 79, 1);
+            max-width: 15vw;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            margin: 2vh 0 2vh 0;
+        {#            margin-left: 0;#}{#            margin-right: 0;#}{#            margin-top: 2vh;#}{#            margin-bottom: 2vh;#}
+        }
+
+        .comp-view-image-col {
+            border: 2px solid rgba(0, 0, 0, 0.1);
+            padding: 0;
+            background-color: rgba(233, 233, 233, 1);
+        }
+
+        .comp-view-status {
+            background-color: rgba(130, 165, 195, 0.5);
+            max-width: 60vw !important;
+            margin-left: 0;
+            margin-right: 0;
+            margin-top: 5vh;
+        }
+
+        .comp-view-tab-container {
+            max-height: 10vh;
+            padding-left: 0;
+            margin-top: 20vh;
+            padding-top: 5vh;
+        }
+
+        .comp-view-tabs {
+            margin: 0 !important;
+            max-width: 60vw !important;
+        }
     </style>
 {% endblock %}
 
@@ -56,14 +104,14 @@
         <hr>
     {% endif %}
 
-    <div class="competition-view row well" style="padding: 0px; margin-bottom: 0;">
-        <div align="center" style="border: 2px solid rgba(0, 0, 0, 0.1); padding: 0; background-color: rgba(233, 233, 233, 1);" class="col-sm-2">
+    <div class="competition-view row well comp-view-well" style="">
+        <div align="center" style="" class="col-sm-2 comp-view-image-col">
             {#                <div class="img-container">#}
             {% if competition.image_url %}
-                <img class="" style="width: 120px; height: auto; border: solid 1px #dddddd;"
+                <img class="comp-view-image" style=""
                      src="{{ competition.image_url }}">
             {% else %}
-                <img class="img-responsive" style="width: 168px; height: auto;"
+                <img class="comp-view-image" style=""
                      src="{% static "img/ProfileImageDummy.jpg" %}">
             {% endif %}
             {#                </div>#}
@@ -71,14 +119,10 @@
         <div align="center" style="padding: 0;" class="col-sm-10">
             <div class="row">
                 {% if competition.end_date %}
-                    <div style="border: 1px solid rgba(255,79,79,1); border-radius: 5px; background-color: rgba(255,79,79,1); max-width: 15vw; padding-top: 5px; padding-bottom: 5px; margin: 0; margin-top: 2vh; margin-bottom: 2vh;"
-                         class="well">
-                        {#                <div style="background-color: #ff4f4f" class="well">#}
-                        {#                    <i style="color: white; font-size: 20px;" class="large glyphicon glyphicon-bell"></i>#}
+                    <div style="" class="well comp-view-countdown-well">
+                        <i style="color: white; font-size: 20px;" class="large glyphicon glyphicon-bell"></i>
                         <div style="color: white;" class="date">
-                            {#                        {% if competition.end_date %}{{ competition.end_date|utc }} UTC{% else %}Never{% endif %}#}
-                            {#                        {{ competition.end_date|timeuntil:timezone_now }}#}
-                            {{ competition.end_date|timeuntil:timezone_now }}
+                            {{ competition.end_date|timeuntil:timezone_now }} to go
                         </div>
                     </div>
                 {% endif %}
@@ -86,25 +130,20 @@
                 <input type="hidden" id="competitionId" value="{{ competition.id }}"/>
                 <input type="hidden" id="cstoken" value="{{ csrf_token }}"/>
 
-                <div style="background-color: rgba(130, 165, 195, 0.5); max-width: 60vw !important; margin-left: 0; margin-right: 0; margin-top: 5vh;"
-                     class="well competition-status">
+                <div style="" class="well competition-status comp-view-status">
                     <ul style="" class="list-inline">
                         <li class="header-count">Server Time: {{ current_server_time|utc }} UTC</li>
-                        {% if competition.start_date %}<li class="header-count">Start: {{ competition.start_date }}</li>{% endif %}
-                        {% if competition.end_date %}<li class="header-count">End: {{ competition.end_date }}</li>{% endif %}
                         <li class="header-count">Participants: {{ participant_count }}</li>
 
-                        {% if competition.enable_teams %}<li class="header-count">Teams: {{ team_count }}</li>{% endif %}
+                        {% if competition.enable_teams %}
+                            <li class="header-count">Teams: {{ team_count }}</li>{% endif %}
                         <li class="header-count">Submissions: {{ submission_count }}</li>
                         {% if competition.reward %}
                             <li class="header-count">Reward: {{ competition.reward }}</li>
                         {% endif %}
-{#                        {% if time_remaining %}#}
-{#                            <li>Days Left: {{ time_remaining }}</li>#}
-{#                        {% endif %}#}
                     </ul>
                 </div>
-                <div class="organizer">
+                <div class="organizer" style="margin-bottom: 3vh;">
                     Organized by {{ competition.creator }}<br>
                     {% if competition.reward and competition.reward > 0 %}
                         Reward <b>${{ competition.reward|intcomma }}</b>
@@ -112,18 +151,13 @@
                 </div>
             </div>
         </div>
-        <div align="center" style="max-height: 10vh; padding-left: 7.5vw; margin-top: 20vh; padding-top: 5vh;" class="row">
-            <section style="margin: 0 !important; max-width: 60vw !important;" class="competition-tabs">
+        <div align="center" style="" class="row comp-view-tab-container">
+            <section style="" class="competition-tabs comp-view-tabs">
                 {#                <ul class="nav nav-tabs" id="competition_tab_nav">#}
                 <ul style="margin-left: 10vw;" class="list-inline text-center nav nav-tabs" id="competition_tab_nav">
                     {% for tab, contents in tabs.items %}
-{#                        {% if tab.codename == "participate" %}#}
-{#                            {% if not competition.has_single_phase %}#}
-{#                                         Put this before participate tab#}
-{#                                <li><a class="btn btn-primary" href="#phases" role="tab" data-toggle="tab">Phases</a></li>#}
-{#                            {% endif %}#}
-{#                        {% endif %}#}
-                        <li><a class="" href="#{{ tab.codename|slugify }}" role="tab" data-toggle="tab">{{ tab.name }}</a></li>
+                        <li><a class="" href="#{{ tab.codename|slugify }}" role="tab"
+                               data-toggle="tab">{{ tab.name }}</a></li>
                         {% if tab.codename == "results" %}
                             {#         Put this after results tab#}
                             {% if competition.allow_public_submissions %}
@@ -159,42 +193,6 @@
     </div>
     <div class="tab-content row">
         {% for tab, contents in tabs.items %}
-            {#         Let's insert the "phases" tab just before participate#}
-{#            {% if tab.codename == "participate" %}#}
-{#                <div class="tab-pane" id="phases">#}
-{#                    <div class="tab-inner">#}
-{#                        <div class="phase-list">#}
-{#                            {% for phase in competition.phases.all %}#}
-{#                                <div class="phase-list-item panel phase-list-item-#}
-{#                                                    {% if phase.color %}{{ phase.color }}{% else %}default{% endif %}">#}
-{#                                    <div class="panel-heading">#}
-{#                                        <h3 class="panel-title">{{ phase.label }}</h3>#}
-{#                                    </div>#}
-{#                                    <div class="panel-body">#}
-{#                                        <p><strong>Start:</strong> {{ phase.start_date }}</p>#}
-{#                                        {% if phase.description %}#}
-{#                                            <p><strong>Description:</strong> {{ phase.description }}</p>#}
-{#                                        {% endif %}#}
-{#                                    </div>#}
-{#                                </div>#}
-{#                            {% endfor %}#}
-{#                            <div class="phase-list-item panel phase-list-item-default phase-list-item-deadline">#}
-{#                                <div class="panel-heading">#}
-{#                                    <h3 class="panel-title"><strong>Competition Ends</strong></h3>#}
-{#                                </div>#}
-{#                                <div class="panel-body">#}
-{#                                    <p> {% if competition.end_date %}#}
-{#                                        <strong>{{ competition.end_date }}</strong>#}
-{#                                    {% else %} <strong>Never</strong>#}
-{#                                    {% endif %}#}
-{#                                    </p>#}
-{#                                </div>#}
-{#                            </div>#}
-{#                        </div>#}
-{##}
-{#                    </div>#}
-{#                </div>#}
-{#            {% endif %}#}
             <div class="tab-pane" id="{{ tab.codename|slugify }}">
                 <div class="tab-inner">
                     {% if tab.codename == "participate" %}
@@ -213,16 +211,14 @@
                                         is approved.</p>
                                     <div class="checkbox">
                                         <label>
-                                            <input type="checkbox" name="agreed_terms" id="checkbox"
-                                                   required onclick="Competition.registationCanProceed();">
+                                            <input type="checkbox" name="agreed_terms" id="checkbox" required
+                                                   onclick="Competition.registationCanProceed();">
                                             I accept the <a href="#learn_the_details-terms_and_conditions"
-                                                            target="_blank">terms and conditions</a> of the
-                                            competition.
+                                                            target="_blank">terms and conditions</a> of the competition.
                                         </label>
                                     </div>
                                     <input type="submit" id="participateButton"
-                                           class="disabledStatus btn btn-primary margin-top"
-                                           value="Register"/>
+                                           class="disabledStatus btn btn-primary margin-top" value="Register"/>
                                 </form>
                             {% elif my_status == "pending" %}
                                 <p>Your request to participate in this challenge has been received and a
@@ -235,7 +231,7 @@
                                 {% endif %}
                             {% endif %}
                             {% if my_status == "approved" %}
-{#                                {% include "web/competitions/_innertabs.html" %}#}
+                                {#                                {% include "web/competitions/_innertabs.html" %}#}
                                 {% include "web/competitions/_submit_results.html" with competition=competition user=user %}
                             {% endif %}
                         {% endif %}
@@ -252,7 +248,6 @@
     {% if competition.show_top_three and top_three %}
         <div style="margin-top: 5vh;" class="row">
             <div class="col-lg-12 well">
-
                 <table class="table">
                     <thead>
                     <tr>
@@ -266,7 +261,9 @@
                         <th>Username</th>
                         <th>Score</th>
                         <th>Last Submission</th>
-                        <th>Team(?)</th>
+                        {% if competition.enable_teams %}
+                            <th>Team</th>
+                        {% endif %}
                     </tr>
                     </thead>
                     <tbody>
@@ -276,7 +273,9 @@
                             <td>{{ leader.username }}</td>
                             <td>{{ leader.score }}</td>
                             <td>{{ leader.last_submission_date|date:'d-m-Y' }}</td>
-                            <td>{{ leader.team }}</td>
+                            {% if competition.enable_teams %}
+                                <td>{{ leader.team }}</td>
+                            {% endif %}
                         </tr>
                     {% endfor %}
                     </tbody>
@@ -284,16 +283,6 @@
             </div>
         </div>
     {% endif %}
-{#        <div class="col-sm-8">#}
-{#            {% if competition.show_chart %}#}
-{#                {% if graph %}#}
-{#                    {% include "web/competitions/_chart.html" %}#}
-{#                {% endif %}#}
-{#            {% else %}#}
-{#                <!-- Do nothing -->#}
-{#            {% endif %}#}
-{#        </div>#}
-    </div>
 {% endblock content %}
 
 {% block jsincludes %}
@@ -318,13 +307,21 @@
             $('#competition_tab_nav a, .innertabs a').on('show.bs.tab', function (e) {
                 return location.hash = $(e.target).attr('href').substr(1);
             });
-            if ($('#participate-submit_results').hasClass('active')) {
+            {#            if ($('#participate-submit_results').hasClass('active')) {#}
+            {#                $('#submissions_phase_buttons .active').click();#}
+            {#            } else if ($('#results').hasClass('active')) {#}
+            {#                $('#results_phase_buttons .active').click();#}
+            {#            };#}
+            if ($('#participate').hasClass('active')) {
                 $('#submissions_phase_buttons .active').click();
             } else if ($('#results').hasClass('active')) {
                 $('#results_phase_buttons .active').click();
             }
             ;
-            $('a[href="#participate-submit_results"]').on('shown.bs.tab', function (e) {
+            {#            $('a[href="#participate-submit_results"]').on('shown.bs.tab', function (e) {#}
+            {#                $($(e.target).attr('href') + ' .active').click();#}
+            {#            });#}
+            $('a[href="#participate"]').on('shown.bs.tab', function (e) {
                 $($(e.target).attr('href') + ' .active').click();
             });
             $('a[href="#results"]').on('shown.bs.tab', function (e) {

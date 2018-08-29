@@ -54,7 +54,7 @@ from apps.teams.models import TeamMembership, get_user_team, get_competition_tea
 
 from extra_views import UpdateWithInlinesView, InlineFormSet, NamedFormsetsMixin
 
-from .utils import check_bad_scores, dynamic_date_count
+from .utils import check_bad_scores, cancel_submission
 
 from codalab.celery import app
 
@@ -588,7 +588,6 @@ class CompetitionDetailView(DetailView):
                     }
                 # Below is where we refactored top_three context.
 
-
             if context['active_phase']:
                 try:
                     scores = context['active_phase'].scores()
@@ -597,32 +596,19 @@ class CompetitionDetailView(DetailView):
 
                     top_three_list = []
 
-                    print("############################################################################")
-
                     for group in scores:
                         for _, scoredata in group['scores']:
                             try:
                                 default_score = next(val for val in scoredata['values'] if val['name'] == default_score_key)
                                 temp_sub = CompetitionSubmission.objects.filter(participant__user__username=scoredata['username']).last()
-                                print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-                                print(temp_sub)
-                                print(temp_sub.submitted_at)
-                                print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-                                # top_three_list.append({
-                                #     "username": scoredata['username'],
-                                #     "score": default_score['val'],
-                                #     "last_submission_date": temp_sub.submitted_at,
-                                #     # "team": get_user_team(temp_sub.participant, competition).name
-                                # })
                                 temp_top_three_info = {
                                     "username": scoredata['username'],
                                     "score": default_score['val'],
                                     "last_submission_date": temp_sub.submitted_at,
-                                    # "team": get_user_team(temp_sub.participant, competition).name
                                 }
                                 if competition.enable_teams:
                                     temp_team = get_user_team(temp_sub.participant, competition)
-                                    temp_top_three_info['team'] = temp_team.name if temp_team != None else ''
+                                    temp_top_three_info['team'] = temp_team.name if temp_team else ''
                                 top_three_list.append(temp_top_three_info)
                             except (KeyError, StopIteration):
                                 pass
@@ -1580,20 +1566,24 @@ class SubmissionCancel(LoginRequiredMixin, CreateView):
         # If we're an admin or we made the submission
         if is_admin or request.user == submission.participant.user:
             # Terminate the task in celery, then set the status to cancelled. Return to detail view
-            if submission.status.codename == 'Running':
-                app.control.revoke(submission.task_id, terminate=True)
-                submission.status = CompetitionSubmissionStatus.objects.get(codename=CompetitionSubmissionStatus.CANCELLED)
-                submission.save()
-                return HttpResponseRedirect(
-                    reverse("competitions:view", kwargs={"pk": competition.pk}) + "#participate-submit_results"
-                )
-            else:
-                # We clicked cancel when the submission was not running. Still return them but don't do anything.
+            if submission.parent_submission:
+                print("This submission has a parent")
+                parent_submission = submission.parent_submission
+                if parent_submission.status.codename == 'running' and parent_submission.task_id:
+                    print("Submission was running, cancelling")
+                    cancel_submission(parent_submission.pk)
+            if submission.status.codename == 'running' and submission.task_id:
+                print("Submission was running, cancelling")
+                cancel_submission(submission.pk)
                 return HttpResponseRedirect(
                     reverse("competitions:view", kwargs={"pk": competition.pk}) + "#participate-submit_results"
                 )
         else:
             return HttpResponseForbidden()
+
+        return HttpResponseRedirect(
+            reverse("competitions:view", kwargs={"pk": competition.pk}) + "#participate-submit_results"
+        )
 
 
 

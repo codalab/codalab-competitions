@@ -2438,7 +2438,7 @@ def add_submission_to_leaderboard(submission):
 
 
 def get_current_phase(competition):
-    all_phases = models.CompetitionPhase.objects.filter(competition=competition, parent=None).order_by('start_date')
+    all_phases = CompetitionPhase.objects.filter(competition=competition, parent=None).order_by('start_date')
     phase_iterator = iter(all_phases)
     active_phase = None
     for phase in phase_iterator:

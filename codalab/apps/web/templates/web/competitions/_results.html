@@ -1,4 +1,4 @@
-<div id="results_phase_buttons">
+<div align="center" id="results_phase_buttons">
   {% for phase in competition.phases.all %}
     {% if phase.is_active %}
       <button class="btn btn-sm active phase-btn-{{ phase.color }}" id="results_phase_{{phase.id}}">{{phase.label}}</button>

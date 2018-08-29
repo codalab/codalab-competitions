@@ -1,3 +1,4 @@
+<hr>
 {% if phase == None %}
 
 {% elif phase.is_future %}
@@ -13,90 +14,77 @@
     {% if phase.competition.disallow_leaderboard_modifying %}
         <div id="disallow_leaderboard_modifying"></div>
     {% endif %}
-
-{#    <<<<<<< HEAD#}
+    <div class="row">
     {% if not phase.parent %}
-        <div class="phase-description">
-{#            <h4>Phase description</h4>#}
-{#            {% if phase.description %}#}
-{#                <p>{{ phase.description }}</p>#}
-{#            {% else %}#}
-{#                <p>None</p>#}
-{#            {% endif %}#}
-
-{#            <p><b>Max submissions per day: </b> {{ phase.max_submissions_per_day }}</p>#}
-{#            <p><b>Max submissions total: </b> {{ phase.max_submissions }}</p>#}
-{#        </div>#}
-{#        =======#}
-        <p><b>Max submissions per day: </b> {{ current_user_sub_count_day }}/{{ phase.max_submissions_per_day }}</p>
-        <p><b>Max submissions total: </b> {{ current_user_sub_count }}/{{ phase.max_submissions }}</p>
-        </div>
-{#        >>>>>>> feature-3-ui#}
 
         {% if phase.is_active %}
-            <div class="form-group">
-                <label class="control-label">Click the Submit button to upload a new submission.</label>
+            <div class="form-group col-md-6">
 
-                {#            {% if not phase.is_scoring_only and not phase.disable_custom_docker_image %}#}
-                {#                <div class="form-group">#}
-                {#                    <input maxLength="128" class="form-control" id="submission_docker_image" placeholder="Optional docker image name, eg codalab/default">#}
-                {#                </div>#}
-                {#            {% endif %}#}
+                <div align="center" class="phase-description">
+                    {% if phase.competition.start_date %}<p><b>Competition Start: </b>{{ phase.competition.start_date }}</p>{% endif %}
+                    {% if phase.competition.end_date %}<p><b>Competition End: </b>{{ phase.competition.end_date }}</p>{% endif %}
+                    <p><b>Max submissions per
+                        day: </b> {{ current_user_sub_count_day }}/{{ phase.max_submissions_per_day }}</p>
+                    <p><b>Max submissions total: </b> {{ current_user_sub_count }}/{{ phase.max_submissions }}</p>
+                </div>
 
-                {% if not phase.competition.enable_per_submission_metadata %}
-                    <textarea id="submission_description_textarea" class="form-control"
-                              placeholder="Optionally add more information about this submission"></textarea>
-                {% else %}
-                    <br>
-                    <b>*Team name (20 characters max): </b>
-                    <input id="submission_team_name" type="text" maxlength="20" class="form-control"
-                           placeholder="Team name" value="{{ last_submission_team_name|default_if_none:""|escape }}">
-                    <br>
-                    <b>*Method name (20 characters max): </b>
-                    <input id="submission_method_name" type="text" maxlength="20" class="form-control"
-                           placeholder="Method name"
-                           value="{{ last_submission_method_name|default_if_none:""|escape }}">
-                    <br>
-                    <b>*Method description: </b>
-                    <textarea id="submission_method_description" class="form-control"
-                              placeholder="Method description">{{ last_submission_method_description|default_if_none:""|escape }}</textarea>
-                    <br>
-                    <b>Project URL: </b>
-                    <input id="submission_project_url" class="form-control" placeholder="Project URL"
-                           value="{{ last_submission_project_url|default_if_none:""|escape }}">
-                    <br>
-                    <b>Publication URL: </b>
-                    <input id="submission_publication_url" class="form-control" placeholder="Publication URL"
-                           value="{{ last_submission_publication_url|default_if_none:""|escape }}">
-                    <br>
-                    <b>Bibtex: </b>
-                    <textarea id="submission_bibtex" class="form-control"
-                              placeholder="Bibtex">{{ last_submission_bibtex|default_if_none:""|escape }}</textarea>
-                    <br>
-                    <b>Organization/affiliation: </b>
-                    <input id="submission_organization_or_affiliation" class="form-control"
-                           placeholder="Organization or Affiliation"
-                           value="{{ last_submission_organization_or_affiliation|default_if_none:""|escape }}">
-                {% endif %}
             </div>
-
-            {% if USE_AWS %}
-                <form id="s3_upload_form" action="" method="post">
-                    {% csrf_token %}
-                    {{ form }}
-                    <div id="s3-file-upload"
-                         class="button btn btn-primary {% if not phase.reference_data and not phase.is_parallel_parent %}disabled{% endif %}"
-                         {% if not phase.reference_data and not phase.is_parallel_parent %}disabled="disabled"{% endif %}>
-                        Submit
-                    </div>
-                </form>
-            {% else %}
-                <button id="fileUploadButton"
-                        class="button btn btn-primary {% if not phase.reference_data and not phase.is_parallel_parent %}disabled{% endif %}"
-                        {% if not phase.reference_data and not phase.is_parallel_parent %}disabled="disabled"{% endif %}>
-                    Submit
-                </button>
-            {% endif %}
+            <div class="col-md-6" style="margin-top: 1.5vh;">
+                <div align="center">
+                    {% if USE_AWS %}
+                        <form id="s3_upload_form" action="" method="post">
+                            {% csrf_token %}
+                            {{ form }}
+                            <div id="s3-file-upload"
+                                 class="button btn btn-danger {% if not phase.reference_data and not phase.is_parallel_parent %}disabled{% endif %}"
+                                 {% if not phase.reference_data and not phase.is_parallel_parent %}disabled="disabled"{% endif %}>
+                                Submit
+                            </div>
+                        </form>
+                    {% else %}
+                        <button id="fileUploadButton"
+                                class="button btn btn-danger {% if not phase.reference_data and not phase.is_parallel_parent %}disabled{% endif %}"
+                                {% if not phase.reference_data and not phase.is_parallel_parent %}disabled="disabled"{% endif %}>
+                            Submit
+                        </button>
+                    {% endif %}
+                </div>
+                {% if not phase.competition.enable_per_submission_metadata %}
+                        <textarea id="submission_description_textarea" class="form-control"
+                                  placeholder="Optionally add more information about this submission"></textarea>
+                    {% else %}
+                        <br>
+                        <b>*Team name (20 characters max): </b>
+                        <input id="submission_team_name" type="text" maxlength="20" class="form-control"
+                               placeholder="Team name" value="{{ last_submission_team_name|default_if_none:""|escape }}">
+                        <br>
+                        <b>*Method name (20 characters max): </b>
+                        <input id="submission_method_name" type="text" maxlength="20" class="form-control"
+                               placeholder="Method name"
+                               value="{{ last_submission_method_name|default_if_none:""|escape }}">
+                        <br>
+                        <b>*Method description: </b>
+                        <textarea id="submission_method_description" class="form-control"
+                                  placeholder="Method description">{{ last_submission_method_description|default_if_none:""|escape }}</textarea>
+                        <br>
+                        <b>Project URL: </b>
+                        <input id="submission_project_url" class="form-control" placeholder="Project URL"
+                               value="{{ last_submission_project_url|default_if_none:""|escape }}">
+                        <br>
+                        <b>Publication URL: </b>
+                        <input id="submission_publication_url" class="form-control" placeholder="Publication URL"
+                               value="{{ last_submission_publication_url|default_if_none:""|escape }}">
+                        <br>
+                        <b>Bibtex: </b>
+                        <textarea id="submission_bibtex" class="form-control"
+                                  placeholder="Bibtex">{{ last_submission_bibtex|default_if_none:""|escape }}</textarea>
+                        <br>
+                        <b>Organization/affiliation: </b>
+                        <input id="submission_organization_or_affiliation" class="form-control"
+                               placeholder="Organization or Affiliation"
+                               value="{{ last_submission_organization_or_affiliation|default_if_none:""|escape }}">
+                    {% endif %}
+            </div>
 
             {% if not phase.reference_data and not phase.is_parallel_parent %}
                 <p>
@@ -111,10 +99,16 @@
             <p>This phase of the competition is closed. Here are the submissions you made:</p>
         {% endif %}
     {% endif %}
+    </div>
 
-    <p>Here are your submissions to date
-        <span class="small">(<span class="glyphicon glyphicon-ok"></span> indicates submission on leaderboard)</span>:
-    </p>
+    <hr>
+
+    <div align="center" class="row">
+        <p>Here are your submissions to date
+            <span class="small">(<span
+                    class="glyphicon glyphicon-ok"></span> indicates submission on leaderboard)</span>:
+        </p>
+    </div>
 
     <div class="user_results">
 
@@ -178,17 +172,18 @@
                             <td>{{ submission_info.submitted_at|date:"m/d/Y H:i:s" }}</td>
                             <td class="statusName">{{ submission_info.status_name }}</td>
                             {% if submission_info.status_name == 'Running' %}
-                                <td class="text-center"><a class="btn-sm btn-danger"
-                                                           href="{% url 'competitions:submission_cancel' pk=submission_info.id %}">Cancel</a>
+                                <td class="text-center">
+                                    <a class="btn-sm btn-danger" href="{% url 'competitions:submission_cancel' pk=submission_info.id %}">Cancel</a>
                                 </td>
                             {% else %}
-                                <td class="text-center"><a style="background-color: grey; color: white;"
-                                                           class="btn-sm disabled">Cancel</a></td>
+                                <td class="text-center">
+{#                                    <a style="background-color: grey; color: white;" class="btn-sm disabled">Cancel</a>#}
+                                </td>
                             {% endif %}
                             {% if phase.competition.enable_detailed_results %}
                                 <td class="text-center"><a
                                         href="{% url 'my_competition_detailed_results' submission_id=submission_info.id %}"
-                                        class="btn btn-sm btn-primary">Learning Curve</a></td>
+                                        class="btn btn-sm btn-primary" target="_blank">Learning Curve</a></td>
                             {% endif %}
                             {% if submission_info.is_in_leaderboard %}
                                 <td class="status submitted text-center"><span
