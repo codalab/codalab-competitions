@@ -82,7 +82,7 @@
                     </tr>
                 {% else %}
                     {% for pk, scoredata in group.scores %}
-                        <tr {% if phase.competition.anonymous_leaderboard and request.user.username == scoredata.username %}style="background-color: #D7FFFA;"{% elif request.user.username == scoredata.username %} style="background-color: #ffeeba">{% endif %}
+                        <tr {% if phase.competition.anonymous_leaderboard and request.user.username == scoredata.username %}style="background-color: #D7FFFA;"{% elif request.user.username == scoredata.username %} style="background-color: #ffeeba"{% endif %}>
                             <td class="row-position">
                                 {% if forloop.counter < 4 %}
                                     <p class="leader-top3">{{ forloop.counter }}</p>
