@@ -5,7 +5,7 @@
                 <li class="{% if forloop.first %}active{% endif %}"><a href="#{{tab.codename|slugify}}-{{content.codename|slugify}}" data-toggle="tab">{{content.label}}</a></li>
             {% endfor %}
             {% if tab.codename == 'learn_the_details' %}
-                {% if not competition.has_single_phase %}<li><a href="#phases" role="tab" data-toggle="tab">Phases</a></li>{% endif %}
+                {% if not competition.has_single_phase %}<li><a href="#phases" role="tab" data-toggle="tab">Phases or Tracks</a></li>{% endif %}
             {% endif %}
             {#                {% if not competition.has_single_phase %}#}
             {#                    Put this before participate tab#}
@@ -55,18 +55,61 @@
                     <div class="tab-inner">
                         <div class="phase-list">
                             {% for phase in competition.phases.all %}
-                                <div class="phase-list-item panel phase-list-item-
-                                                    {% if phase.color %}{{ phase.color }}{% else %}default{% endif %}">
-                                    <div class="panel-heading">
-                                        <h3 class="panel-title">{{ phase.label }}</h3>
+                                {% if phase.is_parallel_parent %}
+                                    <div class="phase-list-item panel phase-list-item-{% if phase.color %}{{ phase.color }}{% else %}default{% endif %}">
+                                        <div class="panel-heading">
+                                            <h3 class="panel-title">{{ phase.label }}</h3>
+                                        </div>
+                                        <div class="panel-body">
+                                            <p><strong>Start:</strong> {{ phase.start_date }}</p>
+                                            {% if phase.description %}
+                                                <p><strong>Description:</strong> {{ phase.description }}</p>
+                                            {% endif %}
+                                        </div>
+                                    {% if phase.sub_phases.all|length > 0 %}
+                                        <h4 style="margin-left: 2%;">Sub-Phases:</h4>
+                                        <table class="table table-bordered table-striped">
+                                            <tr>
+                                                <th>Color</th>
+                                                <th>Label</th>
+                                                <th>Description</th>
+                                                <th>Start</th>
+                                            </tr>
+                                            {% for sub_phase in phase.sub_phases.all %}
+                                                <tr>
+                                                    <td {% if sub_phase.color %}style="background-color: {{ sub_phase.color }};"{% endif %}></td>
+                                                    <td>{{ sub_phase.label }}</td>
+                                                    <td>{{ sub_phase.description }}</td>
+                                                    <td>{{ sub_phase.start_date }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        </table>
+                                    {% endif %}
+{#                                        {% for sub_phase in phase.sub_phases.all %}#}
+{#                                            <div class="panel-body">#}
+{#                                            <h5>{{ sub_phase.label }}</h5>#}
+{#                                            <hr>#}
+{#                                                <p><strong>Start:</strong> {{ sub_phase.start_date }}</p>#}
+{#                                                {% if sub_phase.description %}#}
+{#                                                    <p><strong>Description:</strong> {{ sub_phase.description }}</p>#}
+{#                                                {% endif %}#}
+{#                                            </div>#}
+{#                                        {% endfor %}#}
                                     </div>
-                                    <div class="panel-body">
-                                        <p><strong>Start:</strong> {{ phase.start_date }}</p>
-                                        {% if phase.description %}
-                                            <p><strong>Description:</strong> {{ phase.description }}</p>
-                                        {% endif %}
+                                {% elif not phase.is_parallel_parent and not phase.parent %}
+                                    <div class="phase-list-item panel phase-list-item-{% if phase.color %}{{ phase.color }}{% else %}default{% endif %}">
+                                        <div class="panel-heading">
+                                            <h3 class="panel-title">{{ phase.label }}</h3>
+                                        </div>
+                                        <div class="panel-body">
+                                            <p><strong>Parent:</strong> {{ phase.parent.label }}</p>
+                                            <p><strong>Start:</strong> {{ phase.start_date }}</p>
+                                            {% if phase.description %}
+                                                <p><strong>Description:</strong> {{ phase.description }}</p>
+                                            {% endif %}
+                                        </div>
                                     </div>
-                                </div>
+                                {% endif %}
                             {% endfor %}
                             <div class="phase-list-item panel phase-list-item-default phase-list-item-deadline">
                                 <div class="panel-heading">

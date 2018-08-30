@@ -1,3 +1,4 @@
+{% load tz %}
 <hr>
 {% if phase == None %}
 
@@ -21,16 +22,23 @@
             <div class="form-group col-md-6">
 
                 <div align="center" class="phase-description">
-                    {% if phase.competition.start_date %}<p><b>Competition Start: </b>{{ phase.competition.start_date }}</p>{% endif %}
-                    {% if phase.competition.end_date %}<p><b>Competition End: </b>{{ phase.competition.end_date }}</p>{% endif %}
-                    <p><b>Max submissions per
-                        day: </b> {{ current_user_sub_count_day }}/{{ phase.max_submissions_per_day }}</p>
-                    <p><b>Max submissions total: </b> {{ current_user_sub_count }}/{{ phase.max_submissions }}</p>
+{#                    <p class="header-count">Server Time: {{ current_server_time|utc }} UTC</p>#}
+{#                    {% if phase.competition.start_date %}<p><b>Competition Start: </b>{{ phase.competition.start_date }}</p>{% endif %}#}
+{#                    {% if phase.competition.end_date %}<p><b>Competition End: </b>{{ phase.competition.end_date }}</p>{% endif %}#}
+{#                    <p><b>Max submissions per day: </b> {{ current_user_sub_count_day }}/{{ phase.max_submissions_per_day }}</p>#}
+{#                    <p><b>Max submissions total: </b> {{ current_user_sub_count }}/{{ phase.max_submissions }}</p>#}
+                    <ul class="list-unstyled">
+                        <li><b>Server Time:</b> {{ current_server_time|utc }}</li>
+                        {% if phase.competition.start_date %}<li><b>Competition Start:</b> {{ phase.competition.start_date }}</li>{% endif %}
+                        {% if phase.competition.end_date %}<li><b>Competition End:</b> {{ phase.competition.end_date }}</li>{% endif %}
+                        <li><b>Submissions per day:</b> {{ current_user_sub_count_day }} out of {{ phase.max_submissions_per_day }}</li>
+                        <li><b>Submissions total:</b> {{ current_user_sub_count }} out of {{ phase.max_submissions }}</li>
+                    </ul>
                 </div>
 
             </div>
             <div class="col-md-6" style="margin-top: 1.5vh;">
-                <div align="center">
+                <div align="center" style="margin-bottom: 1vh;">
                     {% if USE_AWS %}
                         <form id="s3_upload_form" action="" method="post">
                             {% csrf_token %}
@@ -101,14 +109,14 @@
     {% endif %}
     </div>
 
-    <hr>
-
-    <div align="center" class="row">
-        <p>Here are your submissions to date
-            <span class="small">(<span
-                    class="glyphicon glyphicon-ok"></span> indicates submission on leaderboard)</span>:
-        </p>
-    </div>
+{#    <hr>#}
+{##}
+{#    <div align="center" class="row">#}
+{#        <p>Here are your submissions to date#}
+{#            <span class="small">(<span#}
+{#                    class="glyphicon glyphicon-ok"></span> indicates submission on leaderboard)</span>:#}
+{#        </p>#}
+{#    </div>#}
 
     <div class="user_results">
 
@@ -181,9 +189,11 @@
                                 </td>
                             {% endif %}
                             {% if phase.competition.enable_detailed_results %}
-                                <td class="text-center"><a
-                                        href="{% url 'my_competition_detailed_results' submission_id=submission_info.id %}"
-                                        class="btn btn-sm btn-primary" target="_blank">Learning Curve</a></td>
+                                <td class="text-center">
+                                    {% if submission_info.status_name == 'Running' or submission_info.status_name == 'Finished' %}
+                                        <a href="{% url 'my_competition_detailed_results' submission_id=submission_info.id %}" class="btn btn-sm btn-primary" target="_blank">Learning Curve</a>
+                                    {% endif %}
+                                </td>
                             {% endif %}
                             {% if submission_info.is_in_leaderboard %}
                                 <td class="status submitted text-center"><span

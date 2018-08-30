@@ -37,10 +37,11 @@
         .comp-view-well {
             padding: 0;
             margin-bottom: 0;
+            margin-top: 0;
         }
 
         .comp-view-image {
-            width: 120px;
+            width: 190px;
             height: auto;
             border: solid 1px #dddddd;
         }
@@ -50,10 +51,13 @@
             border-radius: 5px;
             background-color: rgba(255, 79, 79, 1);
             max-width: 15vw;
-            padding-top: 5px;
-            padding-bottom: 5px;
-            margin: 2vh 0 2vh 0;
+{#            padding-top: 5px;#}
+{#            padding-bottom: 5px;#}
+{#            margin: 2vh 0 2vh 0;#}
         {#            margin-left: 0;#}{#            margin-right: 0;#}{#            margin-top: 2vh;#}{#            margin-bottom: 2vh;#}
+            display: inline-block;
+{#            padding: 0 0 0 0;#}
+{#            margin: 0 0 0 0;#}
         }
 
         .comp-view-image-col {
@@ -64,22 +68,40 @@
 
         .comp-view-status {
             background-color: rgba(130, 165, 195, 0.5);
-            max-width: 60vw !important;
-            margin-left: 0;
-            margin-right: 0;
-            margin-top: 5vh;
+{#            max-width: 30vw !important;#}
+            min-width: 40%;
+{#            margin-left: 0;#}
+{#            margin-right: 0;#}
+{#            margin-top: 5vh;#}
+            display: inline-block;
+{#            margin: 0 0 0 0;#}
+{#            padding: 0 0 0 0;#}
+        }
+
+        .comp-info {
+            margin: 2vh 0 2vh 0;
+            padding: 2vh 2vh 2vh 2vh;
         }
 
         .comp-view-tab-container {
             max-height: 10vh;
             padding-left: 0;
-            margin-top: 20vh;
-            padding-top: 5vh;
+{#            margin-top: 20vh;#}
+{#            padding-top: 5vh;#}
         }
 
         .comp-view-tabs {
             margin: 0 !important;
-            max-width: 60vw !important;
+{#            max-width: 60vw !important;#}
+        }
+
+        hr {
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+
+        table {
+            margin-bottom: 0 !important;
         }
     </style>
 {% endblock %}
@@ -119,10 +141,9 @@
         <div align="center" style="padding: 0;" class="col-sm-10">
             <div class="row">
                 {% if competition.end_date %}
-                    <div style="" class="well comp-view-countdown-well">
-                        <i style="color: white; font-size: 20px;" class="large glyphicon glyphicon-bell"></i>
+                    <div style="" class="well comp-view-countdown-well col-sm comp-info">
                         <div style="color: white;" class="date">
-                            {{ competition.end_date|timeuntil:timezone_now }} to go
+                            <i style="color: white; font-size: 14px;" class="glyphicon glyphicon-bell"></i> {{ competition.end_date|timeuntil:timezone_now }} to go
                         </div>
                     </div>
                 {% endif %}
@@ -130,16 +151,16 @@
                 <input type="hidden" id="competitionId" value="{{ competition.id }}"/>
                 <input type="hidden" id="cstoken" value="{{ csrf_token }}"/>
 
-                <div style="" class="well competition-status comp-view-status">
+                <div style="" class="well competition-status comp-view-status col-sm comp-info">
                     <ul style="" class="list-inline">
-                        <li class="header-count">Server Time: {{ current_server_time|utc }} UTC</li>
-                        <li class="header-count">Participants: {{ participant_count }}</li>
+{#                        <li class="header-count">Server Time: {{ current_server_time|utc }} UTC</li>#}
+                        <li class="header-count">{{ participant_count }} Participants</li>
 
                         {% if competition.enable_teams %}
-                            <li class="header-count">Teams: {{ team_count }}</li>{% endif %}
-                        <li class="header-count">Submissions: {{ submission_count }}</li>
+                            <li class="header-count">{{ team_count }} Teams</li>{% endif %}
+                        <li class="header-count">{{ submission_count }} Submissions</li>
                         {% if competition.reward %}
-                            <li class="header-count">Reward: {{ competition.reward }}</li>
+                            <li class="header-count">{{ competition.reward }} Prize</li>
                         {% endif %}
                     </ul>
                 </div>
@@ -154,7 +175,7 @@
         <div align="center" style="" class="row comp-view-tab-container">
             <section style="" class="competition-tabs comp-view-tabs">
                 {#                <ul class="nav nav-tabs" id="competition_tab_nav">#}
-                <ul style="margin-left: 10vw;" class="list-inline text-center nav nav-tabs" id="competition_tab_nav">
+                <ul style="margin-left: 25vw;" class="list-inline text-center nav nav-tabs" id="competition_tab_nav">
                     {% for tab, contents in tabs.items %}
                         <li><a class="" href="#{{ tab.codename|slugify }}" role="tab"
                                data-toggle="tab">{{ tab.name }}</a></li>
@@ -191,7 +212,7 @@
             </section>
         </div>
     </div>
-    <div class="tab-content row">
+    <div style="" class="tab-content row">
         {% for tab, contents in tabs.items %}
             <div class="tab-pane" id="{{ tab.codename|slugify }}">
                 <div class="tab-inner">
@@ -246,7 +267,7 @@
         {% endfor %}
     </div>
     {% if competition.show_top_three and top_three %}
-        <div style="margin-top: 5vh;" class="row">
+        <div style="margin-top: 2vh;" class="row">
             <div class="col-lg-12 well">
                 <table class="table">
                     <thead>

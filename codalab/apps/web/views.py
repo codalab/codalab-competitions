@@ -709,6 +709,7 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
         context = super(CompetitionSubmissionsPage, self).get_context_data(**kwargs)
         context['phase'] = None
         competition = models.Competition.objects.get(pk=self.kwargs['id'])
+        context['current_server_time'] = datetime.now()
 
         if settings.USE_AWS:
             context['form'] = forms.SubmissionS3UploadForm
@@ -762,8 +763,25 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                 context['submission_info_list'] = submission_info_list
                 context['phase'] = phase
                 now = timezone.now()
-                context['current_user_sub_count_day'] = participant.submissions.filter(submitted_at__day=now.day, submitted_at__month=now.month, submitted_at__year=now.year).count()
-                context['current_user_sub_count'] = participant.submissions.count()
+                if phase.is_parallel_parent:
+                    context['current_user_sub_count_day'] = participant.submissions.filter(
+                        submitted_at__day=now.day,
+                        submitted_at__month=now.month,
+                        submitted_at__year=now.year,
+                        phase__is_parallel_parent=True,
+                        phase__parent=None
+                    ).count()
+                    context['current_user_sub_count'] = participant.submissions.filter(
+                        phase__is_parallel_parent=True,
+                        phase__parent=None
+                    ).count()
+                else:
+                    context['current_user_sub_count_day'] = participant.submissions.filter(
+                        submitted_at__day=now.day,
+                        submitted_at__month=now.month,
+                        submitted_at__year=now.year
+                    ).count()
+                    context['current_user_sub_count'] = participant.submissions.count()
 
         try:
             last_submission = models.CompetitionSubmission.objects.filter(
