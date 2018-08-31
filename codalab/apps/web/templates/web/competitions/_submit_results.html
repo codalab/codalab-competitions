@@ -7,10 +7,10 @@
         {% if phase.is_parallel_parent %}
             {% if phase == active_phase %}
                 <!-- active, dont change bg color -->
-                <button class="btn active phase-btn-{{ phase.color }} btn-lg"
+                <button class="btn active phase-btn-{{ phase.color }} btn-sm"
                         id="submissions_phase_{{ phase.id }}">{{ phase.label }}</button>
             {% else %}
-                <button class="btn phase-btn-{{ phase.color }} btn-lg"
+                <button class="btn phase-btn-{{ phase.color }} btn-sm"
                         id="submissions_phase_{{ phase.id }}">{{ phase.label }}</button>
             {% endif %}
 {#            <h6>Sub-Phases:</h6>#}

@@ -2,10 +2,10 @@
   {% for phase in competition.phases.all %}
       {% if phase.is_parallel_parent %}
           {% if phase.is_active %}
-              <button class="btn btn-lg active phase-btn-{{ phase.color }}"
+              <button class="btn btn-sm active phase-btn-{{ phase.color }}"
                       id="results_phase_{{ phase.id }}">{{ phase.label }}</button>
           {% else %}
-              <button class="btn btn-lg phase-btn-{{ phase.color }}"
+              <button class="btn btn-sm phase-btn-{{ phase.color }}"
                       id="results_phase_{{ phase.id }}">{{ phase.label }}</button>
           {% endif %}
           <br>
