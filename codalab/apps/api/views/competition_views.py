@@ -614,6 +614,21 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
     #         obj.queue_name = phase.competition.queue.name or ''
     #     obj.save()
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        temp_obj = self.perform_create(serializer)
+        temp_dict = {
+            'id': temp_obj.id,
+            'description': temp_obj.description,
+            'status': temp_obj.status.codename,
+            'submission_number': temp_obj.submission_number,
+            'submitted_at': temp_obj.submitted_at.isoformat()
+        }
+        headers = self.get_success_headers(serializer.data)
+        # new_data = json.dumps(temp_dict)
+        return Response(temp_dict, status=status.HTTP_201_CREATED, headers=headers)
+
     def perform_create(self, serializer):
         # obj = CompetitionSubmission()
         kwargs = {}
@@ -693,6 +708,10 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
             else:
                 # Only evaluate submission that aren't parent submissions
                 evaluate_submission.delay(obj.pk, obj.phase.is_scoring_only)
+        if parent_submission:
+            return parent_submission
+        else:
+            return obj
 
     def handle_exception(self, exc):
         if type(exc) is DjangoPermissionDenied:
