@@ -276,7 +276,7 @@ def _prepare_compute_worker_run(job_id, submission, is_prediction):
 
     # Let's make our soft time limit (for the task) a bit longer than it needs to be, so the worker has time to
     # clean up
-    time_limit += 60 * 10  # 10 minutes cleanup time
+    time_limit += 60 * 20  # 20 minutes cleanup time
 
     if submission.phase.competition.queue:
         submission.queue_name = submission.phase.competition.queue.name or ''
