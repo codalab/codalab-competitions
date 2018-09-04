@@ -1,33 +1,10 @@
 <div align="center" id="results_phase_buttons">
   {% for phase in competition.phases.all %}
-      {% if phase.is_parallel_parent %}
-          {% if phase.is_active %}
-              <button class="btn btn-sm active phase-btn-{{ phase.color }}"
-                      id="results_phase_{{ phase.id }}">{{ phase.label }}</button>
-          {% else %}
-              <button class="btn btn-sm phase-btn-{{ phase.color }}"
-                      id="results_phase_{{ phase.id }}">{{ phase.label }}</button>
-          {% endif %}
-          <br>
-          {% for sub_phase in phase.sub_phases.all %}
-              {% if sub_phase == active_phase %}
-                  <!-- active, dont change bg color -->
-                  <button class="btn active phase-btn-{{ sub_phase.color }} btn-xs"
-                          id="results_phase_{{ sub_phase.id }}">{{ sub_phase.label }}</button>
-              {% else %}
-                  <button class="btn phase-btn-{{ sub_phase.color }} btn-xs"
-                          id="results_phase_{{ sub_phase.id }}">{{ sub_phase.label }}</button>
-              {% endif %}
-          {% endfor %}
-      {% elif not phase.is_parallel_parent and not phase.parent %}
-          {% if phase.is_active %}
-              <button class="btn btn-sm active phase-btn-{{ phase.color }}"
-                      id="results_phase_{{ phase.id }}">{{ phase.label }}</button>
-          {% else %}
-              <button class="btn btn-sm phase-btn-{{ phase.color }}"
-                      id="results_phase_{{ phase.id }}">{{ phase.label }}</button>
-          {% endif %}
-      {% endif %}
+    {% if phase.is_active %}
+      <button class="btn btn-sm active phase-btn-{{ phase.color }}" id="results_phase_{{phase.id}}">{{phase.label}}</button>
+    {% else %}
+      <button class="btn btn-sm phase-btn-{{ phase.color }}" id="results_phase_{{phase.id}}">{{phase.label}}</button>
+    {% endif %}
   {% endfor %}
 </div>
 
