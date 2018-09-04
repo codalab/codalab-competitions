@@ -127,10 +127,11 @@ class HomePageView(TemplateView):
         context = super(HomePageView, self).get_context_data(**kwargs)
 
         c_key = 'popular_competitions'
-        popular_competitions = cache.get(c_key)
+        # Keys are automatically prepended with :1:...
+        popular_competitions = cache.get(':1:{}'.format(c_key))
         if not popular_competitions:
             popular_competitions = get_most_popular_competitions()
-            cache.set(c_key, popular_competitions, 60 * 60 * 1)
+            cache.set(c_key, popular_competitions, 60 * 10)
 
         context['latest_competitions'] = popular_competitions
         context['featured_competitions'] = get_featured_competitions()
@@ -207,8 +208,8 @@ def my_index(request):
     except:
         denied = -1
 
-    my_competitions = models.Competition.objects.filter(Q(creator=request.user) | Q(admins__in=[request.user])).order_by('-pk').select_related('creator').distinct()
-    published_competitions = models.Competition.objects.filter(published=True).select_related('creator', 'participants')
+    my_competitions = models.Competition.objects.filter(Q(creator=request.user) | Q(admins__in=[request.user])).order_by('-pk').select_related('creator').annotate(num_participants=Count('participants')).distinct()
+    published_competitions = models.Competition.objects.filter(published=True).select_related('creator', 'participants').annotate(num_participants=Count('participants'))
     published_competitions = reversed(sorted(published_competitions, key=lambda c: c.get_start_date))
     context_dict = {
         'my_competitions': my_competitions,
