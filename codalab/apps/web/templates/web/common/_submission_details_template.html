@@ -73,6 +73,9 @@
                                                     <li>
                                                         <a href="/my/competition/submission/_/stderr.txt" target="_blank">Error Log</a>
                                                     </li>
+                                                    {% if is_admin_or_owner %}
+                                                        <li><a href="/my/competition/submission/_/private_output.zip">Download private output</a></li>
+                                                    {% endif %}
                                                 {% endif %}
                                             </ul>
                                         </td>
@@ -128,6 +131,8 @@
                 <td></td>
                 <td class="statusName"></td>
                 <td class="status not_submitted"></td>
+                <td></td>
+                <td></td>
                 <td></td>
                 <td></td>
                 <td><span class="glyphicon glyphicon-plus"></span></td>

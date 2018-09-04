@@ -605,6 +605,7 @@ class CompetitionDetailView(DetailView):
                                     "username": scoredata['username'],
                                     "score": default_score['val'],
                                     "last_submission_date": temp_sub.submitted_at,
+                                    "est_duration": temp_sub.run_time,
                                 }
                                 if competition.enable_teams:
                                     temp_team = get_user_team(temp_sub.participant, competition)
@@ -758,6 +759,7 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                         'organization_or_affiliation': submission.organization_or_affiliation,
                         'is_public': submission.is_public,
                         'score': default_score,
+                        'est_duration': submission.run_time,
                     }
                     submission_info_list.append(submission_info)
                 context['submission_info_list'] = submission_info_list
@@ -1583,16 +1585,36 @@ class SubmissionCancel(LoginRequiredMixin, CreateView):
         print("Is current user admin?: {}".format(is_admin))
         # If we're an admin or we made the submission
         if is_admin or request.user == submission.participant.user:
-            # Terminate the task in celery, then set the status to cancelled. Return to detail view
-            if submission.parent_submission:
-                print("This submission has a parent")
-                parent_submission = submission.parent_submission
-                if parent_submission.status.codename == 'running' and parent_submission.task_id:
-                    print("Submission was running, cancelling")
-                    cancel_submission(parent_submission.pk)
-            if submission.status.codename == 'running' and submission.task_id:
+            # If the submission is running/submitted (Not finshed, cancelled, or submitting)
+            print(submission.status.codename)
+            if submission.status.codename == 'running' or submission.status.codename == 'submitting':
                 print("Submission was running, cancelling")
-                cancel_submission(submission.pk)
+                # If we're a parent submission
+                if not submission.parent_submission and len(submission.child_submissions.all()) > 0:
+                    # Loop through all childeren
+                    for sub in submission.child_submissions.all():
+                        if sub.task_id and sub.status.codename == 'running':
+                            print("Child Submission was running, cancelling")
+                            cancel_submission(sub.pk)
+                        else:
+                            print("Child Submission does not have a task id")
+                # Else, we're a regular submission or a child submission
+                # print("Submission was running, cancelling")
+                if submission.task_id:
+                    cancel_submission(submission.pk)
+                else:
+                    # If we don't have a submission.task_id and our phase is a parrallel parent then set our status to cancelled
+                    finished_statuses = [
+                        CompetitionSubmissionStatus.CANCELLED,
+                        CompetitionSubmissionStatus.FAILED,
+                        CompetitionSubmissionStatus.FINISHED
+                    ]
+                    child_subs = submission.child_submissions.all()
+                    if not submission.parent_submission and len(child_subs) > 0 and len(child_subs) == len(child_subs.filter(status__codename__in=finished_statuses)):
+                        submission.status = CompetitionSubmissionStatus.objects.get(codename=CompetitionSubmissionStatus.CANCELLED)
+                        submission.save()
+                        print("Submission was a parent submission, setting status to cancelled.")
+                    print("Submission does not have a task id")
                 return HttpResponseRedirect(
                     reverse("competitions:view", kwargs={"pk": competition.pk}) + "#participate-submit_results"
                 )

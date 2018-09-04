@@ -817,22 +817,30 @@ def update_submission(job_id, args, secret):
     run_job_task(job_id, update_it, handle_update_exception)
 
 
-
 @app.task(queue='site-worker')
 def check_children_submissions(parent_id):
     # check here that all sub-submissions completed successfully
     parent = CompetitionSubmission.objects.get(pk=parent_id)
     total_children_submission_count = parent.child_submissions.all().count()
+
+    # We want to count cancelled submissions as failed
+    failed_statuses = [
+        CompetitionSubmissionStatus.FAILED,
+        CompetitionSubmissionStatus.CANCELLED
+    ]
+
     successfully_children_count = parent.child_submissions.all().filter(
         status__codename=CompetitionSubmissionStatus.FINISHED
     ).count()
     failed_children_count = parent.child_submissions.all().filter(
-        status__codename=CompetitionSubmissionStatus.FAILED
+        status__codename__in=failed_statuses
     ).count()
+
     logger.info(
         "This has a parent submission, total sibling count: {}, total successfully finished: {}, total failed count: {}".format(
             total_children_submission_count, successfully_children_count, failed_children_count
         ))
+
     if total_children_submission_count == successfully_children_count:
         logger.info("All children finished successfully, starting parent submission to aggregate scores")
         # This evaluates the submission with scoring only

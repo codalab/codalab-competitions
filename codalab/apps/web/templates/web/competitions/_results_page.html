@@ -38,9 +38,9 @@
     <div style="margin-top: 2vh;" class="leaderboard-result-table">
         {% for group in groups %}
             <table class="resultsTable dataTable">
-                <tr class="table-title">
-                    <th colspan="{{group.total_span|add:phase.competition.enable_medical_image_viewer|add:phase.competition.allow_teams|add:phase.competition.enable_detailed_results}}">{{group.label}}</th>
-                </tr>
+{#                <tr class="table-title">#}
+{#                    <th colspan="{{group.total_span|add:phase.competition.enable_medical_image_viewer|add:phase.competition.allow_teams|add:phase.competition.enable_detailed_results}}">{{group.label}}</th>#}
+{#                </tr>#}
                 <tr class="leaderboard-result-table-header">
                     <th rowspan="2">#</th>
                     <th rowspan="2">User</th>
@@ -124,7 +124,7 @@
                             {% if phase.competition.enable_detailed_results %}
                                 <td>
                                     <a href="/my/competition/submission/{{scoredata.id}}/detailed_results" target="_blank">
-                                        View
+                                        Detailed Results
                                     </a></br>
                                 </td>
                             {% endif %}

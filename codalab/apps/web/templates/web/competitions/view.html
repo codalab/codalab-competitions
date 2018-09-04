@@ -268,20 +268,23 @@
     </div>
     {% if competition.show_top_three and top_three %}
         <div style="margin-top: 2vh;" class="row">
-            <div class="col-lg-12 well">
-                <table class="table">
+            <div class="col-lg-12 well" id="top-ten-well">
+                <table class="table" style="background-color: rgba(130, 165, 195, 0.5);">
                     <thead>
-                    <tr>
-                        <th>
-                            <a id="top_three_pointer" data-toggle="tab" href="#{{ "results"|slugify }}"
-                               class="glyphicon glyphicon-chevron-up"></a>
-                        </th>
+                    <tr class="text-center">
+{#                        <th class="text-center">#}
+                            <a id="top_three_pointer" data-toggle="tab" href="#{{ "results"|slugify }}">
+                                Full Results
+                                <i class="glyphicon glyphicon-chevron-up"></i>
+                            </a>
+{#                        </th>#}
                     </tr>
                     <tr>
                         <th>#</th>
                         <th>Username</th>
                         <th>Score</th>
                         <th>Last Submission</th>
+                        <th>Estimated Duration</th>
                         {% if competition.enable_teams %}
                             <th>Team</th>
                         {% endif %}
@@ -294,6 +297,7 @@
                             <td>{{ leader.username }}</td>
                             <td>{{ leader.score }}</td>
                             <td>{{ leader.last_submission_date|date:'d-m-Y' }}</td>
+                            <td>{{ leader.est_duration|default_if_none:'' }}</td>
                             {% if competition.enable_teams %}
                                 <td>{{ leader.team }}</td>
                             {% endif %}
@@ -357,6 +361,29 @@
                 show_location('#' + $(this).attr('href').split('#')[1]);
             });
         });
+
+        var check_page_hash = function() {
+            var top_ten = document.getElementById("top-ten-well");
+            if (!window.location.hash || (window.location.hash === '#home' || window.location.hash === ''))
+            {
+                // Fragment exists
+                top_ten.style.display = "block";
+{#                if (top_ten.style.display === "none") {#}
+{#                    top_ten.style.display = "block";#}
+{#                } else {#}
+{#                    top_ten.style.display = "none";#}
+{#                }#}
+                console.log(window.location.hash)
+            } else {
+                // Fragment doesn't exist
+                top_ten.style.display = "none";
+            }
+            window.setTimeout(check_page_hash, 100);
+        }
+
+        check_page_hash()
+
+{#        window.timeout()#}
 
     </script>
 {% endblock %}
