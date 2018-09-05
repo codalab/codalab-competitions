@@ -7,9 +7,9 @@
       {% if phase.is_parallel_parent %}
         {% if phase == active_phase %}
           <!-- active, dont change bg color -->
-            <button class="btn active phase-btn-{{ phase.color }} btn-md" id="submissions_phase_{{phase.id}}">{{phase.label}}</button>
+            <button style="margin-right: 5vw;" class="btn active phase-btn-{{ phase.color }} btn-md" id="submissions_phase_{{phase.id}}">{{phase.label}}</button>
         {% else %}
-            <button class="btn phase-btn-{{ phase.color }} btn-md" id="submissions_phase_{{phase.id}}">{{phase.label}}</button>
+            <button style="margin-right: 5vw;" class="btn phase-btn-{{ phase.color }} btn-md" id="submissions_phase_{{phase.id}}">{{phase.label}}</button>
         {% endif %}
       {% else %}
           {% if phase == active_phase %}
@@ -20,6 +20,10 @@
         {% endif %}
       {% endif %}
   {% endfor %}
+    <ul class="list-unstyled">
+    {% if competition.start_date %}<li><b>Competition Start: </b>{{ competition.start_date }}</li>{% endif %}
+    {% if competition.end_date %}<li><b>Competition End: </b>{{ competition.end_date }}</li>{% endif %}
+    </ul>
 </div>
 
 <div class="competition_submissions">

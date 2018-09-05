@@ -112,8 +112,9 @@
             margin-bottom: 0 !important;
         }
 
-        .phase-btn:active {
-            border: 5px solid black !important;
+        .selected {
+{#            border: 4px solid #00b3ee !important;#}
+            box-shadow: 1px 1px 4px 0.5px black inset !important;
         }
     </style>
 {% endblock %}
@@ -183,6 +184,11 @@
 {#                    {% endif %}#}
 {#                </div>#}
             </div>
+{#            <div class="row">#}
+                {% if user.is_authenticated %}
+                    <a id="submission_top_pointer" href="#participate" class="btn btn-primary" style="margin-bottom: 2vh;">Make a Submission</a>
+                {% endif %}
+{#            </div>#}
         </div>
         <div align="center" style="margin-left: 0; margin-right: 0;" class="row comp-view-tab-container">
             <section style="" class="competition-tabs comp-view-tabs">
@@ -376,11 +382,31 @@
             $('#top_three_pointer').on('click', function () {
                 show_location('#' + $(this).attr('href').split('#')[1]);
             });
+            $('#submission_top_pointer').on('click', function () {
+                show_location('#' + $(this).attr('href').split('#')[1]);
+                window.setTimeout(function(){
+                    var fileUploadButton = document.getElementById("fileUploadButton");
+                    if (fileUploadButton !== null) {
+                        console.log("clickity");
+                        fileUploadButton.click();
+                    } else {
+                        var fileUploadButton = document.getElementById("s3-file-upload");
+                        if (fileUploadButton !== null) {
+                            console.log("clickity");
+                            fileUploadButton.click();
+                        }
+                    }
+                }, 500);
+            });
         });
 
         var check_page_hash = function() {
+            console.log("Hash check called")
             var top_ten = document.getElementById("top-ten-well");
-            if (!window.location.hash || (window.location.hash === '#home' || window.location.hash === ''))
+            if (top_ten === null) {
+                return
+            }
+            if ((!window.location.hash) || (window.location.hash === '#home' || window.location.hash === ''))
             {
                 top_ten.style.display = "block";
             } else {

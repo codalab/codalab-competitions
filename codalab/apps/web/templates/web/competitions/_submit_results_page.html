@@ -53,14 +53,14 @@
                             <div id="s3-file-upload"
                                  class="button btn btn-danger {% if not phase.reference_data and not phase.is_parallel_parent %}disabled{% endif %}"
                                  {% if not phase.reference_data and not phase.is_parallel_parent %}disabled="disabled"{% endif %}>
-                                Submit
+                                Upload and Submit Solution
                             </div>
                         </form>
                     {% else %}
                         <button id="fileUploadButton"
                                 class="button btn btn-danger {% if not phase.reference_data and not phase.is_parallel_parent %}disabled{% endif %}"
                                 {% if not phase.reference_data and not phase.is_parallel_parent %}disabled="disabled"{% endif %}>
-                            Submit
+                            Upload and Submit Solution
                         </button>
                     {% endif %}
                 </div>
