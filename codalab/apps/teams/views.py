@@ -93,14 +93,11 @@ class TeamDetailView(LoginRequiredMixin, TemplateView):
             }
         ]
 
-        # if competition.participants.filter(user__in=[self.request.user]).exists():
         try:
             participant = competition.participants.get(user=self.request.user)
-            # participant = competition.participants.get(user=self.request.user)
             if participant.status.codename == ParticipantStatus.APPROVED:
                 user_team = get_user_team(participant, competition)
-
-                team_list= get_competition_teams(competition)
+                team_list = get_competition_teams(competition)
                 user_requests = get_user_requests(participant, competition)
                 user_pending_teams = get_competition_user_pending_teams(competition, participant)
                 if user_team is not None:
@@ -120,15 +117,8 @@ class TeamDetailView(LoginRequiredMixin, TemplateView):
                     ]
                     status_approved = TeamMembershipStatus.objects.get(codename=TeamMembershipStatus.APPROVED)
                     for number, member in enumerate(user_team.members.all()):
-                        # membership_set = member.teammembership_set.filter(team=user_team)
-                        # membership_set = member.teams.filter(team=user_team)
-                        # membership = None
                         member_part=competition.participants.get(user=member)
                         membership_set = member.team_memberships.filter(status=status_approved)
-                        # for m in membership_set:
-                        #     if m.status == status_approved:
-                        #         membership = m
-                        #         break
                         for membership in membership_set:
                             if membership is not None:
                                 user_entry = {
