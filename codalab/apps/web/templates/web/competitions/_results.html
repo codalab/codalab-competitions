@@ -1,11 +1,19 @@
 <div align="center" id="results_phase_buttons">
-  {% for phase in competition.phases.all %}
-    {% if phase.is_active %}
-      <button class="btn btn-sm active phase-btn-{{ phase.color }}" id="results_phase_{{phase.id}}">{{phase.label}}</button>
-    {% else %}
-      <button class="btn btn-sm phase-btn-{{ phase.color }}" id="results_phase_{{phase.id}}">{{phase.label}}</button>
-    {% endif %}
-  {% endfor %}
+    {% for phase in competition.phases.all %}
+        {% if phase.is_parallel_parent %}
+            {% if phase.is_active %}
+                <button class="btn btn-md active phase-btn-{{ phase.color }}" id="results_phase_{{ phase.id }}">{{ phase.label }}</button>
+            {% else %}
+                <button class="btn btn-md phase-btn-{{ phase.color }}" id="results_phase_{{ phase.id }}">{{ phase.label }}</button>
+            {% endif %}
+        {% else %}
+            {% if phase.is_active %}
+                <button class="btn btn-sm active phase-btn-{{ phase.color }}" id="results_phase_{{ phase.id }}">{{ phase.label }}</button>
+            {% else %}
+                <button class="btn btn-sm phase-btn-{{ phase.color }}" id="results_phase_{{ phase.id }}">{{ phase.label }}</button>
+            {% endif %}
+        {% endif %}
+    {% endfor %}
 </div>
 
 <div style="margin-top: 5vh;" class="competition_results"></div>

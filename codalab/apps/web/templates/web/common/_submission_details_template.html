@@ -73,9 +73,10 @@
                                                     <li>
                                                         <a href="/my/competition/submission/_/stderr.txt" target="_blank">Error Log</a>
                                                     </li>
-                                                    {% if is_admin_or_owner %}
-                                                        <li><a href="/my/competition/submission/_/private_output.zip">Download private output</a></li>
-                                                    {% endif %}
+                                                {% endif %}
+                                                <li><a href="/my/competition/submission/_/output.zip">Download Output</a></li>
+                                                {% if is_admin_or_owner %}
+                                                    <li><a href="/my/competition/submission/_/private_output.zip">Download Private Output</a></li>
                                                 {% endif %}
                                             </ul>
                                         </td>

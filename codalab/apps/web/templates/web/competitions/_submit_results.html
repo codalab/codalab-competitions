@@ -4,12 +4,21 @@
 
 <div align="center" id="submissions_phase_buttons">
   {% for phase in competition.phases.all %}
-    {% if phase == active_phase %}
-      <!-- active, dont change bg color -->
-        <button class="btn active phase-btn-{{ phase.color }} btn-sm" id="submissions_phase_{{phase.id}}">{{phase.label}}</button>
-    {% else %}
-        <button class="btn phase-btn-{{ phase.color }} btn-sm" id="submissions_phase_{{phase.id}}">{{phase.label}}</button>
-    {% endif %}
+      {% if phase.is_parallel_parent %}
+        {% if phase == active_phase %}
+          <!-- active, dont change bg color -->
+            <button class="btn active phase-btn-{{ phase.color }} btn-md" id="submissions_phase_{{phase.id}}">{{phase.label}}</button>
+        {% else %}
+            <button class="btn phase-btn-{{ phase.color }} btn-md" id="submissions_phase_{{phase.id}}">{{phase.label}}</button>
+        {% endif %}
+      {% else %}
+          {% if phase == active_phase %}
+          <!-- active, dont change bg color -->
+            <button class="btn active phase-btn-{{ phase.color }} btn-sm" id="submissions_phase_{{phase.id}}">{{phase.label}}</button>
+        {% else %}
+            <button class="btn phase-btn-{{ phase.color }} btn-sm" id="submissions_phase_{{phase.id}}">{{phase.label}}</button>
+        {% endif %}
+      {% endif %}
   {% endfor %}
 </div>
 

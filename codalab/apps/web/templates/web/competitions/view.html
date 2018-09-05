@@ -7,7 +7,14 @@
 {#{% block head_title %}Competition{% endblock %}#}
 {#{% block page_title %}Competition{% endblock page_title %}#}
 {% block page_title %}
-    <h2>{{ competition.title }}</h2>
+    <div style="margin-top: 2.5vh;">
+        <span class="organizer" style="font-size: 26px; font-weight: bolder;">
+            {{ competition.title }}
+        </span>
+            <span class="organizer" style="margin-left: 30vw;">
+            Organized by {{ competition.creator }}
+        </span>
+    </div>
 {% endblock page_title %}
 
 {% block extra_scripts %}
@@ -69,7 +76,7 @@
         .comp-view-status {
             background-color: rgba(130, 165, 195, 0.5);
 {#            max-width: 30vw !important;#}
-            min-width: 40%;
+            min-width: 50%;
 {#            margin-left: 0;#}
 {#            margin-right: 0;#}
 {#            margin-top: 5vh;#}
@@ -80,7 +87,7 @@
 
         .comp-info {
             margin: 2vh 0 2vh 0;
-            padding: 2vh 2vh 2vh 2vh;
+            padding: 1vh 1vh 1vh 1vh;
         }
 
         .comp-view-tab-container {
@@ -91,8 +98,9 @@
         }
 
         .comp-view-tabs {
-            margin: 0 !important;
+            margin: 12.5vh 0 0 0 !important;
 {#            max-width: 60vw !important;#}
+{#            margin-top: 20vh !important;#}
         }
 
         hr {
@@ -102,6 +110,10 @@
 
         table {
             margin-bottom: 0 !important;
+        }
+
+        .phase-btn:active {
+            border: 5px solid black !important;
         }
     </style>
 {% endblock %}
@@ -164,15 +176,15 @@
                         {% endif %}
                     </ul>
                 </div>
-                <div class="organizer" style="margin-bottom: 3vh;">
-                    Organized by {{ competition.creator }}<br>
-                    {% if competition.reward and competition.reward > 0 %}
-                        Reward <b>${{ competition.reward|intcomma }}</b>
-                    {% endif %}
-                </div>
+{#                <div class="organizer" style="margin-bottom: 3vh;">#}
+{#                    Organized by {{ competition.creator }}<br>#}
+{#                    {% if competition.reward and competition.reward > 0 %}#}
+{#                        Reward <b>${{ competition.reward|intcomma }}</b>#}
+{#                    {% endif %}#}
+{#                </div>#}
             </div>
         </div>
-        <div align="center" style="" class="row comp-view-tab-container">
+        <div align="center" style="margin-left: 0; margin-right: 0;" class="row comp-view-tab-container">
             <section style="" class="competition-tabs comp-view-tabs">
                 {#                <ul class="nav nav-tabs" id="competition_tab_nav">#}
                 <ul style="margin-left: 25vw;" class="list-inline text-center nav nav-tabs" id="competition_tab_nav">
@@ -271,13 +283,17 @@
             <div class="col-lg-12 well" id="top-ten-well">
                 <table class="table" style="background-color: rgba(130, 165, 195, 0.5);">
                     <thead>
-                    <tr class="text-center">
-{#                        <th class="text-center">#}
+                    <tr style="font-size: 22px; font-weight: bolder;">
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th>Top Ten Results</th>
+                        <th class="text-right">
                             <a id="top_three_pointer" data-toggle="tab" href="#{{ "results"|slugify }}">
                                 Full Results
                                 <i class="glyphicon glyphicon-chevron-up"></i>
                             </a>
-{#                        </th>#}
+                        </th>
                     </tr>
                     <tr>
                         <th>#</th>
@@ -366,19 +382,11 @@
             var top_ten = document.getElementById("top-ten-well");
             if (!window.location.hash || (window.location.hash === '#home' || window.location.hash === ''))
             {
-                // Fragment exists
                 top_ten.style.display = "block";
-{#                if (top_ten.style.display === "none") {#}
-{#                    top_ten.style.display = "block";#}
-{#                } else {#}
-{#                    top_ten.style.display = "none";#}
-{#                }#}
-                console.log(window.location.hash)
             } else {
-                // Fragment doesn't exist
                 top_ten.style.display = "none";
             }
-            window.setTimeout(check_page_hash, 100);
+            window.setTimeout(check_page_hash, 500);
         }
 
         check_page_hash()
