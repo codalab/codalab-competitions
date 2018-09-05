@@ -811,8 +811,8 @@ class CompetitionPublicSubmission(TemplateView):
             for phase in competition.phases.all():
                 if phase.is_active:
                     context['active_phase'] = phase
-        except:
-            context['error'] = traceback.print_exc()
+        except Competition.DoesNotExist:
+            raise Http404()
 
         # In case all phases are close, lets get last phase
         if context['active_phase'] is None and competition:
