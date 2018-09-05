@@ -386,12 +386,10 @@
             } else {
                 top_ten.style.display = "none";
             }
-            window.setTimeout(check_page_hash, 500);
         }
 
-        check_page_hash()
+        window.addEventListener("hashchange", check_page_hash, false);
 
-{#        window.timeout()#}
 
     </script>
 {% endblock %}
