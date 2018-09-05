@@ -136,6 +136,7 @@ def compute_worker_kill():
 def compute_worker_prune():
     run('docker system prune -af')
 
+
 def compute_worker_restart():
     """Restarts compute worker
 

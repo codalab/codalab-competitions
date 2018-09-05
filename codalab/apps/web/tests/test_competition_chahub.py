@@ -40,5 +40,6 @@ class CompetitionPhaseToPhase(TestCase):
 
         # End dates for phases to chahub automatically are set to -1 minute from next phase end date
         phase_end_date = self.phase_2.start_date - datetime.timedelta(minutes=1)
+        
         assert chahub_data[0]['phases'][0]['end'] == phase_end_date.isoformat()
         assert chahub_data[0]['phases'][1]['end'] is None  # never ends

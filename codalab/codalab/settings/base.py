@@ -320,22 +320,19 @@ class Base(Settings):
     # =========================================================================
     # Caching
     # =========================================================================
-    try:
-        # Don't force people to install/use this
-        import memcached
-
-        MEMCACHED_PORT = os.environ.get('MEMCACHED_PORT', 11211)
-        CACHES = {
-            'default': {
-                'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-                'LOCATION': 'memcached:{}'.format(MEMCACHED_PORT),
-            }
+    MEMCACHED_PORT = os.environ.get('MEMCACHED_PORT', 11211)
+    CACHES = {
+        'default': {
+            # 'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+            'BACKEND': 'django.core.cache.backends.memcached.PyLibMCCache',
+            'LOCATION': 'memcached:{}'.format(MEMCACHED_PORT),
         }
+    }
 
-        # Store information for celery
-        CELERY_RESULT_BACKEND = 'cache+memcached://memcached:{}/'.format(MEMCACHED_PORT)
-    except ImportError:
-        pass
+    # Store information for celery
+    CELERY_RESULT_BACKEND = 'cache+memcached://memcached:{}/'.format(MEMCACHED_PORT)
+
+    SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
 
 
     # =========================================================================
@@ -646,11 +643,6 @@ class DevBase(Base):
             'debug_toolbar',
         )
         ACCOUNT_EMAIL_VERIFICATION = None
-        CACHES = {
-            'default': {
-                'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
-            }
-        }
         EXTRA_MIDDLEWARE_CLASSES = (
             'debug_toolbar.middleware.DebugToolbarMiddleware',
         )
