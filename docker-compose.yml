@@ -104,7 +104,7 @@ services:
   memcached:
     image: memcached
     hostname: memcached
-    command: "/usr/local/bin/memcached -u memcache -vv"
+    command: "/usr/local/bin/memcached -u memcache"
     logging:
       options:
         max-size: "200k"
