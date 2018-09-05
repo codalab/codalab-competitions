@@ -54,7 +54,7 @@ from apps.common.competition_utils import get_most_popular_competitions, get_fea
 from apps.web.exceptions import ScoringException
 from apps.web.forms import CompetitionS3UploadForm, SubmissionS3UploadForm
 from apps.web.models import SubmissionScore, SubmissionScoreDef, get_current_phase, \
-    get_first_previous_active_and_next_phases, Competition
+    get_first_previous_active_and_next_phases, Competition, CompetitionSubmission
 
 from apps.authenz.models import ClUser
 from tasks import evaluate_submission, re_run_all_submissions_in_phase, create_competition, _make_url_sassy, \
@@ -127,10 +127,11 @@ class HomePageView(TemplateView):
         context = super(HomePageView, self).get_context_data(**kwargs)
 
         c_key = 'popular_competitions'
-        popular_competitions = cache.get(c_key)
+        # Keys are automatically prepended with :1:...
+        popular_competitions = cache.get(':1:{}'.format(c_key))
         if not popular_competitions:
             popular_competitions = get_most_popular_competitions()
-            cache.set(c_key, popular_competitions, 60 * 60 * 1)
+            cache.set(c_key, popular_competitions, 60 * 10)
 
         context['latest_competitions'] = popular_competitions
         context['featured_competitions'] = get_featured_competitions()
@@ -207,8 +208,8 @@ def my_index(request):
     except:
         denied = -1
 
-    my_competitions = models.Competition.objects.filter(Q(creator=request.user) | Q(admins__in=[request.user])).order_by('-pk').select_related('creator').distinct()
-    published_competitions = models.Competition.objects.filter(published=True).select_related('creator', 'participants')
+    my_competitions = models.Competition.objects.filter(Q(creator=request.user) | Q(admins__in=[request.user])).order_by('-pk').select_related('creator').annotate(num_participants=Count('participants')).distinct()
+    published_competitions = models.Competition.objects.filter(published=True).select_related('creator', 'participants').annotate(num_participants=Count('participants'))
     published_competitions = reversed(sorted(published_competitions, key=lambda c: c.get_start_date))
     context_dict = {
         'my_competitions': my_competitions,
@@ -1010,28 +1011,31 @@ class MyCompetitionParticipantView(LoginRequiredMixin, ListView):
             }
         ]
 
+        context['columns'] = columns
+        context['team_columns'] = team_columns
+
         try:
             competition = models.Competition.objects.get(pk=self.kwargs.get('competition_id'))
-        except models.Competition.DoesNotExist:
+        except ObjectDoesNotExist:
             raise Http404()
 
         if competition.creator != self.request.user and self.request.user not in competition.admins.all():
             raise Http404()
 
-        context['columns'] = columns
-        context['team_columns'] = team_columns
-        # retrieve participant submissions information
+        comp_participants = self.queryset.filter(competition=competition).select_related('user', 'status').prefetch_related('submissions').order_by('pk')
+
+        # All submissions
+        comp_submissions = CompetitionSubmission.objects.filter(participant__competition=competition).select_related('team')
+
         participant_list = []
-        competition_participants = self.queryset.filter(competition=competition).order_by('pk')
-        competition_participants_ids = list(participant.id for participant in competition_participants)
-        context['pending_participants'] = filter(lambda participant_submission: participant_submission.status.codename == models.ParticipantStatus.PENDING, competition_participants)
-        participant_submissions = models.CompetitionSubmission.objects.filter(participant__in=competition_participants_ids)
-        for number, participant in enumerate(competition_participants):
-            team = get_user_team(participant, participant.competition)
+
+        for number, participant in enumerate(comp_participants):
+            team = get_user_team(participant, competition)
             if team is not None:
                 team_name = team.name
             else:
                 team_name = ''
+
             participant_entry = {
                 'pk': participant.pk,
                 'name': participant.user.username,
@@ -1039,27 +1043,28 @@ class MyCompetitionParticipantView(LoginRequiredMixin, ListView):
                 'user_pk': participant.user.pk,
                 'status': participant.status.codename,
                 'number': number + 1,
-                # equivalent to assigning participant.submissions.count() but without several multiple db queires
-                'entries': len(filter(lambda participant_submission: participant_submission.participant.id == participant.id, participant_submissions)),
+                'entries': participant.submissions.count(),
                 'team_name': team_name,
                 'team': team
             }
             participant_list.append(participant_entry)
-        # order results
         sort_data_table(self.request, context, participant_list)
         context['participant_list'] = participant_list
         context['competition_id'] = self.kwargs.get('competition_id')
+        context['pending_participants'] = comp_participants.filter(status__codename='pending')
 
-        # If teams are enabled for this competition, add team information
-        competition = models.Competition.objects.get(pk=self.kwargs.get('competition_id'))
-        context['allow_organizer_teams'] = competition.allow_organizer_teams
-        context['csv_form'] = OrganizerTeamsCSVForm(competition_pk=self.kwargs.get('competition_id'), creator_pk=competition.creator.pk)
         if competition.enable_teams or competition.allow_organizer_teams:
+            comp_teams = Team.objects.filter(competition=competition).order_by('pk').select_related('creator', 'status').prefetch_related('members').order_by('pk')
+            pending_teams = comp_teams.filter(status__codename='pending')
             if competition.enable_teams:
                 context['teams_enabled'] = True
-            participant_memberships = TeamMembership.objects.filter(user__in=competition_participants_ids)
+            # participant_memberships = TeamMembership.objects.filter(user__in=competition_participants_ids)
+            if competition.allow_organizer_teams:
+                context['allow_organizer_teams'] = competition.allow_organizer_teams
+                context['csv_form'] = OrganizerTeamsCSVForm(competition_pk=competition.pk,
+                                                            creator_pk=competition.creator.pk)
             teams_list = []
-            for number, team in enumerate(get_competition_teams(competition)):
+            for number, team in enumerate(comp_teams):
                 team_entry = {
                     'pk': team.pk,
                     'name': team.name,
@@ -1069,19 +1074,14 @@ class MyCompetitionParticipantView(LoginRequiredMixin, ListView):
                     'num_pending': 0,
                     'status': team.status.codename,
                     'number': number + 1,
-                    # equivalent to assigning participant.submissions.count() but without several multiple db queires
-                    'entries': len(filter(
-                        lambda participant_submission: get_user_team(participant_submission.participant,
-                                                                     competition) == team, participant_submissions)),
+                    'entries': comp_submissions.filter(team=team).count()
                 }
                 teams_list.append(team_entry)
             context['team_list'] = teams_list
-            context['pending_teams'] = get_competition_pending_teams(competition)
+            # context['pending_teams'] = get_competition_pending_teams(competition)
+            context['pending_teams'] = pending_teams
+
         return context
-
-    def get_queryset(self):
-        return self.queryset.filter(competition=self.kwargs.get('competition_id'))
-
 
 # Partials
 
