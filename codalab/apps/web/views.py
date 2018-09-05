@@ -298,7 +298,10 @@ class CompetitionEdit(LoginRequiredMixin, NamedFormsetsMixin, UpdateWithInlinesV
         form.instance.modified_by = self.request.user
 
         # save up here, before checks for new phase data
-        save_result = super(CompetitionEdit, self).forms_valid(form, inlines)
+        try:
+            save_result = super(CompetitionEdit, self).forms_valid(form, inlines)
+        except forms.ValidationError:
+            return self.form_invalid(form)
 
         # inlines[0] = pages
         # inlines[1] = phases
