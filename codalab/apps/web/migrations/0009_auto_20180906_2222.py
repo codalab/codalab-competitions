@@ -12,51 +12,40 @@ def update_content_categories(apps, schema_editor):
 
     visible = ContentVisibility.objects.get(codename='visible')
 
-    ccs = [
+    new_tabs = [
         {
-            'parent': None,
             'name': "Home",
             'codename': "home",
-            'visibility': visible,
-            'is_menu': True,
-            'content_limit': 1
         },
         {
-            'parent': None,
             'name': "Get Started",
             'codename': "learn_the_details",
-            'visibility': visible,
-            'is_menu': True,
-            'content_limit': 1
         },
         {
-            'parent': None,
             'name': "My Submissions",
             'codename': "participate",
-            'visibility': visible,
-            'is_menu': True,
-            'content_limit': 1
         },
         {
-            'parent': None,
             'name': "Results",
             'codename': "results",
-            'visibility': visible,
-            'is_menu': True,
-            'content_limit': 1
         }
     ]
 
-    attr_list = ['parent', 'name', 'visibility', 'is_menu', 'content_limit']
+    attr_list = ['name', 'codename']
 
     for index in range(1, 4):
         # Loop through PK's 1-4 and create them if they don't exist
         content_cat, created = ContentCategory.objects.get_or_create(
             pk=index,
         )
+        if created:
+            content_cat.parent = None
+            content_cat.visibility = visible
+            content_cat.is_menu = True
+            content_cat.content_limit = 1
         for attr in attr_list:
             # Set the new attributes (We explicitly set all so that if we made a new one there is not issues.)
-            setattr(content_cat, attr, ccs[index-1][attr])
+            setattr(content_cat, attr, new_tabs[index-1][attr])
         content_cat.save()
     # Update overview to point to Home category
     overview = DefaultContentItem.objects.get(codename='overview')
