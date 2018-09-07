@@ -33,7 +33,7 @@ def update_content_categories(apps, schema_editor):
 
     attr_list = ['name', 'codename']
 
-    for index in range(1, 4):
+    for index in range(1, 5):
         # Loop through PK's 1-4 and create them if they don't exist
         content_cat, created = ContentCategory.objects.get_or_create(
             pk=index,
