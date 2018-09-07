@@ -7,20 +7,62 @@ from django.db import migrations
 
 def update_content_categories(apps, schema_editor):
     ContentCategory = apps.get_model('web', 'ContentCategory')
+    DefaultContentItem = apps.get_model('web', 'DefaultContentItem')
+    ContentVisibility = apps.get_model('web', 'ContentVisibility')
 
-    # Update or create example
-    # obj, created = Person.objects.update_or_create(
-    #     first_name='John',
-    #     last_name='Lennon',
-    #     defaults=updated_values
-    # )
+    visible = ContentVisibility.objects.get(codename='visible')
 
-    ContentCategory.update_or_create(
-        name="Home",
-        defaults={
-            "name": "New Home"
+    ccs = [
+        {
+            'parent': None,
+            'name': "Home",
+            'codename': "home",
+            'visibility': visible,
+            'is_menu': True,
+            'content_limit': 1
+        },
+        {
+            'parent': None,
+            'name': "Get Started",
+            'codename': "learn_the_details",
+            'visibility': visible,
+            'is_menu': True,
+            'content_limit': 1
+        },
+        {
+            'parent': None,
+            'name': "My Submissions",
+            'codename': "participate",
+            'visibility': visible,
+            'is_menu': True,
+            'content_limit': 1
+        },
+        {
+            'parent': None,
+            'name': "Results",
+            'codename': "results",
+            'visibility': visible,
+            'is_menu': True,
+            'content_limit': 1
         }
-    )
+    ]
+
+    attr_list = ['parent', 'name', 'visibility', 'is_menu', 'content_limit']
+
+    for index in range(1, 4):
+        # Loop through PK's 1-4 and create them if they don't exist
+        content_cat, created = ContentCategory.objects.get_or_create(
+            pk=index,
+        )
+        for attr in attr_list:
+            # Set the new attributes (We explicitly set all so that if we made a new one there is not issues.)
+            setattr(content_cat, attr, ccs[index-1][attr])
+        content_cat.save()
+    # Update overview to point to Home category
+    overview = DefaultContentItem.objects.get(codename='overview')
+    overview.category = ContentCategory.objects.get(codename='home')
+    overview.rank = 0
+    overview.save()
 
 
 class Migration(migrations.Migration):
