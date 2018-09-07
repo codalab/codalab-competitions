@@ -4,12 +4,12 @@ from __future__ import unicode_literals
 
 from django.db import migrations
 
-from apps.web.models import ContentCategory
+from apps.web.models import ContentCategory, ContentVisibility, DefaultContentItem
 
 def update_content_categories(apps, schema_editor):
     # ContentCategory = apps.get_model('web', 'ContentCategory')
-    DefaultContentItem = apps.get_model('web', 'DefaultContentItem')
-    ContentVisibility = apps.get_model('web', 'ContentVisibility')
+    # DefaultContentItem = apps.get_model('web', 'DefaultContentItem')
+    # ContentVisibility = apps.get_model('web', 'ContentVisibility')
 
     visible = ContentVisibility.objects.get(codename='visible')
 
