@@ -247,6 +247,8 @@
             is_authenticated: {{ user.is_authenticated|yesno:"true,false" }},
         }
 
+        /*
+         * If we want to do a migration again, can use this warning!
         $(document).ready(function() {
             var migration_warning = localStorage.getItem('migration_warning')
             if(migration_warning === null) {
@@ -256,9 +258,7 @@
             $("#hide_migration_warning").click(function() {
                 localStorage.setItem('migration_warning', true)
             })
-        })
-
-
+        })*/
     </script>
     {% block jsincludes %}
 
