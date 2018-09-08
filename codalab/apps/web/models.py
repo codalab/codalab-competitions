@@ -487,11 +487,18 @@ class Competition(ChaHubSaveMixin, models.Model):
             for participant, submission in participants.items():
                 logger.info('Moving submission %s over' % submission)
 
+                file_args = {}
+
+                if settings.USE_AWS:
+                    file_args["s3_file"] = submission.s3_file
+                else:
+                    file_args["file"] = submission.file
+                    
                 new_submission = CompetitionSubmission(
                     participant=participant,
-                    file=submission.file,
                     phase=next_phase,
                     docker_image=submission.docker_image,
+                    **file_args
                 )
                 new_submission.save(ignore_submission_limits=True)
 
@@ -1398,7 +1405,7 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
         self.dislike_count = self.dislikes.all().count()
 
         if not self.readable_filename:
-            if hasattr(self, 'file'):
+            if hasattr(self, 'file') or hasattr(self, 's3_file'):
                 if settings.USE_AWS:
                     self.readable_filename = split(self.s3_file)[1]
                 else:
