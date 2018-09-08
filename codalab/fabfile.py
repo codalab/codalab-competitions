@@ -52,7 +52,7 @@ def compute_worker_init(BROKER_URL, BROKER_USE_SSL=False):
     """Initializes compute worker by installing docker and the compute worker image
 
     Meant to be used with `hosts` like so, for an SSL'd server:
-        fab hosts:prod_workers compute_worker_init:pyamqp://blahblah/,True
+        fab hosts:prod compute_worker_init:pyamqp://blahblah/,True
     """
     # Get proper SSL flag value
     BROKER_USE_SSL = bool(BROKER_USE_SSL)
@@ -90,7 +90,7 @@ def compute_worker_update():
     """Updates compute workers to latest docker image
 
     Meant to be used with `hosts` like so:
-        fab hosts:prod_workers compute_worker_update
+        fab hosts:prod compute_worker_update
     """
     compute_worker_kill()
     run('docker pull codalab/competitions-v1-compute-worker:latest')
@@ -102,7 +102,7 @@ def compute_worker_update_docker():
     """Updates base docker installation version to latest
 
     Meant to be used with `hosts` like so:
-        fab hosts:prod_workers compute_worker_update_docker
+        fab hosts:prod compute_worker_update_docker
     """
     run('curl https://get.docker.com | sudo sh')
 
@@ -111,7 +111,7 @@ def compute_worker_docker_restart():
     """Restarts docker
 
     Meant to be used with `hosts` like so:
-        fab hosts:prod_workers compute_worker_docker_restart
+        fab hosts:prod compute_worker_docker_restart
     """
     # sudo('/etc/init.d/docker restart')
 
@@ -123,7 +123,7 @@ def compute_worker_kill():
     """Kills compute worker
 
     Meant to be used with `hosts` like so:
-        fab hosts:prod_workers compute_worker_kill
+        fab hosts:prod compute_worker_kill
     """
     with warn_only():
         # Error if compute_worker isn't already running
@@ -141,7 +141,7 @@ def compute_worker_restart():
     """Restarts compute worker
 
     Meant to be used with `hosts` like so:
-        fab hosts:prod_workers compute_worker_restart
+        fab hosts:prod compute_worker_restart
     """
     compute_worker_kill()
     compute_worker_run()
@@ -151,7 +151,7 @@ def compute_worker_run():
     """Runs the actual compute worker.
 
     Meant to be used with `hosts` like so:
-        fab hosts:prod_workers compute_worker_run
+        fab hosts:prod compute_worker_run
     """
     run("docker run "
         "--env-file .env "
@@ -168,7 +168,7 @@ def compute_worker_status():
     """Prints out `docker ps` for each worker
 
     Meant to be used with `hosts` like so:
-        fab hosts:prod_workers compute_worker_status
+        fab hosts:prod compute_worker_status
     """
     run('docker ps -a')
 
