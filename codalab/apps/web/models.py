@@ -1863,6 +1863,21 @@ class CompetitionDefBundle(models.Model):
 
         data_set_cache = {}
 
+        # Validate parent phases
+        parents_created = []
+        parents_used = []
+        for phase_number, phase in comp_spec['phases'].items():
+            if phase.get('is_parallel_parent'):
+                parents_created.append(phase_number)
+            elif phase.get('parent_phasenumber'):
+                parents_used.append(phase_number)
+
+        if not all(p in parents_used for p in parents_created):
+            assert False, "Parent phase found without children, all parent phases must have children"
+
+        if not all(c in parents_created for c in parents_used):
+            assert False, "Child phase found without matchin parent phase, all children parent phases must exist"
+
         # Create phases
         for index, p_num in enumerate(comp_spec['phases']):
             phase_spec = comp_spec['phases'][p_num].copy()
