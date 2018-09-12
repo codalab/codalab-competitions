@@ -2,9 +2,9 @@
     {% for phase in competition.phases.all %}
         {% if phase.is_parallel_parent %}
             {% if phase.is_active %}
-                <button class="btn btn-md active phase-btn-{{ phase.color }}" id="results_phase_{{ phase.id }}">{{ phase.label }}</button>
+                <button style="margin-right: 5vw;" class="btn btn-md active phase-btn-{{ phase.color }}" id="results_phase_{{ phase.id }}">{{ phase.label }}</button>
             {% else %}
-                <button class="btn btn-md phase-btn-{{ phase.color }}" id="results_phase_{{ phase.id }}">{{ phase.label }}</button>
+                <button style="margin-right: 5vw;" class="btn btn-md phase-btn-{{ phase.color }}" id="results_phase_{{ phase.id }}">{{ phase.label }}</button>
             {% endif %}
         {% else %}
             {% if phase.is_active %}
