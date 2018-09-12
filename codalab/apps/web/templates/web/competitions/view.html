@@ -54,8 +54,8 @@
         }
 
         .comp-view-countdown-well {
-            border: 1px solid rgba(255, 79, 79, 1);
-            border-radius: 5px;
+{#            border: 1px solid rgba(255, 79, 79, 1);#}
+{#            border-radius: 5px;#}
             background-color: rgba(255, 79, 79, 1);
 {#            max-width: 15vw;#}
 {#            padding-top: 5px;#}
@@ -86,8 +86,8 @@
         }
 
         .comp-info {
-            margin: 2vh 0 2vh 0;
-            padding: 1vh 1vh 1vh 1vh;
+            margin: 2vh 0 2vh 0 !important;
+            padding: 1vh 1vw 1vh 1vw !important;
         }
 
         .comp-view-tab-container {
@@ -164,6 +164,29 @@
                 <input type="hidden" id="competitionId" value="{{ competition.id }}"/>
                 <input type="hidden" id="cstoken" value="{{ csrf_token }}"/>
 
+                <a class="well col-sm comp-info" style="display: inline-block; color: white; background-color: #676278" href="#participate" id="submission_top_pointer">
+{#                    {% if user.is_authenticated %}#}
+{#                        <a id="submission_top_pointer" href="#participate" class="btn btn-primary" style="margin-bottom: 2vh;">Make a Submission</a>#}
+{#                    {% endif %}#}
+                    Make a Submission
+                </a>
+
+{#                <div class="col-sm comp-info" style="display: inline-block;">#}
+{#                    {% if USE_AWS %}#}
+{#                        <form id="s3_upload_form" action="" method="post">#}
+{#                            {% csrf_token %}#}
+{#                            {{ form }}#}
+{#                            <div id="s3-file-upload" class="button btn btn-danger {% if not active_phase.reference_data and not active_phase.is_parallel_parent %}disabled{% endif %}" {% if not active_phase.reference_data and not active_phase.is_parallel_parent %}disabled="disabled"{% endif %}>#}
+{#                                Upload and Submit Solution#}
+{#                            </div>#}
+{#                        </form>#}
+{#                    {% else %}#}
+{#                        <button id="fileUploadButton" class="button btn btn-danger {% if not active_phase.reference_data and not active_phase.is_parallel_parent %}disabled{% endif %}" {% if not active_phase.reference_data and not active_phase.is_parallel_parent %}disabled="disabled"{% endif %}>#}
+{#                            Upload and Submit Solution#}
+{#                        </button>#}
+{#                    {% endif %}#}
+{#                </div>#}
+
                 <div style="" class="well competition-status comp-view-status col-sm comp-info">
                     <ul style="" class="list-inline">
 {#                        <li class="header-count">Server Time: {{ current_server_time|utc }} UTC</li>#}
@@ -185,9 +208,9 @@
 {#                </div>#}
             </div>
 {#            <div class="row">#}
-                {% if user.is_authenticated %}
-                    <a id="submission_top_pointer" href="#participate" class="btn btn-primary" style="margin-bottom: 2vh;">Make a Submission</a>
-                {% endif %}
+{#                {% if user.is_authenticated %}#}
+{#                    <a id="submission_top_pointer" href="#participate" class="btn btn-primary" style="margin-bottom: 2vh;">Make a Submission</a>#}
+{#                {% endif %}#}
 {#            </div>#}
         </div>
         <div align="center" style="margin-left: 0; margin-right: 0;" class="row comp-view-tab-container">

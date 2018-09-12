@@ -19,7 +19,7 @@
     {% if not phase.parent %}
 
         {% if phase.is_active %}
-            <div class="form-group col-md-6" style="margin-top: 10px;">
+            <div class="form-group col-md-6" style="">
 
                 <div align="center" class="phase-description">
 {#                    <p class="header-count">Server Time: {{ current_server_time|utc }} UTC</p>#}
@@ -28,10 +28,10 @@
 {#                    <p><b>Max submissions per day: </b> {{ current_user_sub_count_day }}/{{ phase.max_submissions_per_day }}</p>#}
 {#                    <p><b>Max submissions total: </b> {{ current_user_sub_count }}/{{ phase.max_submissions }}</p>#}
                     <table class="table">
-                        <tr>
-                            <td><b>Server Time:</b></td>
-                            <td class="text-right">{{ current_server_time|utc }}</td>
-                        </tr>
+{#                        <tr>#}
+{#                            <td><b>Server Time:</b></td>#}
+{#                            <td class="text-right">{{ current_server_time|utc }}</td>#}
+{#                        </tr>#}
                         <tr>
                             <td><b>Submissions per day:</b></td>
                             <td class="text-right">{{ current_user_sub_count_day }} out of {{ phase.max_submissions_per_day }}</td>
@@ -57,7 +57,7 @@
                             </div>
                         </form>
                     {% else %}
-                        <button id="fileUploadButton"
+                        <button style="display: none;" id="fileUploadButton"
                                 class="button btn btn-danger {% if not phase.reference_data and not phase.is_parallel_parent %}disabled{% endif %}"
                                 {% if not phase.reference_data and not phase.is_parallel_parent %}disabled="disabled"{% endif %}>
                             Upload and Submit Solution
