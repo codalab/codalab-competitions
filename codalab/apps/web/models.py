@@ -1870,7 +1870,7 @@ class CompetitionDefBundle(models.Model):
             if phase.get('is_parallel_parent'):
                 parents_created.append(phase_number)
             elif phase.get('parent_phasenumber'):
-                parents_used.append(phase_number)
+                parents_used.append(phase.get('parent_phasenumber'))
 
         if not all(p in parents_used for p in parents_created):
             assert False, "Parent phase found without children, all parent phases must have children"
