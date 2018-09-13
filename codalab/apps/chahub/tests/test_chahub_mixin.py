@@ -1,5 +1,6 @@
 import datetime
 import mock
+from django.http.response import HttpResponseBase
 
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -30,12 +31,11 @@ class ChahubMixinTests(TestCase):
             start_date=datetime.datetime.now() - datetime.timedelta(days=30),
         )
 
-
-    @override_settings(CHAHUB_API_URL='https://localhost/')
-    def test_submission_mixin_save_only_retries_once(self):
+    def test_submission_mixin_save_doesnt_resend_same_data(self):
         submission = CompetitionSubmission(phase=self.phase, participant=self.participant)
         with mock.patch('apps.web.models.CompetitionSubmission.send_to_chahub') as send_to_chahub_mock:
-            send_to_chahub_mock.return_value = None
+            send_to_chahub_mock.return_value = HttpResponseBase(status=201)
+            send_to_chahub_mock.return_value.content = ""
             submission.save()
             # attempts to send to Chahub once
             assert send_to_chahub_mock.called
@@ -45,4 +45,55 @@ class ChahubMixinTests(TestCase):
 
             # does not call again
             submission.save()
+            assert not send_to_chahub_mock.called
+
+    def test_submission_invalid_not_sent_to_chahub(self):
+        # Make submission invalid
+        self.competition.published = False
+        self.competition.save()
+
+        submission = CompetitionSubmission(phase=self.phase, participant=self.participant)
+        with mock.patch('apps.web.models.CompetitionSubmission.send_to_chahub') as send_to_chahub_mock:
+            submission.save()
+            assert not send_to_chahub_mock.called
+
+    def test_submission_invalid_not_marked_for_retry_again(self):
+        # Make submission invalid
+        self.competition.published = False
+        self.competition.save()
+
+        # Mark submission for retry
+        submission = CompetitionSubmission(phase=self.phase, participant=self.participant, chahub_needs_retry=True)
+        with mock.patch('apps.web.models.CompetitionSubmission.send_to_chahub') as send_to_chahub_mock:
+            submission.save()
+            assert not send_to_chahub_mock.called
+            # It did need retry, but since it's invalid it should be unmarked for retry
+            assert not CompetitionSubmission.objects.get(pk=submission.pk).chahub_needs_retry
+
+    def test_submission_valid_not_retried_again(self):
+        # Mark submission for retry
+        submission = CompetitionSubmission(phase=self.phase, participant=self.participant, chahub_needs_retry=True)
+        with mock.patch('apps.web.models.CompetitionSubmission.send_to_chahub') as send_to_chahub_mock:
+            send_to_chahub_mock.return_value = HttpResponseBase(status=201)
+            send_to_chahub_mock.return_value.content = ""
+            submission.save()  # NOTE! not called with force_to_chahub=True as retrying would set
+            # It does not call send method, only during "do_retries" task should it
+            assert not send_to_chahub_mock.called
+
+    def test_submission_retry_valid_retried_then_sent_and_not_retried_again(self):
+        # Mark submission for retry
+        submission = CompetitionSubmission(phase=self.phase, participant=self.participant, chahub_needs_retry=True)
+        with mock.patch('apps.web.models.CompetitionSubmission.send_to_chahub') as send_to_chahub_mock:
+            send_to_chahub_mock.return_value = HttpResponseBase(status=201)
+            send_to_chahub_mock.return_value.content = ""
+            submission.save(force_to_chahub=True)
+            # It does not need retry any more, and was successful
+            assert send_to_chahub_mock.called
+            assert not CompetitionSubmission.objects.get(pk=submission.pk).chahub_needs_retry
+
+            # reset
+            send_to_chahub_mock.called = False
+
+            # Try sending again
+            submission.save(force_to_chahub=True)
             assert not send_to_chahub_mock.called
