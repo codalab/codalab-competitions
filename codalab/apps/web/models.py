@@ -331,7 +331,7 @@ class Competition(ChaHubSaveMixin, models.Model):
             submitted_at__gt=now() - datetime.timedelta(days=30)
         ).exists()
 
-        return {
+        return [{
             "remote_id": self.id,
             "title": self.title,
             "created_by": str(self.creator),
@@ -339,7 +339,7 @@ class Competition(ChaHubSaveMixin, models.Model):
             "logo": self.image_url.replace(" ", "%20") if self.image_url else None,
             "url": "{}://{}{}".format(http_or_https, settings.CODALAB_SITE_DOMAIN, self.get_absolute_url()),
             "phases": phase_data,
-            "participant_count": self.get_participant_count,
+            "participant_count": self.participants.all().count(),
             "end": self.end_date.isoformat() if self.end_date else None,
             "description": self.description,
             "html_text": html_text,
@@ -347,7 +347,7 @@ class Competition(ChaHubSaveMixin, models.Model):
             "prize": self.reward,
             "url_redirect": self.url_redirect,
             "published": self.published
-        }
+        }]
 
     def save(self, *args, **kwargs):
         # Make sure the image_url_base is set from the actual storage implementation
@@ -487,11 +487,18 @@ class Competition(ChaHubSaveMixin, models.Model):
             for participant, submission in participants.items():
                 logger.info('Moving submission %s over' % submission)
 
+                file_args = {}
+
+                if settings.USE_AWS:
+                    file_args["s3_file"] = submission.s3_file
+                else:
+                    file_args["file"] = submission.file
+                    
                 new_submission = CompetitionSubmission(
                     participant=participant,
-                    file=submission.file,
                     phase=next_phase,
                     docker_image=submission.docker_image,
+                    **file_args
                 )
                 new_submission.save(ignore_submission_limits=True)
 
@@ -1354,6 +1361,15 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
         '''Generated from the result scoring step of evaluation a submission'''
         return self.metadatas.get(is_scoring=True)
 
+    @property
+    def run_time(self):
+        if self.started_at and self.completed_at:
+            return self.completed_at - self.started_at
+        elif self.started_at:
+            return now() - self.started_at
+        else:
+            return None
+
     def get_chahub_is_valid(self):
         return self.phase.competition.published
 
@@ -1389,9 +1405,10 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
         self.dislike_count = self.dislikes.all().count()
 
         if not self.readable_filename:
-            if hasattr(self, 'file'):
+            if hasattr(self, 'file') or hasattr(self, 's3_file'):
                 if settings.USE_AWS:
-                    self.readable_filename = split(self.s3_file)[1]
+                    # Sometimes file is missing, i.e. in tests
+                    self.readable_filename = split(self.s3_file)[1] if self.s3_file else "N/A"
                 else:
                     if self.file.name:
                         try:

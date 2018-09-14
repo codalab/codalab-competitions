@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% load humanize %}
+
+{% block head_title %}Health Status{% endblock head_title %}
+{% block page_title %}Health Status{% endblock page_title %}
+
+{% block content %}
+    <table class="table table-responsive">
+    <thead>
+    <tr>
+        <th>Competition</th>
+        <th>Participant</th>
+        <th>Submitted</th>
+        <th>Status</th>
+        <th>Run time</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for sub in submissions %}
+    <tr>
+        <td>{{ sub.phase.competition }}</td>
+        <td>{{ sub.participant.user.username }}</td>
+        <td>{{ sub.submitted_at|timesince }} ago</td>
+        <td>{{ sub.status }}</td>
+        <td>{{ sub.run_time|default_if_none:'' }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+{% endblock %}

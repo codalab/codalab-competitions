@@ -80,7 +80,7 @@ var Competition;
                         buttonId: 'fileUploadButton',
                         sasEndpoint: '/api/competition/' + competitionId + '/submission/sas',
                         allowedFileTypes: ['application/zip', 'application/x-zip-compressed'],
-                        maxFileSizeInBytes: 1024 * 1024 * 1024,
+                        maxFileSizeInBytes: 20 * 1024 * 1024 * 1024,  // 20GB
                         validateBeforeFilePrompt: function() {
                             if ($('#submission_method_name').length == 0) {
                                 // if we dont have submision method field, just skip this check
@@ -104,7 +104,7 @@ var Competition;
                                     if (info.files[0].errors[0].kind === 'type-error') {
                                         $('#details').html('Please select a valid file. Only ZIP files are accepted.');
                                     } else {
-                                        $('#details').html('The files that you selected is too large. There is a 1GB size limit.');
+                                        $('#details').html('The files that you selected is too large. There is a 20GB size limit.');
                                     }
                                 }
                                 $('#fileUploadButton').removeClass('disabled');
