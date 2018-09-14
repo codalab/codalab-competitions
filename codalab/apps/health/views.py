@@ -5,7 +5,9 @@ from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.http import HttpResponse
 from django.shortcuts import render
+from django.utils.timezone import now
 
+from apps.web.models import CompetitionSubmission
 from .models import HealthSettings
 from apps.jobs.models import Job
 
@@ -104,6 +106,20 @@ def health(request):
     if not request.user.is_staff:
         return HttpResponse(status=404)
     return render(request, "health/health.html", get_health_metrics())
+
+
+@login_required
+def simple_health(request):
+    if not request.user.is_staff:
+        return HttpResponse(status=404)
+    qs = CompetitionSubmission.objects.all()
+    qs = qs.order_by('-submitted_at')
+    qs = qs.select_related('phase__competition')
+    qs = qs.select_related('participant__user__username')
+    qs = qs.prefetch_related('phase', 'status')
+    return render(request, "health/simple_health.html", {
+        "submissions": qs[:250],
+    })
 
 
 @login_required

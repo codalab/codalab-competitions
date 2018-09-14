@@ -24,8 +24,7 @@
             </div>
             <div class="col-sm-4 col-md-4 right-panel right-panel-homepage">
                 {{ competition.get_start_date|date:"M d, Y" }}<br>
-                <b>{{ competition.get_participant_count }}</b> participant
-                {% if competition.get_participant_count > 1 %}s{% endif %}<br>
+                <b>{{ competition.num_participants }}</b> participant{% if competition.num_participants > 1 %}s{% endif %}<br>
                 {% if competition.reward and competition.reward > 0 %}
                     USD <b>${{ competition.reward|intcomma }}</b> reward
                 {% endif %}
