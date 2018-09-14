@@ -4,6 +4,7 @@ machine:
   environment:
     DJANGO_SETTINGS_MODULE: codalab.settings
     DJANGO_CONFIGURATION: Dev
+    CHAHUB_API_URL: http://does-not-exist.com
 
 dependencies:
   pre:
