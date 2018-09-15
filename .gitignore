@@ -6,6 +6,7 @@ certs/
 var/*
 docker-compose.override.yml
 *_old/
+.pytest_cache
 
 # CodaLab Files #
 #################
