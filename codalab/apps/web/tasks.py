@@ -830,7 +830,7 @@ def send_mass_email(competition_pk, body=None, subject=None, from_email=None, to
 
 
 @task(queue='site-worker')
-def do_chahub_retries():
+def do_chahub_retries(limit=None):
     if not settings.CHAHUB_API_URL:
         return
 
@@ -847,9 +847,11 @@ def do_chahub_retries():
     chahub_models = inheritors(ChaHubSaveMixin)
     for model in chahub_models:
         needs_retry = model.objects.filter(chahub_needs_retry=True)
+        if limit:
+            needs_retry = needs_retry[:limit]
         for instance in needs_retry:
             # Saving forces chahub update
-            instance.save()
+            instance.save(force_to_chahub=True)
 
 
 @task(queue='site-worker')

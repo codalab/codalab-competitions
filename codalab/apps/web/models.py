@@ -339,7 +339,7 @@ class Competition(ChaHubSaveMixin, models.Model):
             "logo": self.image_url.replace(" ", "%20") if self.image_url else None,
             "url": "{}://{}{}".format(http_or_https, settings.CODALAB_SITE_DOMAIN, self.get_absolute_url()),
             "phases": phase_data,
-            "participant_count": self.get_participant_count,
+            "participant_count": self.participants.all().count(),
             "end": self.end_date.isoformat() if self.end_date else None,
             "description": self.description,
             "html_text": html_text,
@@ -1407,7 +1407,8 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
         if not self.readable_filename:
             if hasattr(self, 'file') or hasattr(self, 's3_file'):
                 if settings.USE_AWS:
-                    self.readable_filename = split(self.s3_file)[1]
+                    # Sometimes file is missing, i.e. in tests
+                    self.readable_filename = split(self.s3_file)[1] if self.s3_file else "N/A"
                 else:
                     if self.file.name:
                         try:
