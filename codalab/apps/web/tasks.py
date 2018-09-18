@@ -554,6 +554,10 @@ def score(submission, job_id):
         ref_value = submission.phase.reference_data.name
         if len(ref_value) > 0:
             lines.append("hidden_ref: %s" % _make_url_sassy(ref_value))
+
+        input_data = submission.phase.input_data.name
+        if len(input_data) > 0:
+            lines.append("input_data: %s" % _make_url_sassy(input_data))
     else:
         # Get reference data
         ref_value = submission.phase.reference_data.name
