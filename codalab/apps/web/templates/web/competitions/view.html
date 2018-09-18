@@ -7,13 +7,21 @@
 {#{% block head_title %}Competition{% endblock %}#}
 {#{% block page_title %}Competition{% endblock page_title %}#}
 {% block page_title %}
-    <div style="margin-top: 2.5vh;">
-        <span class="organizer" style="font-size: 26px; font-weight: bolder;">
-            {{ competition.title }}
-        </span>
-            <span class="organizer" style="margin-left: 30vw;">
-            Organized by {{ competition.creator }}
-        </span>
+{#    <div style="margin-top: 2.5vh;">#}
+{#        <span class="organizer" style="font-size: 26px; font-weight: bolder;">#}
+{#            {{ competition.title }}#}
+{#        </span>#}
+{#            <span class="organizer" style="margin-left: 20vw;">#}
+{#            Organized by {{ competition.creator }}#}
+{#        </span>#}
+{#    </div>#}
+    <div class="row">
+        <div class="col-lg-8">
+            <h2>{{ competition.title }}</h2>
+        </div>
+        <div class="col-lg-4 text-right" style="padding-top: 2.5vh;">
+            <h6>Organized by {{ competition.creator }}</h6>
+        </div>
     </div>
 {% endblock page_title %}
 
@@ -164,13 +172,6 @@
                 <input type="hidden" id="competitionId" value="{{ competition.id }}"/>
                 <input type="hidden" id="cstoken" value="{{ csrf_token }}"/>
 
-                <a class="well col-sm comp-info" style="display: inline-block; color: white; background-color: #676278" href="#participate" id="submission_top_pointer">
-{#                    {% if user.is_authenticated %}#}
-{#                        <a id="submission_top_pointer" href="#participate" class="btn btn-primary" style="margin-bottom: 2vh;">Make a Submission</a>#}
-{#                    {% endif %}#}
-                    Make a Submission
-                </a>
-
 {#                <div class="col-sm comp-info" style="display: inline-block;">#}
 {#                    {% if USE_AWS %}#}
 {#                        <form id="s3_upload_form" action="" method="post">#}
@@ -200,7 +201,17 @@
                         {% endif %}
                     </ul>
                 </div>
-{#                <div class="organizer" style="margin-bottom: 3vh;">#}
+
+                {% if user.is_authenticated %}
+                    <a class="well col-sm comp-info" style="display: inline-block; color: white; background-color: #676278" href="#participate" id="submission_top_pointer">
+                        {#                    {% if user.is_authenticated %}#}
+                        {#                        <a id="submission_top_pointer" href="#participate" class="btn btn-primary" style="margin-bottom: 2vh;">Make a Submission</a>#}
+                        {#                    {% endif %}#}
+                        Make a Submission
+                    </a>
+                {% endif %}
+
+                {#                <div class="organizer" style="margin-bottom: 3vh;">#}
 {#                    Organized by {{ competition.creator }}<br>#}
 {#                    {% if competition.reward and competition.reward > 0 %}#}
 {#                        Reward <b>${{ competition.reward|intcomma }}</b>#}
