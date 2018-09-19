@@ -31,13 +31,13 @@ jobs:
       - run:
           name: PIP Install Requirements
           command: pip install -r codalab/requirements/common.txt
+      - save_cache:
+          key: codalab-{{ .Branch }}-{{ checksum "codalab/requirements/common.txt" }}
+          paths:
+            - "~/.cache/pip"
       - run:
           name: Copy settings
           command: cp circlec_dev_setup.py codalab/codalab/settings/local.py
       - run:
           name: Run PyTest
           command: cd codalab && py.test
-      - save_cache:
-          key: codalab-{{ .Branch }}-{{ checksum "codalab/requirements/common.txt" }}
-          paths:
-            - "~/.cache/pip"
