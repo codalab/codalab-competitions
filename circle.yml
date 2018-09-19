@@ -38,3 +38,9 @@ jobs:
       - run:
           name: Run PyTest
           command: cd codalab && py.test
+      - save_cache:
+          key: codalab-{{ .Branch }}-{{ checksum "codalab/requirements/common.txt" }}
+          paths:
+            - "~/.cache/pip"
+      - restore_cache:
+          key: codalab-{{ .Branch }}-{{ checksum "codalab/requirements/common.txt" }}
