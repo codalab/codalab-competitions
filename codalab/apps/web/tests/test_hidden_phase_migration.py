@@ -20,18 +20,18 @@ User = get_user_model()
 class CompetitionHiddenPhaseMigration(TestCase):
     def setUp(self):
         '''
-	    Test to check for migratiosn
-	    1. Create user
-	    2. User becomes the competition's
-	    3. add participants to the competition
-	    4. created two phases
-	    5. Created a submission status
-	    6. Make some submissions
-	    7. Create a leaderboard for phase number 1
-	    8. Create to leaderboard entries
+        Test to check for migratiosn
+        1. Create user
+        2. User becomes the competition's
+        3. add participants to the competition
+        4. created two phases
+        5. Created a submission status
+        6. Make some submissions
+        7. Create a leaderboard for phase number 1
+        8. Create to leaderboard entries
 
-	    Funtions:
-	    1.
+        Funtions:
+        1.
         '''
 
         self.user = User.objects.create(email='test@user.com', username='testuser')
