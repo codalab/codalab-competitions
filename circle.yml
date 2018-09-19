@@ -8,6 +8,7 @@ machine:
 
 dependencies:
   pre:
+    - sudo apt-get install libmemcached-dev
     - pip install -r codalab/requirements/common.txt
     - cp ~/codalab-competitions/circlec_dev_setup.py ~/codalab-competitions/codalab/codalab/settings/local.py
 
