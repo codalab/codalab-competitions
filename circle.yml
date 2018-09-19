@@ -18,8 +18,8 @@ jobs:
           command: >-
             export DJANGO_SETTINGS_MODULE="codalab.settings" &&
             export DJANGO_CONFIGURATION="Dev" &&
-            export CHAHUB_API_URL=http://localhost/test/ &&
-            export CHAHUB_API_KEY=some-secret-key
+            export CHAHUB_API_URL="http://localhost/test/" &&
+            export CHAHUB_API_KEY="some-secret-key"
       - run:
           name: CHOWN Python Library Dirs
           command: sudo chown -R $(whoami) /usr/local/
