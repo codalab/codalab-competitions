@@ -12,10 +12,9 @@ jobs:
     docker:
       - image: circleci/python:2.7.15
     steps:
+      - checkout
       - restore_cache:
           key: codalab-{{ .Branch }}-{{ checksum "codalab/requirements/common.txt" }}
-
-      - checkout
       - run:
           name: Set ENV Vars
           command: >-
