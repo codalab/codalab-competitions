@@ -13,7 +13,7 @@ jobs:
       - image: circleci/python:2.7.15
     steps:
       - restore_cache:
-        key: codalab-{{ .Branch }}-{{ checksum "codalab/requirements/common.txt" }}
+          key: codalab-{{ .Branch }}-{{ checksum "codalab/requirements/common.txt" }}
 
       - checkout
       - run:
