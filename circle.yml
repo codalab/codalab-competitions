@@ -12,6 +12,9 @@ jobs:
     docker:
       - image: circleci/python:2.7.15
     steps:
+      - restore_cache:
+        key: codalab-{{ .Branch }}-{{ checksum "codalab/requirements/common.txt" }}
+
       - checkout
       - run:
           name: Set ENV Vars
@@ -42,5 +45,3 @@ jobs:
           key: codalab-{{ .Branch }}-{{ checksum "codalab/requirements/common.txt" }}
           paths:
             - "~/.cache/pip"
-      - restore_cache:
-          key: codalab-{{ .Branch }}-{{ checksum "codalab/requirements/common.txt" }}
