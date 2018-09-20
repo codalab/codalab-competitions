@@ -36,6 +36,7 @@ def get_featured_competitions(popular_competitions_to_filter=None, limit=5):
     recent_submissions = CompetitionSubmission.objects.filter(phase__competition__published=True, submitted_at__gte=seven_days_ago)
     recent_submissions = recent_submissions.select_related('phase', 'phase__competition')
     for sub in recent_submissions:
+        # We have a recent submission, so check that competition is either active or has upcoming phase change
         competition = sub.phase.competition
         phase_change_within_a_month = competition.phases.filter(
             start_date__gte=now(),
@@ -46,15 +47,16 @@ def get_featured_competitions(popular_competitions_to_filter=None, limit=5):
 
     # Fill out competitions if we're missing any (or truncate if too much)
     featured_comp_count = len(featured_competitions)
-    if featured_comp_count < 5:
-        random_competitions = Competition.objects.filter(published=True)[:50]
+    if featured_comp_count < limit:
+        existing_pks = [c.pk for c in featured_competitions]
+        random_competitions = Competition.objects.filter(published=True).exclude(pk__in=existing_pks)[:50]
         try:
-            featured_competitions += sample(random_competitions, 5 - featured_comp_count)
+            featured_competitions += sample(random_competitions, limit - featured_comp_count)
         except ValueError:
-            # Eeep! We don't even have 5 competitions to choose from
+            # Eeep! We don't even have $limit competitions to choose from
             featured_competitions += list(random_competitions)
-    elif featured_comp_count > 5:
-        featured_competitions = featured_competitions[:5]
+    elif featured_comp_count > limit:
+        featured_competitions = featured_competitions[:limit]
 
     # Exclude popular competitions, so we don't show them near featured
     if popular_competitions_to_filter:
