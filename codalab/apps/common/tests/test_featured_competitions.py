@@ -75,9 +75,3 @@ class FeaturedCompetitionsTests(TestCase):
         # Should only have the 5 original competitions not the older competition
         assert len(competitions) == 5
         assert old_competition.pk not in [c.pk for c in competitions]
-
-    def test_get_featured_competitions_returns_competition_phase_change_within_one_month(self):
-        assert False
-
-    def test_get_featured_competitions_returns_ignores_duplicate_popular_competitions(self):
-        assert False
