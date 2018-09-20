@@ -1,9 +1,9 @@
 import datetime
 import mock
+from django.conf import settings
 from django.http.response import HttpResponseBase
-
 from django.test import TestCase
-from django.test.utils import override_settings
+# from django.test.utils import override_settings
 
 from apps.authenz.models import ClUser
 from apps.web.models import CompetitionSubmission, Competition, CompetitionPhase, CompetitionParticipant, \
@@ -13,6 +13,8 @@ from apps.web.models import CompetitionSubmission, Competition, CompetitionPhase
 class ChahubMixinTests(TestCase):
 
     def setUp(self):
+        settings.PYTEST_FORCE_CHAHUB = True
+
         self.user = ClUser.objects.create_user(username="user", password="pass")
         self.competition = Competition.objects.create(
             title="Test Competition",
@@ -30,6 +32,9 @@ class ChahubMixinTests(TestCase):
             phasenumber=1,
             start_date=datetime.datetime.now() - datetime.timedelta(days=30),
         )
+
+    def tearDown(self):
+        settings.PYTEST_FORCE_CHAHUB = False
 
     def test_submission_mixin_save_doesnt_resend_same_data(self):
         submission = CompetitionSubmission(phase=self.phase, participant=self.participant)

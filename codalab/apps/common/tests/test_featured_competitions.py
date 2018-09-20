@@ -1,21 +1,18 @@
-'''
-Test to check for featured competitions
-'''
-
-import mock
+import datetime
 
 from django.test import TestCase
 from django.contrib.auth import get_user_model
+from django.utils.timezone import now
 
 from ..competition_utils import get_featured_competitions
 from apps.web.models import (Competition,
                              CompetitionParticipant,
-                             ParticipantStatus)
+                             ParticipantStatus, CompetitionPhase, CompetitionSubmission, CompetitionSubmissionStatus)
 
 User = get_user_model()
 
 
-class CompetitionHelperTestCase(TestCase):
+class FeaturedCompetitionsTests(TestCase):
 
     def setUp(self):
         '''
@@ -45,31 +42,42 @@ class CompetitionHelperTestCase(TestCase):
             status=ParticipantStatus.objects.get_or_create(name='approved', codename=ParticipantStatus.APPROVED)[0]
         )
 
-        self.participant2 = CompetitionParticipant.objects.create(
-            user=self.user2,
+        self.phase1 = CompetitionPhase.objects.create(
             competition=self.competition1,
-            status=ParticipantStatus.objects.get_or_create(name='approved', codename=ParticipantStatus.APPROVED)[0]
+            phasenumber=1,
+            start_date=datetime.datetime.now() - datetime.timedelta(days=30),
         )
 
-        self.participant3 = CompetitionParticipant.objects.create(
-            user=self.user3,
-            competition=self.competition1,
-            status=ParticipantStatus.objects.get_or_create(name='approved', codename=ParticipantStatus.APPROVED)[0]
+        submission_finished = CompetitionSubmissionStatus.objects.create(name="finished", codename="finished")
+
+        self.submission1 = CompetitionSubmission.objects.create(
+            participant=self.participant1,
+            phase=self.phase1,
+            status=submission_finished,
+            submitted_at=now() - datetime.timedelta(days=29),
+            description=u"Some description with unicode \u2020"
         )
 
-        self.participant4 = CompetitionParticipant.objects.create(
-            user=self.user1,
-            competition=self.competition2,
-            status=ParticipantStatus.objects.get_or_create(name='approved', codename=ParticipantStatus.APPROVED)[0]
-        )
+    def test_get_featured_competitions_returns_competition_with_1_submission_past_week(self):
+        competitions = get_featured_competitions()
+        # Should only return #1 because it is the only one with a submission
+        assert len(competitions) == 1
+        assert competitions[0].pk == self.competition1.pk
 
-        self.participant5 = CompetitionParticipant.objects.create(
-            user=self.user5,
-            competition=self.competition2,
-            status=ParticipantStatus.objects.get_or_create(name='approved', codename=ParticipantStatus.APPROVED)[0]
+    def test_get_featured_competitions_returns_competition_started_one_month_ago(self):
+        old_competition = Competition.objects.create(
+            creator=self.user,
+            modified_by=self.user,
+            published=True,
+            start_date=now() - datetime.timedelta(days=31)
         )
+        competitions = get_featured_competitions()
+        # Should only have the 5 original competitions not the older competition
+        assert len(competitions) == 5
+        assert old_competition.pk not in [c.pk for c in competitions]
 
-        self.participant6 = CompetitionParticipant.objects.create(
-            user=self.user4,
-            competition=self.competition4,
-            status=ParticipantStatus.objects.get_or_create(name='approved', codename=ParticipantStatus.APPROVED)[0])
+    def test_get_featured_competitions_returns_competition_phase_change_within_one_month(self):
+        assert False
+
+    def test_get_featured_competitions_returns_ignores_duplicate_popular_competitions(self):
+        assert False
