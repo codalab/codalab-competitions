@@ -1,9 +1,10 @@
 import datetime
 
 from django.contrib.auth import get_user_model
+from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
-from django.views.generic import DetailView, CreateView
+from django.views.generic import DetailView, CreateView, DeleteView
 
 from apps.web.views import LoginRequiredMixin
 from .forms import PostForm, ThreadForm
@@ -63,8 +64,28 @@ class CreatePostView(ForumBaseMixin, RedirectToThreadMixin, LoginRequiredMixin, 
 
         self.thread.last_post_date = datetime.datetime.now()
         self.thread.save()
-        self.thread.notify_all_posters_of_new_post()
+        self.thread.notify_all_posters_of_new_post(self.post)
         return HttpResponseRedirect(self.get_success_url())
+
+
+class DeletePostView(ForumBaseMixin, LoginRequiredMixin, DeleteView):
+    model = Post
+    pk_url_kwarg = 'post_pk'
+
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        if self.object.thread.forum.competition.creator == request.user or self.object.posted_by == request.user:
+            # If there are more posts in the thread, leave it around, otherwise delete it
+            if self.object.thread.posts.count() == 1:
+                success_url = self.object.thread.forum.get_absolute_url()
+                self.object.thread.delete()
+            else:
+                success_url = self.object.thread.get_absolute_url()
+            self.object.delete()
+            return HttpResponseRedirect(success_url)
+        else:
+            raise PermissionDenied("Cannot delete a post you don't own in a competition you aren't organizing!")
 
 
 class CreateThreadView(ForumBaseMixin, RedirectToThreadMixin, LoginRequiredMixin, CreateView):
@@ -87,6 +108,20 @@ class CreateThreadView(ForumBaseMixin, RedirectToThreadMixin, LoginRequiredMixin
 
         return HttpResponseRedirect(self.get_success_url())
 
+
+class DeleteThreadView(ForumBaseMixin, LoginRequiredMixin, DeleteView):
+    model = Thread
+    pk_url_kwarg = 'thread_pk'
+
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        if self.object.forum.competition.creator == request.user or self.object.started_by == request.user:
+            success_url = self.object.forum.get_absolute_url()
+            self.object.delete()
+            return HttpResponseRedirect(success_url)
+        else:
+            raise PermissionDenied("Cannot delete a thread you don't own in a competition you aren't organizing!")
 
 class ThreadDetailView(ForumBaseMixin, DetailView):
     """ View to read the details of a particular thread."""

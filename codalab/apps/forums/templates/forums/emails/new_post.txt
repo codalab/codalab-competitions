@@ -3,4 +3,9 @@
 {% block content %}
     There was a new post in this thread:
     http://{{ site.domain }}{{ thread.get_absolute_url }} {{ thread.title }}
+
+    Post contents:
+    --------------
+
+    {{ new_post.content }}
 {% endblock %}

@@ -3,4 +3,7 @@
 {% block content %}
     <p>There was a new post in this thread:</p>
     <a href="http://{{ site.domain }}{{ thread.get_absolute_url }}">{{ thread.title }}</a>
+
+    <h3>Post contents</h3>
+    <p>{{ new_post.content }}</p>
 {% endblock %}
