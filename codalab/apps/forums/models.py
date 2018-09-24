@@ -31,6 +31,7 @@ class Thread(models.Model):
     started_by = models.ForeignKey('authenz.ClUser')
     title = models.CharField(max_length=255)
     last_post_date = models.DateTimeField(null=True, blank=True)
+    pinned_date = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         ordering = ('-last_post_date',)

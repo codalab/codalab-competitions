@@ -24,15 +24,19 @@
                 </td>
                 {% if forum.competition.creator == request.user %}
                     <td>
-                        Delete?
+
                     </td>
                 {% endif %}
             </tr>
             </thead>
             <tbody>
-            {% for thread in forum.threads.all %}
+            {% for thread in thread_list_sorted %}
                 <tr>
                     <td>
+                        {% if thread.pinned_date %}
+                            <i class="pinned-thread-icon glyphicon glyphicon-flag" data-thread-pk="{{ thread.pk }}"></i>
+                        {% endif %}
+
                         <a href="{% url 'forum_thread_detail' forum_pk=forum.pk thread_pk=thread.pk %}">{{ thread.title }}</a>
                     </td>
                     <td>{{ thread.started_by }}</td>
@@ -40,8 +44,9 @@
                     <td>{{ thread.last_post_date|timesince }}</td>
                     {# date:"g:iA M d" #}
                     <td>{{ thread.posts.count }}</td>
-                    {% if forum.competition.creator == request.user %}
+                    {% if forum.competition.creator == request.user or request.user in forum.competition.admins.all %}
                         <td>
+                            <a href="{% url "forum_thread_pin" thread_pk=thread.pk %}"><i class="pin-button glyphicon glyphicon-flag" data-thread-pk="{{ thread.pk }}"></i></a>
                             <i class="remove-button glyphicon glyphicon-remove" data-thread-pk="{{ thread.pk }}"></i>
                         </td>
                     {% endif %}

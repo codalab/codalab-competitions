@@ -5,7 +5,7 @@
 {% block content %}
     <h2 class="thread_title"> > {{ thread.title }}</h2>
     {% for post in ordered_posts %}
-        {% if thread.forum.competition.creator == request.user or post.posted_by == request.user %}
+        {% if thread.forum.competition.creator == request.user or request.user in thread.forum.competition.admins.all or post.posted_by == request.user %}
             <i class="remove-button glyphicon glyphicon-remove pull-right" data-submission-pk="{{ post.pk }}"></i>
         {% endif %}
 
