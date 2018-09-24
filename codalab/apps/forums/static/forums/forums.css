@@ -16,11 +16,16 @@
     border-bottom: 1px solid #CCC;
 }
 
-.remove-button {
+.pin-button, .remove-button {
     opacity: 0.5;
     color: darkred;
 }
-.remove-button:hover {
+.pin-button, .remove-button:hover {
     opacity: 1;
     cursor: pointer;
+}
+
+.pinned-thread-icon {
+    opacity: 0.5;
+    color: darkred;
 }

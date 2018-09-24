@@ -1,9 +1,11 @@
 import datetime
 
 from django.contrib.auth import get_user_model
+from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404
+from django.utils.timezone import now
 from django.views.generic import DetailView, CreateView, DeleteView
 
 from apps.web.views import LoginRequiredMixin
@@ -33,13 +35,20 @@ class ForumBaseMixin(object):
         return context
 
 
-class ForumDetailView(DetailView, ForumBaseMixin):
+class ForumDetailView(DetailView):
     """
     Shows the details of a particular Forum.
     """
     model = Forum
     template_name = "forums/thread_list.html"
     pk_url_kwarg = 'forum_pk'
+
+    def get_context_data(self, **kwargs):
+        context = super(ForumDetailView, self).get_context_data(**kwargs)
+        context['thread_list_sorted'] = self.object.threads.order_by('pinned_date', '-date_created')\
+            .select_related('forum', 'forum__competition', 'forum__competition__creator', 'started_by')\
+            .prefetch_related('forum__competition__admins', 'posts')
+        return context
 
 
 class RedirectToThreadMixin(object):
@@ -75,7 +84,10 @@ class DeletePostView(ForumBaseMixin, LoginRequiredMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         self.object = self.get_object()
 
-        if self.object.thread.forum.competition.creator == request.user or self.object.posted_by == request.user:
+        if self.object.thread.forum.competition.creator == request.user or \
+            request.user in self.object.thread.forum.competition.admins.all() or \
+            self.object.posted_by == request.user:
+
             # If there are more posts in the thread, leave it around, otherwise delete it
             if self.object.thread.posts.count() == 1:
                 success_url = self.object.thread.forum.get_absolute_url()
@@ -116,12 +128,16 @@ class DeleteThreadView(ForumBaseMixin, LoginRequiredMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         self.object = self.get_object()
 
-        if self.object.forum.competition.creator == request.user or self.object.started_by == request.user:
+        if self.object.forum.competition.creator == request.user or \
+            request.user in self.object.forum.competition.admins.all() or \
+            self.object.started_by == request.user:
+
             success_url = self.object.forum.get_absolute_url()
             self.object.delete()
             return HttpResponseRedirect(success_url)
         else:
             raise PermissionDenied("Cannot delete a thread you don't own in a competition you aren't organizing!")
+
 
 class ThreadDetailView(ForumBaseMixin, DetailView):
     """ View to read the details of a particular thread."""
@@ -132,5 +148,23 @@ class ThreadDetailView(ForumBaseMixin, DetailView):
     def get_context_data(self, **kwargs):
         thread = self.object
         context = super(ThreadDetailView, self).get_context_data(**kwargs)
-        context['ordered_posts'] = thread.posts.all().order_by('date_created')
+        context['ordered_posts'] = thread.posts.all().order_by('date_created')\
+            .select_related('thread__forum__competition__creator', 'posted_by')\
+            .prefetch_related('thread__forum__competition__admins')
         return context
+
+
+@login_required
+def pin_thread(request, thread_pk):
+    try:
+        thread = Thread.objects.get(pk=thread_pk)
+    except Thread.DoesNotExist:
+        raise Http404()
+
+    if thread.forum.competition.creator == request.user or request.user in self.object.forum.competition.admins.all():
+        # Toggle pinned date on/off
+        thread.pinned_date = now() if thread.pinned_date is None else None
+        thread.save()
+        return HttpResponseRedirect(thread.forum.get_absolute_url())
+    else:
+        raise PermissionDenied()
