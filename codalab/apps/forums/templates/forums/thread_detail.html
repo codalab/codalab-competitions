@@ -5,6 +5,10 @@
 {% block content %}
     <h2 class="thread_title"> > {{ thread.title }}</h2>
     {% for post in ordered_posts %}
+        {% if thread.forum.competition.creator == request.user or post.posted_by == request.user %}
+            <i class="remove-button glyphicon glyphicon-remove pull-right" data-submission-pk="{{ post.pk }}"></i>
+        {% endif %}
+
         {{ post.content|linebreaks }}
 
         <span class="posted_by">Posted by: {{ post.posted_by }} @ {{ post.date_created }}</span>
@@ -13,4 +17,24 @@
             <hr>
         {% endif %}
     {% endfor %}
+
+    <script>
+        function redirect_post(url) {
+            var form = document.createElement('form');
+            document.body.appendChild(form);
+            form.method = 'post';
+            form.action = url;
+            $(form).append("{% csrf_token %}")
+            form.submit();
+        }
+
+        $(document).ready(function () {
+            $('.remove-button').click(function (event) {
+                var submission_pk = event.target.dataset.submissionPk
+                if (confirm("Are you sure you want to delete this?")) {
+                    redirect_post("/forums/{{ thread.forum.pk }}/{{ thread.pk }}/delete/" + submission_pk + "/")
+                }
+            })
+        })
+    </script>
 {% endblock %}

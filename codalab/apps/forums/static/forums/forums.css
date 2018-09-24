@@ -15,3 +15,12 @@
 .forum-panel .thread_title {
     border-bottom: 1px solid #CCC;
 }
+
+.remove-button {
+    opacity: 0.5;
+    color: darkred;
+}
+.remove-button:hover {
+    opacity: 1;
+    cursor: pointer;
+}
