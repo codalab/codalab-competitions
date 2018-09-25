@@ -34,7 +34,7 @@
                 <tr>
                     <td>
                         {% if thread.pinned_date %}
-                            <i class="pinned-thread-icon glyphicon glyphicon-flag" data-thread-pk="{{ thread.pk }}"></i>
+                            <i class="pinned-thread-icon glyphicon glyphicon-pushpin" data-thread-pk="{{ thread.pk }}"></i>
                         {% endif %}
 
                         <a href="{% url 'forum_thread_detail' forum_pk=forum.pk thread_pk=thread.pk %}">{{ thread.title }}</a>
@@ -46,7 +46,7 @@
                     <td>{{ thread.posts.count }}</td>
                     {% if forum.competition.creator == request.user or request.user in forum.competition.admins.all %}
                         <td>
-                            <a href="{% url "forum_thread_pin" thread_pk=thread.pk %}"><i class="pin-button glyphicon glyphicon-flag" data-thread-pk="{{ thread.pk }}"></i></a>
+                            <a href="{% url "forum_thread_pin" thread_pk=thread.pk %}"><i class="pin-button glyphicon glyphicon-pushpin" data-thread-pk="{{ thread.pk }}"></i></a>
                             <i class="remove-button glyphicon glyphicon-remove" data-thread-pk="{{ thread.pk }}"></i>
                         </td>
                     {% endif %}
