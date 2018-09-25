@@ -60,7 +60,8 @@ class Thread(models.Model):
         users_in_thread = set(post.posted_by for post in self.posts.all())
 
         for user in users_in_thread:
-            self.notify_user(user, post=post)
+            if user != post.posted_by:
+                self.notify_user(user, post=post)
 
     def notify_user(self, user, post=None):
         send_mail(
