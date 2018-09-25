@@ -1,6 +1,3 @@
-'''
-Test to check for most popular competitions
-'''
 import mock
 
 from django.test import TestCase
@@ -14,7 +11,7 @@ from apps.web.models import (Competition,
 User = get_user_model()
 
 
-class CompetitionHelperTestCase(TestCase):
+class PopularCompetitionsTests(TestCase):
 
     def setUp(self):
         '''
@@ -38,49 +35,51 @@ class CompetitionHelperTestCase(TestCase):
         self.competition4 = Competition.objects.create(creator=self.user, modified_by=self.user, published=True)
         self.competition5 = Competition.objects.create(creator=self.user, modified_by=self.user, published=True)
 
+        # 3 participants in comp1
         self.participant1 = CompetitionParticipant.objects.create(
             user=self.user,
             competition=self.competition1,
             status=ParticipantStatus.objects.get_or_create(name='approved', codename=ParticipantStatus.APPROVED)[0]
         )
-
         self.participant2 = CompetitionParticipant.objects.create(
             user=self.user2,
             competition=self.competition1,
             status=ParticipantStatus.objects.get_or_create(name='approved', codename=ParticipantStatus.APPROVED)[0]
         )
-
         self.participant3 = CompetitionParticipant.objects.create(
             user=self.user3,
             competition=self.competition1,
             status=ParticipantStatus.objects.get_or_create(name='approved', codename=ParticipantStatus.APPROVED)[0]
         )
 
+        # 2 participants in comp2
         self.participant4 = CompetitionParticipant.objects.create(
             user=self.user1,
             competition=self.competition2,
             status=ParticipantStatus.objects.get_or_create(name='approved', codename=ParticipantStatus.APPROVED)[0]
         )
-
         self.participant5 = CompetitionParticipant.objects.create(
             user=self.user5,
             competition=self.competition2,
             status=ParticipantStatus.objects.get_or_create(name='approved', codename=ParticipantStatus.APPROVED)[0]
         )
 
+        # NO participants in comp3
+
+        # 1 participant in comp4
         self.participant6 = CompetitionParticipant.objects.create(
             user=self.user4,
             competition=self.competition4,
             status=ParticipantStatus.objects.get_or_create(name='approved', codename=ParticipantStatus.APPROVED)[0])
 
-    def test_return_all_published_competitions(self):
+    def test_get_popular_competitions_returns_all_published_competitions(self):
         '''
         Return published competitions
         '''
         competitions = Competition.objects.filter(published=True)
         self.assertTrue(len(competitions), 4)
 
-    def test_return_empty_queryset(self):
+    def test_get_popular_competitions_returns_empty_queryset(self):
         '''
         Return 0 competitions
         '''
@@ -100,9 +99,14 @@ class CompetitionHelperTestCase(TestCase):
         competitions = get_most_popular_competitions()
         self.assertEquals(len(competitions), 0)
 
-    def test_return_three_most_popular_competitions(self):
+    def test_get_popular_competitions_returns_most_popular_competitions(self):
         '''
         will return most popular competitions
         '''
-        competitions = get_most_popular_competitions()
-        self.assertEquals(len(competitions), 3)
+        competitions = get_most_popular_competitions(min_participants=2)
+        # Should only return #1 and #2 because they have > 2 participants
+        self.assertEquals(len(competitions), 2)
+
+        competitions = get_most_popular_competitions(min_participants=0)
+        # Should return all comps
+        self.assertEquals(len(competitions), 5)
