@@ -80,11 +80,6 @@ class ChaHubSaveMixin(models.Model):
 
     def send_to_chahub(self, data):
         """Sends data to chahub and returns the HTTP response"""
-        if os.environ.get('PYTEST'):
-            # For tests let's just assume Chahub isn't working properly.
-            # We can mock proper responses
-            return None
-
         url = self.get_chahub_url()
 
         logger.info("ChaHub :: Sending to ChaHub ({}) the following data: \n{}".format(url, data))
@@ -100,6 +95,11 @@ class ChaHubSaveMixin(models.Model):
     def save(self, force_to_chahub=False, *args, **kwargs):
         # We do a save here to give us an ID for generating URLs and such
         super(ChaHubSaveMixin, self).save(*args, **kwargs)
+
+        if os.environ.get('PYTEST') and not settings.PYTEST_FORCE_CHAHUB:
+            # For tests let's just assume Chahub isn't available
+            # We can mock proper responses
+            return None
 
         # Make sure we're not sending these in tests
         if settings.CHAHUB_API_URL:
