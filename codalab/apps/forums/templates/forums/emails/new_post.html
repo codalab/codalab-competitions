@@ -1,9 +1,7 @@
 {% extends 'emails/base_email.html' %}
 
 {% block content %}
-    <p>There was a new post in this thread:</p>
-    <a href="http://{{ site.domain }}{{ thread.get_absolute_url }}">{{ thread.title }}</a>
+    <p>There was a new post in <a href="http://{{ site.domain }}{{ thread.get_absolute_url }}">{{ thread.title }}</a>:</p>
 
-    <h3>Post contents</h3>
     <p>{{ new_post.content }}</p>
 {% endblock %}
