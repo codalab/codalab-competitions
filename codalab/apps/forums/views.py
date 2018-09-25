@@ -161,7 +161,7 @@ def pin_thread(request, thread_pk):
     except Thread.DoesNotExist:
         raise Http404()
 
-    if thread.forum.competition.creator == request.user or request.user in self.object.forum.competition.admins.all():
+    if thread.forum.competition.creator == request.user or request.user in thread.forum.competition.admins.all():
         # Toggle pinned date on/off
         thread.pinned_date = now() if thread.pinned_date is None else None
         thread.save()
