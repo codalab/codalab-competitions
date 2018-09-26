@@ -64,17 +64,18 @@ class Thread(models.Model):
                 self.notify_user(user, post=post)
 
     def notify_user(self, user, post=None):
-        send_mail(
-            context_data={
-                'thread': self,
-                'user': user,
-                'new_post': self.posts.last() if post is None else post
-            },
-            subject='New post in %s' % self.title,
-            html_file="forums/emails/new_post.html",
-            text_file="forums/emails/new_post.txt",
-            to_email=user.email
-        )
+        if user.allow_forum_notifications:
+            send_mail(
+                context_data={
+                    'thread': self,
+                    'user': user,
+                    'new_post': self.posts.last() if post is None else post
+                },
+                subject='New post in %s' % self.title,
+                html_file="forums/emails/new_post.html",
+                text_file="forums/emails/new_post.txt",
+                to_email=user.email
+            )
 
 
 class Post(models.Model):

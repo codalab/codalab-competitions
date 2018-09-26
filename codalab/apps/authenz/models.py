@@ -11,6 +11,7 @@ class ClUser(auth_models.AbstractUser):
     organizer_status_updates = models.BooleanField(default=True)
     organizer_direct_message_updates = models.BooleanField(default=True)
     email_on_submission_finished_successfully = models.BooleanField(default=False)
+    allow_forum_notifications = models.BooleanField(default=True)
     allow_admin_status_updates = models.BooleanField(default=True)
 
     # Profile details
