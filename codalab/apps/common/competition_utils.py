@@ -42,6 +42,10 @@ def get_most_popular_competitions(min_participants=400, limit=5):
 def get_featured_competitions(popular_competitions_to_filter=None, limit=5):
     featured_competitions = []
 
+    if popular_competitions_to_filter:
+        # Exclude popular competitions, so we don't show them near featured
+        popular_filter_pks = [c.pk for c in popular_competitions_to_filter]
+
     a_month_from_now = now() + datetime.timedelta(days=30)
     seven_days_ago = now() - datetime.timedelta(days=7)
 
@@ -55,7 +59,7 @@ def get_featured_competitions(popular_competitions_to_filter=None, limit=5):
             start_date__gte=now(),
             start_date__lte=a_month_from_now
         ).exists()
-        if competition.is_active or phase_change_within_a_month:
+        if competition.is_active or phase_change_within_a_month and competition.pk not in popular_filter_pks:
             featured_competitions.append(competition)
 
     # Fill out competitions if we're missing any (or truncate if too much)
@@ -64,6 +68,7 @@ def get_featured_competitions(popular_competitions_to_filter=None, limit=5):
         existing_pks = [c.pk for c in featured_competitions]
         random_competitions = Competition.objects.filter(published=True) \
             .select_related('creator') \
+            .exclude(pk__in=popular_filter_pks) \
             .exclude(pk__in=existing_pks)[:50]
         try:
             featured_competitions += sample(random_competitions, limit - featured_comp_count)
@@ -72,11 +77,6 @@ def get_featured_competitions(popular_competitions_to_filter=None, limit=5):
             featured_competitions += list(random_competitions)
     elif featured_comp_count > limit:
         featured_competitions = featured_competitions[:limit]
-
-    # Exclude popular competitions, so we don't show them near featured
-    if popular_competitions_to_filter:
-        filter_pks = [c.pk for c in popular_competitions_to_filter]
-        featured_competitions = list(filter(lambda x: x.pk not in filter_pks, featured_competitions))
 
     # Random order each time
     shuffle(featured_competitions)
