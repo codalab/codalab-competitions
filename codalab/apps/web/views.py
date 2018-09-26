@@ -765,25 +765,32 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                 context['submission_info_list'] = submission_info_list
                 context['phase'] = phase
                 now = timezone.now()
+                # Need to re-visit this and see if I made a silly mistake in logic
                 if phase.is_parallel_parent:
                     context['current_user_sub_count_day'] = participant.submissions.filter(
                         submitted_at__day=now.day,
                         submitted_at__month=now.month,
                         submitted_at__year=now.year,
-                        phase__is_parallel_parent=True,
-                        phase__parent=None
+                        # phase__is_parallel_parent=True,
+                        # phase__parent=None,
+                        phase=phase
                     ).count()
                     context['current_user_sub_count'] = participant.submissions.filter(
-                        phase__is_parallel_parent=True,
-                        phase__parent=None
+                        # phase__is_parallel_parent=True,
+                        # phase__parent=None,
+                        phase=phase
                     ).count()
                 else:
+                    # Phase=Phase so we don't count other phases! Don't want to as a Child Phase
                     context['current_user_sub_count_day'] = participant.submissions.filter(
                         submitted_at__day=now.day,
                         submitted_at__month=now.month,
-                        submitted_at__year=now.year
+                        submitted_at__year=now.year,
+                        phase=phase
                     ).count()
-                    context['current_user_sub_count'] = participant.submissions.count()
+                    context['current_user_sub_count'] = participant.submissions.filter(
+                        phase=phase
+                    ).count()
 
         try:
             last_submission = models.CompetitionSubmission.objects.filter(

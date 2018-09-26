@@ -3,14 +3,21 @@
         <div class="col-sm-3">
             <ul class="nav nav-sidenav innertabs">
                 {% for content in contents %}
-                    <li class="{% if forloop.first %}active{% endif %}"><a href="#{{tab.codename|slugify}}-{{content.codename|slugify}}" data-toggle="tab">{{content.label}}</a></li>
+                    {# Loop through contents and make links for each page except for terms and conditions#}
+                    {% if content.codename != 'terms_and_conditions' %}
+                        <li class="{% if forloop.first %}active{% endif %}"><a href="#{{tab.codename|slugify}}-{{content.codename|slugify}}" data-toggle="tab">{{content.label}}</a></li>
+                    {% endif %}
+                    {# Insert Schedule (Phases) after evaluation #}
+                    {% if content.codename == 'evaluation' %}
+                        {% if not competition.has_single_phase %}
+                            <li><a href="#phases" role="tab" data-toggle="tab">Schedule</a></li>
+                        {% endif %}
+                    {% endif %}
                 {% endfor %}
+                {# After looping through we want this link specifically last. Check on what our tab.codename is #}
                 {% if tab.codename == 'learn_the_details' %}
-                    {% if not competition.has_single_phase %}<li><a href="#phases" role="tab" data-toggle="tab">Schedule</a></li>{% endif %}
+                    <li class="{% if forloop.first %}active{% endif %}"><a href="#learn_the_details-terms_and_conditions" data-toggle="tab">Compettion Rules</a></li>
                 {% endif %}
-                {#                {% if not competition.has_single_phase %}#}
-                {#                    Put this before participate tab#}
-                {#                {% endif %}#}
             </ul>
         </div>
         <div class="col-sm-9">

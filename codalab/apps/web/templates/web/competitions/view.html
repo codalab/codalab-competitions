@@ -4,17 +4,7 @@
 {% load tz %}
 {% load humanize %}
 
-{#{% block head_title %}Competition{% endblock %}#}
-{#{% block page_title %}Competition{% endblock page_title %}#}
 {% block page_title %}
-{#    <div style="margin-top: 2.5vh;">#}
-{#        <span class="organizer" style="font-size: 26px; font-weight: bolder;">#}
-{#            {{ competition.title }}#}
-{#        </span>#}
-{#            <span class="organizer" style="margin-left: 20vw;">#}
-{#            Organized by {{ competition.creator }}#}
-{#        </span>#}
-{#    </div>#}
     <div class="row">
         <div class="col-lg-8">
             <h2>{{ competition.title }}</h2>
@@ -62,17 +52,8 @@
         }
 
         .comp-view-countdown-well {
-{#            border: 1px solid rgba(255, 79, 79, 1);#}
-{#            border-radius: 5px;#}
             background-color: rgba(255, 79, 79, 1);
-{#            max-width: 15vw;#}
-{#            padding-top: 5px;#}
-{#            padding-bottom: 5px;#}
-{#            margin: 2vh 0 2vh 0;#}
-        {#            margin-left: 0;#}{#            margin-right: 0;#}{#            margin-top: 2vh;#}{#            margin-bottom: 2vh;#}
             display: inline-block;
-{#            padding: 0 0 0 0;#}
-{#            margin: 0 0 0 0;#}
         }
 
         .comp-view-image-col {
@@ -83,14 +64,8 @@
 
         .comp-view-status {
             background-color: rgba(130, 165, 195, 0.5);
-{#            max-width: 30vw !important;#}
             min-width: 50%;
-{#            margin-left: 0;#}
-{#            margin-right: 0;#}
-{#            margin-top: 5vh;#}
             display: inline-block;
-{#            margin: 0 0 0 0;#}
-{#            padding: 0 0 0 0;#}
         }
 
         .comp-info {
@@ -101,14 +76,10 @@
         .comp-view-tab-container {
             max-height: 10vh;
             padding-left: 0;
-{#            margin-top: 20vh;#}
-{#            padding-top: 5vh;#}
         }
 
         .comp-view-tabs {
             margin: 12.5vh 0 0 0 !important;
-{#            max-width: 60vw !important;#}
-{#            margin-top: 20vh !important;#}
         }
 
         hr {
@@ -121,7 +92,6 @@
         }
 
         .selected {
-{#            border: 4px solid #00b3ee !important;#}
             box-shadow: 1px 1px 4px 0.5px black inset !important;
         }
     </style>
@@ -149,7 +119,6 @@
 
     <div class="competition-view row well comp-view-well" style="">
         <div align="center" style="" class="col-sm-2 comp-view-image-col">
-            {#                <div class="img-container">#}
             {% if competition.image_url %}
                 <img class="comp-view-image" style=""
                      src="{{ competition.image_url }}">
@@ -157,7 +126,6 @@
                 <img class="comp-view-image" style=""
                      src="{% static "img/ProfileImageDummy.jpg" %}">
             {% endif %}
-            {#                </div>#}
         </div>
         <div align="center" style="padding: 0;" class="col-sm-10">
             <div class="row">
@@ -172,27 +140,9 @@
                 <input type="hidden" id="competitionId" value="{{ competition.id }}"/>
                 <input type="hidden" id="cstoken" value="{{ csrf_token }}"/>
 
-{#                <div class="col-sm comp-info" style="display: inline-block;">#}
-{#                    {% if USE_AWS %}#}
-{#                        <form id="s3_upload_form" action="" method="post">#}
-{#                            {% csrf_token %}#}
-{#                            {{ form }}#}
-{#                            <div id="s3-file-upload" class="button btn btn-danger {% if not active_phase.reference_data and not active_phase.is_parallel_parent %}disabled{% endif %}" {% if not active_phase.reference_data and not active_phase.is_parallel_parent %}disabled="disabled"{% endif %}>#}
-{#                                Upload and Submit Solution#}
-{#                            </div>#}
-{#                        </form>#}
-{#                    {% else %}#}
-{#                        <button id="fileUploadButton" class="button btn btn-danger {% if not active_phase.reference_data and not active_phase.is_parallel_parent %}disabled{% endif %}" {% if not active_phase.reference_data and not active_phase.is_parallel_parent %}disabled="disabled"{% endif %}>#}
-{#                            Upload and Submit Solution#}
-{#                        </button>#}
-{#                    {% endif %}#}
-{#                </div>#}
-
                 <div style="" class="well competition-status comp-view-status col-sm comp-info">
                     <ul style="" class="list-inline">
-{#                        <li class="header-count">Server Time: {{ current_server_time|utc }} UTC</li>#}
                         <li class="header-count">{{ participant_count }} Participants</li>
-
                         {% if competition.enable_teams %}
                             <li class="header-count">{{ team_count }} Teams</li>{% endif %}
                         <li class="header-count">{{ submission_count }} Submissions</li>
@@ -201,28 +151,12 @@
                         {% endif %}
                     </ul>
                 </div>
-
                 {% if user.is_authenticated %}
                     <a class="well col-sm comp-info" style="display: inline-block; color: white; background-color: #676278" href="#participate" id="submission_top_pointer">
-                        {#                    {% if user.is_authenticated %}#}
-                        {#                        <a id="submission_top_pointer" href="#participate" class="btn btn-primary" style="margin-bottom: 2vh;">Make a Submission</a>#}
-                        {#                    {% endif %}#}
-                        Make a Submission
+                        Upload a Submission
                     </a>
                 {% endif %}
-
-                {#                <div class="organizer" style="margin-bottom: 3vh;">#}
-{#                    Organized by {{ competition.creator }}<br>#}
-{#                    {% if competition.reward and competition.reward > 0 %}#}
-{#                        Reward <b>${{ competition.reward|intcomma }}</b>#}
-{#                    {% endif %}#}
-{#                </div>#}
             </div>
-{#            <div class="row">#}
-{#                {% if user.is_authenticated %}#}
-{#                    <a id="submission_top_pointer" href="#participate" class="btn btn-primary" style="margin-bottom: 2vh;">Make a Submission</a>#}
-{#                {% endif %}#}
-{#            </div>#}
         </div>
         <div align="center" style="margin-left: 0; margin-right: 0;" class="row comp-view-tab-container">
             <section style="" class="competition-tabs comp-view-tabs">
@@ -421,12 +355,12 @@
                 window.setTimeout(function(){
                     var fileUploadButton = document.getElementById("fileUploadButton");
                     if (fileUploadButton !== null) {
-                        console.log("clickity");
+{#                        console.log("clickity");#}
                         fileUploadButton.click();
                     } else {
                         var fileUploadButton = document.getElementById("s3-file-upload");
                         if (fileUploadButton !== null) {
-                            console.log("clickity");
+{#                            console.log("clickity");#}
                             fileUploadButton.click();
                         }
                     }
@@ -435,7 +369,7 @@
         });
 
         var check_page_hash = function() {
-            console.log("Hash check called")
+{#            console.log("Hash check called")#}
             var top_ten = document.getElementById("top-ten-well");
             if (top_ten === null) {
                 return

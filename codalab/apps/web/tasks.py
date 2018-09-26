@@ -853,6 +853,9 @@ def check_children_submissions(parent_id):
         logger.info("All children finished successfully, starting parent submission to aggregate scores")
         # This evaluates the submission with scoring only
         evaluate_submission.delay(parent.pk, True)
+    elif total_children_submission_count == failed_children_count:
+        logger.info("All childeren submissions failed, starting parent submission to aggregate failed submissions.")
+        evaluate_submission.delay(parent.pk, True)
     elif failed_children_count > 0:
         logger.info("A child has failed, so the parent will never start")
         _set_submission_status(parent.id, CompetitionSubmissionStatus.FAILED)
