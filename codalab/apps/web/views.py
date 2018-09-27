@@ -209,7 +209,12 @@ def my_index(request):
     except:
         denied = -1
 
-    my_competitions = models.Competition.objects.filter(Q(creator=request.user) | Q(admins__in=[request.user])).order_by('-pk').select_related('creator').annotate(num_participants=Count('participants')).distinct()
+    competitions_im_creator_of = Competition.objects.filter(creator=request.user).order_by('-pk').select_related(
+        'creator').annotate(num_participants=Count('participants'))
+    competitions_im_admin_of = Competition.objects.exclude(pk__in=[c.pk for c in competitions_im_creator_of]).filter(
+        admins__in=[request.user]).order_by('-pk').select_related('creator').annotate(num_participants=Count('participants'))
+    my_competitions = list(competitions_im_creator_of) + list(competitions_im_admin_of)
+
     published_competitions = models.Competition.objects.filter(published=True).select_related('creator', 'participants').annotate(num_participants=Count('participants'))
     published_competitions = reversed(sorted(published_competitions, key=lambda c: c.get_start_date))
     context_dict = {
