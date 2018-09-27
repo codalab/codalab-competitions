@@ -2,9 +2,9 @@ import os, sys
 from subprocess import call
 
 if len(sys.argv) != 2:
-	print '\n  Usage: python ' + sys.argv[0] + ' <closure compiler jar>'
-	print '\n  Download and extract the compiler from http:/dl.google.com/closure-compiler/compiler-latest.zip'
-	sys.exit(1)
+    print '\n  Usage: python ' + sys.argv[0] + ' <closure compiler jar>'
+    print '\n  Download and extract the compiler from http:/dl.google.com/closure-compiler/compiler-latest.zip'
+    sys.exit(1)
 
 base_path = os.path.join(os.path.dirname(sys.argv[0]), '..', 'codalab', 'apps', 'web', 'static')
 
@@ -12,9 +12,9 @@ def P(path):
     return os.path.join(base_path, path)
 
 input_paths = [
-	P("js/app.js"),
-	P("js/Competition.js"),
-	P("js/main.js"),
+    P("js/app.js"),
+    P("js/Competition.js"),
+    P("js/main.js"),
 ]
 
 # Run JSLint
