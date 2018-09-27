@@ -12,7 +12,7 @@ from django.utils.timezone import now
 from apps.web.models import Competition, CompetitionSubmission
 
 
-def get_most_popular_competitions(min_participants=400, limit=5):
+def get_most_popular_competitions(min_participants=400, limit=5, fill_in=True):
     today = datetime.datetime.today()
     competitions = Competition.objects.filter(published=True) \
         .filter(Q(end_date__gte=today) | Q(end_date=None)) \
@@ -24,7 +24,7 @@ def get_most_popular_competitions(min_participants=400, limit=5):
     competitions = list(competitions)
     comp_count = len(competitions)
 
-    if comp_count < limit:
+    if comp_count < limit and fill_in:
         existing_pks = [c.pk for c in competitions]
         random_competitions = Competition.objects.filter(published=True).exclude(pk__in=existing_pks) \
             .annotate(num_participants=Count('participants')) \

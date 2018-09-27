@@ -103,10 +103,10 @@ class PopularCompetitionsTests(TestCase):
         '''
         will return most popular competitions
         '''
-        competitions = get_most_popular_competitions(min_participants=2)
+        competitions = get_most_popular_competitions(min_participants=2, fill_in=False)
         # Should only return #1 and #2 because they have > 2 participants
         self.assertEquals(len(competitions), 2)
 
-        competitions = get_most_popular_competitions(min_participants=0)
+        competitions = get_most_popular_competitions(min_participants=0, fill_in=False)
         # Should return all comps
         self.assertEquals(len(competitions), 5)
