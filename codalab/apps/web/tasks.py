@@ -317,9 +317,6 @@ def _make_url_sassy(path, permission='r', duration=60 * 60 * 24):
         # Path could also be in a format <bucket>.<url> so check that as well
         path = path.split("{}.{}".format(settings.AWS_STORAGE_PRIVATE_BUCKET_NAME, settings.AWS_S3_HOST))[-1]
 
-        # Spaces replaced with +'s, so we have to replace those...
-        path = path.replace('+', ' ')
-
         url = BundleStorage.connection.generate_url(
             expires_in=duration,
             method=method,
