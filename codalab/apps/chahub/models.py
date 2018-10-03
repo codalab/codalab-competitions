@@ -6,7 +6,7 @@ import os
 import requests
 
 from django.conf import settings
-from django.db import models
+from django.db import models, IntegrityError
 from django.utils import timezone
 
 
@@ -93,7 +93,10 @@ class ChaHubSaveMixin(models.Model):
 
     def save(self, force_to_chahub=False, *args, **kwargs):
         # We do a save here to give us an ID for generating URLs and such
-        super(ChaHubSaveMixin, self).save(*args, **kwargs)
+        try:
+            super(ChaHubSaveMixin, self).save(*args, **kwargs)
+        except IntegrityError:
+            logger.info("Object already has ID skipping save in Chahub mixin.")
 
         if os.environ.get('PYTEST') and not settings.PYTEST_FORCE_CHAHUB:
             # For tests let's just assume Chahub isn't available

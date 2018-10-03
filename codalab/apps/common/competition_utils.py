@@ -45,6 +45,8 @@ def get_featured_competitions(popular_competitions_to_filter=None, limit=5):
     if popular_competitions_to_filter:
         # Exclude popular competitions, so we don't show them near featured
         popular_filter_pks = [c.pk for c in popular_competitions_to_filter]
+    else:
+        popular_filter_pks = []
 
     a_month_from_now = now() + datetime.timedelta(days=30)
     seven_days_ago = now() - datetime.timedelta(days=7)
