@@ -263,6 +263,7 @@ class UserSettingsForm(forms.ModelForm):
             'organizer_direct_message_updates',
             'allow_admin_status_updates',
             'organization_or_affiliation',
+            'allow_forum_notifications',
             'email_on_submission_finished_successfully',
             'team_name',
             'team_members',

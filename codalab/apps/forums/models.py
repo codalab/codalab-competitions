@@ -12,6 +12,9 @@ class Forum(models.Model):
     """
     competition = models.OneToOneField('web.Competition', unique=True, related_name="forum")
 
+    def get_absolute_url(self):
+        return reverse('forum_detail', kwargs={'forum_pk': self.pk})
+
     @classmethod
     def competition_post_save(cls, **kwargs):
         competition = kwargs['instance']
@@ -28,6 +31,7 @@ class Thread(models.Model):
     started_by = models.ForeignKey('authenz.ClUser')
     title = models.CharField(max_length=255)
     last_post_date = models.DateTimeField(null=True, blank=True)
+    pinned_date = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         ordering = ('-last_post_date',)
@@ -46,30 +50,32 @@ class Thread(models.Model):
             if self.forum.competition.creator.organizer_direct_message_updates:
                 self.notify_user(self.forum.competition.creator)
 
-
     def get_absolute_url(self):
         return reverse('forum_thread_detail', kwargs={'forum_pk': self.forum.pk, 'thread_pk': self.pk})
 
-    def notify_all_posters_of_new_post(self):
+    def notify_all_posters_of_new_post(self, post):
         """
         Notify users when a new post is created on the thread.
         """
         users_in_thread = set(post.posted_by for post in self.posts.all())
 
         for user in users_in_thread:
-            self.notify_user(user)
+            if user != post.posted_by:
+                self.notify_user(user, post=post)
 
-    def notify_user(self, user):
-        send_mail(
-            context_data={
-                'thread': self,
-                'user': user,
-            },
-            subject='New post in %s' % self.title,
-            html_file="forums/emails/new_post.html",
-            text_file="forums/emails/new_post.txt",
-            to_email=user.email
-        )
+    def notify_user(self, user, post=None):
+        if user.allow_forum_notifications:
+            send_mail(
+                context_data={
+                    'thread': self,
+                    'user': user,
+                    'new_post': self.posts.last() if post is None else post
+                },
+                subject='New post in %s' % self.title,
+                html_file="forums/emails/new_post.html",
+                text_file="forums/emails/new_post.txt",
+                to_email=user.email
+            )
 
 
 class Post(models.Model):
