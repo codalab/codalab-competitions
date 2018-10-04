@@ -62,7 +62,8 @@ def get_featured_competitions(popular_competitions_to_filter=None, limit=5):
             start_date__lte=a_month_from_now
         ).exists()
         if competition.is_active or phase_change_within_a_month and competition.pk not in popular_filter_pks:
-            featured_competitions.append(competition)
+            if competition not in featured_competitions:
+                featured_competitions.append(competition)
 
     # Fill out competitions if we're missing any (or truncate if too much)
     featured_comp_count = len(featured_competitions)
