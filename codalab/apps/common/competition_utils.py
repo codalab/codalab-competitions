@@ -52,7 +52,7 @@ def get_featured_competitions(popular_competitions_to_filter=None, limit=5):
     seven_days_ago = now() - datetime.timedelta(days=7)
 
     # Filter out competitions that don't have a submission from the last week
-    recent_submissions = CompetitionSubmission.objects.filter(phase__competition__published=True, submitted_at__gte=seven_days_ago)
+    recent_submissions = CompetitionSubmission.objects.filter(phase__competition__published=True, submitted_at__gte=seven_days_ago).distinct('phase__competition')
     recent_submissions = recent_submissions.select_related('phase', 'phase__competition')
     for sub in recent_submissions:
         # We have a recent submission, so check that competition is either active or has upcoming phase change
