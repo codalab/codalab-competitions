@@ -48,6 +48,7 @@ def get_featured_competitions(popular_competitions_to_filter=None, limit=5):
     else:
         popular_filter_pks = []
 
+    a_month_ago = now() - datetime.timedelta(days=30)
     a_month_from_now = now() + datetime.timedelta(days=30)
     seven_days_ago = now() - datetime.timedelta(days=7)
 
@@ -61,7 +62,8 @@ def get_featured_competitions(popular_competitions_to_filter=None, limit=5):
             start_date__gte=now(),
             start_date__lte=a_month_from_now
         ).exists()
-        if competition.is_active or phase_change_within_a_month and competition.pk not in popular_filter_pks:
+        recently_started = competition.start_date > a_month_ago
+        if recently_started or phase_change_within_a_month and competition.pk not in popular_filter_pks:
             if competition not in featured_competitions and competition not in popular_competitions_to_filter:
                 featured_competitions.append(competition)
 
