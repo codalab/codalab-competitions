@@ -597,7 +597,7 @@ class Competition(ChaHubSaveMixin, models.Model):
 
     @cached_property
     def get_participant_count(self):
-        return self.participants.all().count()
+        return self.participants.filter(status__codename=ParticipantStatus.APPROVED).count()
 
 post_save.connect(Forum.competition_post_save, sender=Competition)
 
