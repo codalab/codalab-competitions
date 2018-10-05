@@ -86,4 +86,7 @@ def get_featured_competitions(popular_competitions_to_filter=None, limit=5):
     # Random order each time
     shuffle(featured_competitions)
 
+    for competition in featured_competitions:
+        competition.num_participants = competition.get_participant_count
+
     return featured_competitions
