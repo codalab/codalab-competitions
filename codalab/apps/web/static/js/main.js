@@ -178,7 +178,7 @@ var CodaLab;
                     beforeSend: function(xhr) {
                         // xhr.setRequestHeader('x-ms-version', xmsversion);
                         // xhr.setRequestHeader('x-ms-blob-type', 'BlockBlob');
-                        console.log("No azure headers in main")
+                        // console.log("No azure headers in main")
                     },
                     success: function(data, status) {
                         onload_success(data, status);
@@ -258,7 +258,7 @@ var CodaLab;
                     // xhr.setRequestHeader('x-ms-blob-content-type', file.type);
                     // xhr.setRequestHeader('x-ms-meta-name', file.name);
                     // xhr.setRequestHeader('x-ms-meta-size', file.size.toString());
-                    console.log("NOO")
+                    // console.log("NOO")
                 },
                 success: function(data, status) {
                     that.options.uploadSuccess(file, that.state.trackingId);

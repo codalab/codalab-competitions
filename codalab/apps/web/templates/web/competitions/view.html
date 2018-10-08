@@ -74,12 +74,18 @@
         }
 
         .comp-view-tab-container {
-            max-height: 10vh;
+            max-height: 10%;
             padding-left: 0;
         }
 
         .comp-view-tabs {
             margin: 12.5vh 0 0 0 !important;
+        }
+
+        .comp-tab-list {
+{#            margin-left: 25vw;#}
+{#            margin-right: 25vw;#}
+{#            text-align: center;#}
         }
 
         hr {
@@ -94,6 +100,17 @@
         .selected {
             box-shadow: 1px 1px 4px 0.5px black inset !important;
         }
+
+{#        @media print {#}
+{#            .container {#}
+{#                width: auto;#}
+{#            }#}
+{#        }#}
+{##}
+{#        select {#}
+{#            text-indent: 6px;#}
+{#            line-height: 30px;#}
+{#        }#}
     </style>
 {% endblock %}
 
@@ -161,9 +178,9 @@
         <div align="center" style="margin-left: 0; margin-right: 0;" class="row comp-view-tab-container">
             <section style="" class="competition-tabs comp-view-tabs">
                 {#                <ul class="nav nav-tabs" id="competition_tab_nav">#}
-                <ul style="margin-left: 25vw;" class="list-inline text-center nav nav-tabs" id="competition_tab_nav">
+                <ul style="" class="text-center list-inline nav nav-justified nav-tabs comp-tab-list" id="competition_tab_nav">
                     {% for tab, contents in tabs.items %}
-                        <li><a class="" href="#{{ tab.codename|slugify }}" role="tab"
+                        <li class="nav-item"><a class="nav-link" href="#{{ tab.codename|slugify }}" role="tab"
                                data-toggle="tab">{{ tab.name }}</a></li>
                         {% if tab.codename == "results" %}
                             {#         Put this after results tab#}

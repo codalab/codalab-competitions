@@ -183,7 +183,11 @@
                             {% else %}
                                 <td class="status not_submitted text-center"></td>
                             {% endif %}
-                            <td class="text-center"><span class="glyphicon glyphicon-plus"></span></td>
+                            {% if submission_info.detailed_results_ready %}
+                                <td class="text-center"><span class="glyphicon glyphicon-plus"></span></td>
+                            {% else %}
+                                <td class="text-center"></td>
+                            {% endif %}
                         </tr>
                     {% endfor %}
                 {% endif %}

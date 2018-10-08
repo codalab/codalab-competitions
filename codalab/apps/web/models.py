@@ -1415,6 +1415,14 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
             "submitted_at": self.submitted_at.isoformat(),
         }
 
+
+    @property
+    def detailed_results_ready(self):
+        if self.detailed_results_file and self.detailed_results_file.url and self.detailed_results_file.file:
+            return True
+        return False
+
+
     def save(self, ignore_submission_limits=False, *args, **kwargs):
         print "Saving competition submission."
         if self.participant.competition != self.phase.competition:

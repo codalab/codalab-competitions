@@ -760,6 +760,7 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                         'is_public': submission.is_public,
                         'score': default_score,
                         'est_duration': submission.run_time,
+                        'detailed_results_ready': submission.detailed_results_ready,
                     }
                     submission_info_list.append(submission_info)
                 context['submission_info_list'] = submission_info_list
