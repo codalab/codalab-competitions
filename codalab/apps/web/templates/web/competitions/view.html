@@ -160,9 +160,11 @@
                 <div style="" class="well competition-status comp-view-status col-sm comp-info">
                     <ul style="" class="list-inline">
                         <li class="header-count">{{ participant_count }} Participants</li>
+
                         {% if competition.enable_teams %}
                             <li class="header-count">{{ team_count }} Teams</li>{% endif %}
                         <li class="header-count">{{ submission_count }} Submissions</li>
+
                         {% if competition.reward %}
                             <li class="header-count">{{ competition.reward }} Prize</li>
                         {% endif %}
@@ -229,20 +231,19 @@
                                 <form id="participate_form">
                                     {% csrf_token %}
                                     <p>You have not yet registered for this competition.</p>
-                                    <p>To participate in this competition, you must accept its specific
-                                        terms and conditions. After you register, the competition organizer
-                                        will review your application and notify you when your participation
-                                        is approved.</p>
+                                    {% if competition.registration_required %}
+                                        <p>To participate in this competition, you must accept its specific
+                                            terms and conditions. After you register, the competition organizer
+                                            will review your application and notify you when your participation
+                                            is approved.</p>
+                                    {% endif %}
                                     <div class="checkbox">
                                         <label>
-                                            <input type="checkbox" name="agreed_terms" id="checkbox" required
-                                                   onclick="Competition.registationCanProceed();">
-                                            I accept the <a href="#learn_the_details-terms_and_conditions"
-                                                            target="_blank">terms and conditions</a> of the competition.
+                                            <input type="checkbox" name="agreed_terms" id="checkbox" required onclick="Competition.registationCanProceed();">
+                                            I accept the <a href="#learn_the_details-terms_and_conditions" target="_blank">terms and conditions</a> of the competition.
                                         </label>
                                     </div>
-                                    <input type="submit" id="participateButton"
-                                           class="disabledStatus btn btn-primary margin-top" value="Register"/>
+                                    <input type="submit" id="participateButton" class="disabledStatus btn btn-primary margin-top" value="Register"/>
                                 </form>
                             {% elif my_status == "pending" %}
                                 <p>Your request to participate in this challenge has been received and a

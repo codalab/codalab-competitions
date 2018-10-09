@@ -675,10 +675,13 @@ class CompetitionDetailView(DetailView):
             pass
 
         # if settings.SINGLE_COMPETITION_VIEW_PK:
-        context['participant_count'] = competition.get_participant_count
+        # context['participant_count'] = competition.get_participant_count
+        # Leaving cruft because this one-liner might generate a lot of queries...
+        context['participant_count'] = competition.participants.filter(submissions__isnull=False).distinct().count()
         context['submission_count'] = 0
         for phase in competition.phases.all():
-            context['submission_count'] += phase.submissions.all().count()
+            if phase.is_parallel_parent:
+                context['submission_count'] += phase.submissions.all().count()
         if competition.end_date:
             current_date_time = timezone.now()
             comp_end_time = competition.end_date
