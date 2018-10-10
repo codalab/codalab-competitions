@@ -53,9 +53,14 @@
                         {% if head.subs %}
                             <th colspan="{{head.subs|length}}">{{head.label}}</th>
                         {% else %}
-                            <th rowspan="2" {% if group.selection_key == head.key %} class="column-selectable column-selected" {% else %} class="column-selectable" {% endif %} name="{{head.key}}">{{head.label}}
-                            <span class="glyphicon glyphicon-play ascending-sorting" aria-hidden="true"></span>
-                            </th>
+                            {% if not phase|should_hide_column:head.key %}
+                                <th rowspan="2" {% if group.selection_key == head.key %} class="column-selectable column-selected" {% else %} class="column-selectable" {% endif %} name="{{ head.key }}">{{ head.label }}
+                                    <span class="glyphicon glyphicon-play ascending-sorting" aria-hidden="true"></span>
+                                </th>
+{#                            {% else %}#}
+{#                                {{ phase|should_hide_column:head.key }}#}
+{#                                {{ head.key }}#}
+                            {% endif %}
                         {% endif %}
                     {% endfor %}
                     {% if phase.competition.enable_detailed_results %}
@@ -113,11 +118,19 @@
                             {% for head in group.headers %}
                                 {% for head_or_sub in head|get_array_or_attr:'subs' %}
                                     {% with scoredata.values|get_by_name:head_or_sub.key|first as v %}
-                                        {% if 'rnk' in v %}
-                                            <td {% if group.selection_key == v.name %} class="column-selected" {% endif %} name={{v.name}}>{{v.val}} (<span class="rank">{{v.rnk}}</span>)</td>
-                                        {% else %}
-                                            <td {% if group.selection_key == v.name %} class="column-selected" {% endif %} name={{v.name}}>{{v.val}} <span class="rank hide">{{v.hidden_rnk}}</span></td>
+                                        {% if not phase|should_hide_column:head.key %}
+                                            {% if 'rnk' in v %}
+                                                <td {% if group.selection_key == v.name %} class="column-selected" {% endif %} name={{ v.name }}>{{ v.val }}(<span class="rank">{{ v.rnk }}</span>)
+                                                </td>
+                                            {% else %}
+                                                <td {% if group.selection_key == v.name %} class="column-selected" {% endif %} name={{ v.name }}>{{ v.val }}<span class="rank hide">{{ v.hidden_rnk }}</span></td>
+                                            {% endif %}
                                         {% endif %}
+{#                                        {% if 'rnk' in v %}#}
+{#                                            <td {% if group.selection_key == v.name %} class="column-selected" {% endif %} name={{v.name}}>{{v.val}} (<span class="rank">{{v.rnk}}</span>)</td>#}
+{#                                        {% else %}#}
+{#                                            <td {% if group.selection_key == v.name %} class="column-selected" {% endif %} name={{v.name}}>{{v.val}} <span class="rank hide">{{v.hidden_rnk}}</span></td>#}
+{#                                        {% endif %}#}
                                     {% endwith %}
                                 {% endfor %}
                             {% endfor %}

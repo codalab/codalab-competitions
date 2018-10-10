@@ -16,6 +16,16 @@ register = template.Library()
 
 
 @register.filter
+def should_hide_column(phase, key):
+    if phase.hidden_columns:
+        column_list = phase.hidden_columns.split(',')
+        column_list = [item.strip() for item in column_list]
+        if key in column_list:
+            return True
+    return False
+
+
+@register.filter
 def filename(value):
     return os.path.basename(value.file.name)
 

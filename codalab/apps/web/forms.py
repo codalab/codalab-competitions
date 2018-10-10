@@ -93,6 +93,7 @@ class CompetitionPhaseForm(forms.ModelForm):
             'ingestion_program_only_during_scoring',
             'is_parallel_parent',
             'parent',
+            'hidden_columns',
             # 'default_docker_image`,
             # 'disable_custom_docker_image',
             # 'scoring_program_docker_image',

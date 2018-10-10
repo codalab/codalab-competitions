@@ -38,7 +38,7 @@
                     <table class="table">
                         <tr>
                             <td class="text-center">
-                                <b>Number of submission left for the day:</b> {{ current_user_sub_count_day }} out of {{ phase.max_submissions_per_day }}
+                                <b>Number of submission left for the day:</b> {{ current_user_sub_count_left_day }} out of {{ phase.max_submissions_per_day }}
                             </td>
                             <td class="text-left">
                                 <b>Submissions total:</b> {{ current_user_sub_count }} out of {{ phase.max_submissions }}
@@ -67,7 +67,7 @@
                     <table class="table">
                         <tr>
                             <td class="text-center">
-                                <b>Number of submission left for the day:</b> {{ current_user_sub_count_day }} out of {{ phase.max_submissions_per_day }}
+                                <b>Number of submission left for the day:</b> {{ current_user_sub_count_left_day }} out of {{ phase.max_submissions_per_day }}
                             </td>
                             <td class="text-left">
                                 <b>Submissions total:</b> {{ current_user_sub_count }} out of {{ phase.max_submissions }}
@@ -183,11 +183,11 @@
                             {% else %}
                                 <td class="status not_submitted text-center"></td>
                             {% endif %}
-                            {% if submission_info.detailed_results_ready %}
-                                <td class="text-center"><span class="glyphicon glyphicon-plus"></span></td>
-                            {% else %}
-                                <td class="text-center"></td>
-                            {% endif %}
+{#                            {% if submission_info.detailed_results_ready %}#}
+                            <td class="text-center"><span class="glyphicon glyphicon-plus"></span></td>
+{#                            {% else %}#}
+{#                                <td class="text-center"></td>#}
+{#                            {% endif %}#}
                         </tr>
                     {% endfor %}
                 {% endif %}

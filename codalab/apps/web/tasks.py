@@ -837,11 +837,20 @@ def check_children_submissions(parent_id):
         CompetitionSubmissionStatus.CANCELLED
     ]
 
+    completed_statuses = [
+        CompetitionSubmissionStatus.FAILED,
+        CompetitionSubmissionStatus.CANCELLED,
+        CompetitionSubmissionStatus.FINISHED
+    ]
+
     successfully_children_count = parent.child_submissions.all().filter(
         status__codename=CompetitionSubmissionStatus.FINISHED
     ).count()
     failed_children_count = parent.child_submissions.all().filter(
         status__codename__in=failed_statuses
+    ).count()
+    completed_children_count = parent.child_submissions.all().filter(
+        status__codename__in=completed_statuses
     ).count()
 
     logger.info(
@@ -849,16 +858,16 @@ def check_children_submissions(parent_id):
             total_children_submission_count, successfully_children_count, failed_children_count
         ))
 
-    if total_children_submission_count == successfully_children_count:
+    if total_children_submission_count == completed_children_count:
         logger.info("All children finished successfully, starting parent submission to aggregate scores")
         # This evaluates the submission with scoring only
         evaluate_submission.delay(parent.pk, True)
-    elif total_children_submission_count == failed_children_count:
-        logger.info("All childeren submissions failed, starting parent submission to aggregate failed submissions.")
-        evaluate_submission.delay(parent.pk, True)
-    elif failed_children_count > 0:
-        logger.info("A child has failed, so the parent will never start")
-        _set_submission_status(parent.id, CompetitionSubmissionStatus.FAILED)
+    # elif total_children_submission_count == completed_children_count:
+    #     logger.info("All childeren submissions finished, starting parent submission to aggregate failed submissions.")
+    #     evaluate_submission.delay(parent.pk, True)
+    # elif failed_children_count > 0:
+    #     logger.info("A child has failed, so the parent will never start")
+    #     _set_submission_status(parent.id, CompetitionSubmissionStatus.FAILED)
     else:
         logger.info("Children have not finished yet.")
 

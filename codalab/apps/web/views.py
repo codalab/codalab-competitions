@@ -58,6 +58,8 @@ from .utils import check_bad_scores, cancel_submission
 
 from codalab.celery import app
 
+from google.cloud.exceptions import NotFound
+
 try:
     import azure
     import azure.storage
@@ -770,31 +772,30 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                 context['phase'] = phase
                 now = timezone.now()
                 # Need to re-visit this and see if I made a silly mistake in logic
-                if phase.is_parallel_parent:
-                    context['current_user_sub_count_day'] = participant.submissions.filter(
-                        submitted_at__day=now.day,
-                        submitted_at__month=now.month,
-                        submitted_at__year=now.year,
-                        # phase__is_parallel_parent=True,
-                        # phase__parent=None,
-                        phase=phase
-                    ).count()
-                    context['current_user_sub_count'] = participant.submissions.filter(
-                        # phase__is_parallel_parent=True,
-                        # phase__parent=None,
-                        phase=phase
-                    ).count()
-                else:
-                    # Phase=Phase so we don't count other phases! Don't want to as a Child Phase
-                    context['current_user_sub_count_day'] = participant.submissions.filter(
-                        submitted_at__day=now.day,
-                        submitted_at__month=now.month,
-                        submitted_at__year=now.year,
-                        phase=phase
-                    ).count()
-                    context['current_user_sub_count'] = participant.submissions.filter(
-                        phase=phase
-                    ).count()
+                # if phase.is_parallel_parent:
+                current_user_sub_count_day = participant.submissions.filter(
+                    submitted_at__day=now.day,
+                    submitted_at__month=now.month,
+                    submitted_at__year=now.year,
+                    phase=phase
+                ).count()
+                current_user_sub_count = participant.submissions.filter(
+                    phase=phase
+                ).count()
+                context['current_user_sub_count_day'] = current_user_sub_count_day
+                context['current_user_sub_count'] = current_user_sub_count
+                context['current_user_sub_count_left_day'] = phase.max_submissions_per_day - current_user_sub_count_day
+                # else:
+                #     # Phase=Phase so we don't count other phases! Don't want to as a Child Phase
+                #     context['current_user_sub_count_day'] = participant.submissions.filter(
+                #         submitted_at__day=now.day,
+                #         submitted_at__month=now.month,
+                #         submitted_at__year=now.year,
+                #         phase=phase
+                #     ).count()
+                #     context['current_user_sub_count'] = participant.submissions.filter(
+                #         phase=phase
+                #     ).count()
 
         try:
             last_submission = models.CompetitionSubmission.objects.filter(
@@ -1253,6 +1254,9 @@ class MyCompetitionSubmissionOutput(View):
         filetype = kwargs.get('filetype')
         content_type = 'text/plain'
 
+        if not submission.detailed_results_ready:
+            return StreamingHttpResponse("<h1>File not ready!</h1><br><p>Please wait a few minutes and check back!</p>", content_type='text/html')
+
         # Check competition admin permissions or user permissions
         if filetype == "detailed_results.html":
             published_to_leaderboard = models.PhaseLeaderBoardEntry.objects.filter(result=submission).exists()
@@ -1287,6 +1291,11 @@ class MyCompetitionSubmissionOutput(View):
                     return StreamingHttpResponse(file.readlines(), content_type=content_type)
                 except ValueError:
                     raise Http404()
+                except NotFound:
+                    print("File is not ready!")
+                    return StreamingHttpResponse(
+                        "<h1>File not ready!</h1><br><p>Please wait a few minutes and check back!</p>",
+                        content_type='text/html')
             else:
                 raise Http404()
         else:

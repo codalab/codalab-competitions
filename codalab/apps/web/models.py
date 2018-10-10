@@ -915,6 +915,9 @@ class CompetitionPhase(models.Model):
         related_name="sub_phases"
     )
 
+    # Read this as a list. Should be CSV: "key1, key2, key3" or "key1,key2,key3"
+    hidden_columns = models.CharField(default='', null=True, blank=True, max_length=100)
+
     # Should really just make a util function to do this
     def get_starting_kit(self):
         from apps.web.tasks import _make_url_sassy
@@ -1415,11 +1418,16 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
             "submitted_at": self.submitted_at.isoformat(),
         }
 
-
     @property
     def detailed_results_ready(self):
         if self.detailed_results_file and self.detailed_results_file.url and self.detailed_results_file.file:
-            return True
+            logger.info("Submission has file and URL")
+            try:
+                result = BundleStorage.exists(self.detailed_results_file.name)
+                logger.info("Can Storage find this submission's file name?: {}".format(result))
+                return result
+            except:
+                logger.info("Could not find file!")
         return False
 
 
