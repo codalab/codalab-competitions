@@ -1081,7 +1081,7 @@ class MyCompetitionParticipantView(LoginRequiredMixin, ListView):
                     'name': team.name,
                     'creator': team.creator.username,
                     'creator_pk': team.creator.pk,
-                    'num_members': 0,
+                    'num_members': team.members.count(),
                     'num_pending': 0,
                     'status': team.status.codename,
                     'number': number + 1,
