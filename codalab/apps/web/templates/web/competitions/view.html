@@ -142,10 +142,10 @@
                     {% if competition.enable_forum %}
                     <li><a href="{% url 'forum_detail' forum_pk=competition.forum.pk %}">{% trans 'Forums' %} <i class="glyphicon glyphicon-log-in"></i></a></li>
                     {% endif %} 
-                    <li><a href="{% url 'wechat_records' search_name='' %}">{% trans 'Chat Records' %} </a></li>
-                    {% if competition.enable_wechar_records %}
-                    <li><a href="{% url 'wechat_records' forum_pk=competition.forum.pk %}">{% trans 'Chat Records' %} </a></li>
-                    {% endif %}
+{#                    <li><a href="{% url 'wechat_records' search_name='' %}">{% trans 'Chat Records' %} </a></li>#}
+{#                    {% if competition.enable_wechar_records %}#}
+{#                    <li><a href="{% url 'wechat_records' forum_pk=competition.forum.pk %}">{% trans 'Chat Records' %} </a></li>#}
+{#                    {% endif %}#}
                     {% if competition.enable_teams %}
                         {% if my_status == "approved" %}
                             <li> 
@@ -276,15 +276,15 @@
             {% endif %}
         </div>
     </div>
-    <div class="row">
-        <div align="center" class="col-md-8">
-        {% if active_phase.is_blind %}
-            <!-- Do nothing -->
-        {% else %}
-            {% include "web/competitions/_chart1.html" %}
-        {% endif %}
-        </div>
-    </div>
+{#    <div class="row">#}
+{#        <div align="center" class="col-md-8">#}
+{#        {% if active_phase.is_blind %}#}
+{#            <!-- Do nothing -->#}
+{#        {% else %}#}
+{#            {% include "web/competitions/_chart1.html" %}#}
+{#        {% endif %}#}
+{#        </div>#}
+{#    </div>#}
 </div>
 
 {% endblock content %}
