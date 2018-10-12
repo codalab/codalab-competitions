@@ -292,6 +292,12 @@ var Competition;
         var organization_or_affiliation = $('#submission_organization_or_affiliation').val() || '';
         var phase_id = $('#submission_phase_id').val();
         $('#submission_description_textarea').val('');
+        if (file && file.name.length > 36) {
+            alert("Please use a smaller filename. Only 36 characters are allowed (File extension included)")
+            $('#details').html('');
+            $('#fileUploadButton').removeClass('disabled');
+            return
+        }
         $.ajax({
             url: '/api/competition/' + competitionId + '/submission?description=' + encodeURIComponent(description) +
                                                                   '&docker_image=' + encodeURIComponent(docker_image) +

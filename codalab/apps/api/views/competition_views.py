@@ -565,55 +565,6 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return self.queryset.filter(phase__competition__pk=self.kwargs['competition_id'])
 
-    # def pre_save(self, serializer):
-    #     obj = CompetitionSubmission()
-    #     try:
-    #         obj.participant = webmodels.CompetitionParticipant.objects.get(
-    #                             competition=self.kwargs['competition_id'], user=self.request.user)
-    #         print("Participant is {}".format(obj.participant))
-    #     except ObjectDoesNotExist:
-    #         raise PermissionDenied()
-    #     if not obj.participant.is_approved:
-    #         raise PermissionDenied()
-    #     phase_id = self.request.QUERY_PARAMS.get('phase_id', "")
-    #     for phase in webmodels.CompetitionPhase.objects.filter(competition=self.kwargs['competition_id'], id=phase_id):
-    #         if phase.is_active is True:
-    #             break
-    #     if phase is None or phase.is_active is False:
-    #         raise PermissionDenied(detail='Competition phase is closed.')
-    #     if phase.auto_migration and not phase.is_migrated and not phase.competition.is_migrating_delayed:
-    #         raise PermissionDenied(detail="Failed, competition phase is being migrated, please try again in a few minutes")
-    #     obj.phase = phase
-    #
-    #     blob_name = self.request.data['id'] if 'id' in self.request.data else ''
-    #
-    #     if len(blob_name) <= 0:
-    #         raise ParseError(detail='Invalid or missing tracking ID.')
-    #     if settings.USE_AWS:
-    #         # obj.readable_filename = os.path.basename(blob_name)
-    #         # Get file name from url and ensure we aren't getting GET params along with it
-    #         obj.readable_filename = blob_name.split('/')[-1]
-    #         obj.readable_filename = obj.readable_filename.split('?')[0]
-    #         obj.s3_file = blob_name
-    #     else:
-    #         obj.file.name = blob_name
-    #
-    #     obj.description = escape(self.request.QUERY_PARAMS.get('description', ""))
-    #     if not phase.disable_custom_docker_image:
-    #         obj.docker_image = escape(self.request.QUERY_PARAMS.get('docker_image', ""))
-    #     if not obj.docker_image:
-    #         obj.docker_image = phase.competition.competition_docker_image or settings.DOCKER_DEFAULT_WORKER_IMAGE
-    #     obj.team_name = escape(self.request.QUERY_PARAMS.get('team_name', ""))
-    #     obj.organization_or_affiliation = escape(self.request.QUERY_PARAMS.get('organization_or_affiliation', ""))
-    #     obj.method_name = escape(self.request.QUERY_PARAMS.get('method_name', ""))
-    #     obj.method_description = escape(self.request.QUERY_PARAMS.get('method_description', ""))
-    #     obj.project_url = escape(self.request.QUERY_PARAMS.get('project_url', ""))
-    #     obj.publication_url = escape(self.request.QUERY_PARAMS.get('publication_url', ""))
-    #     obj.bibtex = escape(self.request.QUERY_PARAMS.get('bibtex', ""))
-    #     if phase.competition.queue:
-    #         obj.queue_name = phase.competition.queue.name or ''
-    #     obj.save()
-
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -650,68 +601,7 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
             raise PermissionDenied(
                 detail="Failed, competition phase is being migrated, please try again in a few minutes")
 
-        if submission_phase.parent:
-            raise PermissionDenied("Cannot directly submit to a sub-phase")
-
-        if not submission_phase.is_parallel_parent:
-            phases_to_run_on = [submission_phase]
-        else:
-            # Run the submission against all subphases
-            phases_to_run_on = [submission_phase] + list(submission_phase.sub_phases.all())
-
-        # If we are dealing with a parallel parent, we need to make a parent submission
-        parent_submission = None
-
-        for phase in phases_to_run_on:
-            obj = CompetitionSubmission.objects.create(phase=phase, **kwargs)
-
-            blob_name = self.request.data['id'] if 'id' in self.request.data else ''
-
-            if len(blob_name) <= 0:
-                raise ParseError(detail='Invalid or missing tracking ID.')
-            if settings.USE_AWS:
-                # obj.readable_filename = os.path.basename(blob_name)
-                # Get file name from url and ensure we aren't getting GET params along with it
-                obj.readable_filename = blob_name.split('/')[-1]
-                obj.readable_filename = obj.readable_filename.split('?')[0]
-                obj.s3_file = blob_name
-            else:
-                obj.file.name = blob_name
-
-            obj.description = escape(self.request.query_params.get('description', ""))
-            if not phase.disable_custom_docker_image:
-                obj.docker_image = escape(self.request.query_params.get('docker_image', ""))
-            if not obj.docker_image:
-                obj.docker_image = phase.competition.competition_docker_image or settings.DOCKER_DEFAULT_WORKER_IMAGE
-            obj.team_name = escape(self.request.query_params.get('team_name', ""))
-            obj.organization_or_affiliation = escape(self.request.query_params.get('organization_or_affiliation', ""))
-            obj.method_name = escape(self.request.query_params.get('method_name', ""))
-            obj.method_description = escape(self.request.query_params.get('method_description', ""))
-            obj.project_url = escape(self.request.query_params.get('project_url', ""))
-            obj.publication_url = escape(self.request.query_params.get('publication_url', ""))
-            obj.bibtex = escape(self.request.query_params.get('bibtex', ""))
-            if phase.competition.queue:
-                obj.queue_name = phase.competition.queue.name or ''
-
-            if phase.parent:
-                # This phase has parents so this should be child submission
-                obj.parent_submission = parent_submission
-
-            obj.save()
-
-            if phase.is_parallel_parent and parent_submission is None:
-                # First submission we make will be our parent submission
-                parent_submission = obj
-
-            if parent_submission and obj.pk == parent_submission.pk:
-                pass
-            else:
-                # Only evaluate submission that aren't parent submissions
-                evaluate_submission.delay(obj.pk, obj.phase.is_scoring_only)
-        if parent_submission:
-            return parent_submission
-        else:
-            return obj
+        return CompetitionSubmission.create_submission(self.request, submission_phase, **kwargs)
 
     def handle_exception(self, exc):
         if type(exc) is DjangoPermissionDenied:

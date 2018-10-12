@@ -401,6 +401,53 @@
         }
 
         window.addEventListener("hashchange", check_page_hash, false);
+        window.addEventListener("load", check_page_hash, false);
+
+        var set_next_param = function () {
+            //console.log("Set Next Param Called")
+            var new_hash = window.location.hash.replace('#', '')
+            var div_to_check = null
+            switch (new_hash) {
+                case 'participate':
+                    div_to_check = $('#details:visible')
+                    break;
+                case 'results':
+                    div_to_check = $('.leaderboard-result-table:visible')
+                    break;
+            }
+            // If we didn't get an element to check, just return
+            if (div_to_check === null) {
+                return
+            }
+            // If our element is valid
+            if ( div_to_check.length ){
+                // Loop through each 'detailed-results-link' class elements that are visible
+                $('.detailed-results-link:visible').each(function (index) {
+                    var old_href = $(this).prop('href')
+                    // If our href already includes a query param, remove it and replace it with our new one. If not
+                    // just tack the query param on the end of the old href.
+                    if (!old_href.includes('?')) {
+                        $(this).prop('href', old_href + "?next=" + new_hash)
+                        //console.log(index + ": " + $(this).prop('href'))
+                    }
+                    else {
+                        var query_index = old_href.indexOf('?')
+                        var temp_href = old_href.slice(0, query_index)
+                        $(this).prop('href', temp_href + "?next=" + new_hash)
+                        //console.log(index + ": " + $(this).prop('href'))
+                    }
+                });
+                //console.log("Success")
+            }
+            else {
+                // Wait to check again for 500 ms
+                window.setTimeout(set_next_param, 500)
+                //console.log("Waiting for page to load")
+            }
+        }
+
+        window.addEventListener("hashchange", set_next_param, false);
+        window.addEventListener("load", set_next_param, false);
 
 
     </script>

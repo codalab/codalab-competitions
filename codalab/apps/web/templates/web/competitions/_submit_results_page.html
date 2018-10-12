@@ -173,7 +173,7 @@
                             {% if phase.competition.enable_detailed_results %}
                                 <td class="text-center">
                                     {% if submission_info.status_name == 'Running' or submission_info.status_name == 'Finished' %}
-                                        <a href="{% url 'my_competition_detailed_results' submission_id=submission_info.id %}" class="btn btn-sm btn-primary" target="_blank">Learning Curve</a>
+                                        <a href="{% url 'my_competition_detailed_results' submission_id=submission_info.id %}" class="btn btn-sm btn-primary detailed-results-link" target="_blank">Learning Curve</a>
                                     {% endif %}
                                 </td>
                             {% endif %}
@@ -215,9 +215,9 @@
     {#    //**                 docker image local storage               **//#}
     {#    //**************************************************************//#}
     {#    var docker_image_key = window.location.href + '_docker_image'#}
-    {#    $(document).ready(function() {#}
-    {#        load_settings()#}
-    {#    })#}
+    {#        $(document).ready(function() {#}
+    {#            load_settings()#}
+    {#        })#}
     {#    $('#s3-file-upload, #fileUploadButton').click(save_settings) //Azure and S3#}
     {#    function load_settings() {#}
     {#        var remembered_image = localStorage.getItem(docker_image_key)#}

@@ -891,19 +891,26 @@ def re_run_all_submissions_in_phase(phase_pk):
 
     for submission in submissions_without_duplicates:
         if settings.USE_AWS:
-            file_kwarg = {'s3_file': submission.s3_file}
+            kwargs = {'s3_file': submission.s3_file}
         else:
-            file_kwarg = {'file': submission.file}
+            kwargs = {'file': submission.file}
 
-        new_submission = CompetitionSubmission(
-            participant=submission.participant,
-            phase=submission.phase,
-            docker_image=submission.docker_image,
-            **file_kwarg
-        )
-        new_submission.save(ignore_submission_limits=True)
+        kwargs['participant'] = submission.participant
+        kwargs['docker_image'] = submission.docker_image
+        kwargs['description'] = submission.description if submission.description else ''
+        kwargs['team_name'] = submission.team_name if submission.team_name else ''
+        kwargs['organization_or_affiliation'] = submission.organization_or_affiliation if submission.organization_or_affiliation else ''
+        kwargs['method_name'] = submission.method_name if submission.method_name else ''
+        kwargs['method_description'] = submission.method_description if submission.method_description else ''
+        kwargs['project_url'] = submission.project_url if submission.project_url else ''
+        kwargs['publication_url'] = submission.publication_url if submission.publication_url else ''
+        kwargs['bibtex'] = submission.bibtex if submission.bibtex else ''
+        if submission.phase.competition.queue:
+            kwargs['queue_name'] = submission.phase.competition.queue.name or ''
 
-        evaluate_submission.apply_async((new_submission.pk, submission.phase.is_scoring_only))
+        request = None
+
+        CompetitionSubmission.create_submission(request, submission.phase, ignore_submission_limits=True, **kwargs)
 
 
 @app.task(queue='site-worker')

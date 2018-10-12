@@ -45,6 +45,7 @@ from mptt.models import MPTTModel, TreeForeignKey
 from pytz import utc
 from guardian.shortcuts import assign_perm
 from django.utils.functional import cached_property
+from rest_framework.exceptions import ParseError
 from s3direct.fields import S3DirectField
 
 from apps.chahub.models import ChaHubSaveMixin
@@ -1421,15 +1422,79 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
     @property
     def detailed_results_ready(self):
         if self.detailed_results_file and self.detailed_results_file.url and self.detailed_results_file.file:
-            logger.info("Submission has file and URL")
             try:
                 result = BundleStorage.exists(self.detailed_results_file.name)
-                logger.info("Can Storage find this submission's file name?: {}".format(result))
                 return result
             except:
-                logger.info("Could not find file!")
+                logger.info("Could not find file for submission!")
         return False
 
+    @staticmethod
+    def create_submission(request, submission_phase, ignore_submission_limits=False, **kwargs):
+        # And condition for if we're re-running a submission. Individaul submissions to tracks should be possible
+        if submission_phase.parent and not ignore_submission_limits:
+            raise PermissionDenied("Cannot directly submit to a sub-phase")
+
+        if not submission_phase.is_parallel_parent:
+            phases_to_run_on = [submission_phase]
+        else:
+            # Run the submission against all subphases
+            phases_to_run_on = [submission_phase] + list(submission_phase.sub_phases.all())
+
+        # If we are dealing with a parallel parent, we need to make a parent submission
+        parent_submission = None
+
+        for phase in phases_to_run_on:
+            obj = CompetitionSubmission.objects.create(phase=phase, **kwargs)
+
+            # If this is not a re-ran submission. Re-ran submissions have these kwargs passed.
+            if not kwargs.get('file') or kwargs.get('s3_file'):
+                blob_name = request.data['id'] if 'id' in request.data else ''
+
+                if len(blob_name) <= 0:
+                    raise ParseError(detail='Invalid or missing tracking ID.')
+                if settings.USE_AWS:
+                    # obj.readable_filename = os.path.basename(blob_name)
+                    # Get file name from url and ensure we aren't getting GET params along with it
+                    obj.readable_filename = blob_name.split('/')[-1]
+                    obj.readable_filename = obj.readable_filename.split('?')[0]
+                    obj.s3_file = blob_name
+                else:
+                    obj.file.name = blob_name
+
+                obj.description = re.escape(request.query_params.get('description', ""))
+                if not phase.disable_custom_docker_image:
+                    obj.docker_image = re.escape(request.query_params.get('docker_image', ""))
+                if not obj.docker_image:
+                    obj.docker_image = phase.competition.competition_docker_image or settings.DOCKER_DEFAULT_WORKER_IMAGE
+                obj.team_name = re.escape(request.query_params.get('team_name', ""))
+                obj.organization_or_affiliation = re.escape(request.query_params.get('organization_or_affiliation', ""))
+                obj.method_name = re.escape(request.query_params.get('method_name', ""))
+                obj.method_description = re.escape(request.query_params.get('method_description', ""))
+                obj.project_url = re.escape(request.query_params.get('project_url', ""))
+                obj.publication_url = re.escape(request.query_params.get('publication_url', ""))
+                obj.bibtex = re.escape(request.query_params.get('bibtex', ""))
+                if phase.competition.queue:
+                    obj.queue_name = phase.competition.queue.name or ''
+
+            if phase.parent:
+                # This phase has parents so this should be child submission
+                obj.parent_submission = parent_submission
+
+            obj.save(ignore_submission_limits=ignore_submission_limits)
+
+            if phase.is_parallel_parent and parent_submission is None:
+                # First submission we make will be our parent submission
+                parent_submission = obj
+
+            if parent_submission and obj.pk == parent_submission.pk:
+                pass
+            else:
+                from apps.web.tasks import evaluate_submission
+                # Only evaluate submission that aren't parent submissions
+                evaluate_submission.delay(obj.pk, obj.phase.is_scoring_only)
+
+        return parent_submission or obj
 
     def save(self, ignore_submission_limits=False, *args, **kwargs):
         print "Saving competition submission."

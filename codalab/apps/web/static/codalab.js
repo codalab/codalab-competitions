@@ -1043,7 +1043,7 @@ var CodaLab;
                     // xhr.setRequestHeader('x-ms-blob-content-type', file.type);
                     // xhr.setRequestHeader('x-ms-meta-name', file.name);
                     // xhr.setRequestHeader('x-ms-meta-size', file.size.toString());
-                    // console.log("NOO")
+                    //console.log("NOO")
                 },
                 success: function(data, status) {
                     that.options.uploadSuccess(file, that.state.trackingId);

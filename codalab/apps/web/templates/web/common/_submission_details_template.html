@@ -63,7 +63,7 @@
                                             <ul class="list-unstyled">
                                                 {% if phase.competition.enable_detailed_results %}
                                                     <li>
-                                                        <a href="/my/competition/submission/_/detailed_results" target="_blank">Detailed Results</a>
+                                                        <a class="detailed-results-link" href="/my/competition/submission/_/detailed_results" target="_blank">Detailed Results</a>
                                                     </li>
                                                 {% endif %}
                                                 {% if is_admin_or_owner or not phase.is_blind %}

@@ -30,7 +30,8 @@ from django.template import RequestContext
 from django.views.generic import FormView
 from django.views.generic import View, TemplateView, DetailView, ListView, UpdateView, CreateView, DeleteView
 from django.utils.html import strip_tags
-from django.utils import timezone
+from django.utils import timezone, http
+from django.views.generic.base import ContextMixin
 
 from apps.jobs.models import Job
 from apps.web import forms
@@ -1245,6 +1246,7 @@ class MyCompetitionSubmissionOutput(View):
     """
     This view serves the files associated with a submission.
     """
+
     def get(self, request, *args, **kwargs):
         try:
             submission = models.CompetitionSubmission.objects.get(pk=kwargs.get('submission_id'))
@@ -1292,7 +1294,6 @@ class MyCompetitionSubmissionOutput(View):
                 except ValueError:
                     raise Http404()
                 except NotFound:
-                    print("File is not ready!")
                     return StreamingHttpResponse(
                         "<h1>File not ready!</h1><br><p>Please wait a few minutes and check back!</p>",
                         content_type='text/html')
@@ -1328,15 +1329,24 @@ class MyCompetitionSubmissionDetailedResults(TemplateView):
     model = models.CompetitionSubmission
     template_name = 'web/my/detailed_results.html'
 
-    def get(self, request, *args, **kwargs):
-        submission = models.CompetitionSubmission.objects.get(pk=kwargs.get('submission_id'))
+    def get_context_data(self, **kwargs):
+        context = super(MyCompetitionSubmissionDetailedResults, self).get_context_data(**kwargs)
 
-        context_dict = {
-            'id': kwargs.get('submission_id'),
-            'user': submission.participant.user,
-            'submission': submission,
-        }
-        return render(request, self.template_name, context_dict)
+        sub_id = kwargs.get('submission_id')
+        submission = models.CompetitionSubmission.objects.get(pk=sub_id)
+
+        context['id'] = sub_id
+        context['user'] = submission.participant.user
+        context['submission'] = submission
+
+        # Get our next variable if it exists and sanitize
+        if self.request.GET.get('next'):
+            next_hash = self.request.GET.get('next')
+            next_hash = next_hash if http.is_safe_url(next_hash, self.request.get_host()) else '/'
+            comp_url = reverse("competitions:view", kwargs={'pk': submission.phase.competition.pk})
+            next_url = "{}#{}".format(comp_url, next_hash)
+            context['next_url'] = next_url
+        return context
 
 
 class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
@@ -1998,19 +2008,24 @@ def submission_re_run(request, submission_pk):
                 raise Http404()
 
             if settings.USE_AWS:
-                file_kwarg = {'s3_file': submission.s3_file}
+                kwargs = {'s3_file': submission.s3_file}
             else:
-                file_kwarg = {'file': submission.file}
+                kwargs = {'file': submission.file}
 
-            new_submission = models.CompetitionSubmission(
-                participant=submission.participant,
-                phase=submission.phase,
-                docker_image=submission.docker_image,
-                **file_kwarg
-            )
-            new_submission.save(ignore_submission_limits=True)
+            kwargs['participant'] = submission.participant
+            kwargs['docker_image'] = submission.docker_image
+            kwargs['description'] = submission.description if submission.description else ''
+            kwargs['team_name'] = submission.team_name if submission.team_name else ''
+            kwargs['organization_or_affiliation'] = submission.organization_or_affiliation if submission.organization_or_affiliation else ''
+            kwargs['method_name'] = submission.method_name if submission.method_name else ''
+            kwargs['method_description'] = submission.method_description if submission.method_description else ''
+            kwargs['project_url'] = submission.project_url if submission.project_url else ''
+            kwargs['publication_url'] = submission.publication_url if submission.publication_url else ''
+            kwargs['bibtex'] = submission.bibtex if submission.bibtex else ''
+            if submission.phase.competition.queue:
+                kwargs['queue_name'] = submission.phase.competition.queue.name or ''
 
-            evaluate_submission.apply_async((new_submission.pk, submission.phase.is_scoring_only))
+            CompetitionSubmission.create_submission(request, submission.phase, ignore_submission_limits=True, **kwargs)
 
             return HttpResponse()
         except models.CompetitionSubmission.DoesNotExist:
