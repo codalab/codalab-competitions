@@ -1445,7 +1445,8 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
         parent_submission = None
 
         for phase in phases_to_run_on:
-            obj = CompetitionSubmission.objects.create(phase=phase, **kwargs)
+            # obj = CompetitionSubmission.objects.create(phase=phase, **kwargs)
+            obj = CompetitionSubmission(phase=phase, **kwargs)
 
             # If this is not a re-ran submission. Re-ran submissions have these kwargs passed.
             if not kwargs.get('file') or kwargs.get('s3_file'):
