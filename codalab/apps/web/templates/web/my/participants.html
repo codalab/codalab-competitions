@@ -21,8 +21,8 @@
 <div class="participants">
     <h3>Teams</h3>
     {% if teams_enabled or allow_organizer_teams %}
-        {% if not allow_organizer_teams %}
-            {% if pending_teams %}
+{#        {% if not allow_organizer_teams %}#}
+{#            {% if pending_teams %}#}
                 {% for item in pending_teams %}
                     <div class="panel panel-default competitionUserBlock teamUserBlock_{{ item.id }}">
                         <div class="panel-heading">
@@ -70,8 +70,8 @@
                         </div>
                     </div>
                 {% endfor %}
-            {% endif %}
-        {% endif %}
+{#            {% endif %}#}
+{#        {% endif %}#}
         {% if not team_list %}
              <p><em>There are no teams.</em></p>
         {% else %}
@@ -202,8 +202,8 @@
                                 {% if column.label == "STATUS" %}
                                     <span class="label label-{{ participant|get_item:column.name }}">
                                     {{ participant|get_item:column.name }}
-                                </span>
-                                    {% if not allow_organizer_teams %}
+                                    </span>
+{#                                    {% if not allow_organizer_teams %}#}
                                         <button type="button"
                                                 class="pull-right btn btn-danger btn-sm revoke_button button {% if participant.status == "denied" %}hide{% endif %}"
                                                 participant_id="{{ participant.pk }}">Revoke
@@ -212,7 +212,7 @@
                                                 class="pull-right btn btn-success btn-sm reinstate_button button {% if participant.status == "approved" %}hide{% endif %}"
                                                 participant_id="{{ participant.pk }}">Reinstate
                                         </button>
-                                    {% endif %}
+{#                                    {% endif %}#}
                                 {% else %}
                                     {{ participant|get_item:column.name }}
                                 {% endif %}
