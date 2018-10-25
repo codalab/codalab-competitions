@@ -1462,7 +1462,8 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
 
                     print 'Count is %s and maximum is %s' % (submissions_from_today_count, self.phase.max_submissions_per_day)
 
-                    if submissions_from_today_count + 1 - failed_count > self.phase.max_submissions_per_day or self.phase.max_submissions_per_day == 0:
+                    # if submissions_from_today_count + 1 - failed_count > self.phase.max_submissions_per_day or self.phase.max_submissions_per_day == 0:
+                    if (submissions_from_today_count + 1) > self.phase.max_submissions_per_day or self.phase.max_submissions_per_day == 0:
                         print 'PERMISSION DENIED'
                         raise PermissionDenied("The maximum number of submissions this day have been reached.")
             else:
