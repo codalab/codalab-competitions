@@ -1931,11 +1931,18 @@ def submission_migrate(request, pk):
             current_phase_phasenumber = submission.phase.phasenumber
             next_phase = competition.phases.get(phasenumber=current_phase_phasenumber+1)
 
+            file_args = {}
+
+            if settings.USE_AWS:
+                file_args["s3_file"] = submission.s3_file
+            else:
+                file_args["file"] = submission.file
+
             new_submission = models.CompetitionSubmission(
                 participant=submission.participant,
-                file=submission.file,
                 phase=next_phase,
                 docker_image=submission.docker_image,
+                **file_args
             )
 
             new_submission.save(ignore_submission_limits=True)
