@@ -93,7 +93,7 @@ def compute_worker_update():
         fab hosts:prod compute_worker_update
     """
     compute_worker_kill()
-    run('docker pull codalab/competitions-v1-compute-worker:latest')
+    run('docker pull codalab/competitions-v1-compute-worker:1.1.1')
     run('docker pull {}'.format(django_settings.DOCKER_DEFAULT_WORKER_IMAGE))
     compute_worker_run()
 
@@ -127,7 +127,6 @@ def compute_worker_kill():
     """
     with warn_only():
         # Error if compute_worker isn't already running
-        # run('docker stop $(docker ps -a -q)')
         run('docker stop $(docker ps -a -q)')
         run('docker kill -s SIGKILL $(docker ps -a -q)')
         run('docker rm -f $(docker ps -a -q)')
@@ -161,7 +160,7 @@ def compute_worker_run():
         "--name compute_worker "
         "--log-opt max-size=50m "
         "--log-opt max-file=3 -- "
-        "codalab/competitions-v1-compute-worker:latest")
+        "codalab/competitions-v1-compute-worker:1.1.1")
 
 
 def compute_worker_status():
