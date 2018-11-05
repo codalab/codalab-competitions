@@ -9,7 +9,6 @@
             <div class="row">
                 <div class="col-sm-12 col-md-8 col-md-offset-2">
                     <img src="{{STATIC_URL}}img/codalab-logo-onecolor-reverse.png" alt="CodaLab" class="img-responsive">
-                    <h4><b>Accelerating reproducible computational research.</b></h4>
                 </div>
             </div>
         </div>
@@ -33,7 +32,7 @@
           </div>
             <div class="col-sm-6 competition-latest-list">
             <h2 class="homepage_headers">Featured Competitions</h2>
-            {% if not latest_competitions %}
+            {% if not featured_competitions %}
             <p><em>There are no competitions.</em></p>
             {% else %}
                 {% for competition in featured_competitions %}

@@ -294,14 +294,6 @@ class TeamEditView(LoginRequiredMixin, UpdateView):
 
         return context
 
-    def form_valid(self, form):
-
-        if form.instance.image:
-            a=form.instance.image
-
-        form.save()
-        return super(TeamEditView, self).form_valid(form)
-
 
 class TeamCancelView(TeamDetailView):
 

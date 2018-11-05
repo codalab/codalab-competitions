@@ -134,8 +134,9 @@ class HomePageView(TemplateView):
             cache.set(c_key, popular_competitions, 60 * 10)
 
         context['latest_competitions'] = popular_competitions
-        context['featured_competitions'] = get_featured_competitions()
-
+        context['featured_competitions'] = get_featured_competitions(
+            popular_competitions_to_filter=popular_competitions
+        )
         return context
 
 
