@@ -1376,7 +1376,7 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
             phases = list(competition.phases.all())
             active_phase = phases[0]
             for phase in phases:
-                if phase.is_active:
+                if phase.is_active and not phase.parent:
                     context['selected_phase_id'] = phase.id
                     active_phase = phase
 
