@@ -176,6 +176,15 @@
                     </a>
                 {% endif %}
             </div>
+            <div class="center aligned row">
+                {% if competition.end_date %}
+{#                    <div style="background-color: rgba(130, 165, 195, 0.5); margin-top: 0; margin-bottom: 0;" class="well comp-view-countdown-well col-sm comp-info">#}
+                        <h4 style="font-weight: bolder;">
+                            Competition Ends: {{ competition.end_date }}
+                        </h4>
+{#                    </div>#}
+                {% endif %}
+            </div>
         </div>
         <div align="center" style="margin-left: 0; margin-right: 0;" class="row comp-view-tab-container">
             <section style="" class="competition-tabs comp-view-tabs">
