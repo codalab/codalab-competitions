@@ -57,7 +57,7 @@ def get_featured_competitions(popular_competitions_to_filter=None, limit=5):
         recent_submissions = CompetitionSubmission.objects.filter(phase__competition__published=True, submitted_at__gte=seven_days_ago).distinct('phase__competition')
     except NotImplementedError:
         # DISTINCT isn't impelemented on sqlite for tests, so ignore that in this case
-        recent_submissions = CompetitionSubmission.objects.filter(phase__competition__published=True, submitted_at__gte=seven_days_ago).distinct()
+        recent_submissions = CompetitionSubmission.objects.filter(phase__competition__published=True, submitted_at__gte=seven_days_ago)
     recent_submissions = recent_submissions.select_related('phase', 'phase__competition')
     for sub in recent_submissions:
         # We have a recent submission, so check that competition is either active or has upcoming phase change
