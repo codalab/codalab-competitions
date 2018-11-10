@@ -2,6 +2,7 @@
 This file contains utilities for competitions
 '''
 import datetime
+import sys
 
 from random import randint, shuffle, sample
 
@@ -53,7 +54,11 @@ def get_featured_competitions(popular_competitions_to_filter=None, limit=5):
     seven_days_ago = now() - datetime.timedelta(days=7)
 
     # Filter out competitions that don't have a submission from the last week
-    recent_submissions = CompetitionSubmission.objects.filter(phase__competition__published=True, submitted_at__gte=seven_days_ago).distinct('phase__competition')
+    if not ('test' in sys.argv or any('py.test' in arg for arg in sys.argv)):
+        recent_submissions = CompetitionSubmission.objects.filter(phase__competition__published=True, submitted_at__gte=seven_days_ago).distinct('phase__competition')
+    else:
+        # DISTINCT isn't impelemented on sqlite for tests, so ignore that in this case
+        recent_submissions = CompetitionSubmission.objects.filter(phase__competition__published=True, submitted_at__gte=seven_days_ago)
     recent_submissions = recent_submissions.select_related('phase', 'phase__competition')
     for sub in recent_submissions:
         # We have a recent submission, so check that competition is either active or has upcoming phase change
@@ -62,7 +67,10 @@ def get_featured_competitions(popular_competitions_to_filter=None, limit=5):
             start_date__gte=now(),
             start_date__lte=a_month_from_now
         ).exists()
-        recently_started = competition.start_date > a_month_ago
+        if competition.start_date:
+            recently_started = competition.start_date > a_month_ago
+        else:
+            recently_started = False
         if recently_started or phase_change_within_a_month and competition.pk not in popular_filter_pks:
             if competition not in featured_competitions and competition not in popular_competitions_to_filter:
                 featured_competitions.append(competition)
