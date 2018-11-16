@@ -2,7 +2,22 @@
 {% load codalab_tags %}
 
 {% block head_title %}Detailed results of the participant {{ user }}{% endblock head_title %}
-{% block page_title %}<h2>Detailed results of the participant {{ user }}</h2>{% endblock page_title %}
+{% block page_title %}<h2 class="comp-title">Detailed results of the participant {{ user }}</h2>{% endblock page_title %}
+{% block extra_scripts %}
+    <style>
+        .comp-title {
+            display: inline-block;
+        }
+
+        @media only screen and (max-width: 600px) {
+            .comp-title {
+                display: block;
+                font-size: 18px;
+                line-height: 0;
+            }
+        }
+    </style>
+{% endblock %}
 {% block content %}
     {% if next_url %}
         <a href="{{ next_url }}" >Go Back to Competition Homepage</a>

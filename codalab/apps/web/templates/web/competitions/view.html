@@ -6,11 +6,9 @@
 
 {% block page_title %}
     <div class="row">
-        <div class="col-lg-8">
-            <h2>{{ competition.title }}</h2>
-        </div>
-        <div class="col-lg-4 text-right" style="padding-top: 2.5vh;">
-            <h6>Organized by {{ competition.creator }}</h6>
+        <div class="col-lg-12">
+            <h2 class="comp-title" style="">{{ competition.title }}</h2>
+            <h6 class="comp-organizer" style="">Organized by {{ competition.creator }}</h6>
         </div>
     </div>
 {% endblock page_title %}
@@ -46,10 +44,10 @@
         }
 
         .comp-view-image {
-            width: auto;
+            width: 100%;
             height: auto;
             max-height: 150px;
-            max-width: 190px;
+            max-width: 150px;
             border: solid 1px #dddddd;
         }
 
@@ -62,6 +60,7 @@
             border: 2px solid rgba(0, 0, 0, 0.1);
             padding: 0;
             background-color: rgba(233, 233, 233, 1);
+            overflow: hidden;
         }
 
         .comp-view-status {
@@ -97,6 +96,36 @@
 
         table {
             margin-bottom: 0 !important;
+        }
+
+        .comp-organizer {
+
+            display: inline-block;
+            float: right;
+            margin-top: 5vh;
+            margin-bottom: 0;
+        }
+
+        @media only screen and (max-width: 600px) {
+            .comp-organizer {
+                display: block;
+                float: left;
+                margin-top: 0;
+            }
+        }
+
+        .comp-title {
+            display: inline-block;
+        }
+
+        @media only screen and (max-width: 600px) {
+            .comp-title {
+                display: block;
+{#                float: left;#}
+{#                margin-top: 0;#}
+                font-size: 18px;
+                line-height: 0;
+            }
         }
 
         .selected {
