@@ -68,7 +68,7 @@
                 {% block title %}
                     <a class="navbar-brand" href="/" tabIndex=1 target="_self">
                         {% if CUSTOM_HEADER_LOGO %}
-                            <img src="{{ CUSTOM_HEADER_LOGO }}" alt="Home">
+                            <img style="max-height: 50px; width: auto; height: auto; max-width: 600px;" src="{{ CUSTOM_HEADER_LOGO }}" alt="Home">
                         {% else %}
                             <img src="{{ STATIC_URL }}img/codalab-logo-fullcolor-positive.png" alt="Home">
                         {% endif %}
