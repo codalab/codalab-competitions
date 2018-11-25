@@ -108,7 +108,11 @@
                     <th>Filename</th>
                     <th>Submission date</th>
                     <th>Status</th>
-                    <th>Estimated Duration</th>
+                    {% if phase.is_parallel_parent %}
+                        <th>Total Compute Time</th>
+                    {% else %}
+                        <th>Compute Time</th>
+                    {% endif %}
                     <th class="text-center">Cancel</th>
                     {% if phase.competition.enable_detailed_results %}
                         <th class="text-center">Detailed Results</th>
@@ -119,7 +123,7 @@
                 <tbody>
                 {% if submission_info_list|length_is:"0" %}
                     <tr class="noData">
-                        <td class="tdDetails" colspan="7">No data available in table</td>
+                        <td class="tdDetails" colspan="9">No data available in table</td>
                     </tr>
                 {% else %}
                     {% for submission_info in submission_info_list %}
@@ -154,11 +158,11 @@
                             {% if submission_info.status_name == 'Running' or submission_info.status_name == 'Submitting' %}
                                 {% if phase.is_parallel_parent and submission_info.status_name == 'Submitting' %}
                                     <td class="text-center">
-                                        <a class="btn-sm btn-danger" href="{% url 'competitions:submission_cancel' pk=submission_info.id %}">Cancel</a>
+                                        <a class="btn btn-xs btn-danger" href="{% url 'competitions:submission_cancel' pk=submission_info.id %}">Cancel</a>
                                     </td>
                                 {% elif phase.parent and submission_info.status_name == 'Running' %}
                                     <td class="text-center">
-                                        <a class="btn-sm btn-danger" href="{% url 'competitions:submission_cancel' pk=submission_info.id %}">Cancel</a>
+                                        <a class="btn btn-xs btn-danger" href="{% url 'competitions:submission_cancel' pk=submission_info.id %}">Cancel</a>
                                     </td>
                                 {% else %}
                                     <td class="text-center">
@@ -171,11 +175,13 @@
                                 </td>
                             {% endif %}
                             {% if phase.competition.enable_detailed_results %}
-                                <td class="text-center">
-                                    {% if submission_info.status_name == 'Running' or submission_info.status_name == 'Finished' %}
-                                        <a href="{% url 'my_competition_detailed_results' submission_id=submission_info.id %}" class="btn btn-sm btn-primary detailed-results-link" target="_blank">Learning Curve</a>
+                                    {% if submission_info.detailed_results_ready and submission_info.status_name == 'Running' or submission_info.status_name == 'Finished' %}
+                                        <td class="text-center">
+                                        <a href="{% url 'my_competition_detailed_results' submission_id=submission_info.id %}" class="btn btn-xs btn-primary detailed-results-link" target="_blank">Learning Curve</a>
+                                        </td>
+                                        {% else %}
+                                        <td></td>
                                     {% endif %}
-                                </td>
                             {% endif %}
                             {% if submission_info.is_in_leaderboard %}
                                 <td class="status submitted text-center"><span

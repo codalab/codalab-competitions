@@ -37,24 +37,24 @@
 
     <div style="margin-top: 2vh; overflow: scroll;" class="leaderboard-result-table">
         {% for group in groups %}
-            <table class="resultsTable dataTable">
+            <table class="table-bordered resultsTable dataTable">
 {#                <tr class="table-title">#}
 {#                    <th colspan="{{group.total_span|add:phase.competition.enable_medical_image_viewer|add:phase.competition.allow_teams|add:phase.competition.enable_detailed_results}}">{{group.label}}</th>#}
 {#                </tr>#}
                 <tr class="leaderboard-result-table-header">
-                    <th rowspan="2">#</th>
-                    <th rowspan="2">User</th>
-                    <th rowspan="2">Entries</th>
-                    <th rowspan="2">Date of Last Entry</th>
+                    <th style="text-align: center;" rowspan="2">#</th>
+                    <th style="text-align: center;" rowspan="2">User</th>
+                    <th style="text-align: center;" rowspan="2">Entries</th>
+                    <th style="text-align: center;" rowspan="2">Date of Last Entry</th>
                     {% if phase.competition.allow_teams %}
-                    <th rowspan="2">Team Name</th>
+                    <th style="text-align: center;" rowspan="2">Team Name</th>
                     {% endif %}
                     {% for head in group.headers %}
                         {% if head.subs %}
                             <th colspan="{{head.subs|length}}">{{head.label}}</th>
                         {% else %}
                             {% if not phase|should_hide_column:head.key %}
-                                <th rowspan="2" {% if group.selection_key == head.key %} class="column-selectable column-selected" {% else %} class="column-selectable" {% endif %} name="{{ head.key }}">{{ head.label }}
+                                <th style="text-align: center;" rowspan="2" {% if group.selection_key == head.key %} class="column-selectable column-selected" {% else %} class="column-selectable" {% endif %} name="{{ head.key }}">{{ head.label }}
                                     <span class="glyphicon glyphicon-play ascending-sorting" aria-hidden="true"></span>
                                 </th>
 {#                            {% else %}#}
@@ -64,17 +64,17 @@
                         {% endif %}
                     {% endfor %}
                     {% if phase.competition.enable_detailed_results %}
-                        <th style="padding: 4px 0;">Detailed Results</th>
+                        <th style="text-align: center;" style="padding: 4px 0;">Detailed Results</th>
                     {% endif %}
                     {% if phase.competition.enable_medical_image_viewer %}
-                        <th>Image Viewer</th>
+                        <th style="text-align: center;">Image Viewer</th>
                     {% endif %}
                 </tr>
                 <tr>
                     {% for head in group.headers %}
                         {% if head.subs %}
                             {% for sub in head.subs %}
-                                <th {% if group.selection_key == sub.key %} class="column-selectable column-selected" {% else %} class="column-selectable" {% endif %} name="{{sub.key}}">{{sub.label}}
+                                <th style="text-align: center;" {% if group.selection_key == sub.key %} class="column-selectable column-selected" {% else %} class="column-selectable" {% endif %} name="{{sub.key}}">{{sub.label}}
                                     <span class="glyphicon glyphicon-play ascending-sorting" aria-hidden="true"></span>
                                 </th>
                             {% endfor %}
@@ -83,47 +83,45 @@
                 </tr>
                 {% if group.scores.items|length_is:"0" %}
                     <tr class="noData">
-                        <td colspan="{{group.total_span|add:phase.competition.enable_medical_image_viewer|add:phase.competition.enable_detailed_results}}">No data available in table</td>
+                        <td style="text-align: center;" colspan="{{group.total_span|add:phase.competition.enable_medical_image_viewer|add:phase.competition.enable_detailed_results}}">No data available in table</td>
                     </tr>
                 {% else %}
                     {% for pk, scoredata in group.scores %}
                         <tr {% if phase.competition.anonymous_leaderboard and request.user.username == scoredata.username %}style="background-color: #D7FFFA;"{% elif request.user.username == scoredata.username %} style="background-color: #ffeeba"{% endif %}>
-                            <td class="row-position">
                                 {% if forloop.counter < 4 %}
-                                    <p class="leader-top3">{{ forloop.counter }}</p>
+                                    <td style="text-align: center;" class="leader-top3 row-position">{{ forloop.counter }}</td>
                                 {% else %}
-                                    {{ forloop.counter }}
+                                    <td style="text-align: center;" class="row-position">{{ forloop.counter }}</td>
                                 {% endif %}
-                            </td>
-                            <td>
+{#                            <td>#}
                                 {% if phase.competition.anonymous_leaderboard %}
                                     {% if forloop.counter < 4 %}
-                                        <p class="leader-top3"><i>Anonymous</i></p><
+                                        <td style="text-align: center;" class="leader-top3"><i>Anonymous</i></td><
                                     {% else %}
-                                        <i>Anonymous</i>
+                                        <td> style="text-align: center;"<i>Anonymous</i></td>
                                     {% endif %}
                                 {% else %}
                                     {% if forloop.counter < 4 %}
-                                        <p class="leader-top3">{{ scoredata.username }}</p>
+                                        <td style="text-align: center;" class="leader-top3">{{ scoredata.username }}</td>
                                     {% else %}
-                                        {{ scoredata.username }}
+                                        <td style="text-align: center;">{{ scoredata.username }}</td>
                                     {% endif %}
                                 {% endif %}
-                            </td>
-                            <td> {{ scoredata.count }} </td>
-                            <td> {{ scoredata.date|date:"m/d/y" }} </td>
+{#                            </td>#}
+                            <td style="text-align: center;"> {{ scoredata.count }} </td>
+                            <td style="text-align: center;"> {{ scoredata.date|date:"m/d/y" }} </td>
                             {% if phase.competition.allow_teams %}
-                            <td>{{ scoredata.team_name|default_if_none:"" }}</td>
+                            <td style="text-align: center;">{{ scoredata.team_name|default_if_none:"" }}</td>
                             {% endif %}
                             {% for head in group.headers %}
                                 {% for head_or_sub in head|get_array_or_attr:'subs' %}
                                     {% with scoredata.values|get_by_name:head_or_sub.key|first as v %}
                                         {% if not phase|should_hide_column:head.key %}
                                             {% if 'rnk' in v %}
-                                                <td {% if group.selection_key == v.name %} class="column-selected" {% endif %} name={{ v.name }}>{{ v.val }}(<span class="rank">{{ v.rnk }}</span>)
+                                                <td style="text-align: center;" {% if group.selection_key == v.name %} class="column-selected" {% endif %} name={{ v.name }}>{{ v.val }}(<span class="rank">{{ v.rnk }}</span>)
                                                 </td>
                                             {% else %}
-                                                <td {% if group.selection_key == v.name %} class="column-selected" {% endif %} name={{ v.name }}>{{ v.val }}<span class="rank hide">{{ v.hidden_rnk }}</span></td>
+                                                <td style="text-align: center;" {% if group.selection_key == v.name %} class="column-selected" {% endif %} name={{ v.name }}>{{ v.val }}<span class="rank hide">{{ v.hidden_rnk }}</span></td>
                                             {% endif %}
                                         {% endif %}
 {#                                        {% if 'rnk' in v %}#}
@@ -135,10 +133,10 @@
                                 {% endfor %}
                             {% endfor %}
                             {% if phase.competition.enable_detailed_results %}
-                                <td>
+                                <td style="text-align: center;">
                                     <a class="btn btn-sm btn-primary detailed-results-link" href="/my/competition/submission/{{scoredata.id}}/detailed_results" target="_blank">
                                         Learning Curve
-                                    </a></br>
+                                    </a>
                                 </td>
                             {% endif %}
 {#                            {% if phase.competition.enable_medical_image_viewer %}#}

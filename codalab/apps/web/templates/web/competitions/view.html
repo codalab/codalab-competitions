@@ -48,7 +48,7 @@
             height: auto;
             max-height: 150px;
             max-width: 150px;
-            border: solid 1px #dddddd;
+{#            border: solid 1px #dddddd;#}
         }
 
         .comp-view-countdown-well {
@@ -57,9 +57,9 @@
         }
 
         .comp-view-image-col {
-            border: 2px solid rgba(0, 0, 0, 0.1);
+{#            border: 2px solid rgba(0, 0, 0, 0.1);#}
             padding: 0;
-            background-color: rgba(233, 233, 233, 1);
+{#            background-color: rgba(233, 233, 233, 1);#}
             overflow: hidden;
         }
 
@@ -96,6 +96,14 @@
 
         table {
             margin-bottom: 0 !important;
+        }
+
+        .table td {
+            text-align: center;
+        }
+
+        .table th {
+            text-align: center;
         }
 
         .comp-organizer {
@@ -220,7 +228,7 @@
         <div align="center" style="margin-left: 0; margin-right: 0;" class="row comp-view-tab-container">
             <section style="" class="competition-tabs comp-view-tabs">
                 {#                <ul class="nav nav-tabs" id="competition_tab_nav">#}
-                <ul style="" class="text-center list-inline nav nav-justified nav-tabs comp-tab-list" id="competition_tab_nav">
+                <ul style="" class="text-center list-inline nav nav-justified nav-pills comp-tab-list" id="competition_tab_nav">
                     {% for tab, contents in tabs.items %}
                         <li class="nav-item"><a class="nav-link" href="#{{ tab.codename|slugify }}" role="tab"
                                data-toggle="tab">{{ tab.name }}</a></li>
@@ -330,9 +338,9 @@
                     <tr>
                         <th>#</th>
                         <th>Username</th>
-                        <th>Score</th>
+                        <th>Average Rank</th>
                         <th>Last Submission</th>
-                        <th>Estimated Duration</th>
+                        <th>Total Compute Time</th>
                         {% if competition.enable_teams %}
                             <th>Team</th>
                         {% endif %}
@@ -344,7 +352,8 @@
                             <td>{{ forloop.counter }}</td>
                             <td>{{ leader.username }}</td>
                             <td>{{ leader.score }}</td>
-                            <td>{{ leader.last_submission_date|date:'d-m-Y' }}</td>
+{#                            <td>{{ leader.last_submission_date|date:'d-m-Y' }}</td>#}
+                            <td>{{ leader.last_submission_date}}</td>
                             <td>{{ leader.est_duration|default_if_none:'' }}</td>
                             {% if competition.enable_teams %}
                                 <td>{{ leader.team }}</td>
@@ -364,6 +373,13 @@
             $('#competition_tab_nav a[href="#phases"]').tab('show');
         });
         $(function () {
+
+            {% for phase in competition.phases.all %}
+                {% if phase.is_parallel_parent %}
+                    var parallel_parent_selector = $("#submissions_phase_" + {{ phase.id }})
+                {% endif %}
+            {% endfor %}
+
             var show_location = function (hash) {
                 var main_tab = hash.split('-')[0];
                 var sub_tab = hash.split('-')[1];
@@ -408,21 +424,38 @@
             $('#top_three_pointer').on('click', function () {
                 show_location('#' + $(this).attr('href').split('#')[1]);
             });
+{#            $('#submission_top_pointer').on('click', function () {#}
             $('#submission_top_pointer').on('click', function () {
-                show_location('#' + $(this).attr('href').split('#')[1]);
-                window.setTimeout(function(){
+                if (window.location.hash !== '#participate') {
+                    show_location('#' + $(this).attr('href').split('#')[1]);
+                    window.setTimeout(function () {
+                        var fileUploadButton = document.getElementById("fileUploadButton");
+                        if (fileUploadButton !== null) {
+                            fileUploadButton.click();
+                        } else {
+                            var fileUploadButton = document.getElementById("s3-file-upload");
+                            if (fileUploadButton !== null) {
+                                fileUploadButton.click();
+                            } else {
+                                console.log("Try again")
+                                $('#submission_top_pointer').click()
+                            }
+                        }
+                    }, 999);
+                } else {
+                    if (!parallel_parent_selector.hasClass('selected')) {
+                        alert("Please select the parent phase")
+                    }
                     var fileUploadButton = document.getElementById("fileUploadButton");
                     if (fileUploadButton !== null) {
-{#                        console.log("clickity");#}
-                        fileUploadButton.click();
+                        fileUploadButton.click()
                     } else {
                         var fileUploadButton = document.getElementById("s3-file-upload");
                         if (fileUploadButton !== null) {
-{#                            console.log("clickity");#}
                             fileUploadButton.click();
                         }
                     }
-                }, 500);
+                }
             });
         });
 

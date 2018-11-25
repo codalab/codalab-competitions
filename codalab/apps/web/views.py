@@ -603,12 +603,23 @@ class CompetitionDetailView(DetailView):
                         for _, scoredata in group['scores']:
                             try:
                                 default_score = next(val for val in scoredata['values'] if val['name'] == default_score_key)
-                                temp_sub = CompetitionSubmission.objects.filter(participant__user__username=scoredata['username']).last()
+                                temp_sub = CompetitionSubmission.objects.get(participant__user__username=scoredata['username'], pk=scoredata['id'])
+                                if temp_sub.phase.is_parallel_parent and not temp_sub.phase.parent:
+                                    sub_run_time = None
+                                    for sub in temp_sub.child_submissions.all():
+                                        if sub.run_time != None:
+                                            if sub_run_time == None:
+                                                sub_run_time = sub.run_time
+                                            sub_run_time += sub.run_time
+                                else:
+                                    sub_run_time = temp_sub.run_time
+                                if sub_run_time:
+                                    sub_run_time = sub_run_time - timedelta(microseconds=sub_run_time.microseconds)
                                 temp_top_three_info = {
                                     "username": scoredata['username'],
                                     "score": default_score['val'],
                                     "last_submission_date": temp_sub.submitted_at,
-                                    "est_duration": temp_sub.run_time,
+                                    "est_duration": sub_run_time,
                                 }
                                 if competition.enable_teams:
                                     temp_team = get_user_team(temp_sub.participant, competition)
@@ -746,6 +757,19 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                         default_score = float(submission.get_default_score())
                     except (TypeError, ValueError):
                         default_score = '---'
+                    # If we have a parallel parent, the estimated run time is all childeren combined
+                    if submission.phase.is_parallel_parent and not submission.phase.parent:
+                        sub_run_time = None
+                        for sub in submission.child_submissions.all():
+                            if sub.run_time != None:
+                                if sub_run_time == None:
+                                    sub_run_time = sub.run_time
+                                sub_run_time += sub.run_time
+                    else:
+                        sub_run_time = submission.run_time
+                    # Remove microseconds
+                    if sub_run_time:
+                        sub_run_time = sub_run_time - timedelta(microseconds=sub_run_time.microseconds)
                     submission_info = {
                         'id': submission.id,
                         'number': submission.submission_number,
@@ -765,7 +789,7 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                         'organization_or_affiliation': submission.organization_or_affiliation,
                         'is_public': submission.is_public,
                         'score': default_score,
-                        'est_duration': submission.run_time,
+                        'est_duration': sub_run_time,
                         'detailed_results_ready': submission.detailed_results_ready,
                     }
                     submission_info_list.append(submission_info)
