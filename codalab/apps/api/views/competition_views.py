@@ -697,11 +697,7 @@ class SubmissionScoreView(views.APIView):
         try:
             sub = CompetitionSubmission.objects.get(pk=submission_id)
             if not sub.participant.user == self.request.user:
-                temp_data = {
-                    'error': 'Not authorized!'
-                }
-                response = Response(temp_data, status=status.HTTP_403_FORBIDDEN)
-                return response
+                raise PermissionDenied("Not authorized!")
             try:
                 scores = sub.phase.scores()
                 headers = list(sorted(scores[0]['headers'], key=lambda x: x.get('ordering')))
@@ -744,11 +740,7 @@ class AddChagradeBotView(views.APIView):
         try:
             comp = Competition.objects.get(pk=competition_id)
             if not comp.creator == self.request.user and self.request.user not in comp.admins.all():
-                temp_data = {
-                    'error': 'Not authorized!'
-                }
-                response = Response(temp_data, status=status.HTTP_403_FORBIDDEN)
-                return response
+                raise PermissionDenied("Not authorized!")
             chagrade_bot, created = CompetitionParticipant.objects.get_or_create(user__username='chagrade_bot', competition=comp)
             if created:
                 temp_data = {
