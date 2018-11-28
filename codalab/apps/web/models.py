@@ -23,7 +23,7 @@ from django.conf import settings
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
 from django.core.files import File
 from django.core.files.base import ContentFile
 from django.core.files.storage import get_storage_class
@@ -288,9 +288,12 @@ class Competition(ChaHubSaveMixin, models.Model):
         return self.title
 
     def has_chagrade_bot(self):
-        if self.participants.get(user__username='chagrade_bot'):
-            return True
-        else:
+        try:
+            if self.participants.get(user__username='chagrade_bot'):
+                return True
+            else:
+                return False
+        except ObjectDoesNotExist:
             return False
 
     def get_chahub_is_valid(self):
