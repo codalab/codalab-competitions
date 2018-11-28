@@ -287,6 +287,12 @@ class Competition(ChaHubSaveMixin, models.Model):
     def __unicode__(self):
         return self.title
 
+    def has_chagrade_bot(self):
+        if self.participants.get(user__username='chagrade_bot'):
+            return True
+        else:
+            return False
+
     def get_chahub_is_valid(self):
         return self.published
 
