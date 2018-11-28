@@ -269,7 +269,6 @@
 {% block js %}
 
     $('#enable_chagrade').on('click', function() {
-        console.log("Something")
         $.ajax({
             type: 'post',
             url: '/api/competition/{{ competition_id }}/enable_chagrade/',
@@ -278,13 +277,11 @@
         })
             .done(function (data) {
                 $('#enable_chagrade').addClass('disabled')
-                console.log(data)
                 alert('Chagrade features enabled for competition.')
             })
             .fail(function (response) {
                 if (response) {
                     var data = JSON.parse(response.responseText);
-                    console.log(data)
                     alert(data.error)
                 }
             })

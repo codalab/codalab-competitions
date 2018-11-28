@@ -289,10 +289,7 @@ class Competition(ChaHubSaveMixin, models.Model):
 
     def has_chagrade_bot(self):
         try:
-            if self.participants.get(user__username='chagrade_bot'):
-                return True
-            else:
-                return False
+            return bool(self.participants.get(user__username='chagrade_bot'))
         except ObjectDoesNotExist:
             return False
 
