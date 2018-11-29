@@ -36,4 +36,7 @@ urlpatterns += (
     url(r'^competition/(?P<competition_id>\d+)/pages/(?P<pk>\d+)$', views.competition_page, name='api_competition_page'),
     url(r'^competition/(?P<competition_id>\d+)/pages/$', views.competition_page_list, name='api_competition_page_list'),
     url(r'^competition/(?P<pk>\d+)/pages/(?P<entity_label>\w[\w\d\-\_]+)/$', views.competition_page_list, name='api_competition_page_list'),
+    # Chagrade specific features
+    url(r'^submission/(?P<submission_id>\d+)/get_score', views.SubmissionScoreView.as_view(), name='submission_score'),
+    url(r'^competition/(?P<competition_id>\d+)/enable_chagrade', views.AddChagradeBotView.as_view(), name='enable_chagrade')
 )
