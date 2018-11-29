@@ -30,6 +30,7 @@ from apps.api import serializers
 from apps.jobs.models import Job
 from apps.web import models as webmodels
 from apps.teams import models as teammodels
+from apps.web.models import CompetitionSubmission, Competition, CompetitionParticipant
 from apps.web.tasks import (create_competition, evaluate_submission, _make_url_sassy)
 
 from codalab.azure_storage import make_blob_sas_url, PREFERRED_STORAGE_X_MS_VERSION
@@ -685,3 +686,82 @@ class LeaderBoardDataViewSet(views.APIView):
 class DefaultContentViewSet(viewsets.ModelViewSet):
     queryset = webmodels.DefaultContentItem.objects.all()
     serializer_class = serializers.DefaultContentSerial
+
+
+class SubmissionScoreView(views.APIView):
+    """
+    Provides a way to grab scores given a specific PK and the owner is the one making the request
+    """
+    def get(self, request, *args, **kwargs):
+        submission_id = self.kwargs.get('submission_id')
+        try:
+            sub = CompetitionSubmission.objects.get(pk=submission_id)
+            if not sub.participant.user == self.request.user:
+                raise PermissionDenied("Not authorized!")
+            try:
+                scores = sub.phase.scores()
+                headers = list(sorted(scores[0]['headers'], key=lambda x: x.get('ordering')))
+                default_score_key = headers[0]['key']
+
+                for group in scores:
+                    for _, scoredata in group['scores']:
+                        try:
+                            default_score = next(val for val in scoredata['values'] if val['name'] == default_score_key)
+                            if int(scoredata['id']) == int(submission_id):
+                                temp_data = {
+                                    'score': default_score['val'],
+                                    'status': sub.status.codename
+                                }
+                                response = Response(temp_data, status=status.HTTP_200_OK)
+                                return response
+                        except (KeyError, StopIteration):
+                            pass
+            except (KeyError, IndexError):
+                pass
+        except ObjectDoesNotExist:
+            temp_data = {
+                'error': 'Object not found!'
+            }
+            response = Response(temp_data, status=status.HTTP_404_NOT_FOUND)
+            return response
+        temp_data = {
+            'error': 'Submission is not on leaderboard or is not accessible!'
+        }
+        response = Response(temp_data, status=status.HTTP_404_NOT_FOUND)
+        return response
+
+
+class AddChagradeBotView(views.APIView):
+    """
+    Provides a way to add a dummy chagrade bot user to competitions to make submissions from chagrade
+    """
+    def post(self, request, *args, **kwargs):
+        competition_id = self.kwargs.get('competition_id')
+        try:
+            comp = Competition.objects.get(pk=competition_id)
+            if not comp.creator == self.request.user and self.request.user not in comp.admins.all():
+                raise PermissionDenied("Not authorized!")
+            chagrade_bot, created = CompetitionParticipant.objects.get_or_create(user__username='chagrade_bot', competition=comp)
+            if created:
+                temp_data = {
+                    'status': 'Created chagrade bot participant'
+                }
+                response = Response(temp_data, status=status.HTTP_201_CREATED)
+                return response
+            else:
+                temp_data = {
+                    'status': 'Chagrade bot already exists'
+                }
+                response = Response(temp_data, status=status.HTTP_200_OK)
+                return response
+        except ObjectDoesNotExist:
+            temp_data = {
+                'error': 'Could not find competition: {}'.format(competition_id)
+            }
+            response = Response(temp_data, status=status.HTTP_404_NOT_FOUND)
+            return response
+        temp_data = {
+            'error': 'Competition is not found or is not accessible!'
+        }
+        response = Response(temp_data, status=status.HTTP_404_NOT_FOUND)
+        return response

@@ -1058,6 +1058,7 @@ class MyCompetitionParticipantView(LoginRequiredMixin, ListView):
         context['participant_list'] = participant_list
         context['competition_id'] = self.kwargs.get('competition_id')
         context['pending_participants'] = comp_participants.filter(status__codename='pending')
+        context['has_chagrade_bot'] = competition.has_chagrade_bot()
 
         if competition.enable_teams or competition.allow_organizer_teams:
             comp_teams = Team.objects.filter(competition=competition).order_by('pk').select_related('creator', 'status').prefetch_related('members').order_by('pk')

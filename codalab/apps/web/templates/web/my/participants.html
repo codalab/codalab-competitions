@@ -224,6 +224,9 @@
             </table>
         {% endif %}
 {#    {% endif %}#}
+    {% if not has_chagrade_bot %}
+        <button style="margin: 2.5vh 0 2.5vh 0;" id="enable_chagrade" class="btn btn-primary">Enable Chagrade Features</button>
+    {% endif %}
     </div>
 </div>
 <div class="modal fade" id="message_all_modal">
@@ -264,6 +267,25 @@
 {% endblock %}
 <script type="text/javascript">
 {% block js %}
+
+    $('#enable_chagrade').on('click', function() {
+        $.ajax({
+            type: 'post',
+            url: '/api/competition/{{ competition_id }}/enable_chagrade/',
+            contentType: "application/json",
+            dataType: 'json'
+        })
+            .done(function (data) {
+                $('#enable_chagrade').addClass('disabled')
+                alert('Chagrade features enabled for competition.')
+            })
+            .fail(function (response) {
+                if (response) {
+                    var data = JSON.parse(response.responseText);
+                    alert(data.error)
+                }
+            })
+    })
 
     var confirm_team_delete = function(team_pk) {
         if (confirm("Do you want to delete this team?")) {
