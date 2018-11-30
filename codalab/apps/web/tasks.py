@@ -245,7 +245,7 @@ def _prepare_compute_worker_run(job_id, submission, is_prediction):
         submission.docker_image = docker_image
         submission.save()
 
-    logger.info("@@@ Docker image set to: {} @@@".format(docker_image))
+    logger.info("Docker image for submission set to: {}".format(docker_image))
 
     data = {
         "id": job_id,
@@ -857,6 +857,7 @@ def do_phase_migrations():
     logger.info("Checking {} competitions for phase migrations.".format(len(competitions)))
     for c in competitions:
         c.check_future_phase_sumbmissions()
+    logger.info("@@@ Done checking phase migrations!")
 
 
 def _get_or_default(obj, field_name, default=None):

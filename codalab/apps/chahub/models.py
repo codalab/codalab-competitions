@@ -55,6 +55,7 @@ class ChaHubSaveMixin(models.Model):
         """
         raise NotImplementedError()
 
+
     def get_chahub_is_valid(self):
         """Override this to validate the specifc model before it's sent
 
@@ -97,6 +98,11 @@ class ChaHubSaveMixin(models.Model):
             super(ChaHubSaveMixin, self).save(*args, **kwargs)
         except IntegrityError:
             logger.info("Object already has ID skipping save in Chahub mixin.")
+
+        if os.environ.get('PYTEST') and not settings.PYTEST_FORCE_CHAHUB:
+            # For tests let's just assume Chahub isn't available
+            # We can mock proper responses
+            return None
 
         if os.environ.get('PYTEST') and not settings.PYTEST_FORCE_CHAHUB:
             # For tests let's just assume Chahub isn't available
