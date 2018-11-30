@@ -604,17 +604,12 @@ class CompetitionDetailView(DetailView):
                             try:
                                 default_score = next(val for val in scoredata['values'] if val['name'] == default_score_key)
                                 temp_sub = CompetitionSubmission.objects.get(participant__user__username=scoredata['username'], pk=scoredata['id'])
-                                if temp_sub.phase.is_parallel_parent and not temp_sub.phase.parent:
-                                    sub_run_time = None
-                                    for sub in temp_sub.child_submissions.all():
-                                        if sub.run_time != None:
-                                            if sub_run_time == None:
-                                                sub_run_time = sub.run_time
-                                            sub_run_time += sub.run_time
-                                else:
+                                if temp_sub.status.codename != 'failed':
                                     sub_run_time = temp_sub.run_time
-                                if sub_run_time:
-                                    sub_run_time = sub_run_time - timedelta(microseconds=sub_run_time.microseconds)
+                                    if sub_run_time:
+                                        sub_run_time = sub_run_time - timedelta(microseconds=sub_run_time.microseconds)
+                                else:
+                                    sub_run_time = 'Submission Failed'
                                 temp_top_three_info = {
                                     "username": scoredata['username'],
                                     "score": default_score['val'],
@@ -758,18 +753,12 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                     except (TypeError, ValueError):
                         default_score = '---'
                     # If we have a parallel parent, the estimated run time is all childeren combined
-                    if submission.phase.is_parallel_parent and not submission.phase.parent:
-                        sub_run_time = None
-                        for sub in submission.child_submissions.all():
-                            if sub.run_time != None:
-                                if sub_run_time == None:
-                                    sub_run_time = sub.run_time
-                                sub_run_time += sub.run_time
-                    else:
+                    if submission.status.codename != 'failed':
                         sub_run_time = submission.run_time
-                    # Remove microseconds
-                    if sub_run_time:
-                        sub_run_time = sub_run_time - timedelta(microseconds=sub_run_time.microseconds)
+                        if sub_run_time:
+                            sub_run_time = sub_run_time - timedelta(microseconds=sub_run_time.microseconds)
+                    else:
+                        sub_run_time = 'Submission Failed'
                     submission_info = {
                         'id': submission.id,
                         'number': submission.submission_number,

@@ -443,16 +443,28 @@
                         }
                     }, 999);
                 } else {
-                    if (!parallel_parent_selector.hasClass('selected')) {
-                        alert("Please select the parent phase")
-                    }
-                    var fileUploadButton = document.getElementById("fileUploadButton");
-                    if (fileUploadButton !== null) {
-                        fileUploadButton.click()
-                    } else {
-                        var fileUploadButton = document.getElementById("s3-file-upload");
+                    if (typeof parallel_parent_selector === 'undefined') {
+                        var fileUploadButton = document.getElementById("fileUploadButton");
                         if (fileUploadButton !== null) {
-                            fileUploadButton.click();
+                            fileUploadButton.click()
+                        } else {
+                            var fileUploadButton = document.getElementById("s3-file-upload");
+                            if (fileUploadButton !== null) {
+                                fileUploadButton.click();
+                            }
+                        }
+                    } else {
+                        if (!parallel_parent_selector.hasClass('selected')) {
+                            alert("Please select the parent phase")
+                        }
+                        var fileUploadButton = document.getElementById("fileUploadButton");
+                        if (fileUploadButton !== null) {
+                            fileUploadButton.click()
+                        } else {
+                            var fileUploadButton = document.getElementById("s3-file-upload");
+                            if (fileUploadButton !== null) {
+                                fileUploadButton.click();
+                            }
                         }
                     }
                 }

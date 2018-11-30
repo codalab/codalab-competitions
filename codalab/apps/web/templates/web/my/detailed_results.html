@@ -2,13 +2,18 @@
 {% load codalab_tags %}
 
 {% block head_title %}Detailed results of the participant {{ user }}{% endblock head_title %}
-{% block page_title %}<h2 class="comp-title">Detailed results of the participant {{ user }}</h2>{% endblock page_title %}
+{% block page_title %}
+    <div class="row">
+        <div class="col-md-8">
+            <h2 class="comp-title">Detailed results of the participant {{ user }}</h2>
+        </div>
+        <div style="text-align: right;" class="col-md-4">
+            <button id="refresh_detailed_results" style="margin-top: 3vh;" class="btn btn-primary">Refresh Iframe</button>
+        </div>
+    </div>
+{% endblock page_title %}
 {% block extra_scripts %}
     <style>
-        html, body {
-            overflow: hidden;
-        }
-
         .comp-title {
             display: inline-block;
         }
@@ -20,31 +25,31 @@
                 line-height: 0;
             }
         }
-
-        .iframe-container {
-            overflow: hidden;
-            padding-top: 56.25%;
-            position: relative;
-        }
-
-        .iframe-container iframe {
-            border: 0;
-            height: 90%;
-            left: 0;
-            position: absolute;
-            top: 0;
-            width: 100%;
-        }
     </style>
 {% endblock %}
 {% block content %}
-{#    {% if next_url %}#}
-{#        <a href="{{ next_url }}" >Go Back to Competition Homepage</a>#}
-{#    {% else %}#}
-{#        <a href="{% url "competitions:view" pk=submission.phase.competition.pk %}" >Go Back to Competition Homepage</a>#}
-{#    {% endif %}#}
-    <button class="btn btn-primary" style="margin-top: 2.5vh; margin-bottom: 2.5vh;" onclick="var ifr=document.getElementById('detailed_results_frame'); ifr.src=ifr.src;">Refresh Iframe</button>
-    <div class="iframe-container" align="center">
-        <iframe id="detailed_results_frame" align="center" sandbox="allow-scripts" frameborder="0" scrolling="0" src="{% url "competitions:my_competition_output" submission_id=submission.pk filetype='detailed_results.html' %}"></iframe>
-    </div>
+        <div align="center">
+            <iframe
+                    {% if not submission.phase.is_parallel_parent %}
+                        style="width: 707px; height: 728px;"
+                    {% else %}
+                        style="width: 707px; height: 3700px;"
+                    {% endif %}
+                    id="detailed_results_frame"
+                    align="center"
+                    sandbox="allow-scripts"
+                    frameborder="0"
+                    scrolling="no"
+                    src="{% url "competitions:my_competition_output" submission_id=submission.pk filetype='detailed_results.html' %}"
+            ></iframe>
+        </div>
+{% endblock %}
+
+{% block jsincludes %}
+    <script>
+        $('#refresh_detailed_results').on('click', function() {
+            var local_iframe = document.getElementById('detailed_results_frame');
+            local_iframe.src = local_iframe.src;
+        })
+    </script>
 {% endblock %}
