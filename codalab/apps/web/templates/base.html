@@ -86,16 +86,24 @@
                         </form>
                     {% endif %}
                     <ul class="nav navbar-nav navbar-right">
-                          {% if SINGLE_COMPETITION_VIEW_PK %}
-                              {% if request.user.is_superuser or request.user.is_staff %}
-                                  <li class="{% active request '/my/' %}"><a href="/my">My Competitions</a></li>
+                          <li class="{% active request '/my/' %}">
+                              {% if SINGLE_COMPETITION_VIEW_PK %}
+                                  {% if request.user.is_superuser or request.user.is_staff %}
+                                      <a href="/my">My Competitions</a>
+                                  {% endif %}
+                              {% else %}
+                                  {% if user.is_authenticated %}
+                                      <a href="/my">My Competitions</a>
+                                  {% else %}
+                                      <a href="/competitions/">Search Competitions</a>
+                                  {% endif %}
                               {% endif %}
-                          {% else %}
-                              <li class="{% active request '/competitions/' %}"><a href="/competitions/">Search Competitions</a></li>
-                              {% if user.is_authenticated %}
-                                  <li class="{% active request '/my/' %}"><a href="/my">My Competitions</a></li>
-                              {% endif %}
+                          </li>
+                          <li class="{% active request '/my/' %}">
+                          {% if not user.is_authenticated %}
+                          <a href="{% url 'account_login' %}?next={{request.path}}" target="_self">My Competitions</a>
                           {% endif %}
+                          </li>
                         <li>
                             <a href="https://github.com/codalab/codalab-competitions/wiki" target="_blank">Help</a>
                         </li>
