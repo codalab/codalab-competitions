@@ -1,5 +1,6 @@
 from django.conf import settings
 
+from apps.customizer.models import Configuration
 from codalab import settings as codalab_settings
 
 
@@ -20,9 +21,5 @@ def common_settings(request):
         'local_ace_editor': codalab_settings.LOCAL_ACE_EDITOR,
         'is_dev': codalab_settings.IS_DEV,
         'USE_AWS': codalab_settings.USE_AWS,
-
-        # Just get the base of the URL
-        'CHAHUB_URL': '//{}'.format(settings.CHAHUB_API_URL.split("//")[-1].split("/")[0].split('?')[0]),
-        'CHAHUB_PRODUCER_ID': settings.CHAHUB_PRODUCER_ID,
         'CODALAB_SITE_DOMAIN': codalab_settings.CODALAB_SITE_DOMAIN,
     }

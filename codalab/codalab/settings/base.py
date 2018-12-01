@@ -268,8 +268,7 @@ class Base(Settings):
     }
 
     # Authentication configuration
-    # LOGIN_REDIRECT_URL = '/'
-    LOGIN_REDIRECT_URL = '/my/'
+    LOGIN_REDIRECT_URL = '/'
     ANONYMOUS_USER_ID = -1
     ACCOUNT_AUTHENTICATION_METHOD='username_email'
     ACCOUNT_EMAIL_REQUIRED = True
@@ -469,7 +468,6 @@ class Base(Settings):
     # =========================================================================
     CHAHUB_API_URL = os.environ.get('CHAHUB_API_URL')
     CHAHUB_API_KEY = os.environ.get('CHAHUB_API_KEY')
-    CHAHUB_PRODUCER_ID = os.environ.get('CHAHUB_PRODUCER_ID')
 
 
     # =========================================================================
