@@ -93,12 +93,11 @@ class TeamDetailView(LoginRequiredMixin, TemplateView):
             }
         ]
 
-        if competition.participants.filter(user__in=[self.request.user]).exists():
+        try:
             participant = competition.participants.get(user=self.request.user)
             if participant.status.codename == ParticipantStatus.APPROVED:
                 user_team = get_user_team(participant, competition)
-
-                team_list= get_competition_teams(competition)
+                team_list = get_competition_teams(competition)
                 user_requests = get_user_requests(participant, competition)
                 user_pending_teams = get_competition_user_pending_teams(competition, participant)
                 if user_team is not None:
@@ -116,27 +115,23 @@ class TeamDetailView(LoginRequiredMixin, TemplateView):
                             'entries': len(CompetitionSubmission.objects.filter(team=user_team, participant=owner_part)),
                         }
                     ]
-                    s_ap = TeamMembershipStatus.objects.get(codename=TeamMembershipStatus.APPROVED)
+                    status_approved = TeamMembershipStatus.objects.get(codename=TeamMembershipStatus.APPROVED)
                     for number, member in enumerate(user_team.members.all()):
-                        membership_set = member.teammembership_set.filter(team=user_team)
-                        membership = None
                         member_part=competition.participants.get(user=member)
-                        for m in membership_set:
-                            if m.status == s_ap:
-                                membership = m
-                                break
-                        if membership is not None:
-                            user_entry = {
-                                'pk': member.pk,
-                                'name': member.username,
-                                'email': member.email,
-                                'joined': membership.start_date,
-                                'status': membership.status.codename,
-                                'number': number + 2,
-                                'entries': len(CompetitionSubmission.objects.filter(team=user_team, participant=member_part)),
-                            }
-                            if user_entry['status'] == TeamMembershipStatus.APPROVED and membership.is_active:
-                                member_list.append(user_entry)
+                        membership_set = member.team_memberships.filter(status=status_approved)
+                        for membership in membership_set:
+                            if membership is not None:
+                                user_entry = {
+                                    'pk': member.pk,
+                                    'name': member.username,
+                                    'email': member.email,
+                                    'joined': membership.start_date,
+                                    'status': membership.status.codename,
+                                    'number': number + 2,
+                                    'entries': len(CompetitionSubmission.objects.filter(team=user_team, participant=member_part)),
+                                }
+                                if user_entry['status'] == TeamMembershipStatus.APPROVED and membership.is_active:
+                                    member_list.append(user_entry)
                     context['team_members']=member_list
                     context['members_columns'] = members_columns
                     context['active_phase'] = get_current_phase(competition)
@@ -145,6 +140,10 @@ class TeamDetailView(LoginRequiredMixin, TemplateView):
                 context['teams'] = team_list
                 context['allowed_teams'] = get_allowed_teams(participant, competition)
                 context['pending_teams'] = user_pending_teams
+
+        except ObjectDoesNotExist:
+            print("Participant not found")
+            return Http404()
 
         return context
 
@@ -294,14 +293,6 @@ class TeamEditView(LoginRequiredMixin, UpdateView):
         }
 
         return context
-
-    def form_valid(self, form):
-
-        if form.instance.image:
-            a=form.instance.image
-
-        form.save()
-        return super(TeamEditView, self).form_valid(form)
 
 
 class TeamCancelView(TeamDetailView):

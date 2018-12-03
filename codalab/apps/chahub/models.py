@@ -6,7 +6,7 @@ import os
 import requests
 
 from django.conf import settings
-from django.db import models
+from django.db import models, IntegrityError
 from django.utils import timezone
 
 
@@ -84,11 +84,6 @@ class ChaHubSaveMixin(models.Model):
 
         logger.info("ChaHub :: Sending to ChaHub ({}) the following data: \n{}".format(url, data))
 
-        if os.environ.get('PYTEST'):
-            # For tests let's just assume Chahub isn't working properly.
-            # We can mock proper responses
-            return None
-
         try:
             return requests.post(url, data, headers={
                 'Content-type': 'application/json',
@@ -99,17 +94,30 @@ class ChaHubSaveMixin(models.Model):
 
     def save(self, force_to_chahub=False, *args, **kwargs):
         # We do a save here to give us an ID for generating URLs and such
-        super(ChaHubSaveMixin, self).save(*args, **kwargs)
+        try:
+            super(ChaHubSaveMixin, self).save(*args, **kwargs)
+        except IntegrityError:
+            logger.info("Object already has ID skipping save in Chahub mixin.")
+
+        if os.environ.get('PYTEST') and not settings.PYTEST_FORCE_CHAHUB:
+            # For tests let's just assume Chahub isn't available
+            # We can mock proper responses
+            return None
 
         # Make sure we're not sending these in tests
         if settings.CHAHUB_API_URL:
-            if self.get_chahub_is_valid() and not self.chahub_needs_retry:
-                logger.info("Chahub model mixin passed validation")
+            is_valid = self.get_chahub_is_valid()
+
+            logger.info("ChaHub :: {}={} is_valid = {}".format(self.__class__.__name__, self.pk, is_valid))
+
+            if is_valid and self.chahub_needs_retry and not force_to_chahub:
+                logger.info("ChaHub :: This has already been tried, waiting for do_retries to force resending")
+            elif is_valid:
                 data = json.dumps(self.get_chahub_data())
                 data_hash = hashlib.md5(data).hexdigest()
 
-                # Send to chahub if we haven't yet, we have new data, OR we're being forced to
-                if not self.chahub_timestamp or self.chahub_data_hash != data_hash or force_to_chahub:
+                # Send to chahub if we haven't yet, we have new data
+                if not self.chahub_timestamp or self.chahub_data_hash != data_hash:
                     resp = self.send_to_chahub(data)
 
                     if resp and resp.status_code in (200, 201):
@@ -125,5 +133,8 @@ class ChaHubSaveMixin(models.Model):
 
                     # We save at the beginning, but then again at the end to save our new chahub timestamp and such
                     super(ChaHubSaveMixin, self).save(force_update=True)
-            else:
-                logger.info("ChaHub :: Model failed validation")
+            elif not is_valid and self.chahub_needs_retry:
+                # This is NOT valid but also marked as need retry, unmark need retry until this is
+                # valid again
+                self.chahub_needs_retry = False
+                super(ChaHubSaveMixin, self).save(force_update=True)

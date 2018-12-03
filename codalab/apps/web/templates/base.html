@@ -197,6 +197,34 @@
 {#        <script src="{{ STATIC_URL }}codalab.min.js"></script>#}
 {#    {% endif %}#}
 
+
+    <div id="migration_modal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Migration warning</h4>
+                </div>
+                <div class="modal-body">
+                    <p>We have scheduled a important maintenance operation for the Codalab public instance (<a href="http://competitions.codalab.org">http://competitions.codalab.org</a>) for Saturday, September 8th.</p>
+
+                    <p>The migration will start at approximately 9AM PST and should hopefully be completed by approximately 1PM PST that same day.
+                        During that time the server will be down.</p>
+
+                    <p>If you have a scheduling conflict with this move, please let us know before September
+                        1st by posting an issue to GitHub here:</br>
+                        <a href="https://github.com/codalab/codalab-competitions/issues">https://github.com/codalab/codalab-competitions/issues</a></p>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button id="hide_migration_warning" type="button" class="btn btn-primary" data-dismiss="modal" onclick="hide_migration_warning">OK don't tell me again!</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script type="text/javascript">
 
     //GOOGLE ANALYTICS SNIPPET
@@ -219,7 +247,18 @@
             is_authenticated: {{ user.is_authenticated|yesno:"true,false" }},
         }
 
+        /*
+         * If we want to do a migration again, can use this warning!
+        $(document).ready(function() {
+            var migration_warning = localStorage.getItem('migration_warning')
+            if(migration_warning === null) {
+                $("#migration_modal").modal('show')
+            }
 
+            $("#hide_migration_warning").click(function() {
+                localStorage.setItem('migration_warning', true)
+            })
+        })*/
     </script>
     {% block jsincludes %}
 

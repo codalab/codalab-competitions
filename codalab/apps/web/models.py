@@ -23,7 +23,7 @@ from django.conf import settings
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
 from django.core.files import File
 from django.core.files.base import ContentFile
 from django.core.files.storage import get_storage_class
@@ -287,6 +287,12 @@ class Competition(ChaHubSaveMixin, models.Model):
     def __unicode__(self):
         return self.title
 
+    def has_chagrade_bot(self):
+        try:
+            return bool(self.participants.get(user__username='chagrade_bot'))
+        except ObjectDoesNotExist:
+            return False
+
     def get_chahub_is_valid(self):
         return self.published
 
@@ -331,7 +337,7 @@ class Competition(ChaHubSaveMixin, models.Model):
             submitted_at__gt=now() - datetime.timedelta(days=30)
         ).exists()
 
-        return {
+        return [{
             "remote_id": self.id,
             "title": self.title,
             "created_by": str(self.creator),
@@ -339,7 +345,7 @@ class Competition(ChaHubSaveMixin, models.Model):
             "logo": self.image_url.replace(" ", "%20") if self.image_url else None,
             "url": "{}://{}{}".format(http_or_https, settings.CODALAB_SITE_DOMAIN, self.get_absolute_url()),
             "phases": phase_data,
-            "participant_count": self.get_participant_count,
+            "participant_count": self.participants.all().count(),
             "end": self.end_date.isoformat() if self.end_date else None,
             "description": self.description,
             "html_text": html_text,
@@ -347,7 +353,7 @@ class Competition(ChaHubSaveMixin, models.Model):
             "prize": self.reward,
             "url_redirect": self.url_redirect,
             "published": self.published
-        }
+        }]
 
     def save(self, *args, **kwargs):
         # Make sure the image_url_base is set from the actual storage implementation
@@ -487,11 +493,18 @@ class Competition(ChaHubSaveMixin, models.Model):
             for participant, submission in participants.items():
                 logger.info('Moving submission %s over' % submission)
 
+                file_args = {}
+
+                if settings.USE_AWS:
+                    file_args["s3_file"] = submission.s3_file
+                else:
+                    file_args["file"] = submission.file
+                    
                 new_submission = CompetitionSubmission(
                     participant=participant,
-                    file=submission.file,
                     phase=next_phase,
                     docker_image=submission.docker_image,
+                    **file_args
                 )
                 new_submission.save(ignore_submission_limits=True)
 
@@ -590,7 +603,7 @@ class Competition(ChaHubSaveMixin, models.Model):
 
     @cached_property
     def get_participant_count(self):
-        return self.participants.all().count()
+        return self.participants.filter(status__codename=ParticipantStatus.APPROVED).count()
 
 post_save.connect(Forum.competition_post_save, sender=Competition)
 
@@ -1354,8 +1367,18 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
         '''Generated from the result scoring step of evaluation a submission'''
         return self.metadatas.get(is_scoring=True)
 
+    @property
+    def run_time(self):
+        if self.started_at and self.completed_at:
+            return self.completed_at - self.started_at
+        elif self.started_at:
+            return now() - self.started_at
+        else:
+            return None
+
     def get_chahub_is_valid(self):
-        return self.phase.competition.published
+        # Make sure the submission was actually successfully created (has a PK, not over max submissions per day)
+        return self.pk and self.phase.competition.published
 
     def get_chahub_endpoint(self):
         return "submissions/"
@@ -1389,9 +1412,10 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
         self.dislike_count = self.dislikes.all().count()
 
         if not self.readable_filename:
-            if hasattr(self, 'file'):
+            if hasattr(self, 'file') or hasattr(self, 's3_file'):
                 if settings.USE_AWS:
-                    self.readable_filename = split(self.s3_file)[1]
+                    # Sometimes file is missing, i.e. in tests
+                    self.readable_filename = split(self.s3_file)[1] if self.s3_file else "N/A"
                 else:
                     if self.file.name:
                         try:
@@ -1444,7 +1468,8 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
 
                     print 'Count is %s and maximum is %s' % (submissions_from_today_count, self.phase.max_submissions_per_day)
 
-                    if submissions_from_today_count + 1 - failed_count > self.phase.max_submissions_per_day or self.phase.max_submissions_per_day == 0:
+                    # if submissions_from_today_count + 1 - failed_count > self.phase.max_submissions_per_day or self.phase.max_submissions_per_day == 0:
+                    if (submissions_from_today_count + 1) > self.phase.max_submissions_per_day or self.phase.max_submissions_per_day == 0:
                         print 'PERMISSION DENIED'
                         raise PermissionDenied("The maximum number of submissions this day have been reached.")
             else:

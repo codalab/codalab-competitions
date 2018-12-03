@@ -89,11 +89,21 @@ def get_allowed_teams(user,competition):
     return get_competition_teams(competition)
 
 
-def get_user_team(user, competition):
-    membership = TeamMembership.objects.filter(user=user, team__competition=competition).first()
-    if membership:
-        return membership.team
-
+# def get_user_team(user, competition):
+def get_user_team(participant, competition):
+    # This function just gets user's created teams that are approved
+    # and returns the first one or None
+    user_created_teams = Team.objects.filter(competition=competition, creator=participant.user, status__codename='approved').select_related('status')
+    # If we have user created teams
+    if user_created_teams is not None and len(user_created_teams) > 0:
+        return user_created_teams[0]
+    else:
+        # Else if no user created teams
+        user_approved_team_memberships = list(participant.user.team_memberships.filter(status__codename='approved').select_related('team', 'status'))
+        user_approved_active_teams = [membership for membership in user_approved_team_memberships if membership.is_active]
+        if user_approved_active_teams is not None and len(user_approved_active_teams) > 0:
+            return user_approved_active_teams[0].team
+    return None
 
 def get_team_submissions(team, phase=None):
     if phase is None:
@@ -267,7 +277,7 @@ class TeamMembershipStatus(models.Model):
 
 
 class TeamMembership(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='team_memberships')
     team = models.ForeignKey(Team)
     is_invitation = models.BooleanField(default=False)
     is_request = models.BooleanField(default=False)

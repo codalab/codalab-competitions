@@ -1,15 +1,41 @@
-machine:
-  python:
-    version: 2.7.10
-  environment:
-    DJANGO_SETTINGS_MODULE: codalab.settings
-    DJANGO_CONFIGURATION: Dev
-
-dependencies:
-  pre:
-    - pip install -r codalab/requirements/common.txt
-    - cp ~/codalab-competitions/circlec_dev_setup.py ~/codalab-competitions/codalab/codalab/settings/local.py
+version: 2
 
 test:
   override:
     - (cd codalab && py.test)
+
+jobs:
+  build:
+    environment:
+      DJANGO_SETTINGS_MODULE: codalab.settings
+      DJANGO_CONFIGURATION: Dev
+    docker:
+      - image: circleci/python:2.7.15
+    steps:
+      - checkout
+      - restore_cache:
+          key: codalab-{{ .Branch }}-{{ checksum "codalab/requirements/common.txt" }}
+      - run:
+          name: CHOWN Python Library Dirs
+          command: sudo chown -R $(whoami) /usr/local/
+      - run:
+          name: Install Memcached reqs
+          command: sudo apt-get install libmemcached-dev
+      - run:
+          name: PIP Install Requirements
+          command: pip install -r codalab/requirements/common.txt
+      - save_cache:
+          key: codalab-{{ .Branch }}-{{ checksum "codalab/requirements/common.txt" }}
+          paths:
+            - "~/.cache/pip"
+      - run:
+          name: Copy settings
+          command: cp circlec_dev_setup.py codalab/codalab/settings/local.py
+      - run:
+          name: Run PyTest
+          environment:
+            DJANGO_SETTINGS_MODULE: "codalab.settings"
+            DJANGO_CONFIGURATION: "Dev"
+            CHAHUB_API_URL: "http://localhost/test/"
+            CHAHUB_API_KEY: "some-secret-key"
+          command: cd codalab && py.test

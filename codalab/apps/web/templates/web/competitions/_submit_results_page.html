@@ -191,7 +191,9 @@
     })
 
     $(".s3direct .file-input").change(function(){
+        $("#s3-file-upload").addClass('disabled')
         if($(".s3direct .file-input").val() == '') {
+            $("#s3-file-upload").removeClass('disabled')
             return
         }
 
@@ -199,6 +201,7 @@
             var uploaded_url = $('.s3direct a.file-link').attr('href')
 
             if (uploaded_url && uploaded_url != '' && uploaded_url.length > 0) {
+                $("#s3-file-upload").removeClass('disabled')
                 Competition.submitUploadedSubmissionDetails(undefined, uploaded_url)
             } else {
                 setTimeout(test_if_done, 100)
