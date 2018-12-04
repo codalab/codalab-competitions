@@ -27,10 +27,11 @@ from django.utils.decorators import method_decorator
 from django.utils.html import escape
 
 from apps.api import serializers
+from apps.authenz.models import ClUser
 from apps.jobs.models import Job
 from apps.web import models as webmodels
 from apps.teams import models as teammodels
-from apps.web.models import CompetitionSubmission, Competition, CompetitionParticipant
+from apps.web.models import CompetitionSubmission, Competition, CompetitionParticipant, ParticipantStatus
 from apps.web.tasks import (create_competition, evaluate_submission, _make_url_sassy)
 
 from codalab.azure_storage import make_blob_sas_url, PREFERRED_STORAGE_X_MS_VERSION
@@ -741,8 +742,11 @@ class AddChagradeBotView(views.APIView):
             comp = Competition.objects.get(pk=competition_id)
             if not comp.creator == self.request.user and self.request.user not in comp.admins.all():
                 raise PermissionDenied("Not authorized!")
-            chagrade_bot, created = CompetitionParticipant.objects.get_or_create(user__username='chagrade_bot', competition=comp)
-            if created:
+            bot_user = ClUser.objects.get(username='chagrade_bot')
+            approved_status = ParticipantStatus.objects.get(codename=ParticipantStatus.APPROVED)
+            exists = CompetitionParticipant.objects.filter(user=bot_user, competition=comp)
+            if not exists:
+                CompetitionParticipant.objects.create(user=bot_user, competition=comp, status=approved_status, reason='Organizer approved bot for API functionallity.')
                 temp_data = {
                     'status': 'Created chagrade bot participant'
                 }
