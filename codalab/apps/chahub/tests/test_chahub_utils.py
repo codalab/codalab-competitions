@@ -1,5 +1,6 @@
 import datetime
 import mock
+from django.conf import settings
 
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -7,10 +8,10 @@ from django.test.utils import override_settings
 from apps.authenz.models import ClUser
 from apps.web.models import CompetitionSubmission, Competition, CompetitionPhase, CompetitionParticipant, \
     ParticipantStatus
+from apps.web.tasks import send_chahub_general_stats
 
 
-class ChahubMixinTests(TestCase):
-
+class ChahubUtillityTests(TestCase):
     def setUp(self):
         self.user = ClUser.objects.create_user(username="user", password="pass")
         self.competition = Competition.objects.create(
@@ -30,19 +31,14 @@ class ChahubMixinTests(TestCase):
             start_date=datetime.datetime.now() - datetime.timedelta(days=30),
         )
 
-
-    @override_settings(CHAHUB_API_URL='https://localhost/')
-    def test_submission_mixin_save_only_retries_once(self):
-        submission = CompetitionSubmission(phase=self.phase, participant=self.participant)
-        with mock.patch('apps.web.models.CompetitionSubmission.send_to_chahub') as send_to_chahub_mock:
+    @override_settings(CHAHUB_API_URL='http://host.docker.internal/')
+    def test_send_to_chahub_utillity(self):
+        # with mock.patch('apps.web.models.CompetitionSubmission.send_to_chahub') as send_to_chahub_mock:
+        with mock.patch('apps.chahub.utils.send_to_chahub') as send_to_chahub_mock:
             send_to_chahub_mock.return_value = None
-            submission.save()
+            # Calling this as a function instead of a task?
+            send_chahub_general_stats()
             # attempts to send to Chahub once
+            # We succesfully sent data to Chahub
             assert send_to_chahub_mock.called
 
-            # reset
-            send_to_chahub_mock.called = False
-
-            # does not call again
-            submission.save()
-            assert not send_to_chahub_mock.called

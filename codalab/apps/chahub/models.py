@@ -70,8 +70,6 @@ class ChaHubSaveMixin(models.Model):
     # -------------------------------------------------------------------------
     def get_chahub_url(self):
         assert settings.CHAHUB_API_URL, "No ChaHub URL given, cannot send details to ChaHub"
-        # Below is handled in settings now
-        # assert settings.CHAHUB_API_URL.endswith("/"), "ChaHub API url must end with a slash"
 
         endpoint = self.get_chahub_endpoint()
         assert endpoint, Exception("No ChaHub API endpoint given")

@@ -23,7 +23,7 @@ from collections import OrderedDict
 
 import sys
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from boto.s3.connection import S3Connection
 from celery import task
 from celery.app import app_or_default
@@ -857,20 +857,28 @@ def do_chahub_retries(limit=None):
 
 @task(queue='site-worker')
 def send_chahub_general_stats():
+    if settings.DATABASES.get('default').get('ENGINE') == 'django.db.backends.postgresql_psycopg2':
+        # Only Postgres supports 'distinct', so if we can use the database, if not use some Python Set magic
+        organizer_count = Competition.objects.all().distinct('creator').count()
+    else:
+        users_with_competitions = list(ClUser.objects.filter(competitioninfo_creator__isnull=False))
+        user_set = set(users_with_competitions)
+        # Only unique users that have competitions
+        organizer_count = len(user_set)
     raw_data = {
         'competition_count': Competition.objects.count(),
         'dataset_count': OrganizerDataSet.objects.count(),
         'participant_count': CompetitionParticipant.objects.count(),
         'submission_count': CompetitionSubmission.objects.count(),
         'user_count': ClUser.objects.count(),
-        'organizer_count': Competition.objects.all().distinct('creator').count(),
+        'organizer_count': organizer_count
     }
 
     try:
         send_to_chahub('update_producer/', raw_data)
     except requests.ConnectionError:
         logger.info("There was a problem reaching Chahub, it is currently offline. Re-trying in 5 minutes.")
-        send_chahub_general_stats.apply_async(eta=timezone.now() + datetime.timedelta(minutes=5))
+        send_chahub_general_stats.apply_async(eta=timezone.now() + timedelta(minutes=5))
 
 
 @task(queue='site-worker')

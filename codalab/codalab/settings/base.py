@@ -449,7 +449,7 @@ class Base(Settings):
         },
         'chahub_general_statistics': {
             'task': 'apps.web.tasks.send_chahub_general_stats',
-            'schedule': timedelta(seconds=86400),
+            'schedule': timedelta(seconds=60*60*24),
         },
     }
     CELERY_TIMEZONE = 'UTC'
