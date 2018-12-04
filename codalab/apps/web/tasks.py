@@ -65,7 +65,7 @@ from apps.web.models import (add_submission_to_leaderboard,
                              SubmissionScore,
                              SubmissionScoreDef,
                              CompetitionSubmissionMetadata, BundleStorage, SubmissionResultGroup,
-                             SubmissionScoreDefGroup, OrganizerDataSet, CompetitionParticipant)
+                             SubmissionScoreDefGroup, OrganizerDataSet, CompetitionParticipant, ParticipantStatus)
 from apps.coopetitions.models import DownloadRecord
 
 import time
@@ -865,17 +865,18 @@ def send_chahub_general_stats():
         user_set = set(users_with_competitions)
         # Only unique users that have competitions
         organizer_count = len(user_set)
-    raw_data = {
-        'competition_count': Competition.objects.count(),
+    approved_status = ParticipantStatus.objects.get(codename=ParticipantStatus.APPROVED)
+    data = {
+        'competition_count': Competition.objects.filter(published=True).count(),
         'dataset_count': OrganizerDataSet.objects.count(),
-        'participant_count': CompetitionParticipant.objects.count(),
+        'participant_count': CompetitionParticipant.objects.count(status=approved_status),
         'submission_count': CompetitionSubmission.objects.count(),
         'user_count': ClUser.objects.count(),
         'organizer_count': organizer_count
     }
 
     try:
-        send_to_chahub('update_producer/', raw_data)
+        send_to_chahub('update_producer/', data)
     except requests.ConnectionError:
         logger.info("There was a problem reaching Chahub, it is currently offline. Re-trying in 5 minutes.")
         send_chahub_general_stats.apply_async(eta=timezone.now() + timedelta(minutes=5))
