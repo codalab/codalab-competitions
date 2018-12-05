@@ -160,7 +160,7 @@ def compute_worker_run():
         "--name compute_worker "
         "--log-opt max-size=50m "
         "--log-opt max-file=3 -- "
-        "codalab/competitions-v1-compute-worker:1.1.1")
+        "codalab/competitions-v1-compute-worker:1.1.2")
 
 
 def compute_worker_status():
