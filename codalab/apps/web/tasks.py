@@ -852,6 +852,15 @@ def do_chahub_retries(limit=None):
 
 
 @task(queue='site-worker')
+def send_chahub_participant_counts():
+    competitions = Competition.objects.filter(published=True).annotate(participant_count=Count('participants'))
+    for comp in competitions:
+        # saving generates new participant_count -- will be sent if it is different from
+        # what was sent last time.
+        comp.save()
+
+
+@task(queue='site-worker')
 def do_phase_migrations():
     competitions = Competition.objects.filter(is_migrating=False)
     logger.info("Checking {} competitions for phase migrations.".format(len(competitions)))
