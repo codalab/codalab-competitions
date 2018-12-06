@@ -205,7 +205,7 @@
                     var pk = parent_tr.prop('id');
                     $.post("/competitions/mark_as_failed/" + pk)
                         .success(function () {
-                            parent_tr.find('td:nth-child(4)').text('Failed');
+                            parent_tr.find('td:nth-child(6)').text('Failed');
                         })
                         .error(function () {
                             alert("Failed to mark submission as failed, is your Internet connection working? If this problem persists contact an admin.");
@@ -216,16 +216,16 @@
             $(".hide_or_show_submission_button").click(function () {
                 var self = this;
                 var parent_tr = $(this).parents('tr');
-                var old_state = parent_tr.find('td:nth-child(5)').text();
+                var old_state = parent_tr.find('td:nth-child(7)').text();
                 var pk = parent_tr.prop('id');
                 $.post("/competitions/toggle_leaderboard/" + pk)
                     .success(function () {
                         // toggle "Leaderboard" column label
                         if (old_state.indexOf("True") != -1) {
-                            parent_tr.find('td:nth-child(5)').text('False');
+                            parent_tr.find('td:nth-child(7)').text('False');
                             $(self).text('SHOW');
                         } else {
-                            parent_tr.find('td:nth-child(5)').text('True');
+                            parent_tr.find('td:nth-child(7)').text('True');
                             $(self).text('HIDE');
                         }
                     })
