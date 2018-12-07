@@ -26,7 +26,14 @@ def send_to_chahub(endpoint, data):
 
     data = json.dumps(data)
 
-    _chahub_send_data(url, data)
+    logger.info("ChaHub :: Sending to ChaHub ({}) the following data: \n{}".format(url, data))
+    try:
+        requests.post(url, data, headers={
+            'Content-type': 'application/json',
+            'X-CHAHUB-API-KEY': settings.CHAHUB_API_KEY,
+        })
+    except requests.ConnectionError:
+        raise requests.ConnectionError("Unbale to POST data to Chahub. There was an error, please try again.")
 
 
 def _chahub_online_check():
@@ -40,20 +47,3 @@ def _chahub_online_check():
     except requests.exceptions.RequestException:
         # This base exception works for HTTP errors, Connection errors, etc.
         return False
-
-
-def _chahub_send_data(url, data):
-    """
-    Helper to send data to Chahub
-    :param url: String URL
-    :param data: Dictionary Data
-    :return:
-    """
-    logger.info("ChaHub :: Sending to ChaHub ({}) the following data: \n{}".format(url, data))
-    try:
-        requests.post(url, data, headers={
-            'Content-type': 'application/json',
-            'X-CHAHUB-API-KEY': settings.CHAHUB_API_KEY,
-        })
-    except requests.ConnectionError:
-        raise requests.ConnectionError("Unbale to POST data to Chahub. There was an error, please try again.")
