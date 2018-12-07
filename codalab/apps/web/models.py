@@ -293,9 +293,6 @@ class Competition(ChaHubSaveMixin, models.Model):
         except ObjectDoesNotExist:
             return False
 
-    def get_chahub_is_valid(self):
-        return self.published
-
     def set_owner(self, user):
         return assign_perm('view_task', user, self)
 
@@ -1378,7 +1375,7 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
 
     def get_chahub_is_valid(self):
         # Make sure the submission was actually successfully created (has a PK, not over max submissions per day)
-        return self.pk and self.phase.competition.published
+        return self.pk
 
     def get_chahub_endpoint(self):
         return "submissions/"
