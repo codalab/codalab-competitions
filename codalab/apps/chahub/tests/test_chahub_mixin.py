@@ -52,15 +52,16 @@ class ChahubMixinTests(TestCase):
             submission.save()
             assert not send_to_chahub_mock.called
 
-    def test_submission_invalid_not_sent_to_chahub(self):
-        # Make submission invalid
-        self.competition.published = False
-        self.competition.save()
-
-        submission = CompetitionSubmission(phase=self.phase, participant=self.participant)
-        with mock.patch('apps.web.models.CompetitionSubmission.send_to_chahub') as send_to_chahub_mock:
-            submission.save()
-            assert not send_to_chahub_mock.called
+    # We should probably have a test for an _invalid_ model, but for now all the models we have we send all the time
+    # def test_submission_invalid_not_sent_to_chahub(self):
+    #     # Make submission invalid
+    #     self.competition.published = False
+    #     self.competition.save()
+    #
+    #     submission = CompetitionSubmission(phase=self.phase, participant=self.participant)
+    #     with mock.patch('apps.web.models.CompetitionSubmission.send_to_chahub') as send_to_chahub_mock:
+    #         submission.save()
+    #         assert not send_to_chahub_mock.called
 
     def test_submission_invalid_not_marked_for_retry_again(self):
         # Make submission invalid
@@ -72,8 +73,6 @@ class ChahubMixinTests(TestCase):
         with mock.patch('apps.web.models.CompetitionSubmission.send_to_chahub') as send_to_chahub_mock:
             submission.save()
             assert not send_to_chahub_mock.called
-            # It did need retry, but since it's invalid it should be unmarked for retry
-            assert not CompetitionSubmission.objects.get(pk=submission.pk).chahub_needs_retry
 
     def test_submission_valid_not_retried_again(self):
         # Mark submission for retry
