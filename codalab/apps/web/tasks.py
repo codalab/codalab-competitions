@@ -852,7 +852,7 @@ def do_chahub_retries(limit=None):
 
 
 @task(queue='site-worker')
-def send_chahub_participant_counts():
+def send_chahub_updates():
     competitions = Competition.objects.filter(published=True).annotate(participant_count=Count('participants'))
     for comp in competitions:
         # saving generates new participant_count -- will be sent if it is different from
