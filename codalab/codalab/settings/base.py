@@ -448,7 +448,7 @@ class Base(Settings):
             'schedule': timedelta(seconds=60 * 10),
         },
         'chahub_participant_counts': {
-            'task': 'apps.web.tasks.send_chahub_participant_counts',
+            'task': 'apps.web.tasks.send_chahub_updates',
             'schedule': timedelta(seconds=60 * 60 * 24),
         },
     }
