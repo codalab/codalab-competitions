@@ -869,7 +869,7 @@ def send_chahub_general_stats():
     data = {
         'competition_count': Competition.objects.filter(published=True).count(),
         'dataset_count': OrganizerDataSet.objects.count(),
-        'participant_count': CompetitionParticipant.objects.count(status=approved_status),
+        'participant_count': CompetitionParticipant.objects.filter(status=approved_status).count(),
         'submission_count': CompetitionSubmission.objects.count(),
         'user_count': ClUser.objects.count(),
         'organizer_count': organizer_count
