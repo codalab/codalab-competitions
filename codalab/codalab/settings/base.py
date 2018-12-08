@@ -447,13 +447,13 @@ class Base(Settings):
             'task': 'apps.web.tasks.do_chahub_retries',
             'schedule': timedelta(seconds=60 * 10),
         },
-        'chahub_participant_counts': {
-            'task': 'apps.web.tasks.send_chahub_updates',
+        'chahub_competition_updates': {
+            'task': 'apps.web.tasks.send_chahub_competition_updates',
             'schedule': timedelta(seconds=60 * 60 * 24),
         },
         'chahub_general_statistics': {
             'task': 'apps.web.tasks.send_chahub_general_stats',
-            'schedule': timedelta(seconds=60*60*24),
+            'schedule': timedelta(seconds=60 * 60 * 24),
         },
     }
     CELERY_TIMEZONE = 'UTC'

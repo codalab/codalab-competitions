@@ -9,6 +9,7 @@ from django.conf import settings
 from django.db import models, IntegrityError
 from django.utils import timezone
 
+from apps.chahub.utils import send_to_chahub
 
 logger = logging.getLogger(__name__)
 
@@ -68,28 +69,6 @@ class ChaHubSaveMixin(models.Model):
     # -------------------------------------------------------------------------
     # Regular methods
     # -------------------------------------------------------------------------
-    def get_chahub_url(self):
-        assert settings.CHAHUB_API_URL, "No ChaHub URL given, cannot send details to ChaHub"
-
-        endpoint = self.get_chahub_endpoint()
-        assert endpoint, Exception("No ChaHub API endpoint given")
-
-        return "{}{}".format(settings.CHAHUB_API_URL, endpoint)
-
-    def send_to_chahub(self, data):
-        """Sends data to chahub and returns the HTTP response"""
-        url = self.get_chahub_url()
-
-        logger.info("ChaHub :: Sending to ChaHub ({}) the following data: \n{}".format(url, data))
-
-        try:
-            return requests.post(url, data, headers={
-                'Content-type': 'application/json',
-                'X-CHAHUB-API-KEY': settings.CHAHUB_API_KEY,
-            })
-        except requests.ConnectionError:
-            return None
-
     def save(self, force_to_chahub=False, *args, **kwargs):
         # We do a save here to give us an ID for generating URLs and such
         try:
@@ -116,7 +95,7 @@ class ChaHubSaveMixin(models.Model):
 
                 # Send to chahub if we haven't yet, we have new data
                 if not self.chahub_timestamp or self.chahub_data_hash != data_hash:
-                    resp = self.send_to_chahub(data)
+                    resp = send_to_chahub(data)
 
                     if resp and resp.status_code in (200, 201):
                         logger.info("ChaHub :: Received response {} {}".format(resp.status_code, resp.content))
