@@ -876,7 +876,7 @@ def send_chahub_general_stats():
     }
 
     try:
-        send_to_chahub('update_producer/', data)
+        send_to_chahub('producers/{}/'.format(settings.CHAHUB_PRODUCER_ID), data, update=True)
     except requests.ConnectionError:
         logger.info("There was a problem reaching Chahub, it is currently offline. Re-trying in 5 minutes.")
         send_chahub_general_stats.apply_async(eta=timezone.now() + timedelta(minutes=5))
