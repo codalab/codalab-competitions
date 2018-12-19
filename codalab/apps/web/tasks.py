@@ -843,7 +843,12 @@ def do_chahub_retries(limit=None):
     logger.info("ChaHub is online, checking for objects needing to be re-sent to ChaHub")
     chahub_models = inheritors(ChaHubSaveMixin)
     for model in chahub_models:
-        needs_retry = model.objects.filter(chahub_needs_retry=True)
+        # Special case for competition model manager, with deleted competitions
+        if hasattr(model.objects, 'get_all_competitions'):
+            needs_retry = model.objects.get_all_competitions().filter(chahub_needs_retry=True)
+        else:
+            needs_retry = model.objects.filter(chahub_needs_retry=True)
+
         if limit:
             needs_retry = needs_retry[:limit]
         for instance in needs_retry:
