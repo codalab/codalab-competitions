@@ -550,9 +550,9 @@ class CompetitionDetailView(DetailView):
                     qs = SubmissionScore.objects.filter(result__phase__competition=competition, scoredef=score_def)
                     qs = qs.extra({'day': truncate_date}).values('day')
                     if score_def.sorting == 'asc':
-                        best_value = Max('value')
-                    else:
                         best_value = Min('value')
+                    else:
+                        best_value = Max('value')
                     qs = qs.annotate(high_score=best_value, count=Count('pk'))
                     context['graph'] = {
                         'days': [s['day'].strftime('%d %B %Y')  # ex 24 May 2017
