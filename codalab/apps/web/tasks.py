@@ -701,7 +701,11 @@ def update_submission(job_id, args, secret):
         task_args = job.get_task_args()
         submission_id = task_args['submission_id']
         logger.debug("Looking for submission (job_id=%s, submission_id=%s)", job.id, submission_id)
-        submission = CompetitionSubmission.objects.get(pk=submission_id)
+
+        try:
+            submission = CompetitionSubmission.objects.get(pk=submission_id)
+        except CompetitionSubmission.DoesNotExist:
+            return
 
         if secret != submission.secret:
             raise SubmissionUpdateException(submission, "Password does not match")
@@ -783,7 +787,11 @@ def evaluate_submission(submission_id, is_scoring_only):
     logger.debug("evaluate_submission submission_id=%s (job_id=%s)", submission_id, job_id)
     predict_and_score = task_args['predict'] == True
     logger.debug("evaluate_submission predict_and_score=%s (job_id=%s)", predict_and_score, job_id)
-    submission = CompetitionSubmission.objects.get(pk=submission_id)
+
+    try:
+        submission = CompetitionSubmission.objects.get(pk=submission_id)
+    except CompetitionSubmission.DoesNotExist:
+        return
 
     task_name, task_func = ('prediction', predict) if predict_and_score else ('scoring', score)
     try:
