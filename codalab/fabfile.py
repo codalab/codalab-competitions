@@ -93,7 +93,7 @@ def compute_worker_update():
         fab hosts:prod compute_worker_update
     """
     compute_worker_kill()
-    run('docker pull codalab/competitions-v1-compute-worker:1.1.4')
+    run('docker pull codalab/competitions-v1-compute-worker:1.1.5')
     run('docker pull {}'.format(django_settings.DOCKER_DEFAULT_WORKER_IMAGE))
     compute_worker_run()
 
