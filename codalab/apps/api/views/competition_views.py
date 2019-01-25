@@ -700,7 +700,7 @@ class SubmissionScoreView(views.APIView):
             if not sub.participant.user == self.request.user:
                 raise PermissionDenied("Not authorized!")
             try:
-                scores = sub.phase.scores()
+                scores = sub.phase.scores(include_scores_not_on_leaderboard=True)
                 headers = list(sorted(scores[0]['headers'], key=lambda x: x.get('ordering')))
                 default_score_key = headers[0]['key']
 
