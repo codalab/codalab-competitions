@@ -1,2 +1,0 @@
-ref: competition1/reference.zip
-res: competition1/submission2/predictions.zip

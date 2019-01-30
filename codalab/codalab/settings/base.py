@@ -441,11 +441,15 @@ class Base(Settings):
     CELERYBEAT_SCHEDULE = {
         'phase_migrations': {
             'task': 'apps.web.tasks.do_phase_migrations',
-            'schedule': timedelta(seconds=300),
+            'schedule': timedelta(seconds=60 * 5),
         },
         'chahub_retries': {
             'task': 'apps.web.tasks.do_chahub_retries',
-            'schedule': timedelta(seconds=600),
+            'schedule': timedelta(seconds=60 * 10),
+        },
+        'chahub_participant_counts': {
+            'task': 'apps.web.tasks.send_chahub_updates',
+            'schedule': timedelta(seconds=60 * 60 * 24),
         },
     }
     CELERY_TIMEZONE = 'UTC'
