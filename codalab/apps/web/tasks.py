@@ -701,7 +701,11 @@ def update_submission(job_id, args, secret):
         task_args = job.get_task_args()
         submission_id = task_args['submission_id']
         logger.debug("Looking for submission (job_id=%s, submission_id=%s)", job.id, submission_id)
-        submission = CompetitionSubmission.objects.get(pk=submission_id)
+
+        try:
+            submission = CompetitionSubmission.objects.get(pk=submission_id)
+        except CompetitionSubmission.DoesNotExist:
+            return
 
         if secret != submission.secret:
             raise SubmissionUpdateException(submission, "Password does not match")
@@ -783,7 +787,11 @@ def evaluate_submission(submission_id, is_scoring_only):
     logger.debug("evaluate_submission submission_id=%s (job_id=%s)", submission_id, job_id)
     predict_and_score = task_args['predict'] == True
     logger.debug("evaluate_submission predict_and_score=%s (job_id=%s)", predict_and_score, job_id)
-    submission = CompetitionSubmission.objects.get(pk=submission_id)
+
+    try:
+        submission = CompetitionSubmission.objects.get(pk=submission_id)
+    except CompetitionSubmission.DoesNotExist:
+        return
 
     task_name, task_func = ('prediction', predict) if predict_and_score else ('scoring', score)
     try:
@@ -843,12 +851,26 @@ def do_chahub_retries(limit=None):
     logger.info("ChaHub is online, checking for objects needing to be re-sent to ChaHub")
     chahub_models = inheritors(ChaHubSaveMixin)
     for model in chahub_models:
-        needs_retry = model.objects.filter(chahub_needs_retry=True)
+        # Special case for competition model manager, with deleted competitions
+        if hasattr(model.objects, 'get_all_competitions'):
+            needs_retry = model.objects.get_all_competitions().filter(chahub_needs_retry=True)
+        else:
+            needs_retry = model.objects.filter(chahub_needs_retry=True)
+
         if limit:
             needs_retry = needs_retry[:limit]
         for instance in needs_retry:
             # Saving forces chahub update
             instance.save(force_to_chahub=True)
+
+
+@task(queue='site-worker')
+def send_chahub_updates():
+    competitions = Competition.objects.filter(published=True).annotate(participant_count=Count('participants'))
+    for comp in competitions:
+        # saving generates new participant_count -- will be sent if it is different from
+        # what was sent last time.
+        comp.save()
 
 
 @task(queue='site-worker')

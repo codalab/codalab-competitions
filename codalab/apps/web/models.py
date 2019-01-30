@@ -23,7 +23,7 @@ from django.conf import settings
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
 from django.core.files import File
 from django.core.files.base import ContentFile
 from django.core.files.storage import get_storage_class
@@ -218,6 +218,14 @@ def _uuidify(directory):
     return wrapped_uuidify
 
 
+class CompetitionManager(models.Manager):
+    def get_queryset(self):
+        return super(CompetitionManager, self).get_queryset().filter(deleted=False)
+
+    def get_all_competitions(self):
+        return super(CompetitionManager, self).get_queryset()
+
+
 class Competition(ChaHubSaveMixin, models.Model):
     """ Model representing a competition. """
     # compute_worker_vhost = models.CharField(max_length=128, null=True, blank=True, help_text="(don't edit unless you're instructed to, will break submissions -- only admins can see this!)")
@@ -269,12 +277,21 @@ class Competition(ChaHubSaveMixin, models.Model):
 
     competition_docker_image = models.CharField(max_length=128, default='', blank=True)
 
+    deleted = models.BooleanField(default=False)
+
+    objects = CompetitionManager()
+
     class Meta:
         permissions = (
             ('is_owner', 'Owner'),
             ('can_edit', 'Edit'),
             )
         ordering = ['end_date']
+
+    def delete(self, using=None):
+        self.published = False
+        self.deleted = True
+        self.save()
 
     @property
     def pagecontent(self):
@@ -287,8 +304,11 @@ class Competition(ChaHubSaveMixin, models.Model):
     def __unicode__(self):
         return self.title
 
-    def get_chahub_is_valid(self):
-        return self.published
+    def has_chagrade_bot(self):
+        try:
+            return bool(self.participants.get(user__username='chagrade_bot'))
+        except ObjectDoesNotExist:
+            return False
 
     def set_owner(self, user):
         return assign_perm('view_task', user, self)
@@ -1372,7 +1392,7 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
 
     def get_chahub_is_valid(self):
         # Make sure the submission was actually successfully created (has a PK, not over max submissions per day)
-        return self.pk and self.phase.competition.published
+        return self.pk
 
     def get_chahub_endpoint(self):
         return "submissions/"

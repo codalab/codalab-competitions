@@ -550,9 +550,9 @@ class CompetitionDetailView(DetailView):
                     qs = SubmissionScore.objects.filter(result__phase__competition=competition, scoredef=score_def)
                     qs = qs.extra({'day': truncate_date}).values('day')
                     if score_def.sorting == 'asc':
-                        best_value = Max('value')
-                    else:
                         best_value = Min('value')
+                    else:
+                        best_value = Max('value')
                     qs = qs.annotate(high_score=best_value, count=Count('pk'))
                     context['graph'] = {
                         'days': [s['day'].strftime('%d %B %Y')  # ex 24 May 2017
@@ -1058,6 +1058,7 @@ class MyCompetitionParticipantView(LoginRequiredMixin, ListView):
         context['participant_list'] = participant_list
         context['competition_id'] = self.kwargs.get('competition_id')
         context['pending_participants'] = comp_participants.filter(status__codename='pending')
+        context['has_chagrade_bot'] = competition.has_chagrade_bot()
 
         if competition.enable_teams or competition.allow_organizer_teams:
             comp_teams = Team.objects.filter(competition=competition).order_by('pk').select_related('creator', 'status').prefetch_related('members').order_by('pk')
