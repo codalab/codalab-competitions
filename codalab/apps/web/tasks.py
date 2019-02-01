@@ -61,7 +61,7 @@ from apps.web.models import (add_submission_to_leaderboard,
                              SubmissionScore,
                              SubmissionScoreDef,
                              CompetitionSubmissionMetadata, BundleStorage, SubmissionResultGroup,
-                             SubmissionScoreDefGroup)
+                             SubmissionScoreDefGroup, PhaseLeaderBoardEntry, PhaseLeaderBoard)
 from apps.coopetitions.models import DownloadRecord
 
 import time
@@ -624,23 +624,28 @@ def update_submission(job_id, args, secret):
                 if submission.phase.force_best_submission_to_leaderboard:
                     # In this phase get the submission score from the column with the lowest ordering
                     score_def = submission.get_default_score_def()
-                    top_score = SubmissionScore.objects.filter(result__phase=submission.phase, scoredef=score_def)
+                    lb = PhaseLeaderBoard.objects.get(phase=submission.phase)
+
+                    # Get our leaderboard entries: Related Submissions should be in our participant's submissions,
+                    # and the leaderboard should be the one attached to our phase
+                    entries = PhaseLeaderBoardEntry.objects.filter(result__in=submission.participant.submissions.all(), board=lb)
+                    submissions = [(entry.result, entry.result.get_default_score()) for entry in entries]
+                    sorted_list = sorted(submissions, key=lambda x: x[1])
+                    top_sub, top_score = sorted_list[0]
+
                     score_value = submission.get_default_score()
                     if score_def.sorting == 'asc':
                         # The first value in ascending is the top score, 1 beats 3
-                        top_score = top_score.order_by('value').first()
-                        if score_value >= top_score.value:
+                        if score_value >= top_score:
                             add_submission_to_leaderboard(submission)
                             logger.debug("Force best submission added submission to leaderboard in ascending order "
                                          "(submission_id=%s, top_score=%s, score=%s)", submission.id, top_score, score_value)
                     elif score_def.sorting == 'desc':
                         # The last value in descending is the top score, 3 beats 1
-                        top_score = top_score.order_by('value').last()
-                        if score_value <= top_score.value:
+                        if score_value <= top_score:
                             add_submission_to_leaderboard(submission)
                             logger.debug("Force best submission added submission to leaderboard in descending order "
                                          "(submission_id=%s, top_score=%s, score=%s)", submission.id, top_score, score_value)
-
                 result = Job.FINISHED
 
                 if submission.participant.user.email_on_submission_finished_successfully:
