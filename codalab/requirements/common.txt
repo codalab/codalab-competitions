@@ -35,7 +35,7 @@ python-ptrace==0.6.5
 pytz==2013b
 PyYAML==3.10
 requests-oauthlib==0.3.2
-requests==2.20.0
+requests==1.2.3
 six==1.10.0
 South==1.0.2
 SQLAlchemy==0.9.7
