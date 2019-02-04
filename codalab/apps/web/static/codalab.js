@@ -411,9 +411,9 @@ var Competition;
                         // Add the check box if auto submitted to leaderboard
                         if ($('#forced_to_leaderboard').length > 0) {
                             // Remove previous checkmarks
-                            $('.glyphicon-ok').remove();
+                            //$('.glyphicon-ok').remove();
 
-                            $($(elemTr).children('td')[4]).html('<span class="glyphicon glyphicon-ok"></span>');
+                            //$($(elemTr).children('td')[4]).html('<span class="glyphicon glyphicon-ok"></span>');
                         }
                     }
                     break;
@@ -620,9 +620,9 @@ var Competition;
 
                             if ($('#forced_to_leaderboard').length > 0) {
                                 // Remove all checkmarks
-                                $('.glyphicon-ok').remove();
+                                //$('.glyphicon-ok').remove();
                                 // Get the 4th table item and put a checkmark there
-                                $($('#' + submissionId + ' td')[4]).html('<span class="glyphicon glyphicon-ok"></span>');
+                                //$($('#' + submissionId + ' td')[4]).html('<span class="glyphicon glyphicon-ok"></span>');
                             }
                         } else {
                             if ($('#forced_to_leaderboard').length == 0) {
@@ -630,13 +630,13 @@ var Competition;
                                 $(obj).text('Submit to Leaderboard');
                             } else {
                                 // Remove all checkmarks
-                                $('.glyphicon-ok').remove();
+                                //$('.glyphicon-ok').remove();
                                 // Get the 4th table item and put a checkmark there
-                                $($('#' + submissionId + ' td')[4]).html('<span class="glyphicon glyphicon-ok"></span>');
+                                //$($('#' + submissionId + ' td')[4]).html('<span class="glyphicon glyphicon-ok"></span>');
 
-                                $(obj).removeClass('leaderBoardSubmit');
-                                $(obj).addClass('leaderBoardRemove');
-                                $(obj).text('Remove from Leaderboard');
+                                //$(obj).removeClass('leaderBoardSubmit');
+                                //$(obj).addClass('leaderBoardRemove');
+                                //$(obj).text('Remove from Leaderboard');
                             }
                         }
 
