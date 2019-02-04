@@ -61,7 +61,7 @@ from apps.web.models import (add_submission_to_leaderboard,
                              SubmissionScore,
                              SubmissionScoreDef,
                              CompetitionSubmissionMetadata, BundleStorage, SubmissionResultGroup,
-                             SubmissionScoreDefGroup)
+                             SubmissionScoreDefGroup, PhaseLeaderBoardEntry, PhaseLeaderBoard)
 from apps.coopetitions.models import DownloadRecord
 
 import time
@@ -585,62 +585,76 @@ def update_submission(job_id, args, secret):
         if status == 'finished':
             result = Job.FAILED
             if 'score' in state:
-                logger.debug("update_submission_task loading final scores (pk=%s)", submission.pk)
-                logger.debug("Retrieving output.zip and 'scores.txt' file (submission_id=%s)", submission.id)
-                logger.debug("Output.zip location=%s" % submission.output_file.file.name)
+                logger.info("update_submission_task loading final scores (pk=%s)", submission.pk)
+                logger.info("Retrieving output.zip and 'scores.txt' file (submission_id=%s)", submission.id)
+                logger.info("Output.zip location=%s" % submission.output_file.file.name)
                 ozip = ZipFile(io.BytesIO(submission.output_file.read()))
                 scores = None
                 try:
                     scores = open(ozip.extract('scores.txt'), 'r').read()
                 except Exception:
-                    logger.error("Scores.txt not found, unable to process submission: %s (submission_id=%s)", status, submission.id)
+                    logger.info("Scores.txt not found, unable to process submission: %s (submission_id=%s)", status, submission.id)
                     _set_submission_status(submission.id, CompetitionSubmissionStatus.FAILED)
                     return Job.FAILED
 
-                logger.debug("Processing scores... (submission_id=%s)", submission.id)
+                logger.info("Processing scores... (submission_id=%s)", submission.id)
                 for line in scores.split("\n"):
                     if len(line) > 0:
                         label, value = line.split(":")
-                        logger.debug("Attempting to submit score %s:%s" % (label, value))
+                        logger.info("Attempting to submit score %s:%s" % (label, value))
                         try:
                             scoredef = SubmissionScoreDef.objects.get(competition=submission.phase.competition,
                                                                       key=label.strip())
                             SubmissionScore.objects.create(result=submission, scoredef=scoredef, value=float(value))
                         except SubmissionScoreDef.DoesNotExist:
-                            logger.warning("Score %s does not exist (submission_id=%s)", label, submission.id)
-                logger.debug("Done processing scores... (submission_id=%s)", submission.id)
+                            logger.info("Score %s does not exist (submission_id=%s)", label, submission.id)
+                logger.info("Done processing scores... (submission_id=%s)", submission.id)
                 _set_submission_status(submission.id, CompetitionSubmissionStatus.FINISHED)
 
                 # Automatically submit to the leaderboard?
                 if submission.phase.is_blind and not submission.phase.force_best_submission_to_leaderboard:
-                    logger.debug("Adding to leaderboard... (submission_id=%s)", submission.id)
+                    logger.info("Adding to leaderboard... (submission_id=%s)", submission.id)
                     add_submission_to_leaderboard(submission)
-                    logger.debug("Leaderboard updated with latest submission (submission_id=%s)", submission.id)
+                    logger.info("Leaderboard updated with latest submission (submission_id=%s)", submission.id)
 
                 if submission.phase.competition.force_submission_to_leaderboard and not submission.phase.force_best_submission_to_leaderboard:
                     add_submission_to_leaderboard(submission)
-                    logger.debug("Force submission added submission to leaderboard (submission_id=%s)", submission.id)
+                    logger.info("Force submission added submission to leaderboard (submission_id=%s)", submission.id)
 
                 if submission.phase.force_best_submission_to_leaderboard:
                     # In this phase get the submission score from the column with the lowest ordering
                     score_def = submission.get_default_score_def()
-                    top_score = SubmissionScore.objects.filter(result__phase=submission.phase, scoredef=score_def)
-                    score_value = submission.get_default_score()
-                    if score_def.sorting == 'asc':
-                        # The first value in ascending is the top score, 1 beats 3
-                        top_score = top_score.order_by('value').first()
-                        if score_value >= top_score.value:
-                            add_submission_to_leaderboard(submission)
-                            logger.debug("Force best submission added submission to leaderboard in ascending order "
-                                         "(submission_id=%s, top_score=%s, score=%s)", submission.id, top_score, score_value)
-                    elif score_def.sorting == 'desc':
-                        # The last value in descending is the top score, 3 beats 1
-                        top_score = top_score.order_by('value').last()
-                        if score_value <= top_score.value:
-                            add_submission_to_leaderboard(submission)
-                            logger.debug("Force best submission added submission to leaderboard in descending order "
-                                         "(submission_id=%s, top_score=%s, score=%s)", submission.id, top_score, score_value)
+                    lb = PhaseLeaderBoard.objects.get(phase=submission.phase)
 
+                    # Get our leaderboard entries: Related Submissions should be in our participant's submissions,
+                    # and the leaderboard should be the one attached to our phase
+                    entries = PhaseLeaderBoardEntry.objects.filter(result__in=submission.participant.submissions.all(), board=lb)
+                    submissions = [(entry.result, entry.result.get_default_score()) for entry in entries]
+                    sorted_list = sorted(submissions, key=lambda x: x[1])
+                    if sorted_list:
+                        top_sub, top_score = sorted_list[0]
+                        score_value = submission.get_default_score()
+                        if score_def.sorting == 'asc':
+                            # The first value in ascending is the top score, 1 beats 3
+                            if score_value >= top_score:
+                                add_submission_to_leaderboard(submission)
+                                logger.info("Force best submission added submission to leaderboard in ascending order "
+                                             "(submission_id=%s, top_score=%s, score=%s)", submission.id, top_score,
+                                             score_value)
+                        elif score_def.sorting == 'desc':
+                            # The last value in descending is the top score, 3 beats 1
+                            if score_value <= top_score:
+                                add_submission_to_leaderboard(submission)
+                                logger.info(
+                                    "Force best submission added submission to leaderboard in descending order "
+                                    "(submission_id=%s, top_score=%s, score=%s)", submission.id, top_score, score_value)
+                    else:
+                        add_submission_to_leaderboard(submission)
+                        logger.info(
+                            "Force best submission added submission: {0} with score: {1} to leaderboard: {2}"
+                            " because no submission was present".format(
+                                submission, submission.get_default_score(), lb)
+                        )
                 result = Job.FINISHED
 
                 if submission.participant.user.email_on_submission_finished_successfully:
