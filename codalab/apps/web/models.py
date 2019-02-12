@@ -1407,10 +1407,8 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
             return sub_run_time
         else:
             if self.started_at and self.completed_at:
-                print("Returning difference between completed at and started at")
                 return self.completed_at - self.started_at
             elif self.started_at:
-                print("Returning difference between now and started at")
                 return now() - self.started_at
             else:
                 return None
