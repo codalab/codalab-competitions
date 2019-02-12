@@ -5,6 +5,7 @@ services:
   # --------------------------------------------------------------------------
   nginx:
     image: nginx
+    restart: unless-stopped
     ports:
       - ${NGINX_PORT}:${NGINX_PORT}
       - ${SSL_PORT}:${SSL_PORT}
@@ -28,6 +29,7 @@ services:
   # --------------------------------------------------------------------------
   postgres:
     image: postgres:9.6.3
+    restart: unless-stopped
     environment:
       - POSTGRES_DB=${DB_NAME}
       - POSTGRES_USER=${DB_USER}
@@ -53,6 +55,7 @@ services:
       # of envsubst dependency
       context: .
       dockerfile: docker/rabbitmq/Dockerfile
+    restart: unless-stopped
     hostname: rabbit
     command: bash -x /app/docker/run_rabbitmq.sh
     environment:
@@ -76,6 +79,7 @@ services:
     build:
       context: .
       dockerfile: docker/flower/Dockerfile
+    restart: unless-stopped
     hostname: flower
     ports:
       - ${FLOWER_PORT}:${FLOWER_PORT}
@@ -103,6 +107,7 @@ services:
   # --------------------------------------------------------------------------
   memcached:
     image: memcached
+    restart: unless-stopped
     hostname: memcached
     command: "/usr/local/bin/memcached -u memcache -vv"
     logging:
@@ -118,6 +123,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    restart: unless-stopped
     hostname: django
     ports:
       - ${DJANGO_PORT}:${DJANGO_PORT}
@@ -149,6 +155,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    restart: unless-stopped
     command: sh /app/docker/run_site.sh
     volumes:
       - ./codalab:/app/codalab
