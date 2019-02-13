@@ -467,6 +467,9 @@ def score(submission, job_id):
     # which is run to generate results) ordirectly (participant uploads results directly).
     lines = []
     ref_value = submission.phase.reference_data.name
+    print("REF VALUE IS {}".format(ref_value))
+    print("LEN OF REF VALUE IS {}".format(len(ref_value)))
+    print(settings.USE_AWS)
     if len(ref_value) > 0:
         lines.append("ref: %s" % _make_url_sassy(ref_value))
     if settings.USE_AWS:
@@ -565,6 +568,8 @@ def update_submission(job_id, args, secret):
         job_id: The job ID used to track the progress of the evaluation.
         """
 
+        print("WE MADE IT INTO UPDATE SUBMISSION")
+
         state = {}
         if len(submission.execution_key) > 0:
             logger.debug("update_submission_task loading state: %s", submission.execution_key)
@@ -587,6 +592,7 @@ def update_submission(job_id, args, secret):
             return Job.RUNNING
 
         if status == 'finished':
+            print("STATUS IS FINISHED")
             result = Job.FAILED
             if 'score' in state:
                 logger.info("update_submission_task loading final scores (pk=%s)", submission.pk)
@@ -724,6 +730,9 @@ def update_submission(job_id, args, secret):
             submission = CompetitionSubmission.objects.get(pk=submission_id)
         except CompetitionSubmission.DoesNotExist:
             return
+
+        print("SECRET IS {0} WHILE SUBMISSION SECRET JUST SO HAPPENS TO BE {1}".format(secret, submission.secret))
+        print("SECRET TYPE IS {0} WHILE SUBMISSION SECRET TYPE JUST SO HAPPENS TO BE {1}".format(type(secret), type(submission.secret)))
 
         if secret != submission.secret:
             raise SubmissionUpdateException(submission, "Password does not match")
