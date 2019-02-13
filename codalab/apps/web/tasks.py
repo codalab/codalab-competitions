@@ -6,6 +6,7 @@ import io
 import json
 import logging
 import StringIO
+import os
 import traceback
 
 import requests
@@ -15,19 +16,19 @@ import zipfile
 from urllib import pathname2url
 
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils import timezone
 from yaml.representer import SafeRepresenter
 from zipfile import ZipFile
 from collections import OrderedDict
 
 import sys
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from boto.s3.connection import S3Connection
 from celery import task
 from celery.app import app_or_default
 from celery.exceptions import SoftTimeLimitExceeded
 from django.conf import settings
-from django.contrib.sites.models import get_current_site
 from django.core.files.base import ContentFile
 from django.core.mail import get_connection, EmailMultiAlternatives, send_mail
 from django.db import transaction
@@ -36,7 +37,9 @@ from django.template import Context
 from django.template.loader import render_to_string
 from django.contrib.sites.models import Site
 
+from apps.authenz.models import ClUser
 from apps.chahub.models import ChaHubSaveMixin
+from apps.chahub.utils import send_to_chahub
 from apps.jobs.models import (Job,
                               run_job_task,
                               JobTaskResult,
@@ -61,7 +64,8 @@ from apps.web.models import (add_submission_to_leaderboard,
                              SubmissionScore,
                              SubmissionScoreDef,
                              CompetitionSubmissionMetadata, BundleStorage, SubmissionResultGroup,
-                             SubmissionScoreDefGroup, PhaseLeaderBoardEntry, PhaseLeaderBoard)
+                             SubmissionScoreDefGroup, OrganizerDataSet, CompetitionParticipant, ParticipantStatus,
+                             PhaseLeaderBoardEntry, PhaseLeaderBoard)
 from apps.coopetitions.models import DownloadRecord
 
 import time
@@ -876,6 +880,33 @@ def do_chahub_retries(limit=None):
         for instance in needs_retry:
             # Saving forces chahub update
             instance.save(force_to_chahub=True)
+
+
+@task(queue='site-worker')
+def send_chahub_general_stats():
+    if settings.DATABASES.get('default').get('ENGINE') == 'django.db.backends.postgresql_psycopg2':
+        # Only Postgres supports 'distinct', so if we can use the database, if not use some Python Set magic
+        organizer_count = Competition.objects.all().distinct('creator').count()
+    else:
+        users_with_competitions = list(ClUser.objects.filter(competitioninfo_creator__isnull=False))
+        user_set = set(users_with_competitions)
+        # Only unique users that have competitions
+        organizer_count = len(user_set)
+    approved_status = ParticipantStatus.objects.get(codename=ParticipantStatus.APPROVED)
+    data = {
+        'competition_count': Competition.objects.filter(published=True).count(),
+        'dataset_count': OrganizerDataSet.objects.count(),
+        'participant_count': CompetitionParticipant.objects.filter(status=approved_status).count(),
+        'submission_count': CompetitionSubmission.objects.count(),
+        'user_count': ClUser.objects.count(),
+        'organizer_count': organizer_count
+    }
+
+    try:
+        send_to_chahub('producers/{}/'.format(settings.CHAHUB_PRODUCER_ID), data, update=True)
+    except requests.ConnectionError:
+        logger.info("There was a problem reaching Chahub, it is currently offline. Re-trying in 5 minutes.")
+        send_chahub_general_stats.apply_async(eta=timezone.now() + timedelta(minutes=5))
 
 
 @task(queue='site-worker')
