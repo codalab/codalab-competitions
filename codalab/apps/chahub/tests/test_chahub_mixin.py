@@ -38,7 +38,7 @@ class ChahubMixinTests(TestCase):
 
     def test_submission_mixin_save_doesnt_resend_same_data(self):
         submission = CompetitionSubmission(phase=self.phase, participant=self.participant)
-        with mock.patch('apps.web.models.CompetitionSubmission.send_to_chahub') as send_to_chahub_mock:
+        with mock.patch('apps.chahub.models.send_to_chahub') as send_to_chahub_mock:
             send_to_chahub_mock.return_value = HttpResponseBase(status=201)
             send_to_chahub_mock.return_value.content = ""
             submission.save()
@@ -70,14 +70,14 @@ class ChahubMixinTests(TestCase):
 
         # Mark submission for retry
         submission = CompetitionSubmission(phase=self.phase, participant=self.participant, chahub_needs_retry=True)
-        with mock.patch('apps.web.models.CompetitionSubmission.send_to_chahub') as send_to_chahub_mock:
+        with mock.patch('apps.chahub.models.send_to_chahub') as send_to_chahub_mock:
             submission.save()
             assert not send_to_chahub_mock.called
 
     def test_submission_valid_not_retried_again(self):
         # Mark submission for retry
         submission = CompetitionSubmission(phase=self.phase, participant=self.participant, chahub_needs_retry=True)
-        with mock.patch('apps.web.models.CompetitionSubmission.send_to_chahub') as send_to_chahub_mock:
+        with mock.patch('apps.chahub.models.send_to_chahub') as send_to_chahub_mock:
             send_to_chahub_mock.return_value = HttpResponseBase(status=201)
             send_to_chahub_mock.return_value.content = ""
             submission.save()  # NOTE! not called with force_to_chahub=True as retrying would set
@@ -87,7 +87,7 @@ class ChahubMixinTests(TestCase):
     def test_submission_retry_valid_retried_then_sent_and_not_retried_again(self):
         # Mark submission for retry
         submission = CompetitionSubmission(phase=self.phase, participant=self.participant, chahub_needs_retry=True)
-        with mock.patch('apps.web.models.CompetitionSubmission.send_to_chahub') as send_to_chahub_mock:
+        with mock.patch('apps.chahub.models.send_to_chahub') as send_to_chahub_mock:
             send_to_chahub_mock.return_value = HttpResponseBase(status=201)
             send_to_chahub_mock.return_value.content = ""
             submission.save(force_to_chahub=True)
