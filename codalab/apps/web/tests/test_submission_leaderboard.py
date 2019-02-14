@@ -194,7 +194,6 @@ class SubmissionLeaderboardTests(TestCase):
         resp = self.client.post(url)
         self.assertEquals(resp.status_code, 400)
 
-    # @mock.patch('apps.web.tasks.score')
     def test_submission_scoring_forced_best_to_leaderboard_puts_higher_score_on_leaderboard_when_descending(self):
         self.competition.force_submission_to_leaderboard = True
         self.competition.disallow_leaderboard_modifying = True
@@ -206,7 +205,7 @@ class SubmissionLeaderboardTests(TestCase):
             scoredef=self.score_def,
             value=125,
         )
-        self.submission_4.execution_key = json.dumps({'score': 150})
+        self.submission_4.execution_key = json.dumps({'score': 125})
         self.submission_4.save()
 
         zip_buffer = StringIO.StringIO()
@@ -232,6 +231,44 @@ class SubmissionLeaderboardTests(TestCase):
             update_submission(new_job.id, {'status': 'finished'}, str(self.submission_4.secret))
 
         assert PhaseLeaderBoardEntry.objects.filter(board=self.leader_board, result=self.submission_4)
+
+    def test_submission_scoring_forced_best_to_leaderboard_does_not_put_lower_score_on_leaderboard_when_descending(self):
+        self.competition.force_submission_to_leaderboard = True
+        self.competition.disallow_leaderboard_modifying = True
+        self.competition.save()
+        self.phase_1.force_best_submission_to_leaderboard = True
+        self.phase_1.save()
+        SubmissionScore.objects.create(
+            result=self.submission_4,
+            scoredef=self.score_def,
+            value=120,
+        )
+        self.submission_4.execution_key = json.dumps({'score': 120})
+        self.submission_4.save()
+
+        zip_buffer = StringIO.StringIO()
+        zip_name = "{0}.zip".format('submission_output')
+        zip_file = zipfile.ZipFile(zip_buffer, "w")
+
+        zip_file.writestr('scores.txt', 'key: 150\n')
+
+        zip_file.close()
+
+        self.submission_4.output_file.save(zip_name, ContentFile(zip_buffer.getvalue()))
+        self.submission_4.save()
+
+        print("SUBMISSION SECRET IS {}".format(self.submission_4.secret))
+
+        task_args = {
+            'submission_id': self.submission_4.id
+        }
+        json_task_args = json.dumps(task_args)
+        new_job = Job.objects.create(task_args_json=json_task_args, task_type='evaluate_submission')
+
+        with mock.patch('apps.web.tasks.score') as mock_score:
+            update_submission(new_job.id, {'status': 'finished'}, str(self.submission_4.secret))
+
+        assert not PhaseLeaderBoardEntry.objects.filter(board=self.leader_board, result=self.submission_4)
 
     def test_submission_scoring_forced_best_to_leaderboard_puts_lower_score_on_leaderboard_when_ascending(self):
         self.score_def.sorting = 'asc'
@@ -246,7 +283,7 @@ class SubmissionLeaderboardTests(TestCase):
             scoredef=self.score_def,
             value=120,
         )
-        self.submission_4.execution_key = json.dumps({'score': 150})
+        self.submission_4.execution_key = json.dumps({'score': 120})
         self.submission_4.save()
 
         zip_buffer = StringIO.StringIO()
@@ -272,3 +309,43 @@ class SubmissionLeaderboardTests(TestCase):
             update_submission(new_job.id, {'status': 'finished'}, str(self.submission_4.secret))
 
         assert PhaseLeaderBoardEntry.objects.filter(board=self.leader_board, result=self.submission_4)
+
+    def test_submission_scoring_forced_best_to_leaderboard_does_not_put_higher_score_on_leaderboard_when_ascending(self):
+        self.score_def.sorting = 'asc'
+        self.score_def.save()
+        self.competition.force_submission_to_leaderboard = True
+        self.competition.disallow_leaderboard_modifying = True
+        self.competition.save()
+        self.phase_1.force_best_submission_to_leaderboard = True
+        self.phase_1.save()
+        SubmissionScore.objects.create(
+            result=self.submission_4,
+            scoredef=self.score_def,
+            value=125,
+        )
+        self.submission_4.execution_key = json.dumps({'score': 125})
+        self.submission_4.save()
+
+        zip_buffer = StringIO.StringIO()
+        zip_name = "{0}.zip".format('submission_output')
+        zip_file = zipfile.ZipFile(zip_buffer, "w")
+
+        zip_file.writestr('scores.txt', 'key: 150\n')
+
+        zip_file.close()
+
+        self.submission_4.output_file.save(zip_name, ContentFile(zip_buffer.getvalue()))
+        self.submission_4.save()
+
+        print("SUBMISSION SECRET IS {}".format(self.submission_4.secret))
+
+        task_args = {
+            'submission_id': self.submission_4.id
+        }
+        json_task_args = json.dumps(task_args)
+        new_job = Job.objects.create(task_args_json=json_task_args, task_type='evaluate_submission')
+
+        with mock.patch('apps.web.tasks.score') as mock_score:
+            update_submission(new_job.id, {'status': 'finished'}, str(self.submission_4.secret))
+
+        assert not PhaseLeaderBoardEntry.objects.filter(board=self.leader_board, result=self.submission_4)
