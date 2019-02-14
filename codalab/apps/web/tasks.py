@@ -639,15 +639,15 @@ def update_submission(job_id, args, secret):
                         top_sub, top_score = sorted_list[0]
                         score_value = submission.get_default_score()
                         if score_def.sorting == 'asc':
-                            # The first value in ascending is the top score, 1 beats 3
-                            if score_value >= top_score:
+                            # The last value in ascending is the top score, 1 beats 3
+                            if score_value <= top_score:
                                 add_submission_to_leaderboard(submission)
                                 logger.info("Force best submission added submission to leaderboard in ascending order "
                                              "(submission_id=%s, top_score=%s, score=%s)", submission.id, top_score,
                                              score_value)
                         elif score_def.sorting == 'desc':
-                            # The last value in descending is the top score, 3 beats 1
-                            if score_value <= top_score:
+                            # The first value in descending is the top score, 3 beats 1
+                            if score_value >= top_score:
                                 add_submission_to_leaderboard(submission)
                                 logger.info(
                                     "Force best submission added submission to leaderboard in descending order "
