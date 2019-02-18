@@ -212,7 +212,7 @@ class SubmissionLeaderboardTests(TestCase):
         zip_name = "{0}.zip".format('submission_output')
         zip_file = zipfile.ZipFile(zip_buffer, "w")
 
-        zip_file.writestr('scores.txt', 'key: 150\n')
+        zip_file.writestr('scores.txt', '')
 
         zip_file.close()
 
@@ -250,7 +250,7 @@ class SubmissionLeaderboardTests(TestCase):
         zip_name = "{0}.zip".format('submission_output')
         zip_file = zipfile.ZipFile(zip_buffer, "w")
 
-        zip_file.writestr('scores.txt', 'key: 150\n')
+        zip_file.writestr('scores.txt', '')
 
         zip_file.close()
 
@@ -290,7 +290,7 @@ class SubmissionLeaderboardTests(TestCase):
         zip_name = "{0}.zip".format('submission_output')
         zip_file = zipfile.ZipFile(zip_buffer, "w")
 
-        zip_file.writestr('scores.txt', 'key: 150\n')
+        zip_file.writestr('scores.txt', '')
 
         zip_file.close()
 
@@ -330,7 +330,7 @@ class SubmissionLeaderboardTests(TestCase):
         zip_name = "{0}.zip".format('submission_output')
         zip_file = zipfile.ZipFile(zip_buffer, "w")
 
-        zip_file.writestr('scores.txt', 'key: 150\n')
+        zip_file.writestr('scores.txt', '')
 
         zip_file.close()
 
@@ -349,3 +349,282 @@ class SubmissionLeaderboardTests(TestCase):
             update_submission(new_job.id, {'status': 'finished'}, str(self.submission_4.secret))
 
         assert not PhaseLeaderBoardEntry.objects.filter(board=self.leader_board, result=self.submission_4)
+
+    def test_submission_scoring_forced_best_to_leaderboard_exact_conditions(self):
+        self.competition.force_submission_to_leaderboard = True
+        self.competition.disallow_leaderboard_modifying = True
+        self.competition.save()
+        self.phase_1.force_best_submission_to_leaderboard = True
+        self.phase_1.save()
+
+        # Score def 2
+
+        self.result_group2 = SubmissionResultGroup.objects.create(
+            competition=self.competition,
+            key="Key2",
+            label=u"Test2 \u2020",
+            ordering=2
+        )
+        self.submission_result_group_phase = SubmissionResultGroupPhase.objects.create(phase=self.phase_1,
+                                                                                       group=self.result_group2)
+        self.score_def2 = SubmissionScoreDef.objects.create(
+            competition=self.competition,
+            key="Key2",
+            label=u"Test2 \u2020",
+            sorting='desc',
+            ordering=2
+        )
+        SubmissionScoreDefGroup.objects.create(
+            scoredef=self.score_def2,
+            group=self.result_group2,
+        )
+
+        # Score def 3
+
+        self.resultgroup3 = SubmissionResultGroup.objects.create(
+            competition=self.competition,
+            key="Key3",
+            label=u"Test3 \u2020",
+            ordering=3
+        )
+        self.submission_result_group_phase = SubmissionResultGroupPhase.objects.create(phase=self.phase_1,
+                                                                                       group=self.resultgroup3)
+        self.score_def3 = SubmissionScoreDef.objects.create(
+            competition=self.competition,
+            key="Key3",
+            label=u"Test3 \u2020",
+            sorting='asc',
+            ordering=3
+        )
+        SubmissionScoreDefGroup.objects.create(
+            scoredef=self.score_def3,
+            group=self.resultgroup3,
+        )
+
+        # Score def 4
+
+        self.resultgroup4 = SubmissionResultGroup.objects.create(
+            competition=self.competition,
+            key="Key4",
+            label=u"Test4 \u2020",
+            ordering=4
+        )
+        self.submission_result_group_phase = SubmissionResultGroupPhase.objects.create(phase=self.phase_1,
+                                                                                       group=self.resultgroup4)
+        self.score_def4 = SubmissionScoreDef.objects.create(
+            competition=self.competition,
+            key="Key4",
+            label=u"Test4 \u2020",
+            sorting='asc',
+            ordering=4
+        )
+        SubmissionScoreDefGroup.objects.create(
+            scoredef=self.score_def4,
+            group=self.resultgroup4,
+        )
+
+        # Score def 5
+
+        self.resultgroup5 = SubmissionResultGroup.objects.create(
+            competition=self.competition,
+            key="Key5",
+            label=u"Test5 \u2020",
+            ordering=5
+        )
+        self.submission_result_group_phase = SubmissionResultGroupPhase.objects.create(phase=self.phase_1,
+                                                                                       group=self.resultgroup5)
+        self.score_def5 = SubmissionScoreDef.objects.create(
+            competition=self.competition,
+            key="Key5",
+            label=u"Test5 \u2020",
+            sorting='desc',
+            ordering=5
+        )
+        SubmissionScoreDefGroup.objects.create(
+            scoredef=self.score_def5,
+            group=self.resultgroup5,
+        )
+
+        # Score def 6
+
+        self.resultgroup6 = SubmissionResultGroup.objects.create(
+            competition=self.competition,
+            key="Key6",
+            label=u"Test6 \u2020",
+            ordering=6
+        )
+        self.submission_result_group_phase = SubmissionResultGroupPhase.objects.create(phase=self.phase_1,
+                                                                                       group=self.resultgroup6)
+        self.score_def6 = SubmissionScoreDef.objects.create(
+            competition=self.competition,
+            key="Key6",
+            label=u"Test6 \u2020",
+            sorting='desc',
+            ordering=6
+        )
+        SubmissionScoreDefGroup.objects.create(
+            scoredef=self.score_def6,
+            group=self.resultgroup6,
+        )
+
+        # score def 7
+
+        self.resultgroup7 = SubmissionResultGroup.objects.create(
+            competition=self.competition,
+            key="Key7",
+            label=u"Test7 \u2020",
+            ordering=7
+        )
+        self.submission_result_group_phase = SubmissionResultGroupPhase.objects.create(phase=self.phase_1,
+                                                                                       group=self.resultgroup7)
+        self.score_def7 = SubmissionScoreDef.objects.create(
+            competition=self.competition,
+            key="Key7",
+            label=u"Test7 \u2020",
+            sorting='desc',
+            ordering=7
+        )
+        SubmissionScoreDefGroup.objects.create(
+            scoredef=self.score_def7,
+            group=self.resultgroup7,
+        )
+
+        submission_finished = CompetitionSubmissionStatus.objects.get(name="finished", codename="finished")
+        submission_failed = CompetitionSubmissionStatus.objects.get(name="failed", codename="failed")
+
+        self.sub_test_one = CompetitionSubmission.objects.create(
+            participant=self.participant_1,
+            phase=self.phase_1,
+            status=submission_finished,
+            submitted_at=datetime.datetime.now() - datetime.timedelta(days=29)
+        )
+        SubmissionScore.objects.create(
+            result=self.sub_test_one,
+            scoredef=self.score_def2,
+            value=0.5,
+        )
+        SubmissionScore.objects.create(
+            result=self.sub_test_one,
+            scoredef=self.score_def,
+            value=1.0510,
+        )
+        SubmissionScore.objects.create(
+            result=self.sub_test_one,
+            scoredef=self.score_def3,
+            value=1.0,
+        )
+        SubmissionScore.objects.create(
+            result=self.sub_test_one,
+            scoredef=self.score_def4,
+            value=1.0,
+        )
+        SubmissionScore.objects.create(
+            result=self.sub_test_one,
+            scoredef=self.score_def5,
+            value=1.0,
+        )
+        SubmissionScore.objects.create(
+            result=self.sub_test_one,
+            scoredef=self.score_def6,
+            value=1.0,
+        )
+        SubmissionScore.objects.create(
+            result=self.sub_test_one,
+            scoredef=self.score_def7,
+            value=1.0,
+        )
+
+        add_submission_to_leaderboard(self.sub_test_one)
+
+        print(PhaseLeaderBoardEntry.objects.filter(board=self.leader_board, result__participant=self.participant_1).first().result)
+
+        self.sub_test_two = CompetitionSubmission.objects.create(
+            participant=self.participant_1,
+            phase=self.phase_1,
+            status=submission_finished,
+            submitted_at=datetime.datetime.now() - datetime.timedelta(days=29)
+        )
+        SubmissionScore.objects.create(
+            result=self.sub_test_two,
+            scoredef=self.score_def2,
+            value=0.4,
+        )
+        SubmissionScore.objects.create(
+            result=self.sub_test_two,
+            scoredef=self.score_def,
+            value=1.0533,
+        )
+        SubmissionScore.objects.create(
+            result=self.sub_test_two,
+            scoredef=self.score_def3,
+            value=0.65,
+        )
+        SubmissionScore.objects.create(
+            result=self.sub_test_two,
+            scoredef=self.score_def4,
+            value=0.65,
+        )
+        SubmissionScore.objects.create(
+            result=self.sub_test_two,
+            scoredef=self.score_def5,
+            value=0.65,
+        )
+        SubmissionScore.objects.create(
+            result=self.sub_test_two,
+            scoredef=self.score_def6,
+            value=0.65,
+        )
+        SubmissionScore.objects.create(
+            result=self.sub_test_two,
+            scoredef=self.score_def7,
+            value=0.65,
+        )
+
+        # SubmissionScore.objects.create(
+        #     result=self.submission_1,
+        #     scoredef=self.score_def2,
+        #     value=123,
+        # )
+        # self.score_def.sorting = 'desc'
+        # self.score_def.save()
+
+        # self.competition.force_submission_to_leaderboard = True
+        # self.competition.disallow_leaderboard_modifying = True
+        # self.competition.save()
+        # self.phase_1.force_best_submission_to_leaderboard = True
+        # self.phase_1.save()
+        # SubmissionScore.objects.create(
+        #     result=self.submission_4,
+        #     scoredef=self.score_def,
+        #     value=125,
+        # )
+        self.sub_test_two.execution_key = json.dumps({'score': 125})
+        self.sub_test_two.save()
+
+        zip_buffer = StringIO.StringIO()
+        zip_name = "{0}.zip".format('submission_output')
+        zip_file = zipfile.ZipFile(zip_buffer, "w")
+
+        zip_file.writestr('scores.txt', '')
+
+        zip_file.close()
+
+        self.sub_test_two.output_file.save(zip_name, ContentFile(zip_buffer.getvalue()))
+        self.sub_test_two.save()
+
+        print("SUBMISSION SECRET IS {}".format(self.sub_test_two.secret))
+
+        task_args = {
+            'submission_id': self.sub_test_two.id
+        }
+        json_task_args = json.dumps(task_args)
+        new_job = Job.objects.create(task_args_json=json_task_args, task_type='evaluate_submission')
+
+        with mock.patch('apps.web.tasks.score') as mock_score:
+            update_submission(new_job.id, {'status': 'finished'}, str(self.sub_test_two.secret))
+
+        print(PhaseLeaderBoardEntry.objects.filter(board=self.leader_board,
+                                                   result__participant=self.participant_1).first().result)
+        assert PhaseLeaderBoardEntry.objects.filter(board=self.leader_board, result=self.sub_test_two)
+
+        # assert 0
