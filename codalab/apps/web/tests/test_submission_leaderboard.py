@@ -99,34 +99,17 @@ class SubmissionLeaderboardTests(TestCase):
             label=u"Test \u2020",
             ordering=1
         )
-        self.submission_result_group_phase = SubmissionResultGroupPhase.objects.create(phase=self.phase_1,
-                                                                                       group=self.result_group)
+        self.submission_result_group_phase = SubmissionResultGroupPhase.objects.create(phase=self.phase_1, group=self.result_group)
         self.score_def = SubmissionScoreDef.objects.create(
             competition=self.competition,
             key="Key",
             label=u"Test \u2020",
             sorting='desc',
         )
-        SubmissionScoreDefGroup.objects.create(
-            scoredef=self.score_def,
-            group=self.result_group,
-        )
-        SubmissionScore.objects.create(
-            result=self.submission_1,
-            scoredef=self.score_def,
-            value=123,
-        )
-        SubmissionScore.objects.create(
-            result=self.submission_2,
-            scoredef=self.score_def,
-            value=120,
-        )
-        SubmissionScoreSet.objects.create(
-            competition=self.competition,
-            key="Key",
-            label=u"Test \u2020",
-            scoredef=self.score_def,
-        )
+        SubmissionScoreDefGroup.objects.create(scoredef=self.score_def, group=self.result_group)
+        SubmissionScore.objects.create(result=self.submission_1, scoredef=self.score_def, value=123)
+        SubmissionScore.objects.create(result=self.submission_2, scoredef=self.score_def, value=120)
+        SubmissionScoreSet.objects.create(competition=self.competition, key="Key", label=u"Test \u2020", scoredef=self.score_def)
 
         # End scores setup
 
@@ -270,117 +253,39 @@ class SubmissionLeaderboardTests(TestCase):
         self.phase_1.save()
 
         # Score def 2
-
-        self.result_group2 = SubmissionResultGroup.objects.create(
-            competition=self.competition,
-            key="Key2",
-            label=u"Test2 \u2020",
-            ordering=2
-        )
-        self.submission_result_group_phase = SubmissionResultGroupPhase.objects.create(phase=self.phase_1,
-                                                                                       group=self.result_group2)
-        self.score_def2 = SubmissionScoreDef.objects.create(
-            competition=self.competition,
-            key="Key2",
-            label=u"Test2 \u2020",
-            sorting='desc',
-            ordering=2
-        )
+        self.result_group2 = SubmissionResultGroup.objects.create(competition=self.competition, key="Key2", label=u"Test2 \u2020", ordering=2)
+        self.submission_result_group_phase = SubmissionResultGroupPhase.objects.create(phase=self.phase_1, group=self.result_group2)
+        self.score_def2 = SubmissionScoreDef.objects.create(competition=self.competition, key="Key2", label=u"Test2 \u2020", sorting='desc', ordering=2)
         SubmissionScoreDefGroup.objects.create(scoredef=self.score_def2, group=self.result_group2)
 
         # Score def 3
-
-        self.resultgroup3 = SubmissionResultGroup.objects.create(
-            competition=self.competition,
-            key="Key3",
-            label=u"Test3 \u2020",
-            ordering=3
-        )
-        self.submission_result_group_phase = SubmissionResultGroupPhase.objects.create(phase=self.phase_1,
-                                                                                       group=self.resultgroup3)
-        self.score_def3 = SubmissionScoreDef.objects.create(
-            competition=self.competition,
-            key="Key3",
-            label=u"Test3 \u2020",
-            sorting='asc',
-            ordering=3
-        )
+        self.resultgroup3 = SubmissionResultGroup.objects.create(competition=self.competition, key="Key3", label=u"Test3 \u2020", ordering=3)
+        self.submission_result_group_phase = SubmissionResultGroupPhase.objects.create(phase=self.phase_1, group=self.resultgroup3)
+        self.score_def3 = SubmissionScoreDef.objects.create(competition=self.competition, key="Key3", label=u"Test3 \u2020", sorting='asc', ordering=3)
         SubmissionScoreDefGroup.objects.create(scoredef=self.score_def3, group=self.resultgroup3)
 
         # Score def 4
-
-        self.resultgroup4 = SubmissionResultGroup.objects.create(
-            competition=self.competition,
-            key="Key4",
-            label=u"Test4 \u2020",
-            ordering=4
-        )
-        self.submission_result_group_phase = SubmissionResultGroupPhase.objects.create(phase=self.phase_1,
-                                                                                       group=self.resultgroup4)
-        self.score_def4 = SubmissionScoreDef.objects.create(
-            competition=self.competition,
-            key="Key4",
-            label=u"Test4 \u2020",
-            sorting='asc',
-            ordering=4
-        )
+        self.resultgroup4 = SubmissionResultGroup.objects.create(competition=self.competition, key="Key4", label=u"Test4 \u2020", ordering=4)
+        self.submission_result_group_phase = SubmissionResultGroupPhase.objects.create(phase=self.phase_1, group=self.resultgroup4)
+        self.score_def4 = SubmissionScoreDef.objects.create(competition=self.competition, key="Key4", label=u"Test4 \u2020", sorting='asc', ordering=4)
         SubmissionScoreDefGroup.objects.create(scoredef=self.score_def4, group=self.resultgroup4)
 
         # Score def 5
-
-        self.resultgroup5 = SubmissionResultGroup.objects.create(
-            competition=self.competition,
-            key="Key5",
-            label=u"Test5 \u2020",
-            ordering=5
-        )
-        self.submission_result_group_phase = SubmissionResultGroupPhase.objects.create(phase=self.phase_1,
-                                                                                       group=self.resultgroup5)
-        self.score_def5 = SubmissionScoreDef.objects.create(
-            competition=self.competition,
-            key="Key5",
-            label=u"Test5 \u2020",
-            sorting='desc',
-            ordering=5
-        )
+        self.resultgroup5 = SubmissionResultGroup.objects.create(competition=self.competition, key="Key5", label=u"Test5 \u2020", ordering=5)
+        self.submission_result_group_phase = SubmissionResultGroupPhase.objects.create(phase=self.phase_1, group=self.resultgroup5)
+        self.score_def5 = SubmissionScoreDef.objects.create(competition=self.competition, key="Key5", label=u"Test5 \u2020", sorting='desc', ordering=5)
         SubmissionScoreDefGroup.objects.create(scoredef=self.score_def5, group=self.resultgroup5)
 
         # Score def 6
-
-        self.resultgroup6 = SubmissionResultGroup.objects.create(
-            competition=self.competition,
-            key="Key6",
-            label=u"Test6 \u2020",
-            ordering=6
-        )
-        self.submission_result_group_phase = SubmissionResultGroupPhase.objects.create(phase=self.phase_1,
-                                                                                       group=self.resultgroup6)
-        self.score_def6 = SubmissionScoreDef.objects.create(
-            competition=self.competition,
-            key="Key6",
-            label=u"Test6 \u2020",
-            sorting='desc',
-            ordering=6
-        )
+        self.resultgroup6 = SubmissionResultGroup.objects.create(competition=self.competition, key="Key6", label=u"Test6 \u2020", ordering=6)
+        self.submission_result_group_phase = SubmissionResultGroupPhase.objects.create(phase=self.phase_1, group=self.resultgroup6)
+        self.score_def6 = SubmissionScoreDef.objects.create(competition=self.competition, key="Key6", label=u"Test6 \u2020", sorting='desc', ordering=6)
         SubmissionScoreDefGroup.objects.create(scoredef=self.score_def6, group=self.resultgroup6)
 
         # score def 7
-
-        self.resultgroup7 = SubmissionResultGroup.objects.create(
-            competition=self.competition,
-            key="Key7",
-            label=u"Test7 \u2020",
-            ordering=7
-        )
-        self.submission_result_group_phase = SubmissionResultGroupPhase.objects.create(phase=self.phase_1,
-                                                                                       group=self.resultgroup7)
-        self.score_def7 = SubmissionScoreDef.objects.create(
-            competition=self.competition,
-            key="Key7",
-            label=u"Test7 \u2020",
-            sorting='desc',
-            ordering=7
-        )
+        self.resultgroup7 = SubmissionResultGroup.objects.create(competition=self.competition, key="Key7", label=u"Test7 \u2020", ordering=7)
+        self.submission_result_group_phase = SubmissionResultGroupPhase.objects.create(phase=self.phase_1, group=self.resultgroup7)
+        self.score_def7 = SubmissionScoreDef.objects.create(competition=self.competition, key="Key7", label=u"Test7 \u2020", sorting='desc', ordering=7)
         SubmissionScoreDefGroup.objects.create(scoredef=self.score_def7, group=self.resultgroup7)
 
         submission_finished = CompetitionSubmissionStatus.objects.get(name="finished", codename="finished")
