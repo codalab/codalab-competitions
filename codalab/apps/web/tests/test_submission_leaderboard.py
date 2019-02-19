@@ -12,7 +12,7 @@ from django.test import TestCase
 from django.test.client import Client
 from django.contrib.auth import get_user_model
 
-from apps.jobs.models import Job
+# from apps.jobs.models import Job
 from apps.web.models import (Competition,
                              CompetitionParticipant,
                              CompetitionPhase,
@@ -23,7 +23,8 @@ from apps.web.models import (Competition,
                              PhaseLeaderBoardEntry,
                              add_submission_to_leaderboard, SubmissionResultGroup, SubmissionResultGroupPhase,
                              SubmissionScoreDef, SubmissionScoreDefGroup, SubmissionScore, SubmissionScoreSet)
-from apps.web.tasks import update_submission
+# from apps.web.tasks import update_submission
+from apps.web.utils import push_submission_to_leaderboard_if_best
 
 User = get_user_model()
 
@@ -141,7 +142,8 @@ class SubmissionLeaderboardTests(TestCase):
         add_submission_to_leaderboard(self.submission_2)
 
         self.client = Client()
-        self.toggle_url = reverse("competitions:submission_toggle_leaderboard", kwargs={"submission_pk": self.submission_1.pk})
+        self.toggle_url = reverse("competitions:submission_toggle_leaderboard",
+                                  kwargs={"submission_pk": self.submission_1.pk})
 
     def test_toggle_leaderboard_returns_404_if_not_competition_owner(self):
         self.client.login(username="other", password="pass")
@@ -205,34 +207,12 @@ class SubmissionLeaderboardTests(TestCase):
             scoredef=self.score_def,
             value=125,
         )
-        self.submission_4.execution_key = json.dumps({'score': 125})
-        self.submission_4.save()
-
-        zip_buffer = StringIO.StringIO()
-        zip_name = "{0}.zip".format('submission_output')
-        zip_file = zipfile.ZipFile(zip_buffer, "w")
-
-        zip_file.writestr('scores.txt', '')
-
-        zip_file.close()
-
-        self.submission_4.output_file.save(zip_name, ContentFile(zip_buffer.getvalue()))
-        self.submission_4.save()
-
-        print("SUBMISSION SECRET IS {}".format(self.submission_4.secret))
-
-        task_args = {
-            'submission_id': self.submission_4.id
-        }
-        json_task_args = json.dumps(task_args)
-        new_job = Job.objects.create(task_args_json=json_task_args, task_type='evaluate_submission')
-
-        with mock.patch('apps.web.tasks.score') as mock_score:
-            update_submission(new_job.id, {'status': 'finished'}, str(self.submission_4.secret))
+        push_submission_to_leaderboard_if_best(self.submission_4)
 
         assert PhaseLeaderBoardEntry.objects.filter(board=self.leader_board, result=self.submission_4)
 
-    def test_submission_scoring_forced_best_to_leaderboard_does_not_put_lower_score_on_leaderboard_when_descending(self):
+    def test_submission_scoring_forced_best_to_leaderboard_does_not_put_lower_score_on_leaderboard_when_descending(
+            self):
         self.competition.force_submission_to_leaderboard = True
         self.competition.disallow_leaderboard_modifying = True
         self.competition.save()
@@ -243,30 +223,7 @@ class SubmissionLeaderboardTests(TestCase):
             scoredef=self.score_def,
             value=120,
         )
-        self.submission_4.execution_key = json.dumps({'score': 120})
-        self.submission_4.save()
-
-        zip_buffer = StringIO.StringIO()
-        zip_name = "{0}.zip".format('submission_output')
-        zip_file = zipfile.ZipFile(zip_buffer, "w")
-
-        zip_file.writestr('scores.txt', '')
-
-        zip_file.close()
-
-        self.submission_4.output_file.save(zip_name, ContentFile(zip_buffer.getvalue()))
-        self.submission_4.save()
-
-        print("SUBMISSION SECRET IS {}".format(self.submission_4.secret))
-
-        task_args = {
-            'submission_id': self.submission_4.id
-        }
-        json_task_args = json.dumps(task_args)
-        new_job = Job.objects.create(task_args_json=json_task_args, task_type='evaluate_submission')
-
-        with mock.patch('apps.web.tasks.score') as mock_score:
-            update_submission(new_job.id, {'status': 'finished'}, str(self.submission_4.secret))
+        push_submission_to_leaderboard_if_best(self.submission_4)
 
         assert not PhaseLeaderBoardEntry.objects.filter(board=self.leader_board, result=self.submission_4)
 
@@ -283,34 +240,12 @@ class SubmissionLeaderboardTests(TestCase):
             scoredef=self.score_def,
             value=120,
         )
-        self.submission_4.execution_key = json.dumps({'score': 120})
-        self.submission_4.save()
-
-        zip_buffer = StringIO.StringIO()
-        zip_name = "{0}.zip".format('submission_output')
-        zip_file = zipfile.ZipFile(zip_buffer, "w")
-
-        zip_file.writestr('scores.txt', '')
-
-        zip_file.close()
-
-        self.submission_4.output_file.save(zip_name, ContentFile(zip_buffer.getvalue()))
-        self.submission_4.save()
-
-        print("SUBMISSION SECRET IS {}".format(self.submission_4.secret))
-
-        task_args = {
-            'submission_id': self.submission_4.id
-        }
-        json_task_args = json.dumps(task_args)
-        new_job = Job.objects.create(task_args_json=json_task_args, task_type='evaluate_submission')
-
-        with mock.patch('apps.web.tasks.score') as mock_score:
-            update_submission(new_job.id, {'status': 'finished'}, str(self.submission_4.secret))
+        push_submission_to_leaderboard_if_best(self.submission_4)
 
         assert PhaseLeaderBoardEntry.objects.filter(board=self.leader_board, result=self.submission_4)
 
-    def test_submission_scoring_forced_best_to_leaderboard_does_not_put_higher_score_on_leaderboard_when_ascending(self):
+    def test_submission_scoring_forced_best_to_leaderboard_does_not_put_higher_score_on_leaderboard_when_ascending(
+            self):
         self.score_def.sorting = 'asc'
         self.score_def.save()
         self.competition.force_submission_to_leaderboard = True
@@ -323,30 +258,7 @@ class SubmissionLeaderboardTests(TestCase):
             scoredef=self.score_def,
             value=125,
         )
-        self.submission_4.execution_key = json.dumps({'score': 125})
-        self.submission_4.save()
-
-        zip_buffer = StringIO.StringIO()
-        zip_name = "{0}.zip".format('submission_output')
-        zip_file = zipfile.ZipFile(zip_buffer, "w")
-
-        zip_file.writestr('scores.txt', '')
-
-        zip_file.close()
-
-        self.submission_4.output_file.save(zip_name, ContentFile(zip_buffer.getvalue()))
-        self.submission_4.save()
-
-        print("SUBMISSION SECRET IS {}".format(self.submission_4.secret))
-
-        task_args = {
-            'submission_id': self.submission_4.id
-        }
-        json_task_args = json.dumps(task_args)
-        new_job = Job.objects.create(task_args_json=json_task_args, task_type='evaluate_submission')
-
-        with mock.patch('apps.web.tasks.score') as mock_score:
-            update_submission(new_job.id, {'status': 'finished'}, str(self.submission_4.secret))
+        push_submission_to_leaderboard_if_best(self.submission_4)
 
         assert not PhaseLeaderBoardEntry.objects.filter(board=self.leader_board, result=self.submission_4)
 
@@ -374,10 +286,7 @@ class SubmissionLeaderboardTests(TestCase):
             sorting='desc',
             ordering=2
         )
-        SubmissionScoreDefGroup.objects.create(
-            scoredef=self.score_def2,
-            group=self.result_group2,
-        )
+        SubmissionScoreDefGroup.objects.create(scoredef=self.score_def2, group=self.result_group2)
 
         # Score def 3
 
@@ -396,10 +305,7 @@ class SubmissionLeaderboardTests(TestCase):
             sorting='asc',
             ordering=3
         )
-        SubmissionScoreDefGroup.objects.create(
-            scoredef=self.score_def3,
-            group=self.resultgroup3,
-        )
+        SubmissionScoreDefGroup.objects.create(scoredef=self.score_def3, group=self.resultgroup3)
 
         # Score def 4
 
@@ -418,10 +324,7 @@ class SubmissionLeaderboardTests(TestCase):
             sorting='asc',
             ordering=4
         )
-        SubmissionScoreDefGroup.objects.create(
-            scoredef=self.score_def4,
-            group=self.resultgroup4,
-        )
+        SubmissionScoreDefGroup.objects.create(scoredef=self.score_def4, group=self.resultgroup4)
 
         # Score def 5
 
@@ -440,10 +343,7 @@ class SubmissionLeaderboardTests(TestCase):
             sorting='desc',
             ordering=5
         )
-        SubmissionScoreDefGroup.objects.create(
-            scoredef=self.score_def5,
-            group=self.resultgroup5,
-        )
+        SubmissionScoreDefGroup.objects.create(scoredef=self.score_def5, group=self.resultgroup5)
 
         # Score def 6
 
@@ -462,10 +362,7 @@ class SubmissionLeaderboardTests(TestCase):
             sorting='desc',
             ordering=6
         )
-        SubmissionScoreDefGroup.objects.create(
-            scoredef=self.score_def6,
-            group=self.resultgroup6,
-        )
+        SubmissionScoreDefGroup.objects.create(scoredef=self.score_def6, group=self.resultgroup6)
 
         # score def 7
 
@@ -484,59 +381,28 @@ class SubmissionLeaderboardTests(TestCase):
             sorting='desc',
             ordering=7
         )
-        SubmissionScoreDefGroup.objects.create(
-            scoredef=self.score_def7,
-            group=self.resultgroup7,
-        )
+        SubmissionScoreDefGroup.objects.create(scoredef=self.score_def7, group=self.resultgroup7)
 
         submission_finished = CompetitionSubmissionStatus.objects.get(name="finished", codename="finished")
-        submission_failed = CompetitionSubmissionStatus.objects.get(name="failed", codename="failed")
 
-        self.sub_test_one = CompetitionSubmission.objects.create(
+        self.sub_test = CompetitionSubmission.objects.create(
             participant=self.participant_1,
             phase=self.phase_1,
             status=submission_finished,
             submitted_at=datetime.datetime.now() - datetime.timedelta(days=29)
         )
-        SubmissionScore.objects.create(
-            result=self.sub_test_one,
-            scoredef=self.score_def2,
-            value=0.5,
-        )
-        SubmissionScore.objects.create(
-            result=self.sub_test_one,
-            scoredef=self.score_def,
-            value=1.0510,
-        )
-        SubmissionScore.objects.create(
-            result=self.sub_test_one,
-            scoredef=self.score_def3,
-            value=1.0,
-        )
-        SubmissionScore.objects.create(
-            result=self.sub_test_one,
-            scoredef=self.score_def4,
-            value=1.0,
-        )
-        SubmissionScore.objects.create(
-            result=self.sub_test_one,
-            scoredef=self.score_def5,
-            value=1.0,
-        )
-        SubmissionScore.objects.create(
-            result=self.sub_test_one,
-            scoredef=self.score_def6,
-            value=1.0,
-        )
-        SubmissionScore.objects.create(
-            result=self.sub_test_one,
-            scoredef=self.score_def7,
-            value=1.0,
-        )
+        SubmissionScore.objects.create(result=self.sub_test, scoredef=self.score_def2, value=0.5)
+        SubmissionScore.objects.create(result=self.sub_test, scoredef=self.score_def, value=float(1.0510))
+        SubmissionScore.objects.create(result=self.sub_test, scoredef=self.score_def3, value=1.0)
+        SubmissionScore.objects.create(result=self.sub_test, scoredef=self.score_def4, value=1.0)
+        SubmissionScore.objects.create(result=self.sub_test, scoredef=self.score_def5, value=1.0)
+        SubmissionScore.objects.create(result=self.sub_test, scoredef=self.score_def6, value=1.0)
+        SubmissionScore.objects.create(result=self.sub_test, scoredef=self.score_def7, value=1.0)
 
-        add_submission_to_leaderboard(self.sub_test_one)
+        add_submission_to_leaderboard(self.sub_test)
 
-        print(PhaseLeaderBoardEntry.objects.filter(board=self.leader_board, result__participant=self.participant_1).first().result)
+        print(PhaseLeaderBoardEntry.objects.filter(board=self.leader_board,
+                                                   result__participant=self.participant_1).first().result)
 
         self.sub_test_two = CompetitionSubmission.objects.create(
             participant=self.participant_1,
@@ -544,87 +410,14 @@ class SubmissionLeaderboardTests(TestCase):
             status=submission_finished,
             submitted_at=datetime.datetime.now() - datetime.timedelta(days=29)
         )
-        SubmissionScore.objects.create(
-            result=self.sub_test_two,
-            scoredef=self.score_def2,
-            value=0.4,
-        )
-        SubmissionScore.objects.create(
-            result=self.sub_test_two,
-            scoredef=self.score_def,
-            value=1.0533,
-        )
-        SubmissionScore.objects.create(
-            result=self.sub_test_two,
-            scoredef=self.score_def3,
-            value=0.65,
-        )
-        SubmissionScore.objects.create(
-            result=self.sub_test_two,
-            scoredef=self.score_def4,
-            value=0.65,
-        )
-        SubmissionScore.objects.create(
-            result=self.sub_test_two,
-            scoredef=self.score_def5,
-            value=0.65,
-        )
-        SubmissionScore.objects.create(
-            result=self.sub_test_two,
-            scoredef=self.score_def6,
-            value=0.65,
-        )
-        SubmissionScore.objects.create(
-            result=self.sub_test_two,
-            scoredef=self.score_def7,
-            value=0.65,
-        )
+        SubmissionScore.objects.create(result=self.sub_test_two, scoredef=self.score_def2, value=0.4)
+        SubmissionScore.objects.create(result=self.sub_test_two, scoredef=self.score_def, value=float(1.0533))
+        SubmissionScore.objects.create(result=self.sub_test_two, scoredef=self.score_def3, value=0.65)
+        SubmissionScore.objects.create(result=self.sub_test_two, scoredef=self.score_def4, value=0.65)
+        SubmissionScore.objects.create(result=self.sub_test_two, scoredef=self.score_def5, value=0.65)
+        SubmissionScore.objects.create(result=self.sub_test_two, scoredef=self.score_def6, value=0.65)
+        SubmissionScore.objects.create(result=self.sub_test_two, scoredef=self.score_def7, value=0.65)
 
-        # SubmissionScore.objects.create(
-        #     result=self.submission_1,
-        #     scoredef=self.score_def2,
-        #     value=123,
-        # )
-        # self.score_def.sorting = 'desc'
-        # self.score_def.save()
-
-        # self.competition.force_submission_to_leaderboard = True
-        # self.competition.disallow_leaderboard_modifying = True
-        # self.competition.save()
-        # self.phase_1.force_best_submission_to_leaderboard = True
-        # self.phase_1.save()
-        # SubmissionScore.objects.create(
-        #     result=self.submission_4,
-        #     scoredef=self.score_def,
-        #     value=125,
-        # )
-        self.sub_test_two.execution_key = json.dumps({'score': 125})
-        self.sub_test_two.save()
-
-        zip_buffer = StringIO.StringIO()
-        zip_name = "{0}.zip".format('submission_output')
-        zip_file = zipfile.ZipFile(zip_buffer, "w")
-
-        zip_file.writestr('scores.txt', '')
-
-        zip_file.close()
-
-        self.sub_test_two.output_file.save(zip_name, ContentFile(zip_buffer.getvalue()))
-        self.sub_test_two.save()
-
-        print("SUBMISSION SECRET IS {}".format(self.sub_test_two.secret))
-
-        task_args = {
-            'submission_id': self.sub_test_two.id
-        }
-        json_task_args = json.dumps(task_args)
-        new_job = Job.objects.create(task_args_json=json_task_args, task_type='evaluate_submission')
-
-        with mock.patch('apps.web.tasks.score') as mock_score:
-            update_submission(new_job.id, {'status': 'finished'}, str(self.sub_test_two.secret))
-
-        print(PhaseLeaderBoardEntry.objects.filter(board=self.leader_board,
-                                                   result__participant=self.participant_1).first().result)
+        push_submission_to_leaderboard_if_best(self.sub_test_two)
+        # result__participant = self.participant_1).first().result)
         assert PhaseLeaderBoardEntry.objects.filter(board=self.leader_board, result=self.sub_test_two)
-
-        # assert 0
