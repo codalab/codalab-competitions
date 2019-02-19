@@ -296,8 +296,8 @@ class SubmissionLeaderboardTests(TestCase):
             status=submission_finished,
             submitted_at=datetime.datetime.now() - datetime.timedelta(days=29)
         )
-        SubmissionScore.objects.create(result=self.sub_test, scoredef=self.score_def2, value=0.5)
         SubmissionScore.objects.create(result=self.sub_test, scoredef=self.score_def, value=float(1.0510))
+        SubmissionScore.objects.create(result=self.sub_test, scoredef=self.score_def2, value=0.5)
         SubmissionScore.objects.create(result=self.sub_test, scoredef=self.score_def3, value=1.0)
         SubmissionScore.objects.create(result=self.sub_test, scoredef=self.score_def4, value=1.0)
         SubmissionScore.objects.create(result=self.sub_test, scoredef=self.score_def5, value=1.0)
@@ -315,8 +315,8 @@ class SubmissionLeaderboardTests(TestCase):
             status=submission_finished,
             submitted_at=datetime.datetime.now() - datetime.timedelta(days=29)
         )
-        SubmissionScore.objects.create(result=self.sub_test_two, scoredef=self.score_def2, value=0.4)
         SubmissionScore.objects.create(result=self.sub_test_two, scoredef=self.score_def, value=float(1.0533))
+        SubmissionScore.objects.create(result=self.sub_test_two, scoredef=self.score_def2, value=0.4)
         SubmissionScore.objects.create(result=self.sub_test_two, scoredef=self.score_def3, value=0.65)
         SubmissionScore.objects.create(result=self.sub_test_two, scoredef=self.score_def4, value=0.65)
         SubmissionScore.objects.create(result=self.sub_test_two, scoredef=self.score_def5, value=0.65)
