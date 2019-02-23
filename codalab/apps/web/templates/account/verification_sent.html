@@ -1,0 +1,17 @@
+{% extends "account/base.html" %}
+
+{% load i18n %}
+
+{% block head_title %}{% trans "Verify Your E-mail Address" %}{% endblock %}
+
+{% block content %}
+    <h1>{% trans "Verify Your E-mail Address" %}</h1>
+
+    <p>{% blocktrans %}We have sent an e-mail to you for verification. Follow the link provided to finalize the signup process.{% endblocktrans %}</p>
+
+    <div style="text-align: center;margin-top: 4em;">
+        <div class="alert alert-danger" style="display:inline-block">
+            <h2>Please check your spam folder for verification email!</h2>
+        </div>
+    </div>
+{% endblock %}
