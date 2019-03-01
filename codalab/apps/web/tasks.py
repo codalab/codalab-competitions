@@ -810,6 +810,7 @@ def _send_mass_html_mail(datatuple, fail_silently=False, user=None, password=Non
 
 @task(queue='site-worker')
 def send_mass_email(competition_pk, body=None, subject=None, from_email=None, to_emails=None):
+    logger.info("Sending emails to: {}".format(to_emails))
     competition = Competition.objects.get(pk=competition_pk)
     context = Context({"competition": competition, "body": body, "site": Site.objects.get_current()})
     text = render_to_string("emails/notifications/participation_organizer_direct_email.txt", context)
@@ -818,6 +819,7 @@ def send_mass_email(competition_pk, body=None, subject=None, from_email=None, to
     mail_tuples = ((subject, text, html, from_email, [e]) for e in to_emails)
 
     _send_mass_html_mail(mail_tuples)
+    logger.info("Finished sending emails.")
 
 
 @task(queue='site-worker')
