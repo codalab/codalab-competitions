@@ -816,9 +816,19 @@ def send_mass_email(competition_pk, body=None, subject=None, from_email=None, to
     text = render_to_string("emails/notifications/participation_organizer_direct_email.txt", context)
     html = render_to_string("emails/notifications/participation_organizer_direct_email.html", context)
 
-    mail_tuples = ((subject, text, html, from_email, [e]) for e in to_emails)
+    message_info = []
+    site = Site.objects.get_current()
 
-    _send_mass_html_mail(mail_tuples)
+    users = ClUser.objects.filter(email__in=to_emails)
+
+    for user in users:
+        context = Context({"competition": competition, "body": body, "site": site, "user": user, "mass_email": True})
+        text = render_to_string("emails/notifications/participation_organizer_direct_email.txt", context)
+        html = render_to_string("emails/notifications/participation_organizer_direct_email.html", context)
+
+        message_info.append([subject, text, html, from_email, [user.email]])
+
+    _send_mass_html_mail(message_info)
     logger.info("Finished sending emails.")
 
 

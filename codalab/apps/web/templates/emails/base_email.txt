@@ -3,9 +3,12 @@ Hello {{ user.username }},
 
 {% block content %}{% endblock %}
 
+
+{% if not mass_email %}
 Thanks,
 
 CodaLab Team
+{% endif %}
 
 
 Unsubscribe or manage notification settings:
