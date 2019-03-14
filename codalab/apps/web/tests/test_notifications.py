@@ -235,7 +235,7 @@ class SendMassEmailTests(TestCase):
             "body": "Body",
             "subject": "Subject",
             "from_email": "no-reply@test.com",
-            "to_emails": ["test@test.com"]
+            "to_emails": [self.users[0].email]
         }
         tasks.send_mass_email(**task_args)
 
