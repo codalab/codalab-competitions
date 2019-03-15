@@ -3,27 +3,18 @@
 {#<h1>Submit or view results</h1>#}
 
 <div align="center" id="submissions_phase_buttons">
-  {% for phase in competition.phases.all %}
-      {% if phase.is_parallel_parent %}
-        {% if phase == active_phase %}
-          <!-- active, dont change bg color -->
-            <button style="margin-right: 5vw;" class="btn active phase-btn-{{ phase.color }} btn-md" id="submissions_phase_{{phase.id}}">{{phase.label}}</button>
+    {% for phase in competition.phases.all %}
+        {% if phase.is_parallel_parent %}
+            {% if forloop.counter0 > 0 %}
+                <hr style="margin: 0.5vh 0 0.5vh 0;">
+            {% endif %}
+                <button style="margin-right: 1vw" class="btn {% if phase == active_phase %}active {% endif %}phase-btn-{{ phase.color }} btn-md"
+                        id="submissions_phase_{{ phase.id }}">{{ phase.label }}</button>
         {% else %}
-            <button style="margin-right: 5vw;" class="btn phase-btn-{{ phase.color }} btn-md" id="submissions_phase_{{phase.id}}">{{phase.label}}</button>
+                <button class="btn {% if phase == active_phase %}active {% endif %}phase-btn-{{ phase.color }} btn-sm"
+                        id="submissions_phase_{{ phase.id }}">{{ phase.label }}</button>
         {% endif %}
-      {% else %}
-          {% if phase == active_phase %}
-          <!-- active, dont change bg color -->
-            <button class="btn active phase-btn-{{ phase.color }} btn-sm" id="submissions_phase_{{phase.id}}">{{phase.label}}</button>
-        {% else %}
-            <button class="btn phase-btn-{{ phase.color }} btn-sm" id="submissions_phase_{{phase.id}}">{{phase.label}}</button>
-        {% endif %}
-      {% endif %}
-  {% endfor %}
-{#    <ul class="list-unstyled">#}
-{#    {% if competition.start_date %}<li><b>Competition Start: </b>{{ competition.start_date }}</li>{% endif %}#}
-{#    {% if competition.end_date %}<li><b>Competition End: </b>{{ competition.end_date }}</li>{% endif %}#}
-{#    </ul>#}
+    {% endfor %}
 </div>
 
 <div class="competition_submissions">

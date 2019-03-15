@@ -49,6 +49,7 @@ class CompetitionForm(forms.ModelForm):
             'competition_docker_image',
             'hide_top_three',
             'hide_chart',
+            'submit_to_all_phases'
         )
         widgets = {'description': TinyMCE(attrs={'rows' : 20, 'class' : 'competition-editor-description'},
                                           mce_attrs={"theme": "advanced", "cleanup_on_startup": True, "theme_advanced_toolbar_location": "top", "gecko_spellcheck": True})}

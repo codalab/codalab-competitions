@@ -255,7 +255,7 @@ class Competition(ChaHubSaveMixin, models.Model):
     is_migrating = models.BooleanField(default=False)
     force_submission_to_leaderboard = models.BooleanField(default=False)
     disallow_leaderboard_modifying = models.BooleanField(default=False)
-    secret_key = models.UUIDField(default=uuid.uuid4())
+    secret_key = models.UUIDField(default=uuid.uuid4)
     enable_medical_image_viewer = models.BooleanField(default=False)
     enable_detailed_results = models.BooleanField(default=False)
     original_yaml_file = models.TextField(default='', blank=True, null=True)
@@ -274,6 +274,8 @@ class Competition(ChaHubSaveMixin, models.Model):
     hide_chart = models.BooleanField(default=False, verbose_name="Hide Chart")
 
     competition_docker_image = models.CharField(max_length=128, default='', blank=True)
+
+    submit_to_all_phases = models.BooleanField(default=False, verbose_name="Submit to all phases")
 
     class Meta:
         permissions = (
@@ -1448,7 +1450,10 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
             phases_to_run_on = [submission_phase]
         else:
             # Run the submission against all subphases
-            phases_to_run_on = [submission_phase] + list(submission_phase.sub_phases.all())
+            if not submission_phase.competition.submit_to_all_phases:
+                phases_to_run_on = [submission_phase] + list(submission_phase.sub_phases.all())
+            else:
+                phases_to_run_on = CompetitionPhase.objects.filter(competition=submission_phase.competition)
 
         # If we are dealing with a parallel parent, we need to make a parent submission
         parent_submission = None
@@ -1957,12 +1962,11 @@ class CompetitionDefBundle(models.Model):
         # Validate parent phases
         parents_created = []
         parents_used = []
-        for phase_number, phase in comp_spec['phases'].items():
-            if phase.get('is_parallel_parent'):
-                parents_created.append(phase_number)
+        for index, phase in comp_spec['phases'].items():
+            if phase.get('is_parallel_parent') and phase.get('phasenumber'):
+                parents_created.append(phase.get('phasenumber'))
             elif phase.get('parent_phasenumber'):
                 parents_used.append(phase.get('parent_phasenumber'))
-
         if not all(p in parents_used for p in parents_created):
             assert False, "Parent phase found without children, all parent phases must have children"
 

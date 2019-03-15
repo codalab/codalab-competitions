@@ -1,11 +1,14 @@
 <div align="center" id="results_phase_buttons">
     {% for phase in competition.phases.all %}
         {% if phase.is_parallel_parent %}
-            {% if phase.is_active %}
-                <button style="margin-right: 5vw;" class="btn btn-md active phase-btn-{{ phase.color }}" id="results_phase_{{ phase.id }}">{{ phase.label }}</button>
-            {% else %}
-                <button style="margin-right: 5vw;" class="btn btn-md phase-btn-{{ phase.color }}" id="results_phase_{{ phase.id }}">{{ phase.label }}</button>
+            {% if forloop.counter0 > 0 %}
+                <hr style="margin: 0.5vh 0 0.5vh 0;">
             {% endif %}
+{#            {% if phase.is_active %}#}
+                <button style="margin-right: 5vw;" class="btn btn-md {% if phase.is_active %}active {% endif %}phase-btn-{{ phase.color }}" id="results_phase_{{ phase.id }}">{{ phase.label }}</button>
+{#            {% else %}#}
+{#                <button style="margin-right: 5vw;" class="btn btn-md phase-btn-{{ phase.color }}" id="results_phase_{{ phase.id }}">{{ phase.label }}</button>#}
+{#            {% endif %}#}
         {% else %}
 {#            {% if phase.is_active %}#}
 {#                <button class="btn btn-sm active phase-btn-{{ phase.color }}" id="results_phase_{{ phase.id }}">{{ phase.label }}</button>#}
@@ -15,14 +18,14 @@
             {% if phase.parent %}
                 <button class="btn btn-sm phase-btn-{{ phase.color }}" id="results_phase_{{ phase.id }}">{{ phase.label }}</button>
             {% else %}
-                {% if phase.is_active %}
-                    <button class="btn btn-sm active phase-btn-{{ phase.color }}" id="results_phase_{{ phase.id }}">{{ phase.label }}</button>
-                {% else %}
-                    <button class="btn btn-sm phase-btn-{{ phase.color }}" id="results_phase_{{ phase.id }}">{{ phase.label }}</button>
-                {% endif %}
+{#                {% if phase.is_active %}#}
+                    <button class="btn btn-sm {% if phase.is_active %}active {% endif %}phase-btn-{{ phase.color }}" id="results_phase_{{ phase.id }}">{{ phase.label }}</button>
+{#                {% else %}#}
+{#                    <button class="btn btn-sm phase-btn-{{ phase.color }}" id="results_phase_{{ phase.id }}">{{ phase.label }}</button>#}
+{#                {% endif %}#}
             {% endif %}
         {% endif %}
     {% endfor %}
 </div>
 
-<div style="margin-top: 5vh;" class="competition_results"></div>
+<div style="margin-top: 1.5vh;" class="competition_results"></div>

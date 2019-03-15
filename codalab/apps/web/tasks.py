@@ -1078,6 +1078,8 @@ def make_modified_bundle(competition_pk, exclude_datasets_flag):
         logger.info("Adding end-date")
         if competition.end_date is not None:
             yaml_data['end_date'] = competition.end_date
+        if competition.submit_to_all_phases:
+            yaml_data['submit_to_all_phases'] = True
         zip_buffer = StringIO.StringIO()
         zip_name = "{0}.zip".format(competition.title)
         zip_file = zipfile.ZipFile(zip_buffer, "w")
@@ -1114,6 +1116,11 @@ def make_modified_bundle(competition_pk, exclude_datasets_flag):
             phase_dict['max_submissions'] = phase.max_submissions
             phase_dict['color'] = phase.color
             phase_dict['max_submissions_per_day'] = phase.max_submissions_per_day
+            if phase.is_parallel_parent:
+                phase_dict['is_parallel_parent'] = phase.is_parallel_parent
+                phase_dict['is_scoring_only'] = True
+            if phase.parent:
+                phase_dict['parent_phasenumber'] = phase.parent.phasenumber
             # Write the programs/data to zip
             data_types = ['reference_data', 'scoring_program', 'input_data', 'starting_kit', 'public_data', 'ingestion_program']
             # data_types = []
