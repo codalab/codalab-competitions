@@ -25,6 +25,12 @@
         <p><b>Max submissions total: </b> {{ phase.max_submissions }}</p>
     </div>
 
+    {% if submission_threshold_met %}
+        <div class="alert alert-danger text-center">
+            <h2>We already have too many submissions running. Please come back in a few minutes.</h2>
+        </div>
+    {% endif %}
+
     {% if phase.is_active %}
         <div class="form-group">
             <label class="control-label">Click the Submit button to upload a new submission.</label>
