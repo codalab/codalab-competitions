@@ -1,10 +1,11 @@
 import re
 
+import logging
 import requests
 from django.conf import settings
 from django.core.files.storage import get_storage_class
 
-
+logger = logging.getLogger(__name__)
 
 StorageClass = get_storage_class(settings.DEFAULT_FILE_STORAGE)
 
@@ -68,6 +69,43 @@ def _put_blob(url, file_path):
             'x-ms-blob-type': 'BlockBlob',
         }
     )
+
+
+def push_submission_to_leaderboard_if_best(submission):
+    from apps.web.models import PhaseLeaderBoard, PhaseLeaderBoardEntry, add_submission_to_leaderboard
+    # In this phase get the submission score from the column with the lowest ordering
+    score_def = submission.get_default_score_def()
+    lb = PhaseLeaderBoard.objects.get(phase=submission.phase)
+
+    # Get our leaderboard entries: Related Submissions should be in our participant's submissions,
+    # and the leaderboard should be the one attached to our phase
+    entries = PhaseLeaderBoardEntry.objects.filter(result__in=submission.participant.submissions.all(), board=lb)
+    submissions = [(entry.result, entry.result.get_default_score()) for entry in entries]
+    sorted_list = sorted(submissions, key=lambda x: x[1])
+    if sorted_list:
+        top_sub, top_score = sorted_list[0]
+        score_value = submission.get_default_score()
+        if score_def.sorting == 'asc':
+            # The last value in ascending is the top score, 1 beats 3
+            if score_value <= top_score:
+                add_submission_to_leaderboard(submission)
+                logger.info("Force best submission added submission to leaderboard in ascending order "
+                            "(submission_id=%s, top_score=%s, score=%s)", submission.id, top_score,
+                            score_value)
+        elif score_def.sorting == 'desc':
+            # The first value in descending is the top score, 3 beats 1
+            if score_value >= top_score:
+                add_submission_to_leaderboard(submission)
+                logger.info(
+                    "Force best submission added submission to leaderboard in descending order "
+                    "(submission_id=%s, top_score=%s, score=%s)", submission.id, top_score, score_value)
+    else:
+        add_submission_to_leaderboard(submission)
+        logger.info(
+            "Force best submission added submission: {0} with score: {1} to leaderboard: {2}"
+            " because no submission was present".format(
+                submission, submission.get_default_score(), lb)
+        )
 
 
 def inheritors(klass):
