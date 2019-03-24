@@ -805,7 +805,7 @@ def send_mass_email(competition_pk, body=None, subject=None, from_email=None, to
     text = render_to_string("emails/notifications/participation_organizer_direct_email.txt", context)
     html = render_to_string("emails/notifications/participation_organizer_direct_email.html", context)
 
-    message = EmailMultiAlternatives(subject, text, from_email, to=None, bcc=[to_emails])
+    message = EmailMultiAlternatives(subject, text, from_email, to=None, bcc=to_emails)
     message.attach_alternative(html, 'text/html')
     message.send()
 

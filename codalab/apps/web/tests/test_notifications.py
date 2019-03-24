@@ -226,7 +226,9 @@ class SendMassEmailTests(TestCase):
         }
         tasks.send_mass_email(**task_args)
 
-        self.assertEquals(len(mail.outbox), 10)
+        self.assertEquals(len(mail.outbox), 1)
+        self.assertEquals(len(mail.outbox[0].to), 0)  # make sure we're only sending BCC!!
+        self.assertEquals(len(mail.outbox[0].bcc), 10)
 
     def test_send_mass_email_has_valid_links(self):
 
