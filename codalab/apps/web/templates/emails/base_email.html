@@ -60,7 +60,7 @@
 -->
 
 <div id="header">
-    <h1>Hello {{ user.username }},</h1>
+    <h1>Hello{% if user %} {{ user.username }}{% endif %},</h1>
 </div>
 
 {% block title %}

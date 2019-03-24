@@ -793,39 +793,22 @@ def evaluate_submission(submission_id, is_scoring_only):
     logger.debug("evaluate_submission ends (job_id=%s)", job_id)
 
 
-def _send_mass_html_mail(datatuple, fail_silently=False, user=None, password=None,
-                        connection=None):
-    connection = connection or get_connection(
-        username=user, password=password, fail_silently=fail_silently
-    )
-
-    messages = []
-    for subject, text, html, from_email, recipient in datatuple:
-        message = EmailMultiAlternatives(subject, text, from_email, recipient)
-        message.attach_alternative(html, 'text/html')
-        messages.append(message)
-
-    return connection.send_messages(messages)
-
-
 @task(queue='site-worker')
 def send_mass_email(competition_pk, body=None, subject=None, from_email=None, to_emails=None):
     logger.info("Sending emails to: {}".format(to_emails))
     competition = Competition.objects.get(pk=competition_pk)
+    from_email = from_email or settings.DEFAULT_FROM_EMAIL
 
-    message_info = []
     site = Site.objects.get_current()
 
-    users = ClUser.objects.filter(email__in=to_emails)
+    context = Context({"competition": competition, "body": body, "site": site, "mass_email": True})
+    text = render_to_string("emails/notifications/participation_organizer_direct_email.txt", context)
+    html = render_to_string("emails/notifications/participation_organizer_direct_email.html", context)
 
-    for user in users:
-        context = Context({"competition": competition, "body": body, "site": site, "user": user, "mass_email": True})
-        text = render_to_string("emails/notifications/participation_organizer_direct_email.txt", context)
-        html = render_to_string("emails/notifications/participation_organizer_direct_email.html", context)
+    message = EmailMultiAlternatives(subject, text, from_email, to=None, bcc=[to_emails])
+    message.attach_alternative(html, 'text/html')
+    message.send()
 
-        message_info.append([subject, text, html, from_email, [user.email]])
-
-    _send_mass_html_mail(message_info)
     logger.info("Finished sending emails.")
 
 
