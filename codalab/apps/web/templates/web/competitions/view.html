@@ -155,10 +155,6 @@
 
 {% block content %}
 
-    {% if request.user.is_staff %}
-        <a href="{% url "competitions:download" competition_pk=competition.pk %}" class="btn btn-primary">DOWNLOAD
-            COMPETITION BUNDLE!</a>
-    {% endif %}
     {% if is_admin_or_owner %}
         <h3>Admin features</h3>
         <a href="{% url "competitions:edit" pk=competition.pk %}" class="btn btn-primary">Edit</a>
@@ -170,6 +166,15 @@
         </a>
         <a href="{% url 'my_competition_submissions' competition_id=competition.pk %}" class="btn btn-primary">Submissions</a>
         <a href="{% url 'competitions:dumps' competition_pk=competition.pk %}" class="btn btn-primary">Dumps</a>
+        <a href="{% url "competitions:download" competition_pk=competition.pk %}" class="btn btn-primary">
+            Download Original Competition Bundle!
+        </a>
+        {% if not competition.publicly_available %}
+            <br>
+            <a href="{% url "competitions:view" pk=competition.pk %}?secret_key={{ competition.secret_key }}">
+                <code>http://{{ site }}{% url "competitions:view" pk=competition.pk %}?secret_key={{ competition.secret_key }}</code>
+            </a>
+        {% endif %}
         <hr>
     {% endif %}
 
