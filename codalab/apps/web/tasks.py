@@ -1082,7 +1082,7 @@ def make_modified_bundle(competition_pk, exclude_datasets_flag):
             yaml_data['submit_to_all_phases'] = True
         zip_buffer = StringIO.StringIO()
         zip_name = "{0}.zip".format(competition.title)
-        zip_file = zipfile.ZipFile(zip_buffer, "w")
+        zip_file = zipfile.ZipFile(zip_buffer, "w", allowZip64=True)
         for p in competition.pagecontent.pages.all():
             temp_comp_dump.status = "Adding {}.html".format(p.codename)
             temp_comp_dump.save()
