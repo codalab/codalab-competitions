@@ -736,9 +736,11 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
         except ObjectDoesNotExist:
             pass
 
-        jobs_today = Job.objects.filter(created__year=datetime.today().year,
-                                        created__day=datetime.today().day,
-                                        created__month=datetime.today().month)
+        jobs_today = Job.objects.filter(
+            created__year=datetime.today().year,
+            created__day=datetime.today().day,
+            created__month=datetime.today().month)
+        
         jobs_today_pending = len(jobs_today.filter(status=Job.PENDING))
 
         health_settings = HealthSettings.objects.get_or_create(pk=1)[0]
