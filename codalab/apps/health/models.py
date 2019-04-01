@@ -5,4 +5,4 @@ class HealthSettings(models.Model):
     """Base Health Settings Model. Counts the amount of jobs ready to process."""
     emails = models.TextField(null=True, blank=True)
     threshold = models.PositiveIntegerField(default=25, null=True, blank=True)
-    congestion_threshold = models.PositiveIntegerField(default=100, null=True, blank=True)
+    congestion_threshold = models.PositiveIntegerField(default=100, null=False, blank=False)
