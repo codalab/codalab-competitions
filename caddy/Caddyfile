@@ -1,0 +1,46 @@
+{$CADDY_DOMAIN} {
+    root /var/www/codalab
+    proxy / django:8000 {
+        transparent
+        except /static
+    }
+
+    errors ../error.log {
+        # 404 404.html # Not Found
+        503 ./static/error/503.html # Site maintenance
+        500 ./static/error/50x.html # Internal Server Error
+        501 ./static/error/50x.html # Internal Server Error
+        502 ./static/error/50x.html # Internal Server Error
+        * ./static/error/default_error.html # Default error
+    }
+
+    header / {
+        # Don't show Caddy/Gunicorn as server header.
+        -Server
+
+        # Enable HTTP Strict Transport Security (HSTS) to force clients to always connect via HTTPS (do not use if only testing)
+        # Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+
+        # Only send Referer header to same origin.
+        # Django CSRF protection is incompatible with referrer policy set to none.
+        Referrer-Policy "same-origin"
+
+        # Enable cross-site filter (XSS) and tell browser to block detected attacks.
+        X-XSS-Protection "1; mode=block"
+
+        # Prevent some browsers from MIME-sniffing a response away from the declared Content-Type
+        X-Content-Type-Options "nosniff"
+
+        # Enable a strict content security policy.
+        # Edit this if you need external sources on your site.
+        # See: https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP
+        # Content-Security-Policy "connect-src 'self'; default-src 'none'; font-src 'self'; form-action 'self'; frame-ancestors 'none'; img-src data: 'self'; object-src 'self'; style-src 'self'; script-src 'self';"
+
+        # Don't allow resources to load within a frame/iframe.
+        # This is handled with frame-ancestors 'none' in the content security policy. But not yet supported by older browsers.
+        # X-Frame-Options "DENY"
+    }
+
+    # The email address to use to generate a certificate with Letsencrypt.
+    tls {$CADDY_TLS_EMAIL}
+}

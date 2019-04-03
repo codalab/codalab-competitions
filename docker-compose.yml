@@ -3,25 +3,46 @@ services:
   # --------------------------------------------------------------------------
   # HTTP Server
   # --------------------------------------------------------------------------
-  nginx:
-    image: nginx
+#  nginx:
+#    image: nginx
+#    ports:
+#      - ${NGINX_PORT}:${NGINX_PORT}
+#      - ${SSL_PORT}:${SSL_PORT}
+#    command: bash -x /app/docker/run_nginx.sh
+#    volumes:
+#      - ./certs:/app/certs
+#      - ./docker:/app/docker
+#      - ./codalab:/app/codalab
+#      - ${LOGGING_DIR}/nginx:/var/log/nginx/
+#    env_file: .env
+#    links:
+#      - django:django
+#    logging:
+#      options:
+#        max-size: "200k"
+#    container_name: nginx
+  # --------------------------------------------------------------------------
+  # Caddy
+  # --------------------------------------------------------------------------
+  caddy:
+    image: abiosoft/caddy:latest
     restart: unless-stopped
-    ports:
-      - ${NGINX_PORT}:${NGINX_PORT}
-      - ${SSL_PORT}:${SSL_PORT}
-    command: bash -x /app/docker/run_nginx.sh
-    volumes:
-      - ./certs:/app/certs
-      - ./docker:/app/docker
-      - ./codalab:/app/codalab
-      - ${LOGGING_DIR}/nginx:/var/log/nginx/
+    hostname: caddy
     env_file: .env
+    volumes:
+      - ./caddy/Caddyfile:/etc/Caddyfile
+      - ./codalab/static:/var/www/codalab/static
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - django
     links:
-      - django:django
+      - django
     logging:
       options:
         max-size: "200k"
-    container_name: nginx
+    container_name: caddy
 
 
   # --------------------------------------------------------------------------
