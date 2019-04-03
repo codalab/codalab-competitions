@@ -1,4 +1,5 @@
 {$CADDY_DOMAIN} {
+    gzip
     root /var/www/codalab
     proxy / django:8000 {
         transparent

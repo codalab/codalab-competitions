@@ -1303,7 +1303,13 @@ class MyCompetitionSubmissionOutput(View):
                 temp_file_name = file.name
             if file_name:
                 try:
-                    return StreamingHttpResponse(file.readlines(), content_type=content_type)
+                    response = StreamingHttpResponse(file.readlines(), content_type=content_type)
+                    if file_type == 'application/zip':
+                        response['Content-Type'] = 'application/zip'
+                        response['Content-Disposition'] = 'attachment; filename="{0}"'.format(file_name)
+                    else:
+                        response['Content-Type'] = file_type
+                    return response
                 except ValueError:
                     raise Http404()
                 except NotFound:
