@@ -1450,10 +1450,10 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
             phases_to_run_on = [submission_phase]
         else:
             # Run the submission against all subphases
-            if not submission_phase.competition.submit_to_all_phases:
+            # if not submission_phase.competition.submit_to_all_phases:
                 phases_to_run_on = [submission_phase] + list(submission_phase.sub_phases.all())
-            else:
-                phases_to_run_on = CompetitionPhase.objects.filter(competition=submission_phase.competition)
+            # else:
+            #     phases_to_run_on = CompetitionPhase.objects.filter(competition=submission_phase.competition)
 
         # If we are dealing with a parallel parent, we need to make a parent submission
         parent_submission = None

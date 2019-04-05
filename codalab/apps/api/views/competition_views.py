@@ -600,8 +600,17 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
         if submission_phase.auto_migration and not submission_phase.is_migrated and not submission_phase.competition.is_migrating_delayed:
             raise PermissionDenied(
                 detail="Failed, competition phase is being migrated, please try again in a few minutes")
-
-        return CompetitionSubmission.create_submission(self.request, submission_phase, **kwargs)
+        if submission_phase.competition.submit_to_all_phases:
+            all_parent_phases = list(submission_phase.competition.phases.filter(is_parallel_parent=True))
+            result = None
+            for parent_phase in all_parent_phases:
+                temp_sub = CompetitionSubmission.create_submission(self.request, parent_phase, **kwargs)
+                if parent_phase == submission_phase:
+                    result = temp_sub
+            if result:
+                return result
+        else:
+            return CompetitionSubmission.create_submission(self.request, submission_phase, **kwargs)
 
     def handle_exception(self, exc):
         if type(exc) is DjangoPermissionDenied:
