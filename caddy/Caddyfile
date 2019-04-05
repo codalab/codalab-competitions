@@ -6,7 +6,7 @@
         except /static
     }
 
-    push / /static/css/jquery.dataTables.css /static/css/jquery-editable.css /static/css/imports.css /static/js/vendor/jquery-1.10.2.min.js /static/js/Competition.js /static/js/main.js /static/bootstrap/js/bootstrap.min.js
+    push / /static/css/imports.css /static/js/vendor/jquery-1.10.2.min.js /static/js/Competition.js /static/js/main.js /static/bootstrap/js/bootstrap.min.js
 
     errors ../error.log {
         # 404 404.html # Not Found
