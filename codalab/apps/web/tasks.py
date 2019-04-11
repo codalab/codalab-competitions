@@ -70,7 +70,7 @@ from apps.coopetitions.models import DownloadRecord
 
 import time
 # import cProfile
-from apps.web.utils import inheritors
+from apps.web.utils import inheritors, push_submission_to_leaderboard_if_best
 from codalab.azure_storage import make_blob_sas_url
 
 from apps.web import models
@@ -626,39 +626,7 @@ def update_submission(job_id, args, secret):
                     logger.info("Force submission added submission to leaderboard (submission_id=%s)", submission.id)
 
                 if submission.phase.force_best_submission_to_leaderboard:
-                    # In this phase get the submission score from the column with the lowest ordering
-                    score_def = submission.get_default_score_def()
-                    lb = PhaseLeaderBoard.objects.get(phase=submission.phase)
-
-                    # Get our leaderboard entries: Related Submissions should be in our participant's submissions,
-                    # and the leaderboard should be the one attached to our phase
-                    entries = PhaseLeaderBoardEntry.objects.filter(result__in=submission.participant.submissions.all(), board=lb)
-                    submissions = [(entry.result, entry.result.get_default_score()) for entry in entries]
-                    sorted_list = sorted(submissions, key=lambda x: x[1])
-                    if sorted_list:
-                        top_sub, top_score = sorted_list[0]
-                        score_value = submission.get_default_score()
-                        if score_def.sorting == 'asc':
-                            # The last value in ascending is the top score, 1 beats 3
-                            if score_value <= top_score:
-                                add_submission_to_leaderboard(submission)
-                                logger.info("Force best submission added submission to leaderboard in ascending order "
-                                             "(submission_id=%s, top_score=%s, score=%s)", submission.id, top_score,
-                                             score_value)
-                        elif score_def.sorting == 'desc':
-                            # The first value in descending is the top score, 3 beats 1
-                            if score_value >= top_score:
-                                add_submission_to_leaderboard(submission)
-                                logger.info(
-                                    "Force best submission added submission to leaderboard in descending order "
-                                    "(submission_id=%s, top_score=%s, score=%s)", submission.id, top_score, score_value)
-                    else:
-                        add_submission_to_leaderboard(submission)
-                        logger.info(
-                            "Force best submission added submission: {0} with score: {1} to leaderboard: {2}"
-                            " because no submission was present".format(
-                                submission, submission.get_default_score(), lb)
-                        )
+                    push_submission_to_leaderboard_if_best(submission)
                 result = Job.FINISHED
 
                 if submission.participant.user.email_on_submission_finished_successfully:
@@ -825,31 +793,23 @@ def evaluate_submission(submission_id, is_scoring_only):
     logger.debug("evaluate_submission ends (job_id=%s)", job_id)
 
 
-def _send_mass_html_mail(datatuple, fail_silently=False, user=None, password=None,
-                        connection=None):
-    connection = connection or get_connection(
-        username=user, password=password, fail_silently=fail_silently
-    )
-
-    messages = []
-    for subject, text, html, from_email, recipient in datatuple:
-        message = EmailMultiAlternatives(subject, text, from_email, recipient)
-        message.attach_alternative(html, 'text/html')
-        messages.append(message)
-
-    return connection.send_messages(messages)
-
-
 @task(queue='site-worker')
 def send_mass_email(competition_pk, body=None, subject=None, from_email=None, to_emails=None):
+    logger.info("Sending emails to: {}".format(to_emails))
     competition = Competition.objects.get(pk=competition_pk)
-    context = Context({"competition": competition, "body": body, "site": Site.objects.get_current()})
+    from_email = from_email or settings.DEFAULT_FROM_EMAIL
+
+    site = Site.objects.get_current()
+
+    context = Context({"competition": competition, "body": body, "site": site, "mass_email": True})
     text = render_to_string("emails/notifications/participation_organizer_direct_email.txt", context)
     html = render_to_string("emails/notifications/participation_organizer_direct_email.html", context)
 
-    mail_tuples = ((subject, text, html, from_email, [e]) for e in to_emails)
+    message = EmailMultiAlternatives(subject, text, from_email, to=None, bcc=to_emails)
+    message.attach_alternative(html, 'text/html')
+    message.send()
 
-    _send_mass_html_mail(mail_tuples)
+    logger.info("Finished sending emails.")
 
 
 @task(queue='site-worker')

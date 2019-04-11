@@ -206,8 +206,15 @@ class AccountSettingsTests(TestCase):
 class SendMassEmailTests(TestCase):
 
     def setUp(self):
-        self.user = User.objects.create_user(username="user", password="pass", email="user@test.com")
-        self.competition = Competition.objects.create(creator=self.user, modified_by=self.user)
+        self.users = []
+        for count in xrange(10):
+            self.users.append(User.objects.create_user(
+                username="user%s" % count,
+                password="pass",
+                email="user%s@test.com" % count)
+            )
+
+        self.competition = Competition.objects.create(creator=self.users[0], modified_by=self.users[0])
 
     def test_send_mass_email_works(self):
         task_args = {
@@ -215,11 +222,13 @@ class SendMassEmailTests(TestCase):
             "body": "Body",
             "subject": "Subject",
             "from_email": "no-reply@test.com",
-            "to_emails": ["%s@test.com" % i for i in range(0, 10)]
+            "to_emails": [u.email for u in self.users]
         }
         tasks.send_mass_email(**task_args)
 
-        self.assertEquals(len(mail.outbox), 10)
+        self.assertEquals(len(mail.outbox), 1)
+        self.assertEquals(len(mail.outbox[0].to), 0)  # make sure we're only sending BCC!!
+        self.assertEquals(len(mail.outbox[0].bcc), 10)
 
     def test_send_mass_email_has_valid_links(self):
 
@@ -228,7 +237,7 @@ class SendMassEmailTests(TestCase):
             "body": "Body",
             "subject": "Subject",
             "from_email": "no-reply@test.com",
-            "to_emails": ["test@test.com"]
+            "to_emails": [self.users[0].email]
         }
         tasks.send_mass_email(**task_args)
 
