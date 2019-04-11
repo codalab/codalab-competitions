@@ -36,6 +36,9 @@
         a, a:hover, a:visited, a:active {
             color: #739cb9;
         }
+        pre {
+            font-family: sans-serif;
+        }
 
         #header {
             /*background: url("http://{{ site.domain }}{% static "img/slider_exmp_comp.gif" %}");*/
@@ -60,7 +63,7 @@
 -->
 
 <div id="header">
-    <h1>Hello {{ user.username }},</h1>
+    <h1>Hello{% if user %} {{ user.username }}{% endif %},</h1>
 </div>
 
 {% block title %}
@@ -69,11 +72,13 @@
 {% block content %}
 {% endblock %}
 
+{% if not mass_email %}
 <div id="signature">
     <p>Thanks,</p>
 
     <strong>CodaLab Team</strong>
 </div>
+{% endif %}
 
 <div id="footer">
     <p><a href="http://{{ site.domain }}{% url "user_settings" %}">Unsubscribe or manage notification settings</a> | <a href="http://codalab.github.io/codalab/notices.html">Privacy policy</a></p>
