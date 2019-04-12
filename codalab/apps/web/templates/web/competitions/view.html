@@ -245,8 +245,11 @@
                                     Submissions</a></li>
                             {% endif %}
                             {% if competition.enable_forum %}
-                                <li><a class=" href="{% url 'forum_detail' forum_pk=competition.forum.pk %}">Forums <i
-                                        class="glyphicon glyphicon-log-in"></i></a></li>
+                                <li>
+                                    <a class="" href="{% url 'forum_detail' forum_pk=competition.forum.pk %}">
+                                        Forums <i class="glyphicon glyphicon-log-in"></i>
+                                    </a>
+                                </li>
                             {% endif %}
                             {% if competition.enable_teams %}
                                 {% if my_status == "approved" %}

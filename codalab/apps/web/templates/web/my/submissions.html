@@ -159,6 +159,25 @@
                                     </td>
                                 {% endif %}
                             {% endif %}
+                            {% if submission.status_name == 'Running' or submission.status_name == 'Submitting' %}
+                                {% if phase.is_parallel_parent and submission.status_name == 'Submitting' %}
+                                    <td class="text-center">
+                                        <a class="btn btn-xs btn-danger"
+                                           href="{% url 'competitions:submission_cancel' pk=submission.id %}">Cancel</a>
+                                    </td>
+                                {% elif phase.parent and submission.status_name == 'Running' %}
+                                    <td class="text-center">
+                                        <a class="btn btn-xs btn-danger"
+                                           href="{% url 'competitions:submission_cancel' pk=submission.id %}">Cancel</a>
+                                    </td>
+                                {% else %}
+                                    <td class="text-center">
+                                    </td>
+                                {% endif %}
+                            {% else %}
+                                <td class="text-center">
+                                </td>
+                            {% endif %}
                         </tr>
                     {% endfor %}
                     </tbody>
