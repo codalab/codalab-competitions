@@ -484,7 +484,8 @@ def score(submission, job_id):
     # If we're a parent submission, combine all child submission outputs
     if CompetitionSubmission.objects.filter(parent_submission=submission).exists():
         logger.info("This is a parent submission")
-        child_submissions = submission.child_submissions.all().prefetch_related('phase')
+        # child_submissions = submission.child_submissions.all().prefetch_related('phase')
+        child_submissions = submission.child_submissions.filter(status__name='Finished').prefetch_related('phase')
         for child_submission in child_submissions:
             new_result_line = 'res_{phasenumber}: {output}'.format(
                 phasenumber=child_submission.phase.phasenumber,
