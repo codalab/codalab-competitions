@@ -664,7 +664,12 @@ def update_submission(job_id, args, secret):
                         try:
                             scoredef = SubmissionScoreDef.objects.get(competition=submission.phase.competition,
                                                                       key=label.strip())
-                            SubmissionScore.objects.create(result=submission, scoredef=scoredef, value=float(value))
+                            try:
+                                # if type(value) == str:
+                                value = float(value)
+                            except ValueError:
+                                value = float(0)
+                            SubmissionScore.objects.create(result=submission, scoredef=scoredef, value=value)
                         except SubmissionScoreDef.DoesNotExist:
                             logger.warning("Score %s does not exist (submission_id=%s)", label, submission.id)
                 logger.debug("Done processing scores... (submission_id=%s)", submission.id)
