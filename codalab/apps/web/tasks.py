@@ -280,7 +280,7 @@ def _prepare_compute_worker_run(job_id, submission, is_prediction):
 
     time_limit = submission.phase.execution_time_limit
     if time_limit <= 0:
-        time_limit = 60 * 10  # 10 minutes timeout by default
+        time_limit = 60 * 60  # 1 hour timeout by default
 
     # Let's make our soft time limit (for the task) a bit longer than it needs to be, so the worker has time to
     # clean up

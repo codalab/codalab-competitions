@@ -35,4 +35,5 @@ PYTHONUNBUFFERED=TRUE gunicorn codalab.wsgi \
     --log-level $DJANGO_LOG_LEVEL \
     --reload \
     --timeout 4096 \
-    --enable-stdio-inheritance
+    --enable-stdio-inheritance \
+    --workers=${GUNICORN_CONCURRENCY:-1}
