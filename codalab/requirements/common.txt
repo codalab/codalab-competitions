@@ -7,10 +7,9 @@ argh==0.26.2
 attrs==17.4.0
 azure==0.11.1
 Babel==2.5.3
-billiard==3.5.0.3
 boto==2.48.0
 cachetools==2.0.1
-celery==4.1.0
+celery==4.3.0
 certifi==2018.1.18
 chardet==3.0.4
 closure-linter==2.3.19
@@ -90,7 +89,6 @@ httplib2==0.11.3
 idna==2.6
 imagesize==1.0.0
 Jinja2==2.10
-kombu==4.1.0
 lxml==4.2.1
 Mako==1.0.7
 MarkupSafe==1.0
