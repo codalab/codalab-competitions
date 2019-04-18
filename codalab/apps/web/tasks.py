@@ -763,7 +763,7 @@ def update_submission(job_id, args, secret):
             # check here that all sub-submissions completed successfully
             if submission.parent_submission:
                 # We want to do this as a separate task because submission status should be saved by this point
-                check_children_submissions.apply_async((submission.parent_submission.pk,))
+                check_children_submissions.apply_async((submission.parent_submission.pk,), countdown=60)
             else:
                 logger.info("This is NOT a parent submission!")
 
