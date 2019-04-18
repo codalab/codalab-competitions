@@ -24,6 +24,27 @@ from django.apps import apps
 # app.autodiscover_tasks(lambda: [n.name for n in apps.get_app_configs()])
 app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 
+app.conf.beat_schedule = {
+    # 'add-every-30-seconds': {
+    #     'task': 'tasks.add',
+    #     'schedule': 30.0,
+    #     'args': (16, 16)
+    # },
+    'phase_migrations': {
+        'task': 'apps.web.tasks.do_phase_migrations',
+        'schedule': 300,
+    },
+    'chahub_retries': {
+        'task': 'apps.web.tasks.do_chahub_retries',
+        'schedule': 600,
+    },
+    'check_all_parent_submissions': {
+        'task': 'apps.web.tasks.check_all_parent_submissions',
+        'schedule': 60,
+    },
+}
+app.conf.timezone = 'UTC'
+
 
 @app.task(bind=True, name='codalab.tasks.test_task')
 def debug_task(self):

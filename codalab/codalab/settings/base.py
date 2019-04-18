@@ -462,14 +462,18 @@ class Base(Configuration):
     # CELERYD_GROUP = "workeruser"
     # CELERYD_MAX_TASKS_PER_CHILD = 100  # Make celery restart every N tasks to stop leaks
     CELERY_CELERYBEAT_SCHEDULE = {
-        'phase_migrations': {
-            'task': 'apps.web.tasks.do_phase_migrations',
-            'schedule': timedelta(seconds=300),
-        },
-        'chahub_retries': {
-            'task': 'apps.web.tasks.do_chahub_retries',
-            'schedule': timedelta(seconds=600),
-        },
+        # 'phase_migrations': {
+        #     'task': 'apps.web.tasks.do_phase_migrations',
+        #     'schedule': timedelta(seconds=300),
+        # },
+        # 'chahub_retries': {
+        #     'task': 'apps.web.tasks.do_chahub_retries',
+        #     'schedule': timedelta(seconds=600),
+        # },
+        # 'check_all_parent_submissions': {
+        #     'task': 'apps.web.tasks.check_all_parent_submissions',
+        #     'schedule': timedelta(seconds=60),
+        # },
     }
     CELERY_TIMEZONE = 'UTC'
 
