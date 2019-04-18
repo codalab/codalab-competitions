@@ -9,20 +9,33 @@
     <table class="table table-responsive">
     <thead>
     <tr>
+        <th>ID</th>
         <th>Competition</th>
         <th>Participant</th>
+        <th>Filename</th>
         <th>Submitted</th>
         <th>Status</th>
+        <th>Hostname</th>
         <th>Run time</th>
     </tr>
     </thead>
     <tbody>
     {% for sub in submissions %}
     <tr>
+        <td>{{ sub.id }}</td>
         <td>{{ sub.phase.competition }}</td>
         <td>{{ sub.participant.user.username }}</td>
+        <td>
+            {% if sub.file and sub.file.name %}
+                {{ sub.file.name }}
+            {% endif %}
+            {% if sub.s3_file and sub.s3_file.name %}
+                {{ sub.s3_file.name}}
+            {% endif %}
+        </td>
         <td>{{ sub.submitted_at|timesince }} ago</td>
         <td>{{ sub.status }}</td>
+        <td>{{ sub.metadatas.first.hostname }}</td>
         <td>{{ sub.run_time|default_if_none:'' }}</td>
     </tr>
     {% endfor %}
