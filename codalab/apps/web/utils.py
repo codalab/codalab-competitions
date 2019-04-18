@@ -80,6 +80,10 @@ def cancel_submission(sub_pk):
     from codalab.celery import app
     submission = CompetitionSubmission.objects.get(pk=sub_pk)
     app.control.revoke(submission.task_id, terminate=True)
+    app.backend.mark_as_done(
+        submission.task_id,
+        {'error': 'Cancelled'}
+    )
     submission.status = CompetitionSubmissionStatus.objects.get(
         codename=CompetitionSubmissionStatus.CANCELLED
     )

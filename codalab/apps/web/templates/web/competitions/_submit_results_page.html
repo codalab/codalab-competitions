@@ -45,6 +45,12 @@
                             </td>
                         </tr>
                     </table>
+                    {% if submission_threshold_met %}
+                        <div class="alert alert-danger text-center">
+                            <h2>Warning: The compute queues are congested, please wait for existing jobs to process
+                                before submitting more. Thanks for your patience!</h2>
+                        </div>
+                    {% endif %}
                 </div>
 
             </div>

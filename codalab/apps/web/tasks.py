@@ -833,7 +833,7 @@ def update_submission(job_id, args, secret):
 
 @app.task(queue='site-worker')
 def check_all_parent_submissions():
-    all_parent_subs = CompetitionSubmission.objects.filter(phase__is_parallel_parent=True, status__codename='submitting').prefetch_related('phase')
+    all_parent_subs = CompetitionSubmission.objects.filter(phase__is_parallel_parent=True, status__codename='submitting').prefetch_related('phase', 'status')
     for sub in all_parent_subs:
         logger.info("Checking children on parent submission: {}".format(sub.id))
         # check_children_submissions.apply_async((sub.id))

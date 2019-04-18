@@ -122,18 +122,12 @@
 
             <div id="jobs_pending_stuck" class="collapse well">
                 <strong>Pending jobs older than one day</strong>
-<<<<<<< HEAD
                 <strong>Count: {{ jobs_pending_stuck_count }}</strong>
-=======
->>>>>>> develop
                 {% include "health/_job_table.html" with jobs_list=jobs_pending_stuck %}
             </div>
             <div id="jobs_running_stuck" class="collapse well">
                 <strong>Running jobs older than one day</strong>
-<<<<<<< HEAD
                 <strong>Count: {{ jobs_running_stuck_count }}</strong>
-=======
->>>>>>> develop
                 {% include "health/_job_table.html" with jobs_list=jobs_running_stuck %}
             </div>
         </div>
@@ -147,7 +141,10 @@
         </p>
         <div class="content" data-slug="settings" data-section-content>
             Stuck job threshold<br>
-            <input id="alert_threshold" name="alert_threshold" value="{{ alert_threshold }}">
+            <input id="alert_threshold" name="alert_threshold" value="{{ alert_threshold }}"><br>
+
+            Congestion threshold<br>
+            <input id="congestion_threshold" name="congestion_threshold" value="{{ congestion_threshold }}">
 
             <br><br>
 
@@ -169,6 +166,7 @@
             $("#email_settings_submit_button").click(function () {
                 $.post("{% url "health_status_email_settings" %}", {
                     "alert_threshold": $("#alert_threshold").val(),
+                    "congestion_threshold": $("#congestion_threshold").val(),
                     "emails": $("#email_settings_textarea").val()
                 })
                     .success(function () {
