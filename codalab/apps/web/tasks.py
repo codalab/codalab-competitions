@@ -21,7 +21,6 @@ from collections import OrderedDict
 
 import sys
 
-from datetime import datetime
 from datetime import timedelta
 
 from django.utils import timezone
@@ -70,7 +69,7 @@ from apps.coopetitions.models import DownloadRecord
 
 import time
 # import cProfile
-from apps.web.utils import inheritors
+from apps.web.utils import inheritors, cancel_submission
 from codalab.azure_storage import make_blob_sas_url
 
 from apps.web import models
@@ -833,11 +832,16 @@ def update_submission(job_id, args, secret):
 
 @app.task(queue='site-worker')
 def check_all_parent_submissions():
-    all_parent_subs = CompetitionSubmission.objects.filter(phase__is_parallel_parent=True, status__codename='submitting').prefetch_related('phase', 'status')
+    all_parent_subs = CompetitionSubmission.objects.filter(phase__is_parallel_parent=True, status__codename='submitting', submitted_at__gt=(timezone.now() - timedelta(days=30))).prefetch_related('phase', 'status')
+    all_children_subs = CompetitionSubmission.objects.filter(phase__is_parallel_parent=False, parent_submission__isnull=False, status__codename='running', submitted_at__gt=(timezone.now() - timedelta(days=30))).prefetch_related('phase', 'status')
     for sub in all_parent_subs:
         logger.info("Checking children on parent submission: {}".format(sub.id))
-        # check_children_submissions.apply_async((sub.id))
         check_children_submissions.delay(sub.id)
+    logger.info("Checking running children and killing orphans.")
+    for sub in all_children_subs:
+        if sub.parent_submission .status.codename == 'cancelled':
+            logger.info("Killing orphan children submission: {}".format(sub.pk))
+            cancel_submission(sub.pk)
 
 
 @app.task(queue='site-worker')
@@ -948,6 +952,10 @@ def evaluate_submission(submission_id, is_scoring_only):
     predict_and_score = task_args['predict'] == True
     logger.debug("evaluate_submission predict_and_score=%s (job_id=%s)", predict_and_score, job_id)
     submission = CompetitionSubmission.objects.get(pk=submission_id)
+
+    if submission.status.codename == 'cancelled':
+        logger.info("This submission was previously cancelled; Not running again.")
+        return
 
     task_name, task_func = ('prediction', predict) if predict_and_score else ('scoring', score)
     try:
