@@ -114,7 +114,8 @@ def simple_health(request):
     qs = CompetitionSubmission.objects.all()
     qs = qs.order_by('-submitted_at')
     qs = qs.select_related('phase__competition')
-    # qs = qs.select_related('participant__user__username')
+    qs = qs.select_related('phase__competition__queue')
+    qs = qs.select_related('participant__user')
     qs = qs.prefetch_related('phase', 'status', 'participant')
     return render(request, "health/simple_health.html", {
         "submissions": qs[:250],

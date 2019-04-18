@@ -16,7 +16,6 @@
         <th>Submitted</th>
         <th>Status</th>
         <th>Queue</th>
-        <th>VHost</th>
         <th>Hostname</th>
         <th>Run time</th>
     </tr>
@@ -44,13 +43,6 @@
         <td>
             {% if sub.phase.competition.queue %}
                 {{ sub.phase.competition.queue.name }}
-            {% else %}
-                Default
-            {% endif %}
-        </td>
-        <td>
-            {% if sub.phase.competition.queue %}
-                {{ sub.phase.competition.queue.vhost }}
             {% else %}
                 Default
             {% endif %}
