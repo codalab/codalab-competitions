@@ -15,6 +15,8 @@
         <th>Filename</th>
         <th>Submitted</th>
         <th>Status</th>
+        <th>Queue</th>
+        <th>VHost</th>
         <th>Hostname</th>
         <th>Run time</th>
     </tr>
@@ -23,18 +25,36 @@
     {% for sub in submissions %}
     <tr>
         <td>{{ sub.id }}</td>
-        <td>{{ sub.phase.competition }}</td>
+        <td>
+            <a href="{% url "competitions:view" pk=sub.phase.competition.pk %}">
+                {{ sub.phase.competition }}
+            </a>
+        </td>
         <td>{{ sub.participant.user.username }}</td>
         <td>
-            {% if sub.file and sub.file.name %}
-                {{ sub.file.name }}
+            {% if sub.file and sub.get_filename %}
+                {{ sub.get_filename }}
             {% endif %}
-            {% if sub.s3_file and sub.s3_file.name %}
-                {{ sub.s3_file.name}}
-            {% endif %}
+{#            {% if sub.s3_file and sub.s3_file.name %}#}
+{#                {{ sub.s3_file.name}}#}
+{#            {% endif %}#}
         </td>
         <td>{{ sub.submitted_at|timesince }} ago</td>
         <td>{{ sub.status }}</td>
+        <td>
+            {% if sub.phase.competition.queue %}
+                {{ sub.phase.competition.queue.name }}
+            {% else %}
+                Default
+            {% endif %}
+        </td>
+        <td>
+            {% if sub.phase.competition.queue %}
+                {{ sub.phase.competition.queue.vhost }}
+            {% else %}
+                Default
+            {% endif %}
+        </td>
         <td>{{ sub.metadatas.first.hostname }}</td>
         <td>{{ sub.run_time|default_if_none:'' }}</td>
     </tr>
