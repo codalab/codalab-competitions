@@ -38,8 +38,8 @@
         <td>{{ sub.submitted_at|timesince }} ago</td>
         <td>{{ sub.status }}</td>
         <td>
-            {% if sub.submission.queue_name %}
-                {{ sub.submission.queue_name }}
+            {% if sub.queue_name %}
+                {{ sub.queue_name }}
             {% else %}
                 N/A
             {% endif %}
