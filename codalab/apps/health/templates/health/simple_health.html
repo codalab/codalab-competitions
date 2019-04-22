@@ -31,20 +31,17 @@
         </td>
         <td>{{ sub.participant.user.username }}</td>
         <td>
-            {% if sub.file and sub.get_filename %}
+            {% if sub.get_filename %}
                 {{ sub.get_filename }}
             {% endif %}
-{#            {% if sub.s3_file and sub.s3_file.name %}#}
-{#                {{ sub.s3_file.name}}#}
-{#            {% endif %}#}
         </td>
         <td>{{ sub.submitted_at|timesince }} ago</td>
         <td>{{ sub.status }}</td>
         <td>
-            {% if sub.phase.competition.queue %}
-                {{ sub.phase.competition.queue.name }}
+            {% if sub.submission.queue_name %}
+                {{ sub.submission.queue_name }}
             {% else %}
-                Default
+                N/A
             {% endif %}
         </td>
         <td>{{ sub.metadatas.first.hostname }}</td>
