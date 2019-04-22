@@ -52,6 +52,7 @@ from apps.chahub.models import ChaHubSaveMixin
 from apps.forums.models import Forum
 from apps.coopetitions.models import DownloadRecord
 from apps.authenz.models import ClUser
+from apps.jobs.models import Job
 from apps.web.exceptions import ScoringException
 from apps.web.utils import PublicStorage, BundleStorage, clean_html_script
 from apps.teams.models import Team, get_user_team, TeamMembershipStatus, TeamMembership
@@ -1385,6 +1386,11 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
 
     def __unicode__(self):
         return "%s %s %s %s" % (self.pk, self.phase.competition.title, self.phase.label, self.participant.user.email)
+
+    @property
+    def get_jobs(self):
+        queried_jobs = Job.objects.filter(task_args_json__contains='"submission_id": {}}}'.format(self.pk), task_type='evaluate_submission')
+        return queried_jobs
 
     @property
     def metadata_predict(self):

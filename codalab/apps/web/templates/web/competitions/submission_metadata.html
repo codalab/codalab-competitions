@@ -36,6 +36,7 @@
                     <td>Docker image</td>
                     <td>Queue name</td>
                     <td>Submission ID#</td>
+                    <td>Job ID(s)#</td>
                     <td>Status</td>
                     <td>Prediction/Scoring?</td>
                     <td>Running processes (in temp dir)</td>
@@ -59,6 +60,14 @@
                             <td>{{ submission.docker_image }}</td>
                             <td>{{ submission.queue_name }}</td>
                             <td>{{ metadata.submission.pk }}</td>
+                            <td>
+                                {% for job in submission.get_jobs %}
+                                    {{ job.pk }}
+                                    {% if forloop.counter0 > 0 %}
+                                        ,
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
                             <td>{{ metadata.submission.status }}</td>
                             <td>{% if metadata.is_predict %}Prediction{% else %}Scoring{% endif %}</td>
                             <td>{{ metadata.simple.processes_running_in_temp_dir }}</td>
