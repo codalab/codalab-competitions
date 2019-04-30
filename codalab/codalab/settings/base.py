@@ -478,7 +478,8 @@ class Base(Settings):
     CHAHUB_API_KEY = os.environ.get('CHAHUB_API_KEY')
     CHAHUB_PRODUCER_ID = os.environ.get('CHAHUB_PRODUCER_ID')
 
-    assert CHAHUB_API_URL.endswith("/"), "ChaHub API url must end with a slash"
+    if CHAHUB_API_URL:
+        assert CHAHUB_API_URL.endswith("/"), "ChaHub API url must end with a slash"
 
     # =========================================================================
     # Logging
