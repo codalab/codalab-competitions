@@ -47,7 +47,8 @@ from apps.web.exceptions import ScoringException
 from apps.web.forms import CompetitionS3UploadForm, SubmissionS3UploadForm, CompetitionGCSUploadForm, \
     OrganizerDataSetModelForm
 from apps.web.models import SubmissionScore, SubmissionScoreDef, get_current_phase, \
-    get_first_previous_active_and_next_phases, CompetitionDefBundle, CompetitionSubmission, CompetitionSubmissionStatus
+    get_first_previous_active_and_next_phases, CompetitionDefBundle, CompetitionSubmission, CompetitionSubmissionStatus, \
+    CompetitionParticipant
 
 from tasks import evaluate_submission, re_run_all_submissions_in_phase, create_competition, _make_url_sassy, \
     make_modified_bundle
@@ -728,8 +729,15 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
         if settings.USE_AWS:
             context['form'] = forms.SubmissionS3UploadForm
 
-        if competition.participants.filter(user__in=[self.request.user]).exists():
-            participant = competition.participants.get(user=self.request.user)
+        try:
+            part = competition.participants.filter(user=self.request.user).prefetch_related('submissions').select_related('status')
+        except CompetitionParticipant.DoesNotExist:
+            part = None
+
+
+        # if competition.participants.filter(user__in=[self.request.user]).exists():
+        if part.first():
+            participant = part.first()
             if participant.status.codename == models.ParticipantStatus.APPROVED:
                 phase = competition.phases.get(pk=self.kwargs['phase'])
 
@@ -800,17 +808,6 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                 context['current_user_sub_count_day'] = current_user_sub_count_day
                 context['current_user_sub_count'] = current_user_sub_count
                 context['current_user_sub_count_left_day'] = phase.max_submissions_per_day - current_user_sub_count_day
-                # else:
-                #     # Phase=Phase so we don't count other phases! Don't want to as a Child Phase
-                #     context['current_user_sub_count_day'] = participant.submissions.filter(
-                #         submitted_at__day=now.day,
-                #         submitted_at__month=now.month,
-                #         submitted_at__year=now.year,
-                #         phase=phase
-                #     ).count()
-                #     context['current_user_sub_count'] = participant.submissions.filter(
-                #         phase=phase
-                #     ).count()
 
         try:
             last_submission = models.CompetitionSubmission.objects.filter(
