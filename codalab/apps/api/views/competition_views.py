@@ -61,7 +61,7 @@ def _generate_blob_sas_url(prefix, extension, name='blob'):
                                 settings.BUNDLE_AZURE_CONTAINER,
                                 blob_name,
                                 permission='w',
-                                duration=6000)
+                                duration=60*60*24)
         logger.debug("_generate_blob_sas_url: sas=%s; blob_name=%s.", url, blob_name)
         return {'url': url, 'id': blob_name, 'version': PREFERRED_STORAGE_X_MS_VERSION}
 
