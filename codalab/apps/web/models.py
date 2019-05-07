@@ -1286,8 +1286,13 @@ class CompetitionParticipant(models.Model):
 
     def get_used_execution_time(self, phase_id):
         """Returns how much execution time a participant has already used for a phase with previous submissions"""
+        excluded_statuses = [
+            'failed',
+            'submitting',
+            'submitted'
+        ]
         prev_non_failed_submissions = self.submissions.filter(phase__id=phase_id).exclude(
-            status__codename='failed')
+            status__codename__in=excluded_statuses)
         prev_subs_run_time = [sub.run_time for sub in prev_non_failed_submissions if sub.run_time]
         prev_exec_time = sum(prev_subs_run_time, datetime.timedelta())
         return prev_exec_time
