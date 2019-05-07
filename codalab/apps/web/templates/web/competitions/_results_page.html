@@ -63,6 +63,9 @@
                             {% endif %}
                         {% endif %}
                     {% endfor %}
+                    <th style="text-align: center;">
+                        Compute Time
+                    </th>
                     {% if phase.competition.enable_detailed_results %}
                         <th style="text-align: center;" style="padding: 4px 0;">Detailed Results</th>
                     {% endif %}
@@ -132,6 +135,7 @@
                                     {% endwith %}
                                 {% endfor %}
                             {% endfor %}
+                            <td style="text-align: center;">{{ scoredata.est_duration|default_if_none:'' }}</td>
                             {% if phase.competition.enable_detailed_results %}
                                 <td style="text-align: center;">
                                     <a class="btn btn-sm btn-primary detailed-results-link" href="/my/competition/submission/{{scoredata.id}}/detailed_results" target="_blank">

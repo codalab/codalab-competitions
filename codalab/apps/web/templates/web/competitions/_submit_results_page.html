@@ -43,6 +43,12 @@
                             <td class="text-left">
                                 <b>Submissions total:</b> {{ current_user_sub_count }} out of {{ phase.max_submissions }}
                             </td>
+                            <td>
+                                <b>Execution Time Used:</b> {{ execution_time_used }} out of {{ execution_time_total }}
+                            </td>
+                            <td>
+                                <b>Execution Time Left:</b> {{ execution_time_left }}
+                            </td>
                         </tr>
                     </table>
                     {% if submission_threshold_met %}
@@ -77,6 +83,12 @@
                             </td>
                             <td class="text-left">
                                 <b>Submissions total:</b> {{ current_user_sub_count }} out of {{ phase.max_submissions }}
+                            </td>
+                            <td>
+                                <b>Execution Time Used:</b> {{ execution_time_used }} out of {{ execution_time_total }}
+                            </td>
+                            <td>
+                                <b>Execution Time Left:</b> {{ execution_time_left }}
                             </td>
                         </tr>
                     </table>

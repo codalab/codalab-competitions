@@ -252,6 +252,8 @@ def _prepare_compute_worker_run(job_id, submission, is_prediction):
 
     logger.info("Docker image set to: {}".format(docker_image))
 
+    prev_exec_time = submission.participant.get_used_execution_time(phase_id=submission.phase.id)
+
     data = {
         "id": job_id,
         "task_type": "run",
@@ -268,6 +270,8 @@ def _prepare_compute_worker_run(job_id, submission, is_prediction):
             "private_output_url": _make_url_sassy(submission.private_output_file.name, permission='w'),
             "secret": submission.secret,
             "execution_time_limit": submission.phase.execution_time_limit,
+            "max_execution_time_limit": submission.phase.max_execution_time_limit,
+            "previous_execution_time": prev_exec_time,
             "predict": is_prediction,
         }
     }

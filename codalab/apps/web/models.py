@@ -850,6 +850,7 @@ class CompetitionPhase(models.Model):
     auto_migration = models.BooleanField(default=False)
     is_migrated = models.BooleanField(default=False)
     execution_time_limit = models.PositiveIntegerField(default=(5 * 60), verbose_name="Execution time limit (in seconds)")
+    max_execution_time_limit = models.PositiveIntegerField(default=(5 * 60 * 100), verbose_name="Max Total Execution time limit (in seconds)")
     color = models.CharField(max_length=24, choices=COLOR_CHOICES, blank=True, null=True)
 
     input_data_organizer_dataset = models.ForeignKey('OrganizerDataSet', null=True, blank=True, related_name="input_data_organizer_dataset", verbose_name="Input Data", on_delete=models.SET_NULL)
@@ -1283,6 +1284,14 @@ class CompetitionParticipant(models.Model):
         """ Returns true if this participant is approved into the competition. """
         return self.status.codename == ParticipantStatus.APPROVED
 
+    def get_used_execution_time(self, phase_id):
+        """Returns how much execution time a participant has already used for a phase with previous submissions"""
+        prev_non_failed_submissions = self.submissions.filter(phase__id=phase_id).exclude(
+            status__codename='failed')
+        prev_subs_run_time = [sub.run_time for sub in prev_non_failed_submissions if sub.run_time]
+        prev_exec_time = sum(prev_subs_run_time, datetime.timedelta())
+        return prev_exec_time
+
 
 # Competition Submission Status
 class CompetitionSubmissionStatus(models.Model):
@@ -1406,18 +1415,27 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
     @property
     def run_time(self):
         if self.phase.is_parallel_parent and not self.phase.parent:
-            sub_run_time = None
+            sub_run_time = datetime.timedelta()
             for sub in self.child_submissions.all():
-                if sub.run_time and sub.completed_at:
-                    if not sub_run_time:
-                        sub_run_time = sub.run_time
+                if sub.run_time:
                     sub_run_time += sub.run_time
             return sub_run_time
         else:
             if self.started_at and self.completed_at:
                 return self.completed_at - self.started_at
-            elif self.started_at:
+            elif self.started_at and self.status.codename != 'cancelled':
                 return now() - self.started_at
+            elif self.started_at and self.status.codename == 'cancelled':
+                jobs = self.get_jobs
+                time_spent = datetime.timedelta()
+                for job in jobs:
+                    if job.updated > self.started_at:
+                        time_diff = job.updated - self.started_at
+                    else:
+                        time_diff = self.started_at - job.updated
+                    if time_diff:
+                        time_spent += time_diff
+                return time_spent
             else:
                 return None
 
@@ -1576,6 +1594,12 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
                 submission_count = CompetitionSubmission.objects.filter(phase=self.phase,
                                                                                participant=self.participant).exclude(
                     status__codename=CompetitionSubmissionStatus.FAILED).count()
+
+                total_sub_run_time = self.participant.get_used_execution_time(phase_id=self.phase.id)
+
+                if total_sub_run_time >= datetime.timedelta(seconds=self.phase.max_execution_time_limit):
+                    print 'PERMISSION DENIED; Max execution time reached'
+                    raise PermissionDenied("The maximum amount of compute time for submissions has been reached.")
 
                 if (submission_count >= self.phase.max_submissions):
                     print "Checking to see if the submission_count (%d) is greater than the maximum allowed (%d)" % (submission_count, self.phase.max_submissions)

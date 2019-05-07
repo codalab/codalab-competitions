@@ -741,10 +741,7 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
             if participant.status.codename == models.ParticipantStatus.APPROVED:
                 phase = competition.phases.get(pk=self.kwargs['phase'])
 
-                submissions = models.CompetitionSubmission.objects.filter(
-                    participant=participant,
-                    phase=phase
-                ).select_related('status').order_by('submitted_at')
+                submissions = participant.submissions.filter(phase=phase).select_related('status').order_by('submitted_at')
 
                 # find which submission is in the leaderboard, if any and only if phase allows seeing results.
                 id_of_submission_in_leaderboard = -1
@@ -752,7 +749,7 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                     leaderboard_entry = models.PhaseLeaderBoardEntry.objects.filter(
                         board__phase=phase,
                         result__participant__user=self.request.user
-                    ).select_related('result', 'result__participant')
+                    ).select_related('result')
                     if leaderboard_entry:
                         id_of_submission_in_leaderboard = leaderboard_entry[0].result.pk
                 submission_info_list = []
@@ -805,24 +802,29 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                 current_user_sub_count = participant.submissions.filter(
                     phase=phase
                 ).count()
+                part_run_time = participant.get_used_execution_time(phase_id=phase.id)
                 context['current_user_sub_count_day'] = current_user_sub_count_day
                 context['current_user_sub_count'] = current_user_sub_count
                 context['current_user_sub_count_left_day'] = phase.max_submissions_per_day - current_user_sub_count_day
+                context['execution_time_used'] = part_run_time - timedelta(microseconds=part_run_time.microseconds)
+                context['execution_time_total'] = timedelta(seconds=phase.max_execution_time_limit)
+                context['execution_time_left'] = context['execution_time_total'] - context['execution_time_used']
 
-        try:
-            last_submission = models.CompetitionSubmission.objects.filter(
-                participant__user=self.request.user,
-                phase=context['phase']
-            ).latest('submitted_at')
-            context['last_submission_team_name'] = last_submission.team_name
-            context['last_submission_method_name'] = last_submission.method_name
-            context['last_submission_method_description'] = last_submission.method_description
-            context['last_submission_project_url'] = last_submission.project_url
-            context['last_submission_publication_url'] = last_submission.publication_url
-            context['last_submission_bibtex'] = last_submission.bibtex
-            context['last_submission_organization_or_affiliation'] = last_submission.organization_or_affiliation
-        except ObjectDoesNotExist:
-            pass
+            try:
+                # last_submission = models.CompetitionSubmission.objects.filter(
+                last_submission = participant.submissions.filter(
+                    participant__user=self.request.user,
+                    phase=context['phase']
+                ).latest('submitted_at')
+                context['last_submission_team_name'] = last_submission.team_name
+                context['last_submission_method_name'] = last_submission.method_name
+                context['last_submission_method_description'] = last_submission.method_description
+                context['last_submission_project_url'] = last_submission.project_url
+                context['last_submission_publication_url'] = last_submission.publication_url
+                context['last_submission_bibtex'] = last_submission.bibtex
+                context['last_submission_organization_or_affiliation'] = last_submission.organization_or_affiliation
+            except ObjectDoesNotExist:
+                pass
 
         jobs_today = Job.objects.filter(
             created__year=datetime.today().year,
@@ -882,8 +884,15 @@ class CompetitionResultsPage(TemplateView):
             for group in context['groups']:
                 for _, scoredata in group['scores']:
                     sub = models.CompetitionSubmission.objects.get(pk=scoredata['id'])
+                    if sub.status.codename != 'failed':
+                        sub_run_time = sub.run_time
+                        if sub_run_time:
+                            sub_run_time = sub_run_time - timedelta(microseconds=sub_run_time.microseconds)
+                    else:
+                        sub_run_time = 'Submission Failed'
                     scoredata['date'] = sub.submitted_at
                     scoredata['count'] = sub.phase.submissions.filter(participant=sub.participant).count()
+                    scoredata['est_duration'] = sub_run_time
                     if sub.team:
                         scoredata['team_name'] = sub.team.name
 
@@ -1468,6 +1477,12 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
         # map submissions to view data
         submission_info_list = []
         for submission in submissions:
+            if submission.status.codename != 'failed':
+                sub_run_time = submission.run_time
+                if sub_run_time:
+                    sub_run_time = sub_run_time - timedelta(microseconds=sub_run_time.microseconds)
+            else:
+                sub_run_time = 'Submission Failed'
             submission_info = {
                 'id': submission.id,
                 'submitted_by': submission.participant.user.username,
@@ -1481,7 +1496,8 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                 'description': submission.description,
                 'is_public': submission.is_public,
                 'submission_pk': submission.id,
-                'is_migrated': submission.is_migrated
+                'is_migrated': submission.is_migrated,
+                'est_duration': sub_run_time
             }
             # Removed if to show scores on submissions view.
 

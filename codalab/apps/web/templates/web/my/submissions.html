@@ -94,6 +94,7 @@
                                 </a>
                             </th>
                         {% endfor %}
+                        <th>Compute Time</th>
                         <th width="40"></th>
                         <th width="40"></th>
                         <th width="40"></th>
@@ -127,6 +128,7 @@
                                     <td>{{ submission|get_item:column.name }}</td>
                                 {% endif %}
                             {% endfor %}
+                            <td>{{ scoredata.est_duration|default_if_none:'' }}</td>
                             <td align="center"><a href="#{{ submission.id }}"
                                                   onclick="Competition.showOrHideSubmissionDetails(this)"><span
                                     class="glyphicon glyphicon-plus"></span></a></td>
