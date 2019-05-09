@@ -269,8 +269,8 @@ def _prepare_compute_worker_run(job_id, submission, is_prediction):
             "ingestion_program_stderr_url": _make_url_sassy(submission.ingestion_program_stderr_file.name, permission='w'),
             "private_output_url": _make_url_sassy(submission.private_output_file.name, permission='w'),
             "secret": submission.secret,
-            # "execution_time_limit": submission.phase.execution_time_limit,
-            # "max_execution_time_limit": submission.phase.max_execution_time_limit,
+            "execution_time_limit": submission.phase.execution_time_limit,
+            "max_execution_time_limit": submission.phase.max_execution_time_limit,
             # "previous_execution_time": prev_exec_time,
             "predict": is_prediction,
         }
