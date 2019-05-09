@@ -16,7 +16,7 @@
         <div id="disallow_leaderboard_modifying"></div>
     {% endif %}
     <div class="row">
-    {% if not phase.parent %}
+{#    {% if not phase.parent %}#}
 
         {% if phase.is_active %}
             <div class="form-group col-md-12" style="">
@@ -73,28 +73,28 @@
         {% else %}
             <p>This phase of the competition is closed. Here are the submissions you made:</p>
         {% endif %}
-    {% elif phase.is_active %}
-            <div class="form-group col-md-12" style="">
-                <div align="center" class="phase-description">
-                    <table class="table">
-                        <tr>
-                            <td class="text-center">
-                                <b>Number of submission left for the day:</b> {{ current_user_sub_count_left_day }} out of {{ phase.max_submissions_per_day }}
-                            </td>
-                            <td class="text-left">
-                                <b>Submissions total:</b> {{ current_user_sub_count }} out of {{ phase.max_submissions }}
-                            </td>
-                            <td>
-                                <b>Execution Time Used:</b> {{ execution_time_used }} out of {{ execution_time_total }}
-                            </td>
-                            <td>
-                                <b>Execution Time Left:</b> {{ execution_time_left }}
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
-    {% endif %}
+{#    {% elif phase.is_active %}#}
+{#            <div class="form-group col-md-12" style="">#}
+{#                <div align="center" class="phase-description">#}
+{#                    <table class="table">#}
+{#                        <tr>#}
+{#                            <td class="text-center">#}
+{#                                <b>Number of submission left for the day:</b> {{ current_user_sub_count_left_day }} out of {{ phase.max_submissions_per_day }}#}
+{#                            </td>#}
+{#                            <td class="text-left">#}
+{#                                <b>Submissions total:</b> {{ current_user_sub_count }} out of {{ phase.max_submissions }}#}
+{#                            </td>#}
+{#                            <td>#}
+{#                                <b>Execution Time Used:</b> {{ execution_time_used }} out of {{ execution_time_total }}#}
+{#                            </td>#}
+{#                            <td>#}
+{#                                <b>Execution Time Left:</b> {{ execution_time_left }}#}
+{#                            </td>#}
+{#                        </tr>#}
+{#                    </table>#}
+{#                </div>#}
+{#            </div>#}
+{#    {% endif %}#}
     </div>
 
 {#    <hr>#}
