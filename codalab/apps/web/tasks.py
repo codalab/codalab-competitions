@@ -840,7 +840,9 @@ def check_all_parent_submissions():
     all_children_subs = CompetitionSubmission.objects.filter(phase__is_parallel_parent=False, parent_submission__isnull=False, status__codename='running', submitted_at__gt=(timezone.now() - timedelta(days=30))).prefetch_related('phase', 'status')
     for sub in all_parent_subs:
         logger.info("Checking children on parent submission: {}".format(sub.id))
-        check_children_submissions.delay(sub.id)
+        if not sub.get_jobs:
+            # check_children_submissions.delay(sub.id, countdown=5)
+            check_children_submissions.apply_async((sub.id,), countdown=15)
     logger.info("Checking running children and killing orphans.")
     for sub in all_children_subs:
         if sub.parent_submission .status.codename == 'cancelled':
@@ -884,7 +886,10 @@ def check_children_submissions(parent_id):
     if total_children_submission_count == completed_children_count:
         logger.info("All children finished successfully, starting parent submission to aggregate scores")
         # This evaluates the submission with scoring only
-        evaluate_submission.delay(parent.pk, True)
+        if not parent.get_jobs:
+            evaluate_submission.delay(parent.pk, True)
+        else:
+            logger.info("Parent submission already running, not running evaluation")
     # elif total_children_submission_count == completed_children_count:
     #     logger.info("All childeren submissions finished, starting parent submission to aggregate failed submissions.")
     #     evaluate_submission.delay(parent.pk, True)
