@@ -850,7 +850,7 @@ class CompetitionPhase(models.Model):
     auto_migration = models.BooleanField(default=False)
     is_migrated = models.BooleanField(default=False)
     execution_time_limit = models.PositiveIntegerField(default=(5 * 60), verbose_name="Execution time limit (in seconds)")
-    max_execution_time_limit = models.PositiveIntegerField(default=(5 * 60 * 100), verbose_name="Max Total Execution time limit (in seconds)")
+    max_execution_time_limit = models.PositiveIntegerField(default=(5 * 60 * 100), verbose_name="Max Execution time limit for 24 hours (in seconds)")
     color = models.CharField(max_length=24, choices=COLOR_CHOICES, blank=True, null=True)
 
     input_data_organizer_dataset = models.ForeignKey('OrganizerDataSet', null=True, blank=True, related_name="input_data_organizer_dataset", verbose_name="Input Data", on_delete=models.SET_NULL)

@@ -79,6 +79,7 @@ class CompetitionPhaseForm(forms.ModelForm):
             'max_submissions',
             'max_submissions_per_day',
             'execution_time_limit',
+            'max_execution_time_limit',
             'color',
             'is_scoring_only',
             'auto_migration',
