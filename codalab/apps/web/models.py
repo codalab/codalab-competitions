@@ -1289,10 +1289,11 @@ class CompetitionParticipant(models.Model):
         excluded_statuses = [
             'failed',
             'submitting',
-            'submitted'
+            'submitted',
         ]
-        prev_non_failed_submissions = self.submissions.filter(phase__id=phase_id).exclude(
-            status__codename__in=excluded_statuses)
+        prev_non_failed_submissions = self.submissions.filter(phase__id=phase_id,
+                                                              submitted_at__gt=now() - datetime.timedelta(days=1)
+                                                              ).exclude(status__codename__in=excluded_statuses)
         prev_subs_run_time = [sub.run_time for sub in prev_non_failed_submissions if sub.run_time]
         prev_exec_time = sum(prev_subs_run_time, datetime.timedelta())
         return prev_exec_time
@@ -1419,17 +1420,22 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
 
     @property
     def run_time(self):
+        sub_run_time = None
+        # Parent submission run time is a total of the children
         if self.phase.is_parallel_parent and not self.phase.parent:
             sub_run_time = datetime.timedelta()
             for sub in self.child_submissions.all():
                 if sub.run_time:
                     sub_run_time += sub.run_time
-            return sub_run_time
+        # Child submission run time is their own run time as best as we can calculate
         else:
+            # For submissions that actually have a completed time. (Finished)
             if self.started_at and self.completed_at:
-                return self.completed_at - self.started_at
+                sub_run_time = self.completed_at - self.started_at
+            # For submissions in submitting/submitted/running
             elif self.started_at and self.status.codename != 'cancelled':
-                return now() - self.started_at
+                sub_run_time = now() - self.started_at
+            # For cancelled submissions
             elif self.started_at and self.status.codename == 'cancelled':
                 jobs = self.get_jobs
                 time_spent = datetime.timedelta()
@@ -1440,9 +1446,12 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
                         time_diff = self.started_at - job.updated
                     if time_diff:
                         time_spent += time_diff
-                return time_spent
-            else:
-                return None
+                sub_run_time = time_spent
+        # Clamp returned submission run time to the phase's max execution time limit
+        if sub_run_time:
+            if self.parent_submission and not self.phase.is_parallel_parent and sub_run_time.total_seconds() > self.phase.max_execution_time_limit:
+                sub_run_time = datetime.timedelta(seconds=self.phase.max_execution_time_limit)
+        return sub_run_time
 
     def get_chahub_is_valid(self):
         return self.phase.competition.published
