@@ -1472,8 +1472,8 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
     @staticmethod
     def create_submission(request, submission_phase, ignore_submission_limits=False, **kwargs):
         # And condition for if we're re-running a submission. Individaul submissions to tracks should be possible
-        if submission_phase.parent and not ignore_submission_limits:
-            raise PermissionDenied("Cannot directly submit to a sub-phase")
+        # if submission_phase.parent and not ignore_submission_limits:
+        #     raise PermissionDenied("Cannot directly submit to a sub-phase")
 
         if not submission_phase.is_parallel_parent:
             phases_to_run_on = [submission_phase]
