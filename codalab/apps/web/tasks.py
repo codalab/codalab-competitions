@@ -271,7 +271,7 @@ def _prepare_compute_worker_run(job_id, submission, is_prediction):
             "secret": submission.secret,
             "execution_time_limit": submission.phase.execution_time_limit,
             "max_execution_time_limit": submission.phase.max_execution_time_limit,
-            # "previous_execution_time": prev_exec_time,
+            "previous_execution_time": prev_exec_time.total_seconds(),
             "predict": is_prediction,
         }
     }
