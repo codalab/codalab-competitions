@@ -24,6 +24,8 @@ from django.apps import apps
 # app.autodiscover_tasks(lambda: [n.name for n in apps.get_app_configs()])
 app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 
+app.conf.worker_prefetch_multiplier = 1
+
 app.conf.beat_schedule = {
     # 'add-every-30-seconds': {
     #     'task': 'tasks.add',
@@ -44,8 +46,3 @@ app.conf.beat_schedule = {
     },
 }
 app.conf.timezone = 'UTC'
-
-
-@app.task(bind=True, name='codalab.tasks.test_task')
-def debug_task(self):
-    print('Request: {0!r}'.format(self.request))
