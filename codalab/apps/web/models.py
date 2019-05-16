@@ -1449,8 +1449,8 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
                 sub_run_time = time_spent
         # Clamp returned submission run time to the phase's max execution time limit
         if sub_run_time:
-            if self.parent_submission and not self.phase.is_parallel_parent and sub_run_time.total_seconds() > self.phase.max_execution_time_limit:
-                sub_run_time = datetime.timedelta(seconds=self.phase.max_execution_time_limit)
+            if self.parent_submission and not self.phase.is_parallel_parent and sub_run_time.total_seconds() > self.phase.execution_time_limit:
+                sub_run_time = datetime.timedelta(seconds=self.phase.execution_time_limit)
             elif not self.parent_submission and self.phase.is_parallel_parent:
                 max_sub_time = 0
                 for phase in self.phase.competition.phases.all():
