@@ -998,7 +998,7 @@ def _send_mass_html_mail(datatuple, fail_silently=False, user=None, password=Non
 @app.task(queue='site-worker')
 def send_mass_email(competition_pk, body=None, subject=None, from_email=None, to_emails=None):
     competition = Competition.objects.get(pk=competition_pk)
-    context = Context({"competition": competition, "body": body, "site": Site.objects.get_current()})
+    context = {"competition": competition, "body": body, "site": Site.objects.get_current()}
     text = render_to_string("emails/notifications/participation_organizer_direct_email.txt", context)
     html = render_to_string("emails/notifications/participation_organizer_direct_email.html", context)
 
