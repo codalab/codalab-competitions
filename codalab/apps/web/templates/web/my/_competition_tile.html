@@ -23,7 +23,7 @@
                 <p class="organizer">Organized by {{ competition.creator }}</p>
                 <p>{{ competition.description|truncatewords_html:20 }}</p>
             </div>
-            <div class="col-sm-4 col-md-4 right-panel">
+            <div style="padding: 0;" class="col-sm-4 col-md-4 right-panel">
                 {{ competition.get_start_date|date:"M d, Y" }}-{% if competition.end_date %}{{ competition.end_date|date:"M d, Y" }}{% else %}
                 <i>No end date</i>{% endif %}<br>
                 <b>{{ competition.get_participant_count }}</b> participant
