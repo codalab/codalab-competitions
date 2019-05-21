@@ -186,6 +186,7 @@ services:
       - ${LOGGING_DIR}/worker_site:/var/log/
     environment:
       # Stop memory leaks
+      - REQUESTS_CA_BUNDLE=/usr/local/lib/python2.7/site-packages/certifi/cacert.pem
       - DEBUG=False
     env_file: .env
     links:

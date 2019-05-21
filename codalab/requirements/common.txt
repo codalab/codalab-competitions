@@ -10,7 +10,8 @@ Babel==2.5.3
 boto==2.48.0
 cachetools==2.0.1
 celery==4.3.0
-certifi==2018.1.18
+# certifi==2018.1.18
+certifi==2019.3.9
 chardet==3.0.4
 closure-linter==2.3.19
 colorama==0.3.9
