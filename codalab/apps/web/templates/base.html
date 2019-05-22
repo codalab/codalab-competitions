@@ -8,12 +8,16 @@
 <html class="no-js" {% block custom_html_attributes %}{% endblock %} lang="en">
 
 <head>
-    <meta charset="utf-8" />
-    <meta name="globalsign-domain-verification" content="1lsowFdlUrrtcRyvAiFS11btFe-ChVU8h2FmxHw7sD" />
+    <meta charset="utf-8"/>
+    <meta name="globalsign-domain-verification" content="1lsowFdlUrrtcRyvAiFS11btFe-ChVU8h2FmxHw7sD"/>
 
     <!-- Set the viewport width to device width for mobile -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link type="image/x-icon" rel="shortcut icon" href="{{ STATIC_URL }}img/favicon.ico">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css"/>
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     {% block meta %}
     {% endblock %}
 
@@ -23,7 +27,7 @@
         <!-- Included CSS Files (Compressed) -->
         <link rel="stylesheet" href="{{ STATIC_URL }}css/jquery.dataTables.css">
         <link rel="stylesheet" href="{{ STATIC_URL }}css/jquery-editable.css">
-        <link rel="stylesheet" href="{{ STATIC_URL }}js/vendor/select2/select2.css" />
+        <link rel="stylesheet" href="{{ STATIC_URL }}js/vendor/select2/select2.css"/>
         <link rel="stylesheet" href="{{ STATIC_URL }}css/jquery-eu-cookie-law-popup.css">
         {% if compile_less %}
             <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/imports.css">
@@ -57,207 +61,248 @@
 </head>
 
 <body {% block custom_body_attributes %}{% endblock %}>
-    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
-        <div class="container-fluid">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar_collapse">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                {% block title %}
-                    <a class="navbar-brand" href="/" tabIndex=1 target="_self">
-                        {% if CUSTOM_HEADER_LOGO %}
-                            <img src="{{ CUSTOM_HEADER_LOGO }}" alt="Home">
-                        {% else %}
-                            <img src="{{ STATIC_URL }}img/codalab-logo-fullcolor-positive.png" alt="Home">
+
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div id="bg"></div>
+    <div class="ui container container-fluid">
+        <div id="topleft_menu" class="ui secondary inverted menu">
+            <div class="left item">
+                <a href="#" class="tl item">Competitions</a>
+                <a href="https://chahub.org/" class="tl item">Chahub</a>
+                <a href="http://chalab.lri.fr/" class="tl item">Chalab</a>
+                <a href="https://chagrade.lri.fr/" class="tl item">Chagrade</a>
+                </div>
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                            data-target="#navbar_collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    {% block title %}
+                        <a class="navbar-brand" href="/" tabIndex=1 target="_self">
+                            {% if CUSTOM_HEADER_LOGO %}
+                                <img src="{{ CUSTOM_HEADER_LOGO }}" alt="Home">
+                            {% else %}
+                                <img src="{{ STATIC_URL }}img/codalab-logo-onecolor-reverse.png" alt="Home">
+                            {% endif %}
+                        </a>
+                    {% endblock title %}
+                </div>
+                {% block top_bar_right_menus %}
+                    <div class="collapse navbar-collapse" id="navbar_collapse">
+                        {% if BETA %}
+                            <form action="/search" method="get" class="navbar-form navbar-left" role="search">
+                                <div class="form-group">
+                                    <input class="form-control" name="q" type="search" placeholder="Search">
+                                </div>
+                            </form>
                         {% endif %}
-                    </a>
-                {% endblock title %}
-            </div>
-            {% block top_bar_right_menus %}
-                <div class="collapse navbar-collapse" id="navbar_collapse">
-                    {% if BETA %}
-                        <form action="/search" method="get" class="navbar-form navbar-left" role="search">
-                            <div class="form-group">
-                                <input class="form-control" name="q" type="search" placeholder="Search">
-                            </div>
-                        </form>
-                    {% endif %}
-                    <ul class="nav navbar-nav navbar-right">
-                          <li class="{% active request '/my/' %}">
-                              {% if SINGLE_COMPETITION_VIEW_PK %}
-                                  {% if request.user.is_superuser or request.user.is_staff %}
-                                      <a href="/my">My Competitions</a>
-                                  {% endif %}
-                              {% else %}
-                                  {% if user.is_authenticated %}
-                                      <a href="/my">My Competitions</a>
-                                  {% else %}
-                                      <a href="/competitions/">Search Competitions</a>
-                                  {% endif %}
-                              {% endif %}
-                          </li>
-                          <li class="{% active request '/my/' %}">
-                          {% if not user.is_authenticated %}
-                          <a href="{% url 'account_login' %}?next={{request.path}}" target="_self">My Competitions</a>
-                          {% endif %}
-                          </li>
-                        <li>
-                            <a href="https://github.com/codalab/codalab-competitions/wiki" target="_blank">Help</a>
-                        </li>
-                        {% if user.is_authenticated %}
-                            <li class="dropdown {% active request '/accounts/' %}">
-                                <a href="{% url 'user_settings' %}">
-                                    <img src="{{ STATIC_URL }}img/icon_mini_avatar.png" class="mini-avatar" alt="{{user.username}}"> {{user.username}} <span class="caret"></span>
-                                </a>
-                                <ul class="dropdown-menu" role="menu">
-                                    {% if user.is_superuser %}
-                                        <li><a href="{% url 'admin_monitoring_links' %}">Admin Monitoring Links</a></li>
-                                        <li class="divider"></li>
-                                        <li><a href="{% url 'customize_codalab' %}">Customize Codalab</a></li>
-                                        <li class="divider"></li>
-                                        <li><a href="{% url 'su-login' %}">Switch User</a></li>
-                                        <li class="divider"></li>
+                        <ul class="nav navbar-nav navbar-right right item">
+                            <li class="{% active request '/my/' %}">
+                                {% if SINGLE_COMPETITION_VIEW_PK %}
+                                    {% if request.user.is_superuser or request.user.is_staff %}
+                                        <a class="style-button ui large button" href="/my">My Competitions</a>
                                     {% endif %}
-                                    <li><a href="{% url 'user_settings' %}">Settings</a></li>
-                                    <li class="divider"></li>
-                                    <li><a href="/accounts/password/reset/" target="_self">Change Password</a></li>
-                                    <li class="divider"></li>
-                                    <li><a href="{% url 'account_logout' %}" target="_self">Sign Out</a></li>
-                                </ul>
+                                {% else %}
+                                    {% if user.is_authenticated %}
+                                        <a class="style-button ui large button" href="/my">My Competitions</a>
+                                    {% else %}
+                                        <a class="style-button ui large button" href="/competitions/">Search
+                                            Competitions</a>
+                                    {% endif %}
+                                {% endif %}
                             </li>
-                        {% else %}
+                            <li class="{% active request '/my/' %}">
+                                {% if not user.is_authenticated %}
+                                    <a class="style-button ui large button"
+                                       href="{% url 'account_login' %}?next={{ request.path }}" target="_self">My
+                                        Competitions</a>
+                                {% endif %}
+                            </li>
                             <li>
-                                <a href="{% url 'account_signup' %}?next={{request.path}}" target="_self">Sign Up</a>
+                                <a class="style-button ui large button"
+                                   href="https://github.com/codalab/codalab-competitions/wiki" target="_blank">Help</a>
                             </li>
-                            <li>
-                                <a href="{% url 'account_login' %}?next={{request.path}}" target="_self">Sign In</a>
-                            </li>
-                        {% endif %}
-                    </ul>
-                </div>
-            {% endblock top_bar_right_menus %}
+                            {% if user.is_authenticated %}
+                                <li id="user-dropdown" class="dropdown {% active request '/accounts/' %}">
+                                    <a class="style-button ui large button" href="{% url 'user_settings' %}">
+                                        <i class="icon user outline"></i>
+                                        {{ user.username }}
+                                        <span class="caret"></span>
+                                    </a>
+                                    <ul class="dropdown-menu" role="menu">
+                                        {% if user.is_superuser %}
+                                            <li><a href="{% url 'admin_monitoring_links' %}">Admin Monitoring Links</a>
+                                            </li>
+                                            <li class="divider"></li>
+                                            <li><a href="{% url 'customize_codalab' %}">Customize Codalab</a></li>
+                                            <li class="divider"></li>
+                                            <li><a href="{% url 'su-login' %}">Switch User</a></li>
+                                            <li class="divider"></li>
+                                        {% endif %}
+                                        <li><a href="{% url 'user_settings' %}">Settings</a></li>
+                                        <li class="divider"></li>
+                                        <li><a href="/accounts/password/reset/" target="_self">Change Password</a></li>
+                                        <li class="divider"></li>
+                                        <li><a href="{% url 'account_logout' %}" target="_self">Sign Out</a></li>
+                                    </ul>
+                                </li>
+                            {% else %}
+                                <li>
+                                    <a href="{% url 'account_signup' %}?next={{ request.path }}" target="_self">Sign
+                                        Up</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'account_login' %}?next={{ request.path }}" target="_self">Sign
+                                        In</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                    </div>
+                {% endblock top_bar_right_menus %}
         </div>
-    </nav>
+</nav>
 
-    {% block nosubheader %}
-        {% block subheader %}
-            <div class="page-header">
-                <div class="container">
-                    <h1>{% block page_title %}{% endblock page_title %}</h1>
-                </div>
+{% block nosubheader %}
+    {% block subheader %}
+        <div class="page-header">
+            <div class="container">
+                <h1>{% block page_title %}{% endblock page_title %}</h1>
             </div>
-        {% endblock subheader %}
-    {% endblock nosubheader %}
-
-    {% block hero_subheader %}
-    {% endblock hero_subheader %}
-
-    {% block content_wrapper %}
-        <div class="{% if stretch_100_percent_width %}container-fluid{% else %}container{% endif %}" style="padding-bottom: 40px;">
-            {% block content %}
-            {% endblock content %}
         </div>
-    {% endblock content_wrapper %}
+    {% endblock subheader %}
+{% endblock nosubheader %}
 
-    <footer class="navbar-fixed-bottom">
-        <div class="container-fluid">
-            <ul class="nav navbar-nav navbar-right">
-                <li><a href="https://github.com/codalab/codalab/issues" target="_blank">Join us on Github for contact & bug reports</a></li>
-                {% if SINGLE_COMPETITION_VIEW_PK %}
-                    <li><a href="http://codalab.org/" target="_blank">Powered by Codalab</a></li>
-                {% else %}
-                    <li><a href="https://github.com/codalab/codalab/wiki/Project_About_CodaLab" target="_blank">About</a></li>
-                    <li><a href="https://github.com/codalab/codalab/wiki/Privacy" target="_blank">Privacy and Terms</a></li>
-                {% endif %}
+{% block hero_subheader %}
+{% endblock hero_subheader %}
 
-                <li><a>v{{ CODALAB_VERSION }}</a></li>
-            </ul>
-        </div>
-    </footer>
+{% block content_wrapper %}
+    <div class="{% if stretch_100_percent_width %}container-fluid{% else %}container{% endif %}"
+         style="padding-bottom: 40px;">
+        {% block content %}
+        {% endblock content %}
+    </div>
+{% endblock content_wrapper %}
 
-    <script src="//ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>
+<footer class="navbar-fixed-bottom">
+    <div class="container-fluid">
+        <ul class="nav navbar-nav navbar-right">
+            <li><a href="https://github.com/codalab/codalab/issues" target="_blank">Join us on Github for contact & bug
+                reports</a></li>
+            {% if SINGLE_COMPETITION_VIEW_PK %}
+                <li><a href="http://codalab.org/" target="_blank">Powered by Codalab</a></li>
+            {% else %}
+                <li><a href="https://github.com/codalab/codalab/wiki/Project_About_CodaLab" target="_blank">About</a>
+                </li>
+                <li><a href="https://github.com/codalab/codalab/wiki/Privacy" target="_blank">Privacy and Terms</a></li>
+            {% endif %}
 
-    <script src="{{ STATIC_URL }}bootstrap/js/bootstrap.min.js"></script>
-    <script src="{{ STATIC_URL }}js/vendor/select2/select2-forked.js"></script>
-    <script src="{{ STATIC_URL }}lib/jq/jquery.cookie.js"></script>
+            <li><a>v{{ CODALAB_VERSION }}</a></li>
+        </ul>
+    </div>
+</footer>
 
-    <script type="text/javascript" src="{{STATIC_URL}}js/app.js"></script>
-    <script type="text/javascript" src="{{STATIC_URL}}js/Competition.js"></script>
-    <script type="text/javascript" src="{{STATIC_URL}}js/main.js"></script>
+<script src="//ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>
+
+<script src="{{ STATIC_URL }}bootstrap/js/bootstrap.min.js"></script>
+<script src="{{ STATIC_URL }}js/vendor/select2/select2-forked.js"></script>
+<script src="{{ STATIC_URL }}lib/jq/jquery.cookie.js"></script>
+
+<script type="text/javascript" src="{{ STATIC_URL }}js/app.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/Competition.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/main.js"></script>
 
 
-    <div id="migration_modal" class="modal fade" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">Migration warning</h4>
-                </div>
-                <div class="modal-body">
-                    <p>We have scheduled a important maintenance operation for the Codalab public instance (<a href="http://competitions.codalab.org">http://competitions.codalab.org</a>) for Saturday, September 8th.</p>
+<div id="migration_modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Migration warning</h4>
+            </div>
+            <div class="modal-body">
+                <p>We have scheduled a important maintenance operation for the Codalab public instance (<a
+                        href="http://competitions.codalab.org">http://competitions.codalab.org</a>) for Saturday,
+                    September 8th.</p>
 
-                    <p>The migration will start at approximately 9AM PST and should hopefully be completed by approximately 1PM PST that same day.
-                        During that time the server will be down.</p>
+                <p>The migration will start at approximately 9AM PST and should hopefully be completed by approximately
+                    1PM PST that same day.
+                    During that time the server will be down.</p>
 
-                    <p>If you have a scheduling conflict with this move, please let us know before September
-                        1st by posting an issue to GitHub here:</br>
-                        <a href="https://github.com/codalab/codalab-competitions/issues">https://github.com/codalab/codalab-competitions/issues</a></p>
+                <p>If you have a scheduling conflict with this move, please let us know before September
+                    1st by posting an issue to GitHub here:</br>
+                    <a href="https://github.com/codalab/codalab-competitions/issues">https://github.com/codalab/codalab-competitions/issues</a>
+                </p>
 
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button id="hide_migration_warning" type="button" class="btn btn-primary" data-dismiss="modal" onclick="hide_migration_warning">OK don't tell me again!</button>
-                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button id="hide_migration_warning" type="button" class="btn btn-primary" data-dismiss="modal"
+                        onclick="hide_migration_warning">OK don't tell me again!
+                </button>
             </div>
         </div>
     </div>
+</div>
 
-    <script type="text/javascript">
-
+<script type="text/javascript">
     //GOOGLE ANALYTICS SNIPPET
-        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-              (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-              m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-              })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    (function (i, s, o, g, r, a, m) {
+        i['GoogleAnalyticsObject'] = r;
+        i[r] = i[r] || function () {
+            (i[r].q = i[r].q || []).push(arguments)
+        }, i[r].l = 1 * new Date();
+        a = s.createElement(o),
+            m = s.getElementsByTagName(o)[0];
+        a.async = 1;
+        a.src = g;
+        m.parentNode.insertBefore(a, m)
+    })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
 
-              ga('create', 'UA-42847758-2', 'auto');
-              ga('send', 'pageview');
+    ga('create', 'UA-42847758-2', 'auto');
+    ga('send', 'pageview');
 
     {% block js %}
         Competition.initialize();
 
     {% endblock js %}
-        CODAUSER = {
-            username: "{{ request.user.username }}",
-            user_id: {{ request.user.pk|default:0 }},
-            email: "{{ user.email }}",
-            is_authenticated: {{ user.is_authenticated|yesno:"true,false" }},
+    CODAUSER = {
+        username: "{{ request.user.username }}",
+        user_id: {{ request.user.pk|default:0 }},
+        email: "{{ user.email }}",
+        is_authenticated: {{ user.is_authenticated|yesno:"true,false" }},
+    }
+
+    /*
+     * If we want to do a migration again, can use this warning!
+    $(document).ready(function() {
+        var migration_warning = localStorage.getItem('migration_warning')
+        if(migration_warning === null) {
+            $("#migration_modal").modal('show')
         }
 
-        /*
-         * If we want to do a migration again, can use this warning!
-        $(document).ready(function() {
-            var migration_warning = localStorage.getItem('migration_warning')
-            if(migration_warning === null) {
-                $("#migration_modal").modal('show')
-            }
+        $("#hide_migration_warning").click(function() {
+            localStorage.setItem('migration_warning', true)
+        })
+    })*/
+</script>
 
-            $("#hide_migration_warning").click(function() {
-                localStorage.setItem('migration_warning', true)
-            })
-        })*/
-    </script>
-    {% block jsincludes %}
+{% block jsincludes %}
 
-    {% endblock jsincludes %}
+{% endblock jsincludes %}
 
-    {% analytical_body_top %}
-    {% analytical_body_bottom %}
-    <div class="eupopup eupopup-top"></div>
+{% analytical_body_top %}
+{% analytical_body_bottom %}
+<div class="eupopup eupopup-top"></div>
 
+<script>
+    $(document).ready(function () {
+        $('.ui.dropdown').dropdown();
+    });
+</script>
 </body>
 </html>

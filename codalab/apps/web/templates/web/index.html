@@ -4,11 +4,12 @@
 {% block title %}{% endblock title %}
 
 {% block hero_subheader %}
-    <div class="jumbotron">
+    <div id="jumbotron" class="jumbotron">
         <div class="container">
             <div class="row">
                 <div class="col-sm-12 col-md-8 col-md-offset-2">
-                    <img src="{{STATIC_URL}}img/codalab-logo-onecolor-reverse.png" alt="CodaLab" class="img-responsive">
+                    <img src="{{ STATIC_URL }}img/codalab-logo-onecolor-reverse.png" alt="CodaLab"
+                         class="img-responsive">
                 </div>
             </div>
         </div>
@@ -18,67 +19,92 @@
 {% block content %}
 
     <div class="container">
-
-        <div class="row">
-          <div class="col-sm-6 competition-latest-list">
-            <h2 class="homepage_headers">Popular Competitions</h2>
-            {% if not latest_competitions %}
-            <p><em>There are no competitions.</em></p>
-            {% else %}
-                {% for competition in latest_competitions %}
-                    {% include "web/competition_latest.html" with competition=competition %}
-                {% endfor %}
-            {% endif %}
-          </div>
+        <div class="row comp-row">
             <div class="col-sm-6 competition-latest-list">
-            <h2 class="homepage_headers">Featured Competitions</h2>
-            {% if not featured_competitions %}
-            <p><em>There are no competitions.</em></p>
-            {% else %}
-                {% for competition in featured_competitions %}
-                    {% include "web/competition_latest.html" with competition=competition %}
-                {% endfor %}
-            {% endif %}
-          </div>
+                <h2 class="homepage_headers">Popular Competitions</h2>
+                {% if not latest_competitions %}
+                    <p><em>There are no competitions.</em></p>
+                {% else %}
+                    {% for competition in latest_competitions %}
+                        {% include "web/competition_latest.html" with competition=competition %}
+                    {% endfor %}
+                {% endif %}
+            </div>
+            <div class="col-sm-6 competition-latest-list">
+                <h2 class="homepage_headers">Featured Competitions</h2>
+                {% if not featured_competitions %}
+                    <p><em>There are no competitions.</em></p>
+                {% else %}
+                    {% for competition in featured_competitions %}
+                        {% include "web/competition_latest.html" with competition=competition %}
+                    {% endfor %}
+                {% endif %}
+            </div>
         </div>
     </div>
+
+    <style>
+        #topleft_menu {
+            height: 48px !important;
+        }
+
+        #topleft_menu > .left.item {
+            left: 0;
+        }
+
+        {##jumbotron {#}
+        {#    width: 100%;#}
+        {#    height: 250px;#}
+        {#}#}
+        {##}
+        {##jumbotron .particles-js-canvas-el {#}
+        {#    position: relative;#}
+        {#    top: -245px;#}
+        {##}
+        {#}#}
+
+    </style>
 {% endblock content %}
 <script>
-{% block js %}
-    $(function () {
-        $(".top-bar-section ul > li").removeClass("active");
-    });
-
-    function populate(frm, data) {
-        $.each(data, function(key, value){
-            var $ctrl = $('[name='+key+']', frm);
-            switch($ctrl.attr("type"))
-            {
-                case "text":
-                case "hidden":
-                    $ctrl.val(value);
-                    break;
-                case "radio":
-                case "checkbox":
-                    $ctrl.each(function(){
-                        if(value=='on') {
-                            $(this).attr("checked",value);
-                        }
-                    });
-                    break;
-                default:
-                    $ctrl.val(value);
-            }
+    {% block js %}
+        $(function () {
+            $(".top-bar-section ul > li").removeClass("active");
         });
-    }
-    $('.competition-tile').on('click',function(){
-        var competitionID = $(this).find('#competitionID').val();
-        window.location.href = '/competitions/' + competitionID;
-    });
 
-    var params = {}
-    location.search.substr(1).split("&").forEach(function(item) {params[item.split("=")[0]] = item.split("=")[1]})
+        function populate(frm, data) {
+            $.each(data, function (key, value) {
+                var $ctrl = $('[name=' + key + ']', frm);
+                switch ($ctrl.attr("type")) {
+                    case "text":
+                    case "hidden":
+                        $ctrl.val(value);
+                        break;
+                    case "radio":
+                    case "checkbox":
+                        $ctrl.each(function () {
+                            if (value == 'on') {
+                                $(this).attr("checked", value);
+                            }
+                        });
+                        break;
+                    default:
+                        $ctrl.val(value);
+                }
+            });
+        }
+        $('.competition-tile').on('click', function () {
+            var competitionID = $(this).find('#competitionID').val();
+            window.location.href = '/competitions/' + competitionID;
+        });
 
-    populate('#search_form', params);
-{% endblock js %}
+        {#particlesJS.load('jumbotron', "{{ STATIC_URL }}particles/header.json")#}
+
+
+        var params = {}
+        location.search.substr(1).split("&").forEach(function (item) {
+            params[item.split("=")[0]] = item.split("=")[1]
+        })
+
+        populate('#search_form', params);
+    {% endblock js %}
 </script>
