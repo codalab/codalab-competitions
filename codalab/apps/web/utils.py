@@ -8,6 +8,13 @@ from django.core.files.storage import get_storage_class
 # from apps.web.models import CompetitionSubmission, CompetitionSubmissionStatus
 
 
+class FakeRequest(object):
+
+    def __init__(self, data={}, query_params={}):
+        self.data = data
+        self.query_params = query_params
+
+
 StorageClass = get_storage_class(settings.DEFAULT_FILE_STORAGE)
 
 if settings.USE_AWS:

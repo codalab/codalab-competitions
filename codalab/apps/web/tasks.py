@@ -1035,6 +1035,7 @@ def do_phase_migrations():
     competitions = Competition.objects.filter(is_migrating=False)
     logger.info("Checking {} competitions for phase migrations.".format(len(competitions)))
     for c in competitions:
+        logger.info("Running check future phase submissions on competition #{}!".format(c.pk))
         c.check_future_phase_sumbmissions()
 
 

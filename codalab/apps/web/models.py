@@ -294,6 +294,10 @@ class Competition(ChaHubSaveMixin, models.Model):
         items = list(self.pagecontainers.all())
         return items[0] if len(items) > 0 else None
 
+    @property
+    def has_parent_phases(self):
+        return self.phases.filter(is_parallel_parent=True).count() > 0
+
     def get_absolute_url(self):
         return reverse('competitions:view', kwargs={'pk':self.pk})
 
@@ -413,6 +417,35 @@ class Competition(ChaHubSaveMixin, models.Model):
         return self.phases.filter(starting_kit_organizer_dataset__isnull=False).exists() or \
                self.phases.filter(public_data_organizer_dataset__isnull=False).exists()
 
+    def get_phase_schedule(self):
+        current_phase = None
+        next_phase = None
+        last_phase = None
+
+        if self.has_parent_phases:
+            phases = self.phases.filter(is_parallel_parent=True)
+        else:
+            phases = self.phases.all()
+        if len(phases) <= 1:
+            return
+
+        # print(phases)
+
+        last_phase = phases.reverse()[0]
+
+        # active_phase = [phase for phase in phases if phase.is_active]
+        for index, phase in enumerate(phases):
+            if phase.is_active:
+                current_phase = phase
+                # No need to offset by 1, length should be greater by 1.
+                if len(phases) - 1 > index:
+                    next_phase = phases[index + 1]
+        return {
+            'current_phase': current_phase,
+            'next_phase': next_phase,
+            'last_phase': last_phase
+        }
+
     def check_future_phase_sumbmissions(self):
         '''
         Checks for if we need to migrate current phase submissions to next phase.'''
@@ -421,30 +454,27 @@ class Competition(ChaHubSaveMixin, models.Model):
             logger.info("Checking for migrations on competition pk=%s, but it is already being migrated" % self.pk)
             return
 
-        current_phase = None
-        next_phase = None
+        phase_schedule = self.get_phase_schedule()
 
-        phases = self.phases.all()
-        if len(phases) == 0:
-            return
+        current_phase = phase_schedule['current_phase']
+        next_phase = phase_schedule['next_phase']
+        last_phase = phase_schedule['last_phase']
 
-        last_phase = phases.reverse()[0]
+        if next_phase:
+            # If our date, minus 30 minutes, is less than or equal to our now
+            if not (next_phase.start_date <= now() - datetime.timedelta(minutes=30)):
+                logger.info("Phase not ready to migrate. Cancelling check.")
+                return
 
-        for index, phase in enumerate(phases):
-            # Checking for active phase
-            if phase.is_active:
-                current_phase = phase
-                # Checking if active phase is less than last phase
-                if current_phase.phasenumber < last_phase.phasenumber:
-                    # Getting next phase
-                    next_phase = phases[index + 1]
-                break
-
-        # Making sure current_phase or next_phase is not None
+        # # Making sure current_phase or next_phase is not None
         if current_phase is None or next_phase is None:
+            logger.info("No current phase and next phase is none")
             return
 
         logger.info("Checking for needed migrations on competition pk=%s, current phase: %s, next phase: %s" %
+                    (self.pk, current_phase.phasenumber, next_phase.phasenumber))
+
+        print("Checking for needed migrations on competition pk=%s, current phase: %s, next phase: %s" %
                     (self.pk, current_phase.phasenumber, next_phase.phasenumber))
 
         # Checking next phase is greater than last phase migration
@@ -461,7 +491,7 @@ class Competition(ChaHubSaveMixin, models.Model):
         '''
         logger.info("Checking for submissions that may still be running competition pk=%s" % self.pk)
 
-        if current_phase.submissions.filter(status__codename=CompetitionSubmissionStatus.RUNNING).exists():
+        if current_phase.submissions.filter(status__codename=CompetitionSubmissionStatus.RUNNING).count() > 0:
             logger.info('Some submissions still marked as processing for competition pk=%s' % self.pk)
             self.is_migrating_delayed = True
             self.save()
@@ -498,19 +528,24 @@ class Competition(ChaHubSaveMixin, models.Model):
             for participant, submission in participants.items():
                 logger.info('Moving submission %s over' % submission)
 
-                new_submission = CompetitionSubmission(
-                    participant=participant,
-                    file=submission.file,
-                    phase=next_phase,
-                    docker_image=submission.docker_image,
-                )
-                new_submission.save(ignore_submission_limits=True)
+                from apps.web.utils import FakeRequest
+
+                temp_kwargs = {
+                    'participant': submission.participant
+                }
+                request_data = {
+                    'size': submission.file.size,
+                    'type': 'application/zip',
+                    'id': submission.file.name,
+                    'name': submission.file.name.split('/')[-1]
+                }
+
+                fake_request = FakeRequest(data=request_data)
+
+                CompetitionSubmission.create_submission(fake_request, next_phase, ignore_submission_limits=True, **temp_kwargs)
 
                 submission.is_migrated = True
                 submission.save()
-
-                evaluate_submission.apply_async((new_submission.pk, current_phase.is_scoring_only))
-
 
         except PhaseLeaderBoard.DoesNotExist:
             pass
@@ -967,14 +1002,25 @@ class CompetitionPhase(models.Model):
     @property
     def is_active(self):
         """ Returns true when this phase of the competition is on-going. """
+        next_phase = None
+
+        if self.competition.has_parent_phases:
+            phases = self.competition.phases.filter(is_parallel_parent=True)
+        else:
+            phases = self.competition.phases.all()
+
+        for index, phase in enumerate(phases):
+            if self == phase:
+                if len(phases) - 1 > index:
+                    next_phase = phases[index+1]
+
         if self.phase_never_ends:
             return True
         else:
-            next_phase = self.competition.phases.filter(phasenumber=self.phasenumber + 1, parent=None)
-            if (next_phase is not None) and (len(next_phase) > 0):
+            if next_phase:
                 # there is a phase following this phase, thus this phase is active if the current date
                 # is between the start of this phase and the start of the next phase
-                return self.start_date <= now() and (now() < next_phase[0].start_date)
+                return self.start_date <= now() and (now() < next_phase.start_date)
             else:
                 # there is no phase following this phase, thus this phase is active if the current data
                 # is after the start date of this phase and the competition is "active"
