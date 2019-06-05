@@ -217,6 +217,9 @@ class Base(Configuration):
         # This is used to manage the HTML page hierarchy for the competition
         'mptt',
 
+        # Django Celery Results
+        'django_celery_results',
+
         # TODO: Document the need for these
         'django_config_gen',
         'compressor',
@@ -345,7 +348,7 @@ class Base(Configuration):
         }
 
         # Store information for celery
-        CELERY_RESULT_BACKEND = 'cache+memcached://memcached:{}/'.format(MEMCACHED_PORT)
+        # CELERY_RESULT_BACKEND = 'cache+memcached://memcached:{}/'.format(MEMCACHED_PORT)
     except ImportError:
         pass
 
@@ -449,6 +452,8 @@ class Base(Configuration):
     BROKER_POOL_LIMIT = None  # Stops connection timeout
     BROKER_USE_SSL = SSL_CERTIFICATE or os.environ.get('BROKER_USE_SSL', False)
     # Don't use pickle -- dangerous
+    CELERY_RESULT_BACKEND = 'django-db'
+    CELERY_CACHE_BACKEND = 'django-cache'
     CELERY_ACCEPT_CONTENT = ['json']
     CELERY_TASK_SERIALIZER = 'json'
     CELERY_RESULT_SERIALIZER = 'json'

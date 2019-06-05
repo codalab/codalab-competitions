@@ -597,6 +597,8 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
         ).first()
         if submission_phase is None or submission_phase.is_active is False:
             raise PermissionDenied(detail='Competition phase is closed.')
+        if submission_phase.competition.is_migrating or submission_phase.competition.is_migrating_delayed:
+            raise PermissionDenied(detail="Failed, competition phase is being migrated, please try again in a few minutes")
         # if submission_phase.auto_migration and not submission_phase.is_migrated and not submission_phase.competition.is_migrating_delayed:
         #     raise PermissionDenied(
         #         detail="Failed, competition phase is being migrated, please try again in a few minutes")

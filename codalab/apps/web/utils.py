@@ -84,6 +84,7 @@ def _put_blob(url, file_path):
 
 def cancel_submission(sub_pk):
     from apps.web.models import CompetitionSubmissionStatus, CompetitionSubmission
+    from apps.web.tasks import check_cancelled_task
     from codalab.celery import app
     submission = CompetitionSubmission.objects.get(pk=sub_pk)
     app.control.revoke(submission.task_id, terminate=True)
@@ -94,6 +95,7 @@ def cancel_submission(sub_pk):
     submission.status = CompetitionSubmissionStatus.objects.get(
         codename=CompetitionSubmissionStatus.CANCELLED
     )
+    check_cancelled_task.apply_async((submission.task_id if submission.task_id else None, submission.id,), countdown=15)
     submission.save()
 
 

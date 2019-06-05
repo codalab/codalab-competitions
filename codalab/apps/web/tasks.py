@@ -851,6 +851,19 @@ def check_all_parent_submissions():
 
 
 @app.task(queue='site-worker')
+def check_cancelled_task(task_id, submission_id):
+    try:
+        from django_celery_results.models import TaskResult
+        task = TaskResult.objects.get(task_id=task_id)
+        logger.info("Found task for submission")
+        if task.status != 'SUCCESS' or task.status != 'REVOKED' or task.status != 'REJECTED':
+            logger.info("Task still seems to be running, calling cancel again.")
+            cancel_submission(submission_id)
+    except TaskResult.DoesNotExist:
+        logger.info("No task found for submission.")
+
+
+@app.task(queue='site-worker')
 def check_children_submissions(parent_id):
     # check here that all sub-submissions completed successfully
     parent = CompetitionSubmission.objects.get(pk=parent_id)

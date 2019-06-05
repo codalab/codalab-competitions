@@ -1659,49 +1659,18 @@ class SubmissionCancel(LoginRequiredMixin, CreateView):
         submission = CompetitionSubmission.objects.get(pk=submission_pk)
         competition = submission.phase.competition
         is_admin = request.user in competition.admins.all() or request.user == competition.creator
-        print("Is current user admin?: {}".format(is_admin))
         # If we're an admin or we made the submission
         if is_admin or request.user == submission.participant.user:
-            # If the submission is running/submitted (Not finshed, cancelled, or submitting)
-            print(submission.status.codename)
-            if submission.status.codename == 'running' or submission.status.codename == 'submitting':
-                print("Submission was running, cancelling")
-                # If we're a parent submission
-                if not submission.parent_submission and len(submission.child_submissions.all()) > 0:
-                    # Loop through all childeren
-                    for sub in submission.child_submissions.all():
-                        if sub.task_id and sub.status.codename == 'running':
-                            print("Child Submission was running, cancelling")
-                            cancel_submission(sub.pk)
-                        else:
-                            print("Child Submission does not have a task id")
-                # Else, we're a regular submission or a child submission
-                # print("Submission was running, cancelling")
-                if submission.task_id:
-                    cancel_submission(submission.pk)
-                else:
-                    # If we don't have a submission.task_id and our phase is a parrallel parent then set our status to cancelled
-                    finished_statuses = [
-                        CompetitionSubmissionStatus.CANCELLED,
-                        CompetitionSubmissionStatus.FAILED,
-                        CompetitionSubmissionStatus.FINISHED
-                    ]
-                    child_subs = submission.child_submissions.all()
-                    if not submission.parent_submission and len(child_subs) > 0 and len(child_subs) == len(child_subs.filter(status__codename__in=finished_statuses)):
-                        submission.status = CompetitionSubmissionStatus.objects.get(codename=CompetitionSubmissionStatus.CANCELLED)
-                        submission.save()
-                        print("Submission was a parent submission, setting status to cancelled.")
-                    print("Submission does not have a task id")
-                return HttpResponseRedirect(
-                    reverse("competitions:view", kwargs={"pk": competition.pk}) + "#participate-submit_results"
-                )
+            if not submission.parent_submission and len(submission.child_submissions.all()) > 0:
+                # Loop through all childeren
+                for sub in submission.child_submissions.all():
+                    cancel_submission(sub.pk)
+            cancel_submission(submission.pk)
+            return HttpResponseRedirect(
+                reverse("competitions:view", kwargs={"pk": competition.pk}) + "#participate-submit_results"
+            )
         else:
             return HttpResponseForbidden()
-
-        return HttpResponseRedirect(
-            reverse("competitions:view", kwargs={"pk": competition.pk}) + "#participate-submit_results"
-        )
-
 
 
 def download_dataset(request, dataset_key):
