@@ -688,7 +688,7 @@ class CompetitionDetailView(DetailView):
         # if settings.SINGLE_COMPETITION_VIEW_PK:
         # context['participant_count'] = competition.get_participant_count
         # Leaving cruft because this one-liner might generate a lot of queries...
-        context['participant_count'] = competition.participants.filter(submissions__isnull=False).count()
+        context['participant_count'] = competition.participants.filter(submissions__isnull=False).distinct().count()
         context['submission_count'] = 0
         for phase in competition.phases.all():
             if phase.is_parallel_parent:
