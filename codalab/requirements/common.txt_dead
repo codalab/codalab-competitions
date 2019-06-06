@@ -89,3 +89,5 @@ pytest-watch==4.1.0
 # Google Storages
 google-cloud
 google-cloud-storage
+
+django-celery-results==1.1.1

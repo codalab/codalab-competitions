@@ -67,7 +67,7 @@ var CodaLab;
                 allowedFileTypes: undefined,
                 extensionToFileType: {'zip': 'application/zip'},
                 maxFileSizeInBytes: undefined,
-                maxBlockSizeInBytes: 1024 * 1024
+                maxBlockSizeInBytes: 25 * 1024 * 1024
             };
             this.options = $.extend({}, this.defaultOptions, options);
             var button = $('#' + this.options.buttonId);
@@ -298,6 +298,7 @@ var CodaLab;
                 sasEndpoint: '/api/competition/create/sas',
                 allowedFileTypes: ['application/zip', 'application/x-zip-compressed'],
                 maxFileSizeInBytes: 5 * (1024 * 1024 * 1024),
+                maxBlockSizeInBytes: 50 * 1024 * 1024,
 
                 beforeSelection: function(info, valid) {
                     $('#uploadButton').addClass('disabled');
