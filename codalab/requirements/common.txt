@@ -60,7 +60,10 @@ gunicorn==19.7.0
 git+https://github.com/Tthomas63/django-switchuser.git@eb8b71622201f66ef1862a4976c12ef83145b5e8
 Sphinx==1.4.1
 
-#django-allauth==0.11.1
+# django-allauth==0.11.1
+# Patched a vulnerability in allauth. The login view redirects to the next parameter in the url after successful form validation. Before, there was 
+# minimal validation, so it could be manually changed in the browser to any host. Now, it is checked against django.utils.is_safe_url before the 
+# redirect occurs.
 git+https://github.com/gibsonbailey/django-allauth.git@codalab
 
 # Added for python sdk
