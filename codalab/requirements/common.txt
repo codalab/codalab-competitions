@@ -80,3 +80,5 @@ pytest-watch==4.1.0
 pytest-env==0.6.2
 
 lxml==4.1.1
+
+certifi==2019.3.9
