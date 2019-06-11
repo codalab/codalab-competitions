@@ -1,7 +1,7 @@
 {$CADDY_DOMAIN} {
     gzip
     root /var/www/codalab
-    proxy / django:8000 {
+    proxy / django:{$DJANGO_PORT} {
         transparent
         except /static
     }
