@@ -40,6 +40,7 @@ from django.template.loader import render_to_string
 from django.contrib.sites.models import Site
 
 from apps.chahub.models import ChaHubSaveMixin
+from apps.health.models import Worker, TaskMetadata
 from apps.jobs.models import (Job,
                               run_job_task,
                               JobTaskResult,
@@ -605,7 +606,46 @@ class SubmissionUpdateException(Exception):
 
 
 @app.task(queue='submission-updates')
-def update_submission(job_id, args, secret):
+def register_worker(worker_id, cpu_count, mem_mb, harddrive_gb, gpus):
+    worker = Worker.objects.get_or_create(
+        worker_id=worker_id,
+        defaults={
+             "cpu_count": cpu_count,
+             "mem_mb": mem_mb,
+             "harddrive_gb": harddrive_gb,
+             "gpus": gpus
+         },
+    )
+
+
+@app.task(queue='submission-updates')
+def worker_job_started(worker_id, submission_secret, is_scoring):
+    TaskMetadata.objects.get_or_create(
+        worker=Worker.objects.get(id=worker_id),
+        submission=CompetitionSubmission.objects.get(secret=submission_secret),
+        defaults={
+            "is_prediction": not is_scoring,
+            "is_scoring": is_scoring,
+            "start": timezone.now(),
+        }
+    )
+
+
+@app.task(queue='submission-updates')
+def worker_job_ended(worker_id, submission_secret, is_scoring):
+    TaskMetadata.objects.get_or_create(
+        worker=Worker.objects.get(id=worker_id),
+        submission=CompetitionSubmission.objects.get(secret=submission_secret),
+        defaults={
+            "is_prediction": not is_scoring,
+            "is_scoring": is_scoring,
+            "end": timezone.now(),
+        }
+    )
+
+
+@app.task(queue='submission-updates')
+def update_submission(job_id, args, secret, worker_id):
     """
     A task to update the status of a submission in a competition.
 

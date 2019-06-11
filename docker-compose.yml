@@ -198,7 +198,7 @@ services:
     container_name: worker_site
       
   worker_compute:
-    image: codalab/competitions-v1-compute-worker:testing-realtime2
+    image: codalab/competitions-v1-nvidia-worker:reporter
     privileged: true
     volumes:
       - ${LOGGING_DIR}/worker_compute:/var/log/
