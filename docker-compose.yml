@@ -32,7 +32,7 @@ services:
     volumes:
       - ./caddy/Caddyfile:/etc/Caddyfile
       - ./codalab/static:/var/www/codalab/static
-      - ./certs/caddy:${CADDYPATH}
+      - ./certs/caddy:/etc/caddycerts
     ports:
       - "80:80"
       - "443:443"
