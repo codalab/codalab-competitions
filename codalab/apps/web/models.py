@@ -456,9 +456,13 @@ class Competition(ChaHubSaveMixin, models.Model):
 
         phase_schedule = self.get_phase_schedule()
 
-        current_phase = phase_schedule['current_phase']
-        next_phase = phase_schedule['next_phase']
-        last_phase = phase_schedule['last_phase']
+        if phase_schedule:
+            current_phase = phase_schedule.get('current_phase', None)
+            next_phase = phase_schedule.get('next_phase', None)
+            last_phase = phase_schedule.get('last_phase', None)
+        else:
+            logger.info("No phase schedule returned by competition")
+            return
 
         if next_phase:
             # If now is less than or equal to our start_date minus 30 minutes
