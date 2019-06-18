@@ -9,17 +9,36 @@ class HealthSettings(models.Model):
 
 
 class Worker(models.Model):
+    unique_id = models.UUIDField()
     ip = models.TextField(max_length=24)
     cpu_count = models.PositiveIntegerField()
     mem_mb = models.PositiveIntegerField()
     harddrive_gb = models.PositiveIntegerField()
     gpus = models.PositiveIntegerField(default=0)
 
+    def __str__(self):
+        return "{} ({}x cpu {}MB mem {}GB hdd {}x gpus)".format(
+            self.ip,
+            self.cpu_count,
+            self.mem_mb,
+            self.harddrive_gb,
+            self.gpus,
+        )
+
 
 class TaskMetadata(models.Model):
     worker = models.ForeignKey(Worker, related_name="tasks")
     submission = models.ForeignKey('web.CompetitionSubmission', related_name="tasks")
-    is_prediction = models.BooleanField()
-    is_scoring = models.BooleanField()
-    start = models.TimeField()
-    end = models.TimeField()
+    is_predicting = models.BooleanField(default=False)
+    is_scoring = models.BooleanField(default=False)
+    start = models.DateTimeField(null=True, blank=True)
+    end = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        prediction_or_scoring = "Scoring" if self.is_scoring else "Predicting"
+        return "{} sub = '{}', started = '{}', ended = '{}'".format(
+            prediction_or_scoring,
+            self.submission_id,
+            self.start or '',
+            self.end or ''
+        )

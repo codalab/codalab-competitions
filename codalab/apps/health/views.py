@@ -1,3 +1,4 @@
+import json
 from datetime import datetime, timedelta
 
 from django.conf import settings
@@ -7,7 +8,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 
 from apps.web.models import CompetitionSubmission
-from .models import HealthSettings
+from .models import HealthSettings, TaskMetadata, Worker
 from apps.jobs.models import Job
 
 
@@ -158,3 +159,62 @@ def check_thresholds(request):
             send_mail("Codalab Warning: Many jobs taking > 10 minutes!", "There are many jobs taking longer than 10 minutes to process", settings.DEFAULT_FROM_EMAIL, emails)
 
     return HttpResponse()
+
+
+@login_required
+def worker_list(request):
+    if not request.user.is_staff:
+        return HttpResponse(status=404)
+
+    workers = Worker.objects.all().prefetch_related('tasks')
+
+    # for each worker I want to get all of their tasks in order
+    # task_list = []
+    # for worker in workers:
+    #     # tasks = {"data": [(t.start.isoformat(), t.end.isoformat())]}
+    #     worker_data = {"data": []}
+    #     for t in worker.tasks.all():
+    #         worker_data["data"].append([
+    #             t.start.isoformat() if t.start else None,
+    #             t.end.isoformat() if t.end else None,
+    #         ])
+    #     task_list.append(worker_data)
+
+
+    # task_list = [{"data": []} for _ in range(len(workers))]
+    #
+    # tasks = [t for w in workers for t in w.tasks.all()]
+    #
+    # for worker in workers:
+    #     # tasks = {"data": [(t.start.isoformat(), t.end.isoformat())]}
+    #     worker_data = {"data": []}
+    #     for t in worker.tasks.all():
+    #
+    # json_data = []
+
+    # for each job, create new array size of workers, based on worker location set start/end
+
+    # So we can easily reference the location of worker in data array each time
+    worker_dict = {w.id: i for i, w in enumerate(workers)}
+    task_list = []
+
+    for i, w in enumerate(workers):
+        for t in w.tasks.all():
+            temp_list = [[] for _ in range(len(workers))]
+            temp_list[i] = {
+                "data": [
+                    t.start.isoformat() if t.start else None,
+                    t.end.isoformat() if t.end else None,
+                ]
+            }
+            task_list.append(temp_list)
+            break
+
+
+
+    return render(request, "health/worker_list.html", {
+        "workers": workers,
+        "json_data": json.dumps(task_list),
+        # "json_data": json.dumps(task_list),
+        # "task_metadatas": TaskMetadata.objects.all(),
+    })

@@ -456,6 +456,10 @@ class Competition(ChaHubSaveMixin, models.Model):
 
         phase_schedule = self.get_phase_schedule()
 
+        if not phase_schedule:
+            logger.info("Phase schedule is empty, cancelling check.")
+            return
+
         current_phase = phase_schedule['current_phase']
         next_phase = phase_schedule['next_phase']
         last_phase = phase_schedule['last_phase']

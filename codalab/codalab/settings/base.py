@@ -550,6 +550,10 @@ class Base(Configuration):
             'apps': {
                 'handlers': ['console'],
                 'level': 'INFO'
+            },
+            '': {
+                'handlers': ['console'],
+                'level': 'INFO'
             }
         }
     }

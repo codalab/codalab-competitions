@@ -606,26 +606,40 @@ class SubmissionUpdateException(Exception):
 
 
 @app.task(queue='submission-updates')
-def register_worker(worker_id, cpu_count, mem_mb, harddrive_gb, gpus):
-    worker = Worker.objects.get_or_create(
-        worker_id=worker_id,
+def register_worker(worker_id, ip, cpu_count, mem_mb, harddrive_gb, gpus):
+    logger.info("Registering worker id = {}, ip = {}, cpu_count = {}, mem_mb = {}, harddrive_gb = {}, gpus = {}".format(
+        worker_id,
+        ip,
+        cpu_count,
+        mem_mb,
+        harddrive_gb,
+        gpus,
+    ))
+    worker = Worker.objects.update_or_create(
+        unique_id=worker_id,
         defaults={
-             "cpu_count": cpu_count,
-             "mem_mb": mem_mb,
-             "harddrive_gb": harddrive_gb,
-             "gpus": gpus
-         },
+            "ip": ip,
+            "cpu_count": cpu_count,
+            "mem_mb": mem_mb,
+            "harddrive_gb": harddrive_gb,
+            "gpus": gpus
+        },
     )
 
 
 @app.task(queue='submission-updates')
 def worker_job_started(worker_id, submission_secret, is_scoring):
-    TaskMetadata.objects.get_or_create(
-        worker=Worker.objects.get(id=worker_id),
+    logger.info("Starting job worker id = {}, submission_secret = {}, is_scoring = {}".format(
+        worker_id,
+        submission_secret,
+        is_scoring,
+    ))
+    TaskMetadata.objects.update_or_create(
+        worker=Worker.objects.get(unique_id=worker_id),
         submission=CompetitionSubmission.objects.get(secret=submission_secret),
+        is_predicting=not is_scoring,
+        is_scoring=is_scoring,
         defaults={
-            "is_prediction": not is_scoring,
-            "is_scoring": is_scoring,
             "start": timezone.now(),
         }
     )
@@ -633,12 +647,17 @@ def worker_job_started(worker_id, submission_secret, is_scoring):
 
 @app.task(queue='submission-updates')
 def worker_job_ended(worker_id, submission_secret, is_scoring):
-    TaskMetadata.objects.get_or_create(
-        worker=Worker.objects.get(id=worker_id),
+    logger.info("Ending job worker id = {}, submission_secret = {}, is_scoring = {}".format(
+        worker_id,
+        submission_secret,
+        is_scoring,
+    ))
+    TaskMetadata.objects.update_or_create(
+        worker=Worker.objects.get(unique_id=worker_id),
         submission=CompetitionSubmission.objects.get(secret=submission_secret),
+        is_predicting=not is_scoring,
+        is_scoring=is_scoring,
         defaults={
-            "is_prediction": not is_scoring,
-            "is_scoring": is_scoring,
             "end": timezone.now(),
         }
     )
