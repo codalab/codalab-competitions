@@ -67,103 +67,111 @@
     <div class="ui container container-fluid">
         <div id="topleft_menu" class="ui secondary inverted menu">
             <div class="left item">
-                <a href="#" class="tl item">Competitions</a>
+                <a href="/" class="tl item">Competitions</a>
                 <a href="https://chahub.org/" class="tl item">Chahub</a>
                 <a href="http://chalab.lri.fr/" class="tl item">Chalab</a>
                 <a href="https://chagrade.lri.fr/" class="tl item">Chagrade</a>
-                </div>
-                <div class="navbar-header">
-                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
-                            data-target="#navbar_collapse">
-                        <span class="sr-only">Toggle navigation</span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                    </button>
-                    {% block title %}
-                        <a class="navbar-brand" href="/" tabIndex=1 target="_self">
-                            {% if CUSTOM_HEADER_LOGO %}
-                                <img src="{{ CUSTOM_HEADER_LOGO }}" alt="Home">
-                            {% else %}
-                                <img src="{{ STATIC_URL }}img/codalab-logo-onecolor-reverse.png" alt="Home">
-                            {% endif %}
-                        </a>
-                    {% endblock title %}
-                </div>
-                {% block top_bar_right_menus %}
-                    <div class="collapse navbar-collapse" id="navbar_collapse">
-                        {% if BETA %}
-                            <form action="/search" method="get" class="navbar-form navbar-left" role="search">
-                                <div class="form-group">
-                                    <input class="form-control" name="q" type="search" placeholder="Search">
-                                </div>
-                            </form>
+            </div>
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                        data-target="#navbar_collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                {% block title %}
+                    <a class="navbar-brand" href="/" tabIndex=1 target="_self">
+                        {% if CUSTOM_HEADER_LOGO %}
+                            <img src="{{ CUSTOM_HEADER_LOGO }}" alt="Home">
+                        {% else %}
+                            <img src="{{ STATIC_URL }}img/codalab-logo-onecolor-reverse.png" alt="Home">
                         {% endif %}
-                        <ul class="nav navbar-nav navbar-right right item">
-                            <li class="{% active request '/my/' %}">
-                                {% if SINGLE_COMPETITION_VIEW_PK %}
-                                    {% if request.user.is_superuser or request.user.is_staff %}
-                                        <a class="style-button ui large button" href="/my">My Competitions</a>
-                                    {% endif %}
-                                {% else %}
-                                    {% if user.is_authenticated %}
-                                        <a class="style-button ui large button" href="/my">My Competitions</a>
-                                    {% else %}
-                                        <a class="style-button ui large button" href="/competitions/">Search
-                                            Competitions</a>
-                                    {% endif %}
+                    </a>
+                {% endblock title %}
+            </div>
+            {% block top_bar_right_menus %}
+                <div class="collapse navbar-collapse" id="navbar_collapse">
+                    {% if BETA %}
+                        <form action="/search" method="get" class="navbar-form navbar-left" role="search">
+                            <div class="form-group">
+                                <input class="form-control" name="q" type="search" placeholder="Search">
+                            </div>
+                        </form>
+                    {% endif %}
+                    <ul class="nav navbar-nav navbar-right right item">
+                        <li class="{% active request '/competitions/' %}">
+                            {% if user.is_authenticated and not SINGLE_COMPETITION_VIEK_PK %}
+                                <a class="style-button ui small button" href="/competitions/">Search
+                                    Competitions</a>
+                            {% endif %}
+                        </li>
+                        <li class="{% active request '/my/' %}">
+                            {% if SINGLE_COMPETITION_VIEW_PK %}
+                                {% if request.user.is_superuser or request.user.is_staff %}
+                                    <a class="style-button ui small button" href="/my">My Competitions</a>
                                 {% endif %}
-                            </li>
-                            <li class="{% active request '/my/' %}">
-                                {% if not user.is_authenticated %}
-                                    <a class="style-button ui large button"
-                                       href="{% url 'account_login' %}?next={{ request.path }}" target="_self">My
+                            {% else %}
+                                {% if user.is_authenticated %}
+                                    <a class="style-button ui small button" href="/my">My Competitions</a>
+                                {% else %}
+                                    <a class="style-button ui small button" href="/competitions/">Search
                                         Competitions</a>
                                 {% endif %}
+                            {% endif %}
+                        </li>
+                        <li class="{% active request '/my/' %}">
+                            {% if not user.is_authenticated %}
+                                <a class="style-button ui small button"
+                                   href="{% url 'account_login' %}?next={{ request.path }}" target="_self">My
+                                    Competitions</a>
+                            {% endif %}
+                        </li>
+                        <li>
+                            <a class="style-button ui small button"
+                               href="https://github.com/codalab/codalab-competitions/wiki" target="_blank">Help</a>
+                        </li>
+                        {% if user.is_authenticated %}
+                            <li id="user-dropdown" class="dropdown {% active request '/accounts/' %}">
+                                <a class="style-button ui small button" href="{% url 'user_settings' %}">
+                                    <i class="icon user outline"></i>
+                                    {{ user.username }}
+                                    <span class="caret"></span>
+                                </a>
+                                <ul class="dropdown-menu" role="menu">
+                                    {% if user.is_superuser %}
+                                        <li><a href="{% url 'admin_monitoring_links' %}">Admin Monitoring Links</a>
+                                        </li>
+                                        <li class="divider"></li>
+                                        <li><a href="{% url 'customize_codalab' %}">Customize Codalab</a></li>
+                                        <li class="divider"></li>
+                                        <li><a href="{% url 'su-login' %}">Switch User</a></li>
+                                        <li class="divider"></li>
+                                    {% endif %}
+                                    <li><a href="{% url 'user_settings' %}">Settings</a></li>
+                                    <li class="divider"></li>
+                                    <li><a href="/accounts/password/reset/" target="_self">Change Password</a></li>
+                                    <li class="divider"></li>
+                                    <li><a href="{% url 'account_logout' %}" target="_self">Sign Out</a></li>
+                                </ul>
+                            </li>
+                        {% else %}
+                            <li>
+                                <a class="style-button ui small button"
+                                   href="{% url 'account_signup' %}?next={{ request.path }}" target="_self">Sign
+                                    Up</a>
                             </li>
                             <li>
-                                <a class="style-button ui large button"
-                                   href="https://github.com/codalab/codalab-competitions/wiki" target="_blank">Help</a>
+                                <a class="style-button ui small button"
+                                   href="{% url 'account_login' %}?next={{ request.path }}" target="_self">Sign
+                                    In</a>
                             </li>
-                            {% if user.is_authenticated %}
-                                <li id="user-dropdown" class="dropdown {% active request '/accounts/' %}">
-                                    <a class="style-button ui large button" href="{% url 'user_settings' %}">
-                                        <i class="icon user outline"></i>
-                                        {{ user.username }}
-                                        <span class="caret"></span>
-                                    </a>
-                                    <ul class="dropdown-menu" role="menu">
-                                        {% if user.is_superuser %}
-                                            <li><a href="{% url 'admin_monitoring_links' %}">Admin Monitoring Links</a>
-                                            </li>
-                                            <li class="divider"></li>
-                                            <li><a href="{% url 'customize_codalab' %}">Customize Codalab</a></li>
-                                            <li class="divider"></li>
-                                            <li><a href="{% url 'su-login' %}">Switch User</a></li>
-                                            <li class="divider"></li>
-                                        {% endif %}
-                                        <li><a href="{% url 'user_settings' %}">Settings</a></li>
-                                        <li class="divider"></li>
-                                        <li><a href="/accounts/password/reset/" target="_self">Change Password</a></li>
-                                        <li class="divider"></li>
-                                        <li><a href="{% url 'account_logout' %}" target="_self">Sign Out</a></li>
-                                    </ul>
-                                </li>
-                            {% else %}
-                                <li>
-                                    <a href="{% url 'account_signup' %}?next={{ request.path }}" target="_self">Sign
-                                        Up</a>
-                                </li>
-                                <li>
-                                    <a href="{% url 'account_login' %}?next={{ request.path }}" target="_self">Sign
-                                        In</a>
-                                </li>
-                            {% endif %}
-                        </ul>
-                    </div>
-                    </div>
-                {% endblock top_bar_right_menus %}
-        </div>
+                        {% endif %}
+                    </ul>
+                </div>
+                </div>
+            {% endblock top_bar_right_menus %}
+    </div>
 </nav>
 
 {% block nosubheader %}
@@ -248,6 +256,60 @@
         </div>
     </div>
 </div>
+
+<style>
+    .navbar-brand {
+        position: absolute;
+        left: 1.5em;
+    }
+
+    .navbar.navbar-default {
+        background-color: #2c3f4b !important;
+        left: 0 !important;
+        width: 100% !important;
+    }
+
+    .navbar.navbar-default.navbar-fixed-top .navbar-nav > li {
+        border-top: none;
+    }
+
+    .navbar-right.right.item {
+        margin-top: 4px !important;
+        margin-right: 7px !important;
+    }
+
+    .style-button {
+        color: #e2e2e2 !important;
+        background-color: rgba(255, 255, 255, .15) !important;
+        font-weight: 100 !important;
+        line-height: 1.25em !important;
+        font-size: 12px !important;
+    }
+
+    .style-button:hover {
+        color: #3f3f3f !important;
+        background-color: rgba(255, 255, 255, .65) !important;
+    }
+
+    .style-button:hover .icon {
+        opacity: 1 !important;
+    }
+
+    #topleft_menu .left.item a {
+        font-size: 12px;
+    }
+
+    #navbar_collapse {
+        position: absolute;
+        right: -12px;
+        top: -4px;
+    }
+
+    .container-fluid {
+        width: 100%;
+    }
+
+</style>
 
 <script type="text/javascript">
     //GOOGLE ANALYTICS SNIPPET

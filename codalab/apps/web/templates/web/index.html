@@ -50,18 +50,8 @@
 
         #topleft_menu > .left.item {
             left: 0;
+            position: absolute;
         }
-
-        {##jumbotron {#}
-        {#    width: 100%;#}
-        {#    height: 250px;#}
-        {#}#}
-        {##}
-        {##jumbotron .particles-js-canvas-el {#}
-        {#    position: relative;#}
-        {#    top: -245px;#}
-        {##}
-        {#}#}
 
     </style>
 {% endblock content %}
@@ -96,8 +86,6 @@
             var competitionID = $(this).find('#competitionID').val();
             window.location.href = '/competitions/' + competitionID;
         });
-
-        {#particlesJS.load('jumbotron', "{{ STATIC_URL }}particles/header.json")#}
 
 
         var params = {}
