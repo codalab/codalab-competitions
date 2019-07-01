@@ -978,6 +978,9 @@ def evaluate_submission(submission_id, is_scoring_only):
     if submission.status.codename == 'cancelled' or submission.status.codename == 'running':
         logger.info("This submission was previously cancelled or running; Not running again.")
         return
+    if submission.phase.is_parallel_parent and submission.get_jobs.count() >= 1:
+        logger.info(submission.get_jobs)
+        logger.info("This is a parent submission, and there is already one or more job for it.")
 
     task_name, task_func = ('prediction', predict) if predict_and_score else ('scoring', score)
     try:
