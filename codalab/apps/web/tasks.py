@@ -965,22 +965,27 @@ def evaluate_submission(submission_id, is_scoring_only):
     Returns a Job object which can be used to track the progress of the operation.
     """
     task_args = {'submission_id': submission_id, 'predict': (not is_scoring_only)}
+    # submission_id = task_args['submission_id']
+    submission = CompetitionSubmission.objects.get(pk=submission_id)
+
+    # Check how many current jobs we have before evaluating. For parent submissions, we should only run once.
+    #  This is getting duplicated for some reason.
+    if submission.phase.is_parallel_parent and not submission.get_jobs.count() == 0:
+        logger.info(submission.get_jobs)
+        logger.info("This is a parent submission, and there is already existing jobs.")
+        return
+
     job = Job.objects.create_job('evaluate_submission', task_args)
     job_id = job.pk
 
     logger.debug("evaluate_submission begins (job_id=%s)", job_id)
-    submission_id = task_args['submission_id']
     logger.debug("evaluate_submission submission_id=%s (job_id=%s)", submission_id, job_id)
     predict_and_score = task_args['predict'] == True
     logger.debug("evaluate_submission predict_and_score=%s (job_id=%s)", predict_and_score, job_id)
-    submission = CompetitionSubmission.objects.get(pk=submission_id)
 
     if submission.status.codename == 'cancelled' or submission.status.codename == 'running':
         logger.info("This submission was previously cancelled or running; Not running again.")
         return
-    if submission.phase.is_parallel_parent and submission.get_jobs.count() >= 1:
-        logger.info(submission.get_jobs)
-        logger.info("This is a parent submission, and there is already one or more job for it.")
 
     task_name, task_func = ('prediction', predict) if predict_and_score else ('scoring', score)
     try:
