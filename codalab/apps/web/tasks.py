@@ -975,8 +975,8 @@ def evaluate_submission(submission_id, is_scoring_only):
     logger.debug("evaluate_submission predict_and_score=%s (job_id=%s)", predict_and_score, job_id)
     submission = CompetitionSubmission.objects.get(pk=submission_id)
 
-    if submission.status.codename == 'cancelled':
-        logger.info("This submission was previously cancelled; Not running again.")
+    if submission.status.codename == 'cancelled' or submission.status.codename == 'running':
+        logger.info("This submission was previously cancelled or running; Not running again.")
         return
 
     task_name, task_func = ('prediction', predict) if predict_and_score else ('scoring', score)
