@@ -67,6 +67,7 @@ from apps.web.models import (add_submission_to_leaderboard,
                              CompetitionSubmissionMetadata, BundleStorage, SubmissionResultGroup,
                              SubmissionScoreDefGroup)
 from apps.coopetitions.models import DownloadRecord
+from apps.queues.models import Queue
 
 import time
 # import cProfile
@@ -606,15 +607,22 @@ class SubmissionUpdateException(Exception):
 
 
 @app.task(queue='submission-updates')
-def register_worker(worker_id, ip, cpu_count, mem_mb, harddrive_gb, gpus):
-    logger.info("Registering worker id = {}, ip = {}, cpu_count = {}, mem_mb = {}, harddrive_gb = {}, gpus = {}".format(
+def register_worker(worker_id, ip, cpu_count, mem_mb, harddrive_gb, gpus, vhost):
+    logger.info("Registering worker id = {}, ip = {}, cpu_count = {}, mem_mb = {}, harddrive_gb = {}, gpus = {}, queue = {}".format(
         worker_id,
         ip,
         cpu_count,
         mem_mb,
         harddrive_gb,
         gpus,
+        vhost,
     ))
+
+    if vhost != '/':
+        queue = Queue.objects.get(vhost=vhost)
+    else:
+        queue = None
+
     worker = Worker.objects.update_or_create(
         unique_id=worker_id,
         defaults={
@@ -622,7 +630,8 @@ def register_worker(worker_id, ip, cpu_count, mem_mb, harddrive_gb, gpus):
             "cpu_count": cpu_count,
             "mem_mb": mem_mb,
             "harddrive_gb": harddrive_gb,
-            "gpus": gpus
+            "gpus": gpus,
+            "queue": queue
         },
     )
 

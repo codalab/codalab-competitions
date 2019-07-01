@@ -5,231 +5,47 @@
 {% block head_title %}Worker List{% endblock head_title %}
 {% block page_title %}<h1>Worker List</h1>{% endblock page_title %}
 
-{% block extra_headers %}
+{% block extra_headers %}ø
     <link rel="stylesheet" href="{{ STATIC_URL }}css/Chart.min.css">
 {% endblock extra_headers %}
 
 {% block content %}
-    <div style="width: 100%; height: 400px; margin: 0 auto;">
-        <canvas id="myChart"></canvas>
-    </div>
 
-    {{ json_data }}
+    <table class="table table-responsive">
+        <thead>
+            <th>IP</th>
+            <th>CPUs</th>
+            <th>Mem</th>
+            <th>HDD</th>
+            <th>GPUs</th>
+            <th>Queue</th>
+            <th>Current Task</th>
+        </thead>
+        <tbody>
+        {% for w in workers %}
+        <tr>
+            <td>{{ w.ip }}</td>
+            <td>{{ w.cpu_count }}</td>
+            <td>{{ w.mem_mb }}</td>
+            <td>{{ w.harddrive_gb }}</td>
+            <td>{{ w.gpus }}</td>
+            <td>{{ w.queue|default_if_none:"Default" }}</td>
+            <td>
+                {% for t in w.current_tasks %}
+                    {{ t.submission.id }}
+                    {% if t.submission.is_scoring %}
+                        scoring
+                    {% else %}
+                        prediction
+                    {% endif %}
+                {% endfor %}
 
-    {#    {% for tm in task_metadatas %}#}
-    {#        {{ tm.worker_id }}<br>#}
-    {#    {% endfor %}#}
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
-    <script src="{{ STATIC_URL }}js/vendor/Chart.min.js"></script>
-
-    <script>
-        var ctx = document.getElementById('myChart');
-
-        var the_data = {{ json_data|safe }}
-
-        the_data.forEach(function(task_list){
-            task_list.forEach(function(task){
-                if(task.data === undefined) {
-                    return
-                }
-                for(var i = 0; i < task.data.length; i++) {
-                    task.data[i] = new moment(task.data[i])
-                }
-                {#task.data.forEach(function(time){#}
-                {#    time = new moment(time)#}
-                {#    return time#}
-                {#})#}
-            })
-
-            {#if(task_list === null || task_list.data === undefined) {#}
-            {#    return#}
-            {#}#}
-            {#console.log('PAST')#}
-
-            {#console.log(task_list)#}
-
-        })
-        console.log(the_data)
-
-
-
-
-
-
-        var myChart = new Chart(ctx, {
-            type: 'horizontalBar',
-            data: {
-                labels: [{% for w in workers %}"{{ forloop.counter }}) {{ w.ip|escape }}"{% if not forloop.last %}, {% endif %}{% endfor %}],
-                datasets: //the_data
-                [{
-                    label: "something",
-                    backgroundColor: "rgba(126, 3, 12, 0.55)",/*
-                    "data": [
-                        [new moment("2019-06-18T02:08:16-07:00"), new moment("2019-06-18T02:18:16-07:00")],
-                        [new moment("2019-06-18T02:08:16-07:00"), new moment("2019-06-18T02:18:16-07:00")],
-                        [new moment("2019-06-18T02:02:16-07:00"), new moment("2019-06-18T02:18:16-07:00")],
-                        [new moment("2019-06-18T02:01:16-07:00"), new moment("2019-06-18T02:18:16-07:00")],
-                        [new moment("2019-06-18T02:08:16-07:00"), new moment("2019-06-18T02:18:16-07:00")],
-                        [new moment("2019-06-18T02:08:16-07:00"), new moment("2019-06-18T02:18:16-07:00")],
-                        [new moment("2019-06-18T02:08:16-07:00"), new moment("2019-06-18T02:18:16-07:00")],
-                        [new moment("2019-06-18T02:08:16-07:00"), new moment("2019-06-18T02:18:16-07:00")],
-                        [new moment("2019-06-18T02:08:16-07:00"), new moment("2019-06-18T02:18:16-07:00")],
-                        [new moment("2019-06-18T02:08:16-07:00"), new moment("2019-06-18T02:18:16-07:00")],
-                        [new moment("2019-06-18T02:08:16-07:00"), new moment("2019-06-18T02:18:16-07:00")]
-                    ]
-                }{*/
-                    "data": [
-                        [new moment("2019-06-18T02:02:16-07:00"), new moment("2019-06-18T03:18:16-07:00")],
-                        [new moment("2019-06-18T02:01:16-07:00"), new moment("2019-06-18T02:18:16-07:00")],
-                    ]
-                },{
-                    label: "something",
-                    backgroundColor: "rgba(126, 3, 12, 0.55)",/*
-                    "data": [
-                        [new moment("2019-06-18T02:08:16-07:00"), new moment("2019-06-18T02:18:16-07:00")],
-                        [new moment("2019-06-18T02:08:16-07:00"), new moment("2019-06-18T02:18:16-07:00")],
-                        [new moment("2019-06-18T02:02:16-07:00"), new moment("2019-06-18T02:18:16-07:00")],
-                        [new moment("2019-06-18T02:01:16-07:00"), new moment("2019-06-18T02:18:16-07:00")],
-                        [new moment("2019-06-18T02:08:16-07:00"), new moment("2019-06-18T02:18:16-07:00")],
-                        [new moment("2019-06-18T02:08:16-07:00"), new moment("2019-06-18T02:18:16-07:00")],
-                        [new moment("2019-06-18T02:08:16-07:00"), new moment("2019-06-18T02:18:16-07:00")],
-                        [new moment("2019-06-18T02:08:16-07:00"), new moment("2019-06-18T02:18:16-07:00")],
-                        [new moment("2019-06-18T02:08:16-07:00"), new moment("2019-06-18T02:18:16-07:00")],
-                        [new moment("2019-06-18T02:08:16-07:00"), new moment("2019-06-18T02:18:16-07:00")],
-                        [new moment("2019-06-18T02:08:16-07:00"), new moment("2019-06-18T02:18:16-07:00")]
-                    ]
-                }{*/
-                    "data": [
-                        [new moment("2019-06-18T01:02:16-07:00"), new moment("2019-06-18T05:18:16-07:00")],
-                        [new moment("2019-06-18T08:01:16-07:00"), new moment("2019-06-18T09:18:16-07:00")],
-                    ]
-                }
-                    /*{
-                    label: "something",
-                    backgroundColor: "rgba(126, 3, 12, 0.75)",
-                    data: [
-                        {#[new moment("2019-06-18T04:35:25.071717+00:00"), new moment("2019-06-18T05:35:25.388587+00:00")],#}
-                        {#[new moment("2019-06-18T03:35:25.693259+00:00"), new moment("2019-06-18T06:35:29.215840+00:00")],#}
-
-
-                        {#                        {% for w in workers %}#}
-                        {#                            {% for t in w.tasks.all %}#}
-                        {#                                ["{{ t.start|date:'c' }}", "{{ t.end|date:'c' }}"],#}
-                        {#                            {% endfor %}#}
-                        {#                        {% endfor %}#}
-
-
-                        {#[new moment().add(-8, "hours"), new moment().add(-1, "hours")],#}
-                        {#[new moment().add(-8, "hours"), new moment().add(-4, "hours")]#}
-                        {#["17 Jun 2019 20:00:00 PST", "17 Jun 2019 20:30:00 PST"]#}
-                    ]
-                }*//*, {
-                    label: "job",
-                    backgroundColor: "rgba(22, 126, 45, 0.75)",
-                    data: [
-                        [new moment().add(-2, "hours"), new moment().add(0, "hours")],
-                        [new moment().add(-2, "hours"), new moment().add(-1, "hours")]
-                    ]
-                }*//*, {
-                    label: "job",
-                    backgroundColor: "green",
-                    data: [
-                        ["17 Jun 2019 23:00:00 PST", "17 Jun 2019 25:00:00 PST"],
-                        ["17 Jun 2019 23:00:00 PST", "17 Jun 2019 23:30:00 PST"]
-                    ]
-                }*/
-                ]
-            },
-            options: {
-                maintainAspectRatio: false,
-                scales: {
-                    xAxes: [{
-                        type: 'time',
-                        ticks: {
-                            min: new moment().add(-1, "day"),
-                            max: new moment()
-                        },
-                        time: {
-                            unit: 'hour'
-                        }
-                    }],
-                    yAxes: [{
-                        stacked: true,
-                        legend: false
-                    }]
-                }
-            }
-        });
-
-        {#myChart.data = {datasets: {{ json_data|safe }}}#}
-        {#myChart.data = {datasets: []}#}
-        {#myChart.data = {#}
-        {#    label: "something",#}
-        {#    backgroundColor: "rgba(126, 3, 12, 0.75)",#}
-            {#datasets: [{"data": [[null, "2019-06-18T04:34:45.313714+00:00"], ["2019-06-18T04:34:49.955535+00:00", "2019-06-18T04:35:09.503699+00:00"], ["2019-06-18T04:35:13.661881+00:00", "2019-06-18T04:35:17.659218+00:00"], ["2019-06-18T04:35:18.732738+00:00", "2019-06-18T04:35:19.093799+00:00"], ["2019-06-18T04:35:24.199493+00:00", "2019-06-18T04:35:24.608853+00:00"], ["2019-06-18T04:35:25.071717+00:00", "2019-06-18T04:35:25.388587+00:00"], ["2019-06-18T04:35:25.693259+00:00", "2019-06-18T04:35:29.215840+00:00"], ["2019-06-18T04:35:29.899222+00:00", "2019-06-18T04:35:39.512912+00:00"], ["2019-06-18T04:35:39.683255+00:00", "2019-06-18T04:35:39.961921+00:00"], ["2019-06-18T04:35:40.070075+00:00", "2019-06-18T04:35:44.698212+00:00"], ["2019-06-18T04:35:45.039094+00:00", "2019-06-18T04:35:49.401713+00:00"], ["2019-06-18T04:36:08.551003+00:00", "2019-06-18T04:36:12.947622+00:00"]]}, {"data": []}]#}
-        {#    datasets: [{#}
-        {#        label: "something",#}
-        {#        backgroundColor: "rgba(126, 3, 12, 0.75)",#}
-        {#        "data": [#}
-        {#            [#}
-        {#                "2019-06-18T01:34:49.955535+00:00",#}
-        {#                "2019-06-18T04:35:09.503699+00:00"#}
-        {#            ],#}
-        {#            [#}
-        {#                "2019-06-18T04:35:13.661881+00:00",#}
-        {#                "2019-06-18T05:35:17.659218+00:00"#}
-        {#            ],#}
-        {#            [#}
-        {#                "2019-06-18T04:35:18.732738+00:00",#}
-        {#                "2019-06-18T04:35:19.093799+00:00"#}
-        {#            ],#}
-        {#            [#}
-        {#                "2019-06-18T04:35:24.199493+00:00",#}
-        {#                "2019-06-18T04:35:24.608853+00:00"#}
-        {#            ],#}
-        {#            [#}
-        {#                "2019-06-18T04:35:25.071717+00:00",#}
-        {#                "2019-06-18T04:35:25.388587+00:00"#}
-        {#            ],#}
-        {#            [#}
-        {#                "2019-06-18T04:35:25.693259+00:00",#}
-        {#                "2019-06-18T04:35:29.215840+00:00"#}
-        {#            ],#}
-        {#            [#}
-        {#                "2019-06-18T04:35:29.899222+00:00",#}
-        {#                "2019-06-18T04:35:39.512912+00:00"#}
-        {#            ],#}
-        {#            [#}
-        {#                "2019-06-18T04:35:39.683255+00:00",#}
-        {#                "2019-06-18T04:35:39.961921+00:00"#}
-        {#            ],#}
-        {#            [#}
-        {#                "2019-06-18T04:35:40.070075+00:00",#}
-        {#                "2019-06-18T04:35:44.698212+00:00"#}
-        {#            ],#}
-        {#            [#}
-        {#                "2019-06-18T04:35:45.039094+00:00",#}
-        {#                "2019-06-18T04:35:49.401713+00:00"#}
-        {#            ],#}
-        {#            [#}
-        {#                "2019-06-18T04:36:08.551003+00:00",#}
-        {#                "2019-06-18T04:36:12.947622+00:00"#}
-        {#            ]#}
-        {#        ]#}
-        {#    }/*,#}
-        {#    {#}
-        {#       "data": []#}
-        {#    }*/]#}
-        {#}#}
-        {#myChart.update()#}
-
-        {#                        {% for w in workers %}#}
-        {#                            {% for t in w.tasks.all %}#}
-        {#                                ["{{ t.start|date:'c' }}", "{{ t.end|date:'c' }}"],#}
-        {#                            {% endfor %}#}
-        {#                        {% endfor %}#}
-
-
-    </script>
+                {% if w.current_tasks|length > 1 %}
+                    <span class="warning">WORKER RUNNING MULTIPLE JOBS CONCURRENTLY!</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 {% endblock %}

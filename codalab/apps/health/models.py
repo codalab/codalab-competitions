@@ -15,14 +15,16 @@ class Worker(models.Model):
     mem_mb = models.PositiveIntegerField()
     harddrive_gb = models.PositiveIntegerField()
     gpus = models.PositiveIntegerField(default=0)
+    queue = models.ForeignKey('queues.Queue', null=True, blank=True)
 
     def __str__(self):
-        return "{} ({}x cpu {}MB mem {}GB hdd {}x gpus)".format(
+        return "{} {}x cpu {}MB mem {}GB hdd {}x gpus '{}' queue".format(
             self.ip,
             self.cpu_count,
             self.mem_mb,
             self.harddrive_gb,
             self.gpus,
+            self.queue.name if self.queue else 'default'
         )
 
 

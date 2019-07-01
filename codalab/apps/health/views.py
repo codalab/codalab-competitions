@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
+from django.db.models import Prefetch
 from django.http import HttpResponse
 from django.shortcuts import render
 
@@ -166,7 +167,12 @@ def worker_list(request):
     if not request.user.is_staff:
         return HttpResponse(status=404)
 
-    workers = Worker.objects.all().prefetch_related('tasks')
+    # workers = Worker.objects.all().prefetch_related('tasks')
+    workers = Worker.objects.all().prefetch_related(
+        Prefetch('tasks', queryset=TaskMetadata.objects.filter(end=None), to_attr='current_tasks')
+    )
+
+
 
     # for each worker I want to get all of their tasks in order
     # task_list = []
