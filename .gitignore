@@ -19,6 +19,7 @@ codalab/scores.txt
 codalab/codalab/scores.txt
 codalab/apps/web/static/css/imports.css
 codalab/celerybeat-schedule
+.worker_registration
 
 # Virtuelenv files #
 ####################
