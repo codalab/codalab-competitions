@@ -52,7 +52,7 @@ class ClUser(auth_models.AbstractUser):
 
             # Try to update the user before creating a new user
             update_user = requests.patch(
-                settings.MAILCHIMP_MEMBERS_ENDPOINT + '/' + user_hash.hexdigest(),
+                settings.MAILCHIMP_MEMBERS_ENDPOINT_NEWSLETTER + '/' + user_hash.hexdigest(),
                 auth=("", settings.MAILCHIMP_API_KEY),
                 data=json.dumps(data)
             )
@@ -60,7 +60,7 @@ class ClUser(auth_models.AbstractUser):
             # If no user is found in mailchimp, create a new mailing list user
             if not update_user.ok:
                 requests.post(
-                    settings.MAILCHIMP_MEMBERS_ENDPOINT,
+                    settings.MAILCHIMP_MEMBERS_ENDPOINT_NEWSLETTER,
                     auth=("", settings.MAILCHIMP_API_KEY),
                     data=json.dumps(data)
                 )
@@ -82,7 +82,7 @@ class ClUser(auth_models.AbstractUser):
 
             # Update user in Mailchimp to Unsubscribed
             requests.patch(
-                settings.MAILCHIMP_MEMBERS_ENDPOINT + '/' + user_hash.hexdigest(),
+                settings.MAILCHIMP_MEMBERS_ENDPOINT_NEWSLETTER + '/' + user_hash.hexdigest(),
                 auth=("", settings.MAILCHIMP_API_KEY),
                 data=json.dumps(data)
             )

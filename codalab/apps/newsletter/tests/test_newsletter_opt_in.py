@@ -20,13 +20,13 @@ class NewsletterOptIn(TestCase):
     def tearDown(self):
         user_hash = hashlib.md5(self.user.email)
         get_status = requests.get(
-            settings.MAILCHIMP_MEMBERS_ENDPOINT + '/' + user_hash.hexdigest(),
+            settings.MAILCHIMP_MEMBERS_ENDPOINT_NEWSLETTER + '/' + user_hash.hexdigest(),
             auth=("", settings.MAILCHIMP_API_KEY),
         )
 
         if get_status.ok:
             delete_status = requests.delete(
-                settings.MAILCHIMP_MEMBERS_ENDPOINT + '/' + user_hash.hexdigest(),
+                settings.MAILCHIMP_MEMBERS_ENDPOINT_NEWSLETTER + '/' + user_hash.hexdigest(),
                 auth=("", settings.MAILCHIMP_API_KEY),
             )
 
@@ -45,7 +45,7 @@ class NewsletterOptIn(TestCase):
         user_hash = hashlib.md5(self.user.email)
 
         get_status = requests.get(
-            settings.MAILCHIMP_MEMBERS_ENDPOINT + '/' + user_hash.hexdigest(),
+            settings.MAILCHIMP_MEMBERS_ENDPOINT_NEWSLETTER + '/' + user_hash.hexdigest(),
             auth=("", settings.MAILCHIMP_API_KEY),
         )
 
@@ -59,7 +59,7 @@ class NewsletterOptIn(TestCase):
         user_hash = hashlib.md5(self.other_user.email)
 
         get_status = requests.get(
-            settings.MAILCHIMP_MEMBERS_ENDPOINT + '/' + user_hash.hexdigest(),
+            settings.MAILCHIMP_MEMBERS_ENDPOINT_NEWSLETTER + '/' + user_hash.hexdigest(),
             auth=("", settings.MAILCHIMP_API_KEY),
         )
 
@@ -70,7 +70,7 @@ class NewsletterOptIn(TestCase):
         self.newsletter_user.delete()
 
         get_status = requests.get(
-            settings.MAILCHIMP_MEMBERS_ENDPOINT + '/' + user_hash.hexdigest(),
+            settings.MAILCHIMP_MEMBERS_ENDPOINT_NEWSLETTER + '/' + user_hash.hexdigest(),
             auth=("", settings.MAILCHIMP_API_KEY),
         )
 
@@ -88,7 +88,7 @@ class NewsletterOptIn(TestCase):
         user_hash = hashlib.md5(self.user.email)
 
         get_status = requests.get(
-            settings.MAILCHIMP_MEMBERS_ENDPOINT + '/' + user_hash.hexdigest(),
+            settings.MAILCHIMP_MEMBERS_ENDPOINT_NEWSLETTER + '/' + user_hash.hexdigest(),
             auth=("", settings.MAILCHIMP_API_KEY),
         )
 
@@ -103,13 +103,13 @@ class NewsletterOptIn(TestCase):
             "status": "unsubscribed",
         }
         requests.patch(
-            settings.MAILCHIMP_MEMBERS_ENDPOINT + '/' + user_hash.hexdigest(),
+            settings.MAILCHIMP_MEMBERS_ENDPOINT_NEWSLETTER + '/' + user_hash.hexdigest(),
             auth=("", settings.MAILCHIMP_API_KEY),
             data=json.dumps(data)
         )
 
         get_status = requests.get(
-            settings.MAILCHIMP_MEMBERS_ENDPOINT + '/' + user_hash.hexdigest(),
+            settings.MAILCHIMP_MEMBERS_ENDPOINT_NEWSLETTER + '/' + user_hash.hexdigest(),
             auth=("", settings.MAILCHIMP_API_KEY),
         )
 

@@ -27,7 +27,7 @@ def newsletteruser_unsubscribe(instance, **kwargs):
 
     # Update user in Mailchimp to Unsubscribed
     requests.patch(
-        settings.MAILCHIMP_MEMBERS_ENDPOINT + '/' + user_hash.hexdigest(),
+        settings.MAILCHIMP_MEMBERS_ENDPOINT_NEWSLETTER + '/' + user_hash.hexdigest(),
         auth=("", settings.MAILCHIMP_API_KEY),
         data=json.dumps(data)
     )

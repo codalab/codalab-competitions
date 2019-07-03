@@ -351,10 +351,12 @@ class Base(Settings):
 
     MAILCHIMP_API_KEY = os.environ.get('MAILCHIMP_API_KEY')
     MAILCHIMP_DATA_CENTER = os.environ.get('MAILCHIMP_DATA_CENTER')
-    MAILCHIMP_EMAIL_LIST_ID = os.environ.get('MAILCHIMP_EMAIL_LIST_ID')
+    MAILCHIMP_EMAIL_LIST_ID_ALL = os.environ.get('MAILCHIMP_EMAIL_LIST_ID_ALL')
+    MAILCHIMP_EMAIL_LIST_ID_NEWSLETTER = os.environ.get('MAILCHIMP_EMAIL_LIST_ID_NEWSLETTER')
 
     MAILCHIMP_API_URL = ('https://{}.api.mailchimp.com/3.0'.format(MAILCHIMP_DATA_CENTER))
-    MAILCHIMP_MEMBERS_ENDPOINT = ('{}/lists/{}/members'.format(MAILCHIMP_API_URL, MAILCHIMP_EMAIL_LIST_ID))
+    MAILCHIMP_MEMBERS_ENDPOINT_ALL = ('{}/lists/{}/members'.format(MAILCHIMP_API_URL, MAILCHIMP_EMAIL_LIST_ID_ALL))
+    MAILCHIMP_MEMBERS_ENDPOINT_NEWSLETTER = ('{}/lists/{}/members'.format(MAILCHIMP_API_URL, MAILCHIMP_EMAIL_LIST_ID_NEWSLETTER))
 
 
     # =========================================================================
