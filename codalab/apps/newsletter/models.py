@@ -18,7 +18,7 @@ class NewsletterUser(models.Model):
 
 
 @receiver(pre_delete, sender=NewsletterUser)
-def newsletteruser_unsubscribe(sender, instance, **kwargs):
+def newsletteruser_unsubscribe(instance, **kwargs):
     data = {
         "status": "unsubscribed",
     }
