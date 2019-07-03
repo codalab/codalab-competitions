@@ -465,8 +465,8 @@ class Competition(ChaHubSaveMixin, models.Model):
         last_phase = phase_schedule['last_phase']
 
         if next_phase:
-            # If our date, minus 30 minutes, is less than or equal to our now
-            if not (next_phase.start_date <= now() - datetime.timedelta(minutes=30)):
+            # If now is less than or equal to our start_date minus 30 minutes
+            if not (now() >= next_phase.start_date - datetime.timedelta(minutes=30)):
                 logger.info("Phase not ready to migrate. Cancelling check.")
                 return
 
