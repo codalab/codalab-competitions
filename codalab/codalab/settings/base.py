@@ -238,6 +238,7 @@ class Base(Settings):
         'apps.queues',
         'apps.teams',
         'apps.customizer',
+        'apps.newsletter',
 
         # Authentication app, enables social authentication
         'allauth',
@@ -347,6 +348,13 @@ class Base(Settings):
     EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', True)
     DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'CodaLab <noreply@codalab.org>')
     SERVER_EMAIL = os.environ.get('SERVER_EMAIL', 'noreply@codalab.org')
+
+    MAILCHIMP_API_KEY = os.environ.get('MAILCHIMP_API_KEY')
+    MAILCHIMP_DATA_CENTER = os.environ.get('MAILCHIMP_DATA_CENTER')
+    MAILCHIMP_EMAIL_LIST_ID = os.environ.get('MAILCHIMP_EMAIL_LIST_ID')
+
+    MAILCHIMP_API_URL = ('https://{}.api.mailchimp.com/3.0'.format(MAILCHIMP_DATA_CENTER))
+    MAILCHIMP_MEMBERS_ENDPOINT = ('{}/lists/{}/members'.format(MAILCHIMP_API_URL, MAILCHIMP_EMAIL_LIST_ID))
 
 
     # =========================================================================

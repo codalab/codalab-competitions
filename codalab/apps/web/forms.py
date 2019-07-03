@@ -265,6 +265,7 @@ class UserSettingsForm(forms.ModelForm):
             'organization_or_affiliation',
             'allow_forum_notifications',
             'email_on_submission_finished_successfully',
+            'newsletter_opt_in',
             'team_name',
             'team_members',
             'method_name',
