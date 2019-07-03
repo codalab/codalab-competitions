@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import NewsletterUser, Newsletter
+from .models import NewsletterUser
 
 
 class NewsletterAdmin(admin.ModelAdmin):
@@ -8,5 +8,3 @@ class NewsletterAdmin(admin.ModelAdmin):
 
 
 admin.site.register(NewsletterUser, NewsletterAdmin)
-
-admin.site.register(Newsletter)

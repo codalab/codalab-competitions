@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import NewsletterUser, Newsletter
+from .models import NewsletterUser
 
 
 class NewsletterUserSignUpForm(forms.ModelForm):
@@ -12,13 +12,3 @@ class NewsletterUserSignUpForm(forms.ModelForm):
             email = self.cleaned_data.get()
 
             return email
-
-
-class NewsletterForm(forms.ModelForm):
-    class Meta:
-        model = Newsletter
-        fields = [
-            'subject',
-            'body',
-            'status',
-        ]

@@ -1,9 +1,0 @@
-{% extends 'base.html' %}
-
-{% block content %}
-    <h1 class="page-header">Delete Newsletter</h1>
-    <form method="POST">{% csrf_token %}
-        {{ form }}
-        <button class="btn btn-danger" type="submit">Delete</button>
-    </form>
-{% endblock %}

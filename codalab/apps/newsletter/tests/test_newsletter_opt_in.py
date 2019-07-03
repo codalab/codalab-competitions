@@ -1,11 +1,9 @@
-import datetime
 import hashlib
 import json
 
 import requests
 from django.test import TestCase
 from django.contrib.auth import get_user_model
-from django.utils.timezone import now
 
 from apps.newsletter.models import NewsletterUser
 from codalab import settings
