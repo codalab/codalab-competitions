@@ -204,7 +204,7 @@ services:
       - ${LOGGING_DIR}/worker_compute:/var/log/
       - ${SUBMISSION_TEMP_DIR}:${SUBMISSION_TEMP_DIR}
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./.worker_registration:/worker/.worker_registration
+      - ./var/data/worker/:/worker/registration
     env_file: .env
     links:
       - rabbit
