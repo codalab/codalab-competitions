@@ -116,3 +116,18 @@ class NewsletterOptIn(TestCase):
         json_status = get_status.json()
 
         assert json_status['status'] == u'unsubscribed'
+
+    def test_create_user_newsletter_is_active_false(self):
+        self.other_user.newsletter_opt_in = True
+        self.other_user.is_active = False
+        self.other_user.save()
+        assert not NewsletterUser.objects.filter(email=self.other_user.email).exists()
+
+        user_hash = hashlib.md5(self.other_user.email)
+
+        get_status = requests.get(
+            settings.MAILCHIMP_MEMBERS_ENDPOINT_NEWSLETTER + '/' + user_hash.hexdigest(),
+            auth=("", settings.MAILCHIMP_API_KEY),
+        )
+
+        assert not get_status.ok

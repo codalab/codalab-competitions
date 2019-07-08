@@ -42,7 +42,7 @@ class ClUser(auth_models.AbstractUser):
     rabbitmq_password = models.CharField(max_length=36, null=True, blank=True)
 
     def save(self, *args, **kwargs):
-        if self.newsletter_opt_in and self.email:
+        if self.newsletter_opt_in and self.email and self.is_active:
             data = {
                 "email_address": self.email,
                 "status": "subscribed",
