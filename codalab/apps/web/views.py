@@ -45,6 +45,7 @@ from mimetypes import MimeTypes
 
 from apps.teams.forms import OrganizerTeamsCSVForm
 from apps.jobs.models import Job
+from apps.health.models import HealthSettings
 from apps.web import forms
 from apps.web import models
 from apps.web import tasks
@@ -734,6 +735,19 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
             context['last_submission_organization_or_affiliation'] = last_submission.organization_or_affiliation
         except ObjectDoesNotExist:
             pass
+
+        jobs_today = Job.objects.filter(
+            created__year=datetime.today().year,
+            created__day=datetime.today().day,
+            created__month=datetime.today().month)
+        
+        jobs_today_pending = len(jobs_today.filter(status=Job.PENDING))
+
+        health_settings = HealthSettings.objects.get_or_create(pk=1)[0]
+        submission_pending_threshold = health_settings.congestion_threshold
+        if jobs_today_pending >= submission_pending_threshold:
+            context['submission_threshold_met'] = True
+
         return context
 
 

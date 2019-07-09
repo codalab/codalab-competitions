@@ -25,6 +25,12 @@
         <p><b>Max submissions total: </b> {{ phase.max_submissions }}</p>
     </div>
 
+    {% if submission_threshold_met %}
+        <div class="alert alert-danger text-center">
+            <h2>Warning: The compute queues are congested, please wait for existing jobs to process before submitting more. Thanks for your patience!</h2>
+        </div>
+    {% endif %}
+
     {% if phase.is_active %}
         <div class="form-group">
             <label class="control-label">Click the Submit button to upload a new submission.</label>
