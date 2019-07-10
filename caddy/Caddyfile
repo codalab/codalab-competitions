@@ -3,6 +3,11 @@
     root /var/www/codalab
     proxy / django:{$DJANGO_PORT} {
         transparent
+
+        header_upstream X-Real-IP {remote}
+        header_upstream X-Forwarded-Proto {scheme}
+        header_upstream X-CSRFToken {~csrftoken}
+
         except /static
     }
 
