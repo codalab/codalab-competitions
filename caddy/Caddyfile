@@ -45,5 +45,5 @@
     }
 
     # The email address to use to generate a certificate with Letsencrypt.
-    tls {$CADDY_TLS_EMAIL}
+    tls {$CADDY_SSL}
 }
