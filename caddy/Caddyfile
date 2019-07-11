@@ -51,7 +51,6 @@
 
     # The email address to use to generate a certificate with Letsencrypt.
     tls {$CADDY_SSL} {
-        protocols tlsv1 tls11 tls12
         ciphers AES128-SHA:AES256-SHA:RC4-SHA:DES-CBC3-SHA:RC4-MD5
     }
 }
