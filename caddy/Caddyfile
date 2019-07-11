@@ -4,9 +4,9 @@
     proxy / django:{$DJANGO_PORT} {
         transparent
 
-        header_upstream X-Real-IP {remote}
-        header_upstream X-Forwarded-Proto {scheme}
-        header_upstream X-CSRFToken {~csrftoken}
+        # header_upstream X-Real-IP {remote}
+        # header_upstream X-Forwarded-Proto {scheme}
+        # header_upstream X-CSRFToken {~csrftoken}
 
         except /static
     }
@@ -50,5 +50,8 @@
     }
 
     # The email address to use to generate a certificate with Letsencrypt.
-    tls {$CADDY_SSL}
+    tls {$CADDY_SSL} {
+        protocols ssl3 tlsv1 tls11 tls12
+        ciphers AES128-SHA:AES256-SHA:RC4-SHA:DES-CBC3-SHA:RC4-MD5
+    }
 }
