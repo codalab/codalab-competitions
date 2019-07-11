@@ -18,4 +18,3 @@ services:
     logging:
       options:
         max-size: "200k"
-    container_name: caddy
