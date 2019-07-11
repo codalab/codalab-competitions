@@ -68,8 +68,6 @@ services:
     ports:
       - ${RABBITMQ_PORT}:${RABBITMQ_PORT}
       - ${RABBITMQ_MANAGEMENT_PORT}:${RABBITMQ_MANAGEMENT_PORT}
-    depends_on:
-      - caddy
     logging:
       options:
         max-size: "200k"
@@ -95,8 +93,6 @@ services:
     env_file: .env
     links:
       - rabbit
-    depends_on:
-      - caddy
     logging:
       options:
         max-size: "200k"
