@@ -15,14 +15,15 @@ def run():
                 "status": "subscribed",
             }
 
-            requests.patch(
+            r = requests.patch(
                 settings.MAILCHIMP_MEMBERS_ENDPOINT_ALL,
                 auth=("", settings.MAILCHIMP_API_KEY),
                 data=json.dumps(data)
             )
 
-            requests.post(
-                settings.MAILCHIMP_MEMBERS_ENDPOINT_ALL,
-                auth=("", settings.MAILCHIMP_API_KEY),
-                data=json.dumps(data)
-            )
+            if not r.ok:
+                requests.post(
+                    settings.MAILCHIMP_MEMBERS_ENDPOINT_ALL,
+                    auth=("", settings.MAILCHIMP_API_KEY),
+                    data=json.dumps(data)
+                )
