@@ -10,11 +10,16 @@ from apps.web.utils import _put_blob
 class Command(BaseCommand):
     help = "Takes a database dump file and puts it on remote storage"
 
+    def add_arguments(self, parser):
+        parser.add_argument('--file', '-f', type=str, help="The name of a db backup in /app/backups", required=True,
+                            dest='dump_name')
+
     def handle(self, *args, **options):
-        if len(args) == 0:
+        dump_name = options.get('dump_name', None)
+        if not dump_name:
             raise Exception("the relative dump file path is required -- it is stored in /app/backups so you do not "
                             "need to specify full path")
-        dump_name = args[0]
+
         dump_path = join("/app/backups", dump_name)
 
         # Upload it
