@@ -5,7 +5,7 @@ import time
 from subprocess import call
 
 
-dump_name = time.strftime("%Y-%m-%d_%H:%M:%S.dump").strip()
+dump_name = time.strftime("%Y-%m-%d_%H:%M:%S.dump")
 
 print("Making dump {}".format(dump_name))
 
@@ -23,5 +23,5 @@ call([
 
 # Push/destroy dump
 call([
-    'docker', 'exec', 'django', 'python', 'manage.py', 'upload_backup', '-f {}'.format(dump_name)
+    'docker', 'exec', 'django', 'python', 'manage.py', 'upload_backup', '--file={}'.format(dump_name)
 ])
