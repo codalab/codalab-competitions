@@ -23,5 +23,5 @@ call([
 
 # Push/destroy dump
 call([
-    'docker', 'exec', 'django', 'python', 'manage.py', 'upload_backup', '{}'.format(dump_name)
+    'docker', 'exec', 'django', 'python', 'manage.py', 'upload_backup', '-f {}'.format(dump_name)
 ])
