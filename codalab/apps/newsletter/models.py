@@ -27,7 +27,6 @@ class NewsletterSubscription(models.Model):
         self.subscription_active = True
         self.save()
         if not all([settings.MAILCHIMP_MEMBERS_ENDPOINT_NEWSLETTER, settings.MAILCHIMP_API_KEY]):
-            print('NO SETTINGS')
             self.needs_retry = True
             self.save()
             return
@@ -38,7 +37,6 @@ class NewsletterSubscription(models.Model):
         }
 
         try:
-            print('PATCHING...')
             response = requests.patch(
                 settings.MAILCHIMP_MEMBERS_ENDPOINT_NEWSLETTER + '/' + self.get_user_hash,
                 auth=("", settings.MAILCHIMP_API_KEY),
@@ -46,12 +44,10 @@ class NewsletterSubscription(models.Model):
             )
 
             if response.ok:
-                print('PATCH RESPONSE OK')
                 self.needs_retry = False
                 self.save()
 
             elif 'The requested resource could not be found' in response.json().get('detail'):
-                print('PATCH FAILED, POSTING...')
                 response = requests.post(
                     settings.MAILCHIMP_MEMBERS_ENDPOINT_NEWSLETTER,
                     auth=("", settings.MAILCHIMP_API_KEY),
@@ -66,17 +62,14 @@ class NewsletterSubscription(models.Model):
                 self.save()
 
         except requests.exceptions.RequestException:
-            print('REQUEST EXCEPTION')
             self.needs_retry = True
             self.save()
 
     def unsubscribe(self):
         print(self)
-        print('UNSUBSCRIBE')
         self.subscription_active = False
         self.save()
         if not all([settings.MAILCHIMP_MEMBERS_ENDPOINT_NEWSLETTER, settings.MAILCHIMP_API_KEY]):
-            print('NO SETTINGS')
             self.needs_retry = True
             self.save()
             return
@@ -86,7 +79,6 @@ class NewsletterSubscription(models.Model):
         }
 
         try:
-            print('PATCHING')
             response = requests.patch(
                 settings.MAILCHIMP_MEMBERS_ENDPOINT_NEWSLETTER + '/' + self.get_user_hash,
                 auth=("", settings.MAILCHIMP_API_KEY),
@@ -94,15 +86,12 @@ class NewsletterSubscription(models.Model):
             )
 
             if response.ok:
-                print('DELETING')
                 self.delete()
             else:
-                print('NEEDS RETRY')
                 self.needs_retry = True
                 self.save()
 
         except requests.exceptions.RequestException as e:
-            print('REQUEST EXCEPTION')
             self.needs_retry = True
             self.save()
             print e

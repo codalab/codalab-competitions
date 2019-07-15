@@ -7,6 +7,7 @@ from apps.newsletter.models import NewsletterSubscription
 from django.conf import settings
 
 from apps.newsletter.forms import NewsletterSubscriptionSignUpForm, NewsletterSubscriptionUnsubscribeForm
+from apps.newsletter.tasks import retry_mailing_list
 
 User = get_user_model()
 
@@ -49,6 +50,12 @@ class NewsletterOptIn(TestCase):
                 user.save()
                 return mock_post, mock_patch
 
+    def mock_retry_mailing_list(self):
+        with mock.patch('apps.newsletter.models.NewsletterSubscription.subscribe') as mock_subscribe:
+            with mock.patch('apps.newsletter.models.NewsletterSubscription.unsubscribe') as mock_unsubscribe:
+                retry_mailing_list()
+                return mock_subscribe, mock_unsubscribe
+
     def test_user_creation_with_opt_in_creates_newsletter_subscription(self):
         self.user.newsletter_opt_in = True
         mock_post, mock_patch = self.mock_save_user(patch_status_code=400, post_status_code=200)
@@ -80,3 +87,18 @@ class NewsletterOptIn(TestCase):
         self.user.is_active = False
         self.mock_save_user(patch_status_code=400, post_status_code=400)
         assert not NewsletterSubscription.objects.filter(email=self.user.email).exists()
+
+    def test_retry_mailing_list(self):
+        self.newsletter_subscription.subscription_active = False
+        self.newsletter_subscription.needs_retry = True
+        self.newsletter_subscription.save()
+        mock_subscribe, mock_unsubscribe = self.mock_retry_mailing_list()
+        assert not mock_subscribe.called
+        assert mock_unsubscribe.called
+
+        self.newsletter_subscription.subscription_active = True
+        self.newsletter_subscription.needs_retry = True
+        self.newsletter_subscription.save()
+        mock_subscribe, mock_unsubscribe = self.mock_retry_mailing_list()
+        assert mock_subscribe.called
+        assert not mock_unsubscribe.called

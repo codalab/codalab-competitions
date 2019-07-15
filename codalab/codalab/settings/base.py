@@ -465,6 +465,10 @@ class Base(Settings):
             'task': 'apps.web.tasks.send_chahub_general_stats',
             'schedule': timedelta(seconds=60 * 60 * 24),
         },
+        'retry_mailing_list': {
+            'task': 'apps.newsletter.tasks.retry_mailing_list',
+            'schedule': timedelta(seconds=(60 * 60))
+        }
     }
     CELERY_TIMEZONE = 'UTC'
 
