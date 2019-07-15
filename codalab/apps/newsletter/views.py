@@ -10,16 +10,16 @@ from django.template import Context
 from django.template.loader import get_template
 
 from codalab import settings
-from .models import NewsletterUser
-from .forms import NewsletterUserSignUpForm
+from .models import NewsletterSubscription
+from .forms import NewsletterSubscriptionSignUpForm, NewsletterSubscriptionUnsubscribeForm
 
 
 def newsletter_signup(request):
-    form = NewsletterUserSignUpForm(request.POST or None)
+    form = NewsletterSubscriptionSignUpForm(request.POST or None)
 
     if form.is_valid():
         instance = form.save(commit=False)
-        if NewsletterUser.objects.filter(email=instance.email).exists():
+        if NewsletterSubscription.objects.filter(email=instance.email).exists():
             messages.warning(request, 'This email already signed up for newsletters',
                              'alert alert-warning alert-dismissible')
         else:
@@ -62,24 +62,25 @@ def newsletter_signup(request):
 
 
 def newsletter_unsubscribe(request):
-    form = NewsletterUserSignUpForm(request.POST or None)
+    form = NewsletterSubscriptionUnsubscribeForm(request.POST or None)
 
     if form.is_valid():
         instance = form.save(commit=False)
-        if NewsletterUser.objects.filter(email=instance.email).exists():
+        if NewsletterSubscription.objects.filter(email=instance.email).exists():
             data = {
                 "status": "unsubscribed",
             }
 
-            user_hash = hashlib.md5(str.lower(instance.email.encode()))
+            NewsletterSubscription.objects.get(email=instance.email).unsubscribe()
 
+            user_hash = hashlib.md5(instance.email.encode().lower())
             requests.patch(
                 settings.MAILCHIMP_MEMBERS_ENDPOINT_NEWSLETTER + '/' + user_hash.hexdigest(),
                 auth=("", settings.MAILCHIMP_API_KEY),
                 data=json.dumps(data)
             )
 
-            NewsletterUser.objects.filter(email=instance.email).delete()
+            NewsletterSubscription.objects.filter(email=instance.email).delete()
             messages.success(request, 'You have been removed from the Codalab newsletter',
                              'alert alert-success alert-dismissible')
             subject = "You have been unsubscribed from the Codalab newsletter"

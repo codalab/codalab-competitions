@@ -7,7 +7,7 @@ from django.db import models
 from django.contrib.auth import models as auth_models
 
 from codalab import settings
-from apps.newsletter.models import NewsletterUser
+from apps.newsletter.models import NewsletterSubscription
 
 
 class ClUser(auth_models.AbstractUser):
@@ -43,53 +43,14 @@ class ClUser(auth_models.AbstractUser):
 
     def save(self, *args, **kwargs):
         if self.newsletter_opt_in and self.email and self.is_active:
-            data = {
-                "email_address": self.email,
-                "status": "subscribed",
-            }
-
-            user_hash = hashlib.md5(str.lower(self.email.encode()))
-
-            # Try to update the user before creating a new user
-            update_user = requests.patch(
-                settings.MAILCHIMP_MEMBERS_ENDPOINT_NEWSLETTER + '/' + user_hash.hexdigest(),
-                auth=("", settings.MAILCHIMP_API_KEY),
-                data=json.dumps(data)
-            )
-
-            # If no user is found in mailchimp, create a new mailing list user
-            if not update_user.ok:
-                requests.post(
-                    settings.MAILCHIMP_MEMBERS_ENDPOINT_NEWSLETTER,
-                    auth=("", settings.MAILCHIMP_API_KEY),
-                    data=json.dumps(data)
-                )
-
-            # If there is no NewsletterUser for this user, create one
-            if not NewsletterUser.objects.filter(email=self.email).exists():
-                NewsletterUser.objects.create(email=self.email)
-
-        elif not self.email and self.newsletter_opt_in:
-            self.newsletter_opt_in = False
-            raise ValidationError('You must have an email to receive the Codalab newsletter')
+            subscription, created = NewsletterSubscription.objects.get_or_create(email=self.email)
+            if not subscription.subscription_active or subscription.needs_retry:
+                subscription.subscribe()
 
         elif not self.newsletter_opt_in and self.email:
-            data = {
-                "status": "unsubscribed",
-            }
-
-            user_hash = hashlib.md5(str.lower(self.email.encode()))
-
-            # Update user in Mailchimp to Unsubscribed
-            requests.patch(
-                settings.MAILCHIMP_MEMBERS_ENDPOINT_NEWSLETTER + '/' + user_hash.hexdigest(),
-                auth=("", settings.MAILCHIMP_API_KEY),
-                data=json.dumps(data)
-            )
-
-            # Remove the user from the NewsletterUser model
-            if NewsletterUser.objects.filter(email=self.email).exists():
-                NewsletterUser.objects.get(email=self.email).delete()
+            subscription = NewsletterSubscription.objects.filter(email=self.email).first()
+            if subscription:
+                subscription.unsubscribe()
 
         super(ClUser, self).save(*args, **kwargs)
 
