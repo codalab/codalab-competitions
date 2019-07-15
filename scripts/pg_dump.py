@@ -5,7 +5,7 @@ import time
 from subprocess import call
 
 
-dump_name = time.strftime("%Y-%m-%d_%H:%M:%S.dump")
+dump_name = time.strftime("%Y-%m-%d_%H:%M:%S.dump").strip()
 
 print("Making dump {}".format(dump_name))
 
