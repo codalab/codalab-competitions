@@ -1,7 +1,3 @@
-import hashlib
-import json
-
-import requests
 from django.contrib import messages
 from django.contrib.sites.models import Site
 from django.shortcuts import render

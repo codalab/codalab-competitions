@@ -57,7 +57,6 @@ class NewsletterSubscription(models.Model):
                 self.needs_retry = not response.ok
                 self.save()
             else:
-                print('POST FAILED, NEEDS RETRY')
                 self.needs_retry = True
                 self.save()
 
@@ -66,7 +65,6 @@ class NewsletterSubscription(models.Model):
             self.save()
 
     def unsubscribe(self):
-        print(self)
         self.subscription_active = False
         self.save()
         if not all([settings.MAILCHIMP_MEMBERS_ENDPOINT_NEWSLETTER, settings.MAILCHIMP_API_KEY]):

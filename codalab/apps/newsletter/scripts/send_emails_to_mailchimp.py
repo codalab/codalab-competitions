@@ -8,7 +8,7 @@ User = get_user_model()
 
 
 def run():
-    if settings.MAILCHIMP_MEMBERS_ENDPOINT_ALL and settings.MAILCHIMP_API_KEY:
+    if all([settings.MAILCHIMP_MEMBERS_ENDPOINT_ALL, settings.MAILCHIMP_API_KEY]):
         for user in User.objects.all():
             data = {
                 "email_address": user.email,

@@ -1,12 +1,6 @@
-import hashlib
-import json
-
-import requests
-from django.core.exceptions import ValidationError
 from django.db import models
 from django.contrib.auth import models as auth_models
 
-from codalab import settings
 from apps.newsletter.models import NewsletterSubscription
 
 
