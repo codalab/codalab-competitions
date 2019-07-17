@@ -136,3 +136,9 @@ class NewsletterOptIn(TestCase):
         newsletter_user = NewsletterSubscription.objects.get(email=self.user.email)
         assert newsletter_user.needs_retry
         assert not newsletter_user.subscription_active
+
+    def test_mailing_list_needs_retry_on_request_error(self):
+        self.user.newsletter_opt_in = True
+        self.mock_save_user(patch_status_code=200, post_status_code=200, exception=True)
+        assert NewsletterSubscription.objects.filter(email=self.user.email).exists()
+        assert NewsletterSubscription.objects.get(email=self.user.email).needs_retry
