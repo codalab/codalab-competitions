@@ -4,7 +4,7 @@ import logging
 import requests
 
 from django.db import models
-from codalab import settings
+from django_contrib import settings
 
 logger = logging.getLogger(__name__)
 
