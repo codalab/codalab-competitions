@@ -470,9 +470,10 @@ class CompetitionPhaseAPIViewset(viewsets.ModelViewSet):
         return self.queryset.filter(**kw)
 
 competitionphase_list = CompetitionPhaseAPIViewset.as_view({'get':'list', 'post':'create'})
-competitionphase_retrieve = CompetitionPhaseAPIViewset.as_view({'get':'retrieve',
-                                                                'put':'update',
-                                                                'patch':'partial_update'})
+competitionphase_retrieve = CompetitionPhaseAPIViewset.as_view({'get':'retrieve'}
+                                                                # 'put':'update',
+                                                                # 'patch':'partial_update'}
+                                                               )
 
 
 class CompetitionPageViewSet(viewsets.ModelViewSet):

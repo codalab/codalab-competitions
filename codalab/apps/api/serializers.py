@@ -65,20 +65,21 @@ class CompetitionSubmissionSerial(serializers.ModelSerializer):
 
 
 class PhaseSerial(serializers.ModelSerializer):
-    start_date = serializers.DateField(format='%Y-%m-%d')
+    start_date = serializers.DateTimeField(format='%Y-%m-%d')
 
     class Meta:
         model = webmodels.CompetitionPhase
         read_only_fields = ['datasets']
+        fields = ['start_date', 'id']
 
 
 class CompetitionPhaseSerial(serializers.ModelSerializer):
-    end_date = serializers.DateField(format='%Y-%m-%d')
+    end_date = serializers.DateTimeField(format='%Y-%m-%d')
     phases = PhaseSerial(many=True)
 
     class Meta:
         model = webmodels.Competition
-        fields = ['end_date','phases']
+        fields = ['end_date', 'phases']
 
 
 class LeaderBoardSerial(serializers.ModelSerializer):
