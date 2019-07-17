@@ -4,7 +4,7 @@ import logging
 import requests
 
 from django.db import models
-from django_contrib import settings
+from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
