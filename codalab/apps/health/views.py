@@ -114,6 +114,7 @@ def simple_health(request):
     if not request.user.is_staff:
         return HttpResponse(status=404)
     qs = CompetitionSubmission.objects.all()
+    qs = qs.filter(submitted_at__gte=datetime.now() - timedelta(days=2))
     qs = qs.order_by('-submitted_at')
     qs = qs.select_related('phase__competition')
     qs = qs.select_related('participant__user__username')
