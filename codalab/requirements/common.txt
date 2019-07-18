@@ -70,7 +70,7 @@ git+https://github.com/gibsonbailey/django-allauth.git@codalab
 git+https://github.com/FlavioAlexander/azure-sdk-for-python.git@legacy
 
 # Required when PostgreSQL is used
-psycopg2==2.7.1
+psycopg2==2.8.3
 
 # Lock unwanted people out on staging servers
 django-pin-passcode==0.1.9
