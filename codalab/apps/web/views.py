@@ -1263,7 +1263,10 @@ class MyCompetitionSubmissionDetailedResults(TemplateView):
     template_name = 'web/my/detailed_results.html'
 
     def get(self, request, *args, **kwargs):
-        submission = models.CompetitionSubmission.objects.get(pk=kwargs.get('submission_id'))
+        try:
+            submission = models.CompetitionSubmission.objects.get(pk=kwargs.get('submission_id'))
+        except models.CompetitionSubmission.DoesNotExist:
+            raise Http404()
 
         context_dict = {
             'id': kwargs.get('submission_id'),
