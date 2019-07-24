@@ -1,0 +1,5 @@
+{% extends 'newsletter/base_email.txt' %}
+
+{% block content %}
+We're sorry to see you go! You have unsubscribed from the Codalab newsletter. If there was an issue on our end, please let us know and we'll do our best to get it resolved! If you would like to sign up again, please visit {% url 'newsletter:newsletter_unsubscribe' %}
+{% endblock %}
