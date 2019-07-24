@@ -124,16 +124,20 @@
                                     <li><a href="{% url 'user_settings' %}">Settings</a></li>
                                     <li class="divider"></li>
                                     <li><a href="/accounts/password/reset/" target="_self">Change Password</a></li>
+                                    {% if settings.MAILCHIMP_API_KEY %}
                                     <li class="divider"></li>
                                     <li><a href="/newsletter/signup/" target="_self">Newsletter</a></li>
+                                    {% endif %}
                                     <li class="divider"></li>
                                     <li><a href="{% url 'account_logout' %}" target="_self">Sign Out</a></li>
                                 </ul>
                             </li>
                         {% else %}
+                            {% if settings.MAILCHIMP_API_KEY %}
                             <li>
                                 <a href="/newsletter/signup/" target="_self">Newsletter</a>
                             </li>
+                            {% endif %}
                             <li>
                                 <a href="{% url 'account_signup' %}?next={{request.path}}" target="_self">Sign Up</a>
                             </li>
@@ -170,7 +174,9 @@
     <footer class="navbar-fixed-bottom">
         <div class="container-fluid">
             <ul class="nav navbar-nav navbar-right">
+            {% if settings.MAILCHIMP_API_KEY %}
             <li><a href="/newsletter/signup/" target="_self">Newsletter</a></li>
+            {% endif %}
                 <li><a href="https://github.com/codalab/codalab/issues" target="_blank">Join us on Github for contact & bug reports</a></li>
                 {% if SINGLE_COMPETITION_VIEW_PK %}
                     <li><a href="http://codalab.org/" target="_blank">Powered by Codalab</a></li>

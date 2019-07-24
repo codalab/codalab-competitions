@@ -38,10 +38,12 @@
                 <input id="id_confirmation_key" name="confirmation_key" type="hidden">
             </div>
 
+            {% if settings.MAILCHIMP_API_URL %}
             <div class="form-group">
                 <input type='checkbox' id="id_newsletter_opt_in" name='newsletter_opt_in' value="{{ form.newsletter_opt_in.value|default_if_none:"" }}">
                 <label for="id_newsletter_opt_in">I'd like to receive the CodaLab newsletter</label>
             </div>
+            {% endif %}
 
             <div class="form-group">
                 <input type='checkbox' id="id_accept_rules" name='accept_rules' required="True">
