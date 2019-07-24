@@ -129,6 +129,8 @@
                                     <li><a href="/newsletter/signup/" target="_self">Newsletter</a></li>
                                     {% endif %}
                                     <li class="divider"></li>
+                                    <li><a href="/newsletter/signup/" target="_self">Newsletter</a></li>
+                                    <li class="divider"></li>
                                     <li><a href="{% url 'account_logout' %}" target="_self">Sign Out</a></li>
                                 </ul>
                             </li>
@@ -138,6 +140,9 @@
                                 <a href="/newsletter/signup/" target="_self">Newsletter</a>
                             </li>
                             {% endif %}
+                            <li>
+                                <a href="/newsletter/signup/" target="_self">Newsletter</a>
+                            </li>
                             <li>
                                 <a href="{% url 'account_signup' %}?next={{request.path}}" target="_self">Sign Up</a>
                             </li>

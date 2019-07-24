@@ -31,6 +31,7 @@ class CodalabSignupForm(forms.Form):
             'method_name': self.cleaned_data['method_name'],
             'method_description': self.cleaned_data['method_description'],
             'contact_email': self.cleaned_data['contact_email'],
+            'newsletter_opt_in': self.cleaned_data['newsletter_opt_in'],
             'project_url': self.cleaned_data['project_url'],
             'publication_url': self.cleaned_data['publication_url'],
             'bibtex': self.cleaned_data['bibtex'],
