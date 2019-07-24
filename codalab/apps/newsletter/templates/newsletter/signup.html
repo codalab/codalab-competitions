@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6 col-lg-offset-3">
+                <h3 class="text-center">
+                    Sign up for the Codalab Newsletter!
+                </h3>
+                {% if messages %}
+                    {% for message in messages %}
+                        <div {% if message.tags %} class="{{ message.tags }}" {% endif %} role="alert">
+                            {{ message }}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                {% endif %}
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="input-group">
+                        {{ form }}
+                        <span class="input-group-btn">
+                        <button class="btn btn-default" type="submit">Subscribe</button>
+                    </span>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 col-lg-offset-3 margin-top text-center push-down">
+        I wanted to <a href="{% url 'newsletter:newsletter_unsubscribe' %}">Unsubscribe</a> from the Codalab Newsletter
+    </div>
+    <style>
+    .push-down {
+        margin-top: 450px;
+    }
+    </style>
+{% endblock %}
