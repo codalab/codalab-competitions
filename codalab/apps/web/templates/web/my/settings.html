@@ -108,7 +108,7 @@
                         <th>{{ form.allow_admin_status_updates.label }}</th>
                         <td>{{ form.allow_admin_status_updates }}</td>
                     </tr>
-                    {% if settings.MAILCHIMP_API_KEY %}
+                    {% if USE_MAILCHIMP %}
                     <tr>
                         <th>{{ form.newsletter_opt_in.label }}</th>
                         <td>{{ form.newsletter_opt_in }}</td>

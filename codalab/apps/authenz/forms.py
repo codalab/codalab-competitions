@@ -1,5 +1,4 @@
 from django import forms
-from codalab import settings
 
 
 class CodalabSignupForm(forms.Form):
@@ -8,8 +7,7 @@ class CodalabSignupForm(forms.Form):
     """
     team_name = forms.CharField(max_length=64, required=False)
     contact_email = forms.EmailField(required=False)
-    if settings.MAILCHIMP_API_KEY:
-        newsletter_opt_in = forms.BooleanField(initial=False, required=False)
+    newsletter_opt_in = forms.BooleanField(initial=False, required=False)
     method_name = forms.CharField(max_length=20, required=False)
     method_description = forms.CharField(required=False)
     project_url = forms.URLField(required=False)
@@ -36,9 +34,4 @@ class CodalabSignupForm(forms.Form):
             'publication_url': self.cleaned_data['publication_url'],
             'bibtex': self.cleaned_data['bibtex'],
         })
-
-        if settings.MAILCHIMP_API_KEY:
-            new_user.__dict__.update({
-                'newsletter_opt_in': self.cleaned_data['newsletter_opt_in'],
-            })
         new_user.save()

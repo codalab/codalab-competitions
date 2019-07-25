@@ -13,6 +13,11 @@ def app_version_proc(request):
 
 def common_settings(request):
     """A context processor that returns dev settings"""
+
+    use_mailchimp = False
+    if settings.MAILCHIMP_API_KEY:
+        use_mailchimp = True
+
     return {
         'SINGLE_COMPETITION_VIEW_PK': settings.SINGLE_COMPETITION_VIEW_PK,
         'CUSTOM_HEADER_LOGO': settings.CUSTOM_HEADER_LOGO,
@@ -22,4 +27,5 @@ def common_settings(request):
         'is_dev': codalab_settings.IS_DEV,
         'USE_AWS': codalab_settings.USE_AWS,
         'CODALAB_SITE_DOMAIN': codalab_settings.CODALAB_SITE_DOMAIN,
+        'USE_MAILCHIMP': use_mailchimp,
     }

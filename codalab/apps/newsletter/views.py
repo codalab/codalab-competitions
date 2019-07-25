@@ -25,80 +25,87 @@ def _send_mail(context_data, from_email=None, html_file=None, text_file=None, su
 
 
 def newsletter_signup(request):
-    if settings.MAILCHIMP_API_KEY:
-        form = NewsletterSubscriptionSignUpForm(request.POST or None)
-
-        if form.is_valid():
-            instance = form.save(commit=False)
-            if NewsletterSubscription.objects.filter(email=instance.email).exists():
-                messages.warning(request, 'This email already signed up for newsletters',
-                                 'alert alert-warning alert-dismissible')
-            else:
-                data = {
-                    "email_address": instance.email,
-                    "status": "subscribed",
-                }
-
-                NewsletterSubscription.objects.create(email=instance.email).subscribe()
-
-                messages.success(request, 'You have been added to the Codalab newsletter',
-                                 'alert alert-success alert-dismissible')
-
-                subject = "Thank you for joining the Codalab newsletter"
-                to_email = instance.email
-                email_message = 'newsletter/signup_email.txt'
-                html_template = 'newsletter/signup_email.html'
-
-                _send_mail(data, html_file=html_template, text_file=email_message, subject=subject, to_email=to_email)
-
-        else:
-            messages.warning(request, 'Please use a valid email address to subscribe to the newsletter',
-                             'alert alert-warning alert-dismissible')
-        context = {
-            'form': form,
-        }
-        template = "newsletter/signup.html"
-    else:
-        context = {}
+    if not settings.MAILCHIMP_API_KEY:
         template = "newsletter/404.html"
+        return render(request, template)
+
+    form = NewsletterSubscriptionSignUpForm(request.POST or None)
+
+    if form.is_valid():
+        instance = form.save(commit=False)
+        if NewsletterSubscription.objects.filter(email=instance.email).exists():
+            messages.warning(request, 'This email already signed up for newsletters',
+                             'alert alert-warning alert-dismissible')
+        else:
+            data = {
+                "email_address": instance.email,
+                "status": "subscribed",
+            }
+
+            NewsletterSubscription.objects.create(email=instance.email).subscribe()
+
+            messages.success(request, 'You have been added to the Codalab newsletter',
+                             'alert alert-success alert-dismissible')
+
+            subject = "Thank you for joining the Codalab newsletter"
+            to_email = instance.email
+            email_message = 'newsletter/signup_email.txt'
+            html_template = 'newsletter/signup_email.html'
+
+            _send_mail(data, html_file=html_template, text_file=email_message, subject=subject, to_email=to_email)
+
+    context = {
+        'form': form,
+    }
+
+    template = "newsletter/signup.html"
+
+    storage = messages.get_messages(request)
+    for _ in storage:
+        pass
+    storage.used = True
+
     return render(request, template, context)
 
 
 def newsletter_unsubscribe(request):
-    if settings.MAILCHIMP_API_KEY:
-        form = NewsletterSubscriptionUnsubscribeForm(request.POST or None)
+    if not settings.MAILCHIMP_API_KEY:
+        template = "newsletter/404.html"
+        return render(request, template)
 
-        if form.is_valid():
-            email = form.cleaned_data['email']
-            if NewsletterSubscription.objects.filter(email=email).exists():
-                data = {
-                    "status": "unsubscribed",
-                }
+    form = NewsletterSubscriptionUnsubscribeForm(request.POST or None)
 
-                NewsletterSubscription.objects.get(email=email).unsubscribe()
+    if form.is_valid():
+        email = form.cleaned_data['email']
+        if NewsletterSubscription.objects.filter(email=email).exists():
+            data = {
+                "status": "unsubscribed",
+            }
 
-                messages.success(request, 'You have been removed from the Codalab newsletter',
-                                 'alert alert-success alert-dismissible')
-                subject = "You have been unsubscribed from the Codalab newsletter"
-                to_email = email
-                email_message = '/apps/newsletter/templates/newsletter/unsubscribe_email.txt'
-                html_template = 'newsletter/unsubscribe_email.html'
+            NewsletterSubscription.objects.get(email=email).unsubscribe()
 
-                _send_mail(data, html_file=html_template, text_file=email_message, subject=subject, to_email=to_email)
+            messages.success(request, 'You have been removed from the Codalab newsletter',
+                             'alert alert-success alert-dismissible')
+            subject = "You have been unsubscribed from the Codalab newsletter"
+            to_email = email
+            email_message = 'newsletter/unsubscribe_email.txt'
+            html_template = 'newsletter/unsubscribe_email.html'
 
-            else:
-                messages.warning(request, 'Your email was not found. We cannot remove that email from the newsletter',
-                                 'alert alert-warning alert-dismissible')
+            _send_mail(data, html_file=html_template, text_file=email_message, subject=subject, to_email=to_email)
 
         else:
-            messages.warning(request, 'Please use a valid email address to unsubscribe from the newsletter',
+            messages.warning(request, 'Your email was not found. We cannot remove that email from the newsletter',
                              'alert alert-warning alert-dismissible')
-        context = {
-            'form': form,
-        }
-        template = "newsletter/unsubscribe.html"
-    else:
-        context = {}
-        template = "newsletter/404.html"
+
+    context = {
+        'form': form,
+    }
+
+    template = "newsletter/unsubscribe.html"
+
+    storage = messages.get_messages(request)
+    for _ in storage:
+        pass
+    storage.used = True
 
     return render(request, template, context)
