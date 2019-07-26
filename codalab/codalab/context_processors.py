@@ -22,4 +22,5 @@ def common_settings(request):
         'is_dev': codalab_settings.IS_DEV,
         'USE_AWS': codalab_settings.USE_AWS,
         'CODALAB_SITE_DOMAIN': codalab_settings.CODALAB_SITE_DOMAIN,
+        'USE_MAILCHIMP': bool(settings.MAILCHIMP_API_KEY),
     }
