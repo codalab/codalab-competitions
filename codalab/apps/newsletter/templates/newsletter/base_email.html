@@ -7,21 +7,9 @@
     <title></title>
 
     <style>
-        /*
-
-        text: #666666
-        links: #739cb9
-
-        palette medium: #7A8D92
-         palette light: #A6C6D1
-          palette teal: #67B8C7
-        */
         html, body {
             background-color: #f7f7f7;
             font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
-        }
-        body {
-            /*padding: 20px;*/
         }
         h1, h2, h3, h4, h5, h6 {
             font-family: "Segoe UI", Segoe, "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -41,7 +29,6 @@
         }
 
         #header {
-            /*background: url("http://{{ site.domain }}{% static "img/slider_exmp_comp.gif" %}");*/
             padding-bottom: 20px;
         }
         #signature {
@@ -55,12 +42,6 @@
     </style>
 </head>
 <body>
-
-<!--
-<div id="header">
-    <img src="http://{{ site.domain }}{% static "img/codalab-logo-white.png" %}" alt="CodaLab Logo">
-</div>
--->
 
 <div id="header">
     <h1>Hello{% if user %} {{ user.username }}{% endif %},</h1>
