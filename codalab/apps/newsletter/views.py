@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.sites.models import Site
+from django.http import Http404
 from django.shortcuts import render
 from django.core.mail import EmailMultiAlternatives
 from django.template import Context
@@ -26,8 +27,7 @@ def _send_mail(context_data, from_email=None, html_file=None, text_file=None, su
 
 def newsletter_signup(request):
     if not settings.MAILCHIMP_API_KEY:
-        template = "newsletter/404.html"
-        return render(request, template)
+        raise Http404("This version of CodaLab has not enabled Newsletters.")
 
     form = NewsletterSubscriptionSignUpForm(request.POST or None)
 
@@ -61,8 +61,6 @@ def newsletter_signup(request):
     template = "newsletter/signup.html"
 
     storage = messages.get_messages(request)
-    for _ in storage:
-        pass
     storage.used = True
 
     return render(request, template, context)
@@ -70,8 +68,7 @@ def newsletter_signup(request):
 
 def newsletter_unsubscribe(request):
     if not settings.MAILCHIMP_API_KEY:
-        template = "newsletter/404.html"
-        return render(request, template)
+        raise Http404("This version of CodaLab has not enabled Newsletters.")
 
     form = NewsletterSubscriptionUnsubscribeForm(request.POST or None)
 
@@ -104,8 +101,6 @@ def newsletter_unsubscribe(request):
     template = "newsletter/unsubscribe.html"
 
     storage = messages.get_messages(request)
-    for _ in storage:
-        pass
     storage.used = True
 
     return render(request, template, context)
