@@ -35,4 +35,3 @@ class CodalabSignupForm(forms.Form):
             'bibtex': self.cleaned_data['bibtex'],
         })
         new_user.save()
-
