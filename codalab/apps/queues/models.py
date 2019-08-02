@@ -42,7 +42,7 @@ class Queue(models.Model):
 
     def delete(self, using=None):
         try:
-            rabbit.delete_vhost(self.vhost)
+            rabbit.delete_vhost(str(self.vhost))
         except HTTPError:
             # Vhost not found or something
             pass
