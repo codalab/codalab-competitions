@@ -74,6 +74,7 @@ class PhaseSerial(serializers.ModelSerializer):
             'leaderboard_management_mode',
             'force_best_submission_to_leaderboard',
             'auto_migration',
+            'id',
             'is_migrated',
             'is_active',
             'execution_time_limit',
@@ -96,6 +97,7 @@ class PhaseSerial(serializers.ModelSerializer):
         extra_kwargs = {
             'datasets': {'read_only': True},
             'is_active': {'read_only': True},
+            'id': {'read_only': True},
         }
 
 class CompetitionPhaseSerial(serializers.ModelSerializer):
