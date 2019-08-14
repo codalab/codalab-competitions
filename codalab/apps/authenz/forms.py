@@ -7,6 +7,7 @@ class CodalabSignupForm(forms.Form):
     """
     team_name = forms.CharField(max_length=64, required=False)
     contact_email = forms.EmailField(required=False)
+    newsletter_opt_in = forms.BooleanField(initial=False, required=False)
     method_name = forms.CharField(max_length=20, required=False)
     method_description = forms.CharField(required=False)
     project_url = forms.URLField(required=False)
@@ -28,9 +29,9 @@ class CodalabSignupForm(forms.Form):
             'method_name': self.cleaned_data['method_name'],
             'method_description': self.cleaned_data['method_description'],
             'contact_email': self.cleaned_data['contact_email'],
+            'newsletter_opt_in': self.cleaned_data['newsletter_opt_in'],
             'project_url': self.cleaned_data['project_url'],
             'publication_url': self.cleaned_data['publication_url'],
             'bibtex': self.cleaned_data['bibtex'],
         })
         new_user.save()
-

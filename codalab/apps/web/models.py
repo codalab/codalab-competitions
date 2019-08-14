@@ -1744,31 +1744,31 @@ class CompetitionDefBundle(models.Model):
             else:
                 comp_base['end_date'] = CompetitionDefBundle.localize_datetime(comp_base['end_date'])
 
-        admin_names = None
+        # admin_names = None
         if 'admin_names' in comp_base:
-            admin_names = comp_base['admin_names']
+            # admin_names = comp_base['admin_names']
             del comp_base['admin_names']
 
         comp = Competition(**comp_base)
         comp.save()
         logger.debug("CompetitionDefBundle::unpack created base competition (pk=%s)", self.pk)
 
-        if admin_names:
-            logger.debug("CompetitionDefBundle::unpack looking up admins %s", comp_spec['admin_names'])
-            admins = ClUser.objects.filter(username__in=[name.strip() for name in admin_names.split(',')])
-            logger.debug("CompetitionDefBundle::unpack found admins %s", admins)
-            comp.admins.add(*admins)
-
-            logger.debug("CompetitionDefBundle::unpack adding admins as participants")
-            approved_status = ParticipantStatus.objects.get(codename=ParticipantStatus.APPROVED)
-
-            for admin in admins:
-                try:
-                    participant = CompetitionParticipant.objects.get(user=admin, competition=comp)
-                    participant.status = approved_status
-                    participant.save()
-                except models.ObjectDoesNotExist:
-                    CompetitionParticipant.objects.create(user=admin, competition=comp, status=approved_status)
+        # if admin_names:
+        #     logger.debug("CompetitionDefBundle::unpack looking up admins %s", comp_spec['admin_names'])
+        #     admins = ClUser.objects.filter(username__in=[name.strip() for name in admin_names.split(',')])
+        #     logger.debug("CompetitionDefBundle::unpack found admins %s", admins)
+        #     comp.admins.add(*admins)
+        #
+        #     logger.debug("CompetitionDefBundle::unpack adding admins as participants")
+        #     approved_status = ParticipantStatus.objects.get(codename=ParticipantStatus.APPROVED)
+        #
+        #     for admin in admins:
+        #         try:
+        #             participant = CompetitionParticipant.objects.get(user=admin, competition=comp)
+        #             participant.status = approved_status
+        #             participant.save()
+        #         except models.ObjectDoesNotExist:
+        #             CompetitionParticipant.objects.create(user=admin, competition=comp, status=approved_status)
 
         if 'competition_docker_image' in comp_base:
             try:

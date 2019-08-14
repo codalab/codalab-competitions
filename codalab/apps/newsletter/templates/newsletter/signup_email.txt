@@ -1,0 +1,5 @@
+{% extends 'newsletter/base_email.txt' %}
+
+{% block content %}
+Welcome to the Codalab newsletter. If you would like to unsubscribe, please visit {% url 'newsletter:newsletter_unsubscribe' %}
+{% endblock %}

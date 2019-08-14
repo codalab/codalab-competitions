@@ -238,6 +238,7 @@ class Base(Settings):
         'apps.queues',
         'apps.teams',
         'apps.customizer',
+        'apps.newsletter',
 
         # Authentication app, enables social authentication
         'allauth',
@@ -349,6 +350,15 @@ class Base(Settings):
     DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'CodaLab <noreply@codalab.org>')
     SERVER_EMAIL = os.environ.get('SERVER_EMAIL', 'noreply@codalab.org')
 
+    MAILCHIMP_API_KEY = os.environ.get('MAILCHIMP_API_KEY')
+    MAILCHIMP_DATA_CENTER = os.environ.get('MAILCHIMP_DATA_CENTER')
+    MAILCHIMP_EMAIL_LIST_ID_ALL = os.environ.get('MAILCHIMP_EMAIL_LIST_ID_ALL')
+    MAILCHIMP_EMAIL_LIST_ID_NEWSLETTER = os.environ.get('MAILCHIMP_EMAIL_LIST_ID_NEWSLETTER')
+
+    MAILCHIMP_API_URL = 'https://{}.api.mailchimp.com/3.0'.format(MAILCHIMP_DATA_CENTER) if MAILCHIMP_DATA_CENTER else None
+    MAILCHIMP_MEMBERS_ENDPOINT_ALL = '{}/lists/{}/members'.format(MAILCHIMP_API_URL, MAILCHIMP_EMAIL_LIST_ID_ALL) if all([MAILCHIMP_API_URL, MAILCHIMP_EMAIL_LIST_ID_ALL]) else None
+    MAILCHIMP_MEMBERS_ENDPOINT_NEWSLETTER = '{}/lists/{}/members'.format(MAILCHIMP_API_URL, MAILCHIMP_EMAIL_LIST_ID_NEWSLETTER) if all([MAILCHIMP_API_URL, MAILCHIMP_EMAIL_LIST_ID_NEWSLETTER]) else None
+
 
     # =========================================================================
     # Storage
@@ -456,6 +466,10 @@ class Base(Settings):
             'task': 'apps.web.tasks.send_chahub_general_stats',
             'schedule': timedelta(seconds=60 * 60 * 24),
         },
+        'retry_mailing_list': {
+            'task': 'apps.newsletter.tasks.retry_mailing_list',
+            'schedule': timedelta(seconds=(60 * 60))
+        }
     }
     CELERY_TIMEZONE = 'UTC'
 
@@ -479,7 +493,8 @@ class Base(Settings):
     CHAHUB_API_KEY = os.environ.get('CHAHUB_API_KEY')
     CHAHUB_PRODUCER_ID = os.environ.get('CHAHUB_PRODUCER_ID')
 
-    assert CHAHUB_API_URL.endswith("/"), "ChaHub API url must end with a slash"
+    if CHAHUB_API_URL:
+        assert CHAHUB_API_URL.endswith("/"), "ChaHub API url must end with a slash"
 
     # =========================================================================
     # Logging

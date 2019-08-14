@@ -60,7 +60,8 @@ def get_health_metrics():
         "jobs_failed": jobs_failed,
         "jobs_failed_count": len(jobs_failed),
         "alert_emails": alert_emails,
-        "alert_threshold": health_settings.threshold
+        "alert_threshold": health_settings.threshold,
+        "congestion_threshold": health_settings.congestion_threshold
     }
 
     # Health page update Dec 22, 2017
@@ -113,6 +114,7 @@ def simple_health(request):
     if not request.user.is_staff:
         return HttpResponse(status=404)
     qs = CompetitionSubmission.objects.all()
+    qs = qs.filter(submitted_at__gte=datetime.now() - timedelta(days=2))
     qs = qs.order_by('-submitted_at')
     qs = qs.select_related('phase__competition')
     qs = qs.select_related('participant__user__username')
@@ -129,6 +131,7 @@ def email_settings(request):
     health_settings = HealthSettings.objects.get_or_create(pk=1)[0]
     health_settings.emails = request.POST.get("emails")
     health_settings.threshold = request.POST.get("alert_threshold")
+    health_settings.congestion_threshold = request.POST.get("congestion_threshold")
     health_settings.save()
     return HttpResponse()
 
