@@ -24,4 +24,5 @@ def common_settings(request):
         'CHAHUB_URL': '//{}'.format(settings.CHAHUB_API_URL.split("//")[-1].split("/")[0].split('?')[0]),
         'CHAHUB_PRODUCER_ID': settings.CHAHUB_PRODUCER_ID,
         'CODALAB_SITE_DOMAIN': codalab_settings.CODALAB_SITE_DOMAIN,
+        'USE_MAILCHIMP': bool(settings.MAILCHIMP_API_KEY),
     }

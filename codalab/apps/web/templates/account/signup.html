@@ -38,6 +38,20 @@
                 <input id="id_confirmation_key" name="confirmation_key" type="hidden">
             </div>
 
+            {% if USE_MAILCHIMP %}
+            <div class="form-group">
+                <input type='checkbox' id="id_newsletter_opt_in" name='newsletter_opt_in' value="{{ form.newsletter_opt_in.value|default_if_none:"" }}">
+                <label for="id_newsletter_opt_in">I'd like to receive the CodaLab newsletter</label>
+            </div>
+            {% else %}
+                <input type='hidden' id="id_newsletter_opt_in" value="">
+            {% endif %}
+
+            <div class="form-group">
+                <input type='checkbox' id="id_newsletter_opt_in" name='newsletter_opt_in' value="{{ form.newsletter_opt_in.value|default_if_none:"" }}">
+                <label for="id_newsletter_opt_in">I'd like to receive the CodaLab newsletter</label>
+            </div>
+
             <div class="form-group">
                 <input type='checkbox' id="id_accept_rules" name='accept_rules' required="True">
                 <label for="id_accept_rules">I accept the <a href="https://github.com/codalab/codalab-competitions/wiki/Privacy" target="_blank">terms and conditions</a></label>

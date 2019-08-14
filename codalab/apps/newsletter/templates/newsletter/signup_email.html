@@ -1,0 +1,8 @@
+{% extends 'newsletter/base_email.html' %}
+
+{% block content %}
+    <h2>Welcome to the CodaLab Newsletter</h2>
+    <p>Thank you for signing up to receive the newsletter!</p>
+    <p>If you would like to unsubscribe at any time, please visit this link: <a
+            href="{% url 'newsletter:newsletter_unsubscribe' %}">Unsubscribe</a></p>
+{% endblock %}
