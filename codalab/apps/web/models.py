@@ -1536,6 +1536,7 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
 
     @staticmethod
     def create_submission(request, submission_phase, ignore_submission_limits=False, **kwargs):
+
         # And condition for if we're re-running a submission. Individaul submissions to tracks should be possible
         # if submission_phase.parent and not ignore_submission_limits:
         #     raise PermissionDenied("Cannot directly submit to a sub-phase")
@@ -1607,6 +1608,7 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
 
     def save(self, ignore_submission_limits=False, *args, **kwargs):
         print "Saving competition submission."
+
         if self.participant.competition != self.phase.competition:
             raise Exception("Competition for phase and participant must be the same")
 
@@ -1636,7 +1638,10 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
                             self.readable_filename = split(self.file.name)[1]
 
         # only at save on object creation should it be submitted
+        first_save = False
         if not self.pk:
+            first_save = True
+
             subnum = CompetitionSubmission.objects.filter(phase=self.phase, participant=self.participant).aggregate(
                 Max('submission_number')
             )['submission_number__max']
@@ -1712,6 +1717,16 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
 
         self.file_url_base = self.file.storage.url('')
         res = super(CompetitionSubmission, self).save(*args, **kwargs)
+
+        if first_save:
+            # Creating task metadata so we can track it in the worker monitor _before_ it's picked up
+            # by a worker
+            from apps.health.models import TaskMetadata
+
+            if not self.phase.is_scoring_only:
+                TaskMetadata.objects.create(submission=self, is_predicting=True, is_scoring=False)
+            TaskMetadata.objects.create(submission=self, is_predicting=False, is_scoring=True)
+
         return res
 
     def get_filename(self):

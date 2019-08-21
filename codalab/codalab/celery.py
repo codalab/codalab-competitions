@@ -44,5 +44,9 @@ app.conf.beat_schedule = {
         'task': 'apps.web.tasks.check_all_parent_submissions',
         'schedule': 60,
     },
+    'check_worker_status': {
+        'task': 'apps.web.tasks.change_worker_status',
+        'schedule': 60,
+    }
 }
 app.conf.timezone = 'UTC'

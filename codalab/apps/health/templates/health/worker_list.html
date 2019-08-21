@@ -10,6 +10,35 @@
 {% endblock extra_headers %}
 
 {% block content %}
+    <table class="table table-responsive">
+        <thead>
+            <th width="175">Timespan</th>
+            <th>Number of Workers in services (running ready to accept jobs)</th>
+            <th>Arrival Rate (number of jobs submitted)</th>
+            <th>Service Rate (number of jobs processed)</th>
+{#            <th>Ave. num. of submission (or job) in system (jobs not cleared yet in queue OR being processed)</th>#}
+            <th>Number of submission (or job) in queue (waiting)</th>
+            <th>Average job (h) Execution time</th>
+            <th>Average job (h) Waiting time</th>
+            <th>Servers that were used</th>
+            <th>Servers online</th>
+        </thead>
+        <tbody>
+        {% for timeframe, data in stats.items %}
+        <tr>
+            <td>{{ timeframe }}</td>
+            <td>N/A</td>
+            <td>{{ data.arrived }}</td>
+            <td>{{ data.serviced }}</td>
+            <td>{{ data.queued }}</td>
+            <td>{{ data.average_execution_time }}</td>
+            <td>{{ data.average_queued_time }}</td>
+            <td>{{ data.workers_doing_jobs }}</td>
+            <td>{{ data.workers_active }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 
     <table class="table table-responsive">
         <thead>

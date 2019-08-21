@@ -15,6 +15,7 @@ import zipfile
 from urllib import pathname2url
 
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils.timezone import now
 from yaml.representer import SafeRepresenter
 from zipfile import ZipFile
 from collections import OrderedDict
@@ -40,7 +41,7 @@ from django.template.loader import render_to_string
 from django.contrib.sites.models import Site
 
 from apps.chahub.models import ChaHubSaveMixin
-from apps.health.models import Worker, TaskMetadata
+from apps.health.models import Worker, TaskMetadata, WorkerStateChange
 from apps.jobs.models import (Job,
                               run_job_task,
                               JobTaskResult,
@@ -638,17 +639,18 @@ def register_worker(worker_id, ip, cpu_count, mem_mb, harddrive_gb, gpus, vhost)
 
 @app.task(queue='submission-updates')
 def worker_job_started(worker_id, submission_secret, is_scoring):
+    assert worker_id, "WORKER_ID cannot be null, received: {}".format(worker_id)
     logger.info("Starting job worker id = {}, submission_secret = {}, is_scoring = {}".format(
         worker_id,
         submission_secret,
         is_scoring,
     ))
     TaskMetadata.objects.update_or_create(
-        worker=Worker.objects.get(unique_id=worker_id),
         submission=CompetitionSubmission.objects.get(secret=submission_secret),
         is_predicting=not is_scoring,
         is_scoring=is_scoring,
         defaults={
+            "worker": Worker.objects.get_or_create(unique_id=worker_id)[0],
             "start": timezone.now(),
         }
     )
@@ -656,20 +658,45 @@ def worker_job_started(worker_id, submission_secret, is_scoring):
 
 @app.task(queue='submission-updates')
 def worker_job_ended(worker_id, submission_secret, is_scoring):
+    assert worker_id, "WORKER_ID cannot be null, received: {}".format(worker_id)
     logger.info("Ending job worker id = {}, submission_secret = {}, is_scoring = {}".format(
         worker_id,
         submission_secret,
         is_scoring,
     ))
     TaskMetadata.objects.update_or_create(
-        worker=Worker.objects.get(unique_id=worker_id),
         submission=CompetitionSubmission.objects.get(secret=submission_secret),
         is_predicting=not is_scoring,
         is_scoring=is_scoring,
         defaults={
+            "worker": Worker.objects.get_or_create(unique_id=worker_id)[0],
             "end": timezone.now(),
         }
     )
+
+
+@app.task(queue='submission-updates')
+def worker_keep_alive(worker_id):
+    assert worker_id, "WORKER_ID cannot be null, received: {}".format(worker_id)
+    logger.info("Keep alive received for worker id = {}".format(worker_id))
+    worker = Worker.objects.get_or_create(unique_id=worker_id)[0]
+    worker.last_keep_alive = now()
+    worker.save()
+
+
+@app.task(queue='submission-updates')
+def change_worker_status():
+    # Find active workers that stopped "keep aliving" and mark them inactive
+    active_workers_not_responding = Worker.objects.filter(is_active=True, last_keep_alive__lte=now() - timedelta(seconds=120))
+    for worker in active_workers_not_responding:
+        WorkerStateChange.objects.create(worker=worker, up=False)
+    active_workers_not_responding.update(is_active=False)
+
+    # Find inactive workers that are now "keep aliving" and mark them active
+    inactive_workers_now_responding = Worker.objects.filter(is_active=False, last_keep_alive__gte=now() - timedelta(seconds=60))
+    for worker in inactive_workers_now_responding:
+        WorkerStateChange.objects.create(worker=worker, up=True)
+    inactive_workers_now_responding.update(is_active=True)
 
 
 @app.task(queue='submission-updates')

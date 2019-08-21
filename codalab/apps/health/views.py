@@ -1,15 +1,17 @@
 import json
+from collections import OrderedDict
 from datetime import datetime, timedelta
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Avg, F
 from django.http import HttpResponse
 from django.shortcuts import render
+from django.utils.timezone import now
 
 from apps.web.models import CompetitionSubmission
-from .models import HealthSettings, TaskMetadata, Worker
+from .models import HealthSettings, TaskMetadata, Worker, WorkerStateChange
 from apps.jobs.models import Job
 
 
@@ -162,16 +164,65 @@ def check_thresholds(request):
     return HttpResponse()
 
 
+def _task_metadata_stats(start, end, worker_context):
+    worker_state_changes = WorkerStateChange.objects.filter(timestamp__range=(start, end))
+
+    for state_change in worker_state_changes:
+        worker_context[state_change.worker_id] = state_change.up
+
+    return {
+        # Started within this interval
+        "arrived": TaskMetadata.objects.filter(queued__range=(start, end)).count(),
+
+        # Finished within this interval
+        "serviced": TaskMetadata.objects.filter(start__range=(start, end), end__range=(start, end)).count(),
+
+        # Jobs waiting to be picked up by a worker
+        "queued": TaskMetadata.objects.filter(worker__isnull=True, queued__range=(start, end)).count(),
+
+        # Average time of jobs finished during this hour
+        "average_execution_time": TaskMetadata.objects.filter(end__range=(start, end)).aggregate(
+            average_execution_time=Avg(F('end') - F('start'))
+        )['average_execution_time'],
+
+        # Average time waiting to get picked up by a worker
+        "average_queued_time": TaskMetadata.objects.filter(queued__range=(start, end), start__isnull=False).aggregate(
+            average_queued_time=Avg(F('start') - F('queued'))
+        )['average_queued_time'],
+
+        # Workers active (`up`)
+        "workers_active": sum([is_active for id, is_active in worker_context.items()]),
+
+        # Workers that actually did a job
+        "workers_doing_jobs": Worker.objects.filter(tasks__start__range=(start, end)).distinct('pk').count()
+    }
+
+
 @login_required
 def worker_list(request):
     if not request.user.is_staff:
         return HttpResponse(status=404)
 
-    # workers = Worker.objects.all().prefetch_related('tasks')
     workers = Worker.objects.all().prefetch_related(
         Prefetch('tasks', queryset=TaskMetadata.objects.filter(end=None), to_attr='current_tasks')
     )
 
+    stats = OrderedDict()
+    worker_context = {w.id: w.is_active for w in Worker.objects.all()}
+
+    for offset in range(10):
+        hour_on_the_dot = now().replace(minute=0, second=0, microsecond=0)
+
+        start = hour_on_the_dot - timedelta(hours=offset)
+        end = hour_on_the_dot.replace(minute=59, second=59, microsecond=999) - timedelta(hours=offset)
+
+        range_string = "{} - {}".format(start.strftime('%H:%M:%S'), end.strftime('%H:%M:%S'))
+        stats[range_string] = _task_metadata_stats(start, end, worker_context)
+
+    stats["1day"] = _task_metadata_stats(now() - timedelta(days=1), now(), worker_context)
+    stats["5day"] = _task_metadata_stats(now() - timedelta(days=5), now(), worker_context)
+
     return render(request, "health/worker_list.html", {
         "workers": workers,
+        "stats": stats
     })
