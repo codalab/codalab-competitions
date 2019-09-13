@@ -218,12 +218,16 @@ def _uuidify(directory):
     return wrapped_uuidify
 
 
-class CompetitionManager(models.Manager):
+class SoftDeletableObjectManager(models.Manager):
+    """
+    Class shared by Competitions + CompetitionParticipants to handle soft deletion while still being able to query the
+    deleted objects
+    """
     def get_queryset(self):
-        return super(CompetitionManager, self).get_queryset().filter(deleted=False)
+        return super(SoftDeletableObjectManager, self).get_queryset().filter(deleted=False)
 
-    def get_all_competitions(self):
-        return super(CompetitionManager, self).get_queryset()
+    def get_all_objects(self):
+        return super(SoftDeletableObjectManager, self).get_queryset()
 
 
 class Competition(ChaHubSaveMixin, models.Model):
@@ -279,7 +283,7 @@ class Competition(ChaHubSaveMixin, models.Model):
 
     deleted = models.BooleanField(default=False)
 
-    objects = CompetitionManager()
+    objects = SoftDeletableObjectManager()
 
     class Meta:
         permissions = (
@@ -1266,7 +1270,7 @@ class CompetitionParticipant(models.Model):
     status = models.ForeignKey(ParticipantStatus)
     reason = models.CharField(max_length=100, null=True, blank=True)
     deleted = models.BooleanField(default=False)
-    objects = CompetitionParticipantManager()
+    objects = SoftDeletableObjectManager()
 
     class Meta:
         unique_together = (('user', 'competition'),)
