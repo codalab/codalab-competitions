@@ -292,6 +292,7 @@ class Competition(ChaHubSaveMixin, models.Model):
         self.published = False
         self.deleted = True
         self.save()
+        self.participants.update(deleted=True)
 
     @property
     def pagecontent(self):
@@ -1244,6 +1245,13 @@ class CompetitionPhase(models.Model):
         return results
 
 
+class CompetitionParticipantManager(models.Manager):
+    def get_queryset(self):
+        return super(CompetitionParticipantManager, self).get_queryset().filter(deleted=False)
+
+    def get_all_participants(self):
+        return super(CompetitionParticipantManager, self).get_queryset()
+
 # Competition Participant
 class CompetitionParticipant(models.Model):
     """
@@ -1257,6 +1265,8 @@ class CompetitionParticipant(models.Model):
     competition = models.ForeignKey(Competition, related_name='participants')
     status = models.ForeignKey(ParticipantStatus)
     reason = models.CharField(max_length=100, null=True, blank=True)
+    deleted = models.BooleanField(default=False)
+    objects = CompetitionParticipantManager()
 
     class Meta:
         unique_together = (('user', 'competition'),)
