@@ -859,8 +859,17 @@ def check_cancelled_task(task_id, submission_id):
         if task.status != 'SUCCESS' or task.status != 'REVOKED' or task.status != 'REJECTED':
             logger.info("Task still seems to be running, calling cancel again.")
             cancel_submission(submission_id)
+            task.delete()
     except TaskResult.DoesNotExist:
         logger.info("No task found for submission.")
+
+@app.task(queue='site-worker')
+def periodic_task_result_removal():
+    from django_celery_results.models import TaskResult
+    tasks = TaskResult.objects.filter(date_done__lte=timezone.now() - timedelta(days=3))
+    logger.info("Deleting {} stale task results".format(tasks.count()))
+    for task in tasks:
+        task.delete()
 
 
 @app.task(queue='site-worker')
