@@ -175,6 +175,7 @@ class Base(Configuration):
                 'context_processors': [
                     "codalab.context_processors.app_version_proc",
                     "codalab.context_processors.common_settings",
+                    "apps.chahub.context_processors.socialaccount",
                     'django.contrib.auth.context_processors.auth',
                     'django.template.context_processors.debug',
                     'django.template.context_processors.i18n',
@@ -247,6 +248,7 @@ class Base(Configuration):
         'apps.health',
         'apps.analytics',
         'apps.forums',
+        'apps.chahub',
         'apps.coopetitions',
         'apps.common',
         'apps.queues',
@@ -497,7 +499,7 @@ class Base(Configuration):
     # =========================================================================
     CHAHUB_API_URL = os.environ.get('CHAHUB_API_URL')
     CHAHUB_API_KEY = os.environ.get('CHAHUB_API_KEY')
-
+    SOCIAL_AUTH_CHAHUB_BASE_URL = os.environ.get('SOCIAL_AUTH_CHAHUB_BASE_URL')
 
     # =========================================================================
     # Logging

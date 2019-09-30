@@ -18,6 +18,20 @@
                     {% endfor %}
                 </div>
             {% endif %}
+            {% if socialaccount.providers %}
+                <p>
+                    {% blocktrans %}
+                        You may sign up with one of your existing third party accounts.
+                    {% endblocktrans %}
+                </p>
+                <div class="socialaccount_ballot">
+                    <ul class="socialaccount_providers">
+                        {% include "socialaccount/snippets/provider_list.html" %}
+                    </ul>
+                    <div class="login-or">{% trans 'Or, sign up with the form below:' %}</div>
+                </div>
+                {% include "socialaccount/snippets/login_extra.html" %}
+            {% endif %}
 
             <div class="form-group">
                 <label for="id_username">*Username:</label>
