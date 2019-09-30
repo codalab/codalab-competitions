@@ -78,7 +78,8 @@ class CompetitionSubmissionDownloadTests(TestCase):
     def test_submission_info_download_returns_proper_data(self):
         self.client.login(username="participant", password="pass")
         resp = self.client.get(self.url)
-        self.assertEquals(resp.content, self.submission_1.stdout_file.read())
+        # self.assertEquals(resp.content, self.submission_1.stdout_file.read())
+        self.assertEquals(resp.streaming_content, self.submission_1.stdout_file.read())
 
     # def test_submission_download_public_requires_participation_access(self):
     #     self.submission_1.is_public = True
@@ -125,4 +126,4 @@ class CompetitionSubmissionDownloadTests(TestCase):
         self.client.login(username="participant", password="pass")
         resp = self.client.get(new_url)
         self.assertEquals(resp.status_code, 200)
-        self.assertEquals(resp.content, "new stdout")
+        self.assertEquals(resp.streaming_content, "new stdout")
