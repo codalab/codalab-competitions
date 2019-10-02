@@ -36,6 +36,6 @@ jobs:
           environment:
             DJANGO_SETTINGS_MODULE: "codalab.settings"
             DJANGO_CONFIGURATION: "Dev"
-            CHAHUB_API_URL: "http://localhost/test/"
-            CHAHUB_API_KEY: "some-secret-key"
+#            CHAHUB_API_URL: "http://localhost/test/"
+#            CHAHUB_API_KEY: "some-secret-key"
           command: cd codalab && py.test
