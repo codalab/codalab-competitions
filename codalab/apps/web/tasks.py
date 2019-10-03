@@ -867,9 +867,9 @@ def check_cancelled_task(task_id, submission_id):
 
 @app.task(queue='site-worker')
 def periodic_task_result_removal():
-    tasks = TaskResult.objects.filter(date_done__lte=timezone.now() - timedelta(days=3))
-    logger.info("Deleting {} stale task results".format(tasks.count()))
-    tasks.delete()
+    logger.info("Deleting stale task results...")
+    TaskResult.objects.filter(date_done__lte=timezone.now() - timedelta(days=3)).delete()
+    logger.info("...finished deleting task results!!")
 
 
 @app.task(queue='site-worker')
