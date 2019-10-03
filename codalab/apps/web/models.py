@@ -1559,7 +1559,7 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
             # If this is not a re-ran submission. Re-ran submissions have these kwargs passed.
             if not kwargs.get('file') or kwargs.get('s3_file'):
                 if not hasattr(request, 'data'):
-                    return
+                    raise ValidationError('Data attribute not found on request')
                 blob_name = request.data['id'] if 'id' in request.data else ''
 
                 if len(blob_name) <= 0:
