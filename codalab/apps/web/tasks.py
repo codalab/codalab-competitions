@@ -67,6 +67,8 @@ from apps.web.models import (add_submission_to_leaderboard,
                              SubmissionScoreDefGroup)
 from apps.coopetitions.models import DownloadRecord
 
+from django_celery_results.models import TaskResult
+
 import time
 # import cProfile
 from apps.web.utils import inheritors, cancel_submission
@@ -853,14 +855,21 @@ def check_all_parent_submissions():
 @app.task(queue='site-worker')
 def check_cancelled_task(task_id, submission_id):
     try:
-        from django_celery_results.models import TaskResult
         task = TaskResult.objects.get(task_id=task_id)
         logger.info("Found task for submission")
         if task.status != 'SUCCESS' or task.status != 'REVOKED' or task.status != 'REJECTED':
             logger.info("Task still seems to be running, calling cancel again.")
             cancel_submission(submission_id)
+            task.delete()
     except TaskResult.DoesNotExist:
         logger.info("No task found for submission.")
+
+
+@app.task(queue='site-worker')
+def periodic_task_result_removal():
+    logger.info("Deleting stale task results...")
+    TaskResult.objects.filter(date_done__lte=timezone.now() - timedelta(days=3)).delete()
+    logger.info("...finished deleting task results!!")
 
 
 @app.task(queue='site-worker')

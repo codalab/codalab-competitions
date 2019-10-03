@@ -11,6 +11,9 @@ def update_content_categories(apps, schema_editor):
     # DefaultContentItem = apps.get_model('web', 'DefaultContentItem')
     # ContentVisibility = apps.get_model('web', 'ContentVisibility')
 
+    if not ContentVisibility.objects.filter(codename='visible').exists():
+        ContentVisibility.objects.create(codename='visible', classname='viewStateOn', name='Visible')
+
     visible = ContentVisibility.objects.get(codename='visible')
 
     new_tabs = [
@@ -48,10 +51,20 @@ def update_content_categories(apps, schema_editor):
             setattr(content_cat, attr, new_tabs[index-1][attr])
         content_cat.save()
     # Update overview to point to Home category
-    overview = DefaultContentItem.objects.get(codename='overview')
-    overview.category = ContentCategory.objects.get(codename='home')
-    overview.rank = 0
-    overview.save()
+    if not DefaultContentItem.objects.filter(codename='overview').exists():
+        overview = DefaultContentItem.objects.create(**{
+            'category': ContentCategory.objects.get(codename='home'),
+            'initial_visibility': visible,
+            'required': True,
+            'rank': 0,
+            'codename': "overview",
+            'label': "Overview"
+        })
+    else:
+        overview = DefaultContentItem.objects.get(codename='overview')
+        overview.category = ContentCategory.objects.get(codename='home')
+        overview.rank = 0
+        overview.save()
 
 
 class Migration(migrations.Migration):

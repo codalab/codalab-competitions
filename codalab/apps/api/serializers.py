@@ -121,11 +121,12 @@ class PhaseRel(serializers.RelatedField):
 
 class CompetitionSerial(serializers.ModelSerializer):
     phases = PhaseRel(many=True,read_only=False, queryset=CompetitionPhase.objects.all())
-    image_url = serializers.CharField(source='image_url',read_only=True)
+    image_url = serializers.CharField(read_only=True)
     pages = PageSerial(source='pagecontent.pages', read_only=True)
 
     class Meta:
         model = webmodels.Competition
+        fields = ['phases', 'image_url', 'pages']
         read_only_fields = ['image_url_base']
 
 

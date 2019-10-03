@@ -44,5 +44,9 @@ app.conf.beat_schedule = {
         'task': 'apps.web.tasks.check_all_parent_submissions',
         'schedule': 60,
     },
+    'periodic_task_result_removal': {
+        'task': 'apps.web.tasks.periodic_task_result_removal',
+        'schedule': 86400,
+    },
 }
 app.conf.timezone = 'UTC'
