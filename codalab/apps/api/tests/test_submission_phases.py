@@ -10,7 +10,7 @@ from django.utils import timezone
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 from apps.web.models import *
 
@@ -18,6 +18,7 @@ from apps.web.models import *
 User = get_user_model()
 
 
+@override_settings(CELERY_ALWAYS_EAGER=True)
 class SubmissionCreationTests(TestCase):
 
     def setUp(self):
