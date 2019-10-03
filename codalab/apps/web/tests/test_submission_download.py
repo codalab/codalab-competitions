@@ -78,6 +78,7 @@ class CompetitionSubmissionDownloadTests(TestCase):
     def test_submission_info_download_returns_proper_data(self):
         self.client.login(username="participant", password="pass")
         resp = self.client.get(self.url)
+        # Todo: Removed this test for now because it's failing on AutoDL, but works on v1.5
         # self.assertEquals(resp.content, self.submission_1.stdout_file.read())
         self.assertEquals(resp.streaming_content, self.submission_1.stdout_file.read())
 
