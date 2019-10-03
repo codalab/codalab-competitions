@@ -1,8 +1,10 @@
 from django.db import models
 from django.contrib.auth import models as auth_models
-import uuid
 
-class ClUser(auth_models.AbstractUser):
+from apps.chahub.models import ChaHubSaveMixin
+
+
+class ClUser(ChaHubSaveMixin, auth_models.AbstractUser):
     """
     Base User model
     """
@@ -29,3 +31,23 @@ class ClUser(auth_models.AbstractUser):
     rabbitmq_queue_limit = models.PositiveIntegerField(default=5, blank=True)
     rabbitmq_username = models.CharField(max_length=36, null=True, blank=True)
     rabbitmq_password = models.CharField(max_length=36, null=True, blank=True)
+
+    def get_chahub_endpoint(self):
+        return "profiles/"
+
+    def get_chahub_data(self):
+        data = {
+            'email': self.email,
+            'username': self.username,
+            'remote_id': self.pk,
+            'details': {
+                "is_active": self.is_active,
+                "last_login": str(self.last_login),
+                "date_joined": str(self.date_joined),
+            }
+        }
+        return [data]
+
+    def get_chahub_is_valid(self):
+        # By default, always push
+        return True
