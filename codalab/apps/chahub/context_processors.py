@@ -3,7 +3,7 @@ from allauth.socialaccount import providers
 
 def socialaccount(request):
     return {
-        socialaccount: {
+        "socialaccount": {
             'providers': providers.registry.get_list()
         }
     }
