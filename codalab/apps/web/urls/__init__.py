@@ -9,7 +9,7 @@ from apps.web.models import Competition
 from .. import views
 
 urlpatterns = patterns('',
-    url(r'^$', views.HomePageView.as_view(), name='home'),
+    url(r'^old_home_page$', views.HomePageView.as_view(), name='old_home'),
     url(r'^_ver', views.VersionView.as_view(),name='_version'),
     url(r'^my/', include('apps.web.urls.my')),
     url(r'^profile/(?P<pk>\d+)$', views.UserDetailView.as_view(), name='user_details'),
@@ -36,12 +36,11 @@ urlpatterns = patterns('',
     url(r'^(?i)Caption/?', RedirectView.as_view(url='https://www.codalab.org/competitions/3221')),
 
     # Static pages
-    url(r'^(?i)highlights/?', TemplateView.as_view(template_name='web/highlights.html'), name="highlights"),
+    url(r'^$', views.HomePageView.as_view(), name="home"),
 
     # Helper that closes window upon visiting
     url(r'^close/$', TemplateView.as_view(template_name='close.html')),
 )
-
 
 if settings.DEBUG:
     '''
