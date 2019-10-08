@@ -235,6 +235,7 @@ class Base(Settings):
         'apps.forums',
         'apps.coopetitions',
         'apps.common',
+        'apps.chahub',
         'apps.queues',
         'apps.teams',
         'apps.customizer',
@@ -492,6 +493,7 @@ class Base(Settings):
     CHAHUB_API_URL = os.environ.get('CHAHUB_API_URL')
     CHAHUB_API_KEY = os.environ.get('CHAHUB_API_KEY')
     CHAHUB_PRODUCER_ID = os.environ.get('CHAHUB_PRODUCER_ID')
+    SOCIAL_AUTH_CHAHUB_BASE_URL = os.environ.get('SOCIAL_AUTH_CHAHUB_BASE_URL')
 
     if CHAHUB_API_URL:
         assert CHAHUB_API_URL.endswith("/"), "ChaHub API url must end with a slash"
