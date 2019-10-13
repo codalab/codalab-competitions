@@ -10,6 +10,7 @@
 {% endblock extra_headers %}
 
 {% block content %}
+    <h2 class="text-center">Overall stats</h2>
     <table class="table table-responsive">
         <thead>
             <th width="175">Timespan</th>
@@ -39,6 +40,7 @@
         </tbody>
     </table>
 
+    <h2 class="text-center">Workers</h2>
     <table class="table table-responsive">
         <thead>
             <th>IP</th>
@@ -52,7 +54,7 @@
         <tbody>
         {% for w in workers %}
         <tr>
-            <td>{{ w.ip }}</td>
+            <td><a href="{{ w.get_absolute_url }}">{{ w.ip }}</a></td>
             <td>{{ w.cpu_count }}</td>
             <td>{{ w.mem_mb }}</td>
             <td>{{ w.harddrive_gb }}</td>
@@ -61,7 +63,7 @@
             <td>
                 {% for t in w.current_tasks %}
                     {{ t.submission.id }}
-                    {% if t.submission.is_scoring %}
+                    {% if t.is_scoring %}
                         scoring
                     {% else %}
                         prediction

@@ -624,7 +624,7 @@ def register_worker(worker_id, ip, cpu_count, mem_mb, harddrive_gb, gpus, vhost)
     else:
         queue = None
 
-    worker = Worker.objects.update_or_create(
+    worker, _ = Worker.objects.update_or_create(
         unique_id=worker_id,
         defaults={
             "ip": ip,
@@ -635,6 +635,10 @@ def register_worker(worker_id, ip, cpu_count, mem_mb, harddrive_gb, gpus, vhost)
             "queue": queue
         },
     )
+
+    # We just registered this worker, meaning it was turned on just now.. if it had a job, set
+    # failed_to_complete to True so we know to not mark this as a worker running multiple jobs
+    worker.tasks.filter(end=None, failed_to_complete=False).update(failed_to_complete=True)
 
 
 @app.task(queue='submission-updates')

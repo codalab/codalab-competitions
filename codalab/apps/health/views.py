@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.db.models import Prefetch, Avg, F
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.utils.timezone import now
 
 from apps.web.models import CompetitionSubmission
@@ -165,9 +165,15 @@ def check_thresholds(request):
 
 
 def _task_metadata_stats(start, end, worker_context):
-    worker_state_changes = WorkerStateChange.objects.filter(timestamp__range=(start, end))
+    # If start and end are the "current time" then get current state of workers
+    if now() < end:
+        for worker in Worker.objects.all():
+            worker_context[worker.id] = worker.is_active
 
+    # Get any changes for worker state during this time period
+    worker_state_changes = WorkerStateChange.objects.filter(timestamp__range=(start, end)).distinct('worker').order_by('worker', '-timestamp')
     for state_change in worker_state_changes:
+        # latest change should stick here
         worker_context[state_change.worker_id] = state_change.up
 
     return {
@@ -204,25 +210,52 @@ def worker_list(request):
         return HttpResponse(status=404)
 
     workers = Worker.objects.all().prefetch_related(
-        Prefetch('tasks', queryset=TaskMetadata.objects.filter(end=None), to_attr='current_tasks')
+        # Get all tasks that haven't ended
+        Prefetch('tasks', queryset=TaskMetadata.objects.filter(end=None, failed_to_complete=False), to_attr='current_tasks')
     )
 
     stats = OrderedDict()
     worker_context = {w.id: w.is_active for w in Worker.objects.all()}
+    hour_on_the_dot = now().replace(minute=0, second=0, microsecond=0)
+    hours_to_look_back = 10
 
-    for offset in range(10):
-        hour_on_the_dot = now().replace(minute=0, second=0, microsecond=0)
+    stats["5day-1day"] = _task_metadata_stats(
+        now() - timedelta(days=5),
+        now() - timedelta(days=1),
+        worker_context
+    )
+    last_day_end_timestamp = hour_on_the_dot - timedelta(hours=hours_to_look_back - 1)
+    stats["1day-{}".format(last_day_end_timestamp.strftime('%H:%M:%S'))] = _task_metadata_stats(
+        now() - timedelta(days=1),
+        last_day_end_timestamp,
+        worker_context
+    )
 
+    for offset in reversed(range(hours_to_look_back)):
         start = hour_on_the_dot - timedelta(hours=offset)
         end = hour_on_the_dot.replace(minute=59, second=59, microsecond=999) - timedelta(hours=offset)
 
         range_string = "{} - {}".format(start.strftime('%H:%M:%S'), end.strftime('%H:%M:%S'))
         stats[range_string] = _task_metadata_stats(start, end, worker_context)
 
-    stats["1day"] = _task_metadata_stats(now() - timedelta(days=1), now(), worker_context)
-    stats["5day"] = _task_metadata_stats(now() - timedelta(days=5), now(), worker_context)
-
     return render(request, "health/worker_list.html", {
         "workers": workers,
         "stats": stats
+    })
+
+
+@login_required
+def worker_detail(request, worker_pk):
+    if not request.user.is_staff:
+        return HttpResponse(status=404)
+
+    qs = Worker.objects.prefetch_related(
+        Prefetch('tasks', queryset=TaskMetadata.objects.order_by('-start')),
+        'tasks__submission',
+    )
+    worker = get_object_or_404(qs, pk=worker_pk)
+
+    return render(request, "health/worker_detail.html", {
+        "worker": worker,
+        "task_history": worker.tasks.all()[:100],
     })

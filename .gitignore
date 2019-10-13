@@ -4,6 +4,7 @@
 !certs/.gitkeep
 certs/
 var/
+var_*
 *_old/
 docker-compose.override.yml
 

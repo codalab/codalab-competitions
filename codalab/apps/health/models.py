@@ -1,4 +1,5 @@
 from django.db import models
+from django.urls import reverse
 from django.utils.timezone import now
 
 
@@ -30,6 +31,9 @@ class Worker(models.Model):
             self.queue.name if self.queue else 'default'
         )
 
+    def get_absolute_url(self):
+        return reverse('health_worker_detail', args=(self.pk,))
+
 
 class WorkerStateChange(models.Model):
     worker = models.ForeignKey(Worker)
@@ -52,6 +56,7 @@ class TaskMetadata(models.Model):
     queued = models.DateTimeField(default=now)
     start = models.DateTimeField(null=True, blank=True)
     end = models.DateTimeField(null=True, blank=True)
+    failed_to_complete = models.BooleanField(default=False)
 
     def __str__(self):
         prediction_or_scoring = "Scoring" if self.is_scoring else "Predicting"

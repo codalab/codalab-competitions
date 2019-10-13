@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% load humanize %}
+
+{% block head_title %}Worker Detail{% endblock head_title %}
+{% block page_title %}<h1>Worker Detail</h1>{% endblock page_title %}
+
+{% block extra_headers %}
+{% endblock extra_headers %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <h3 class="text-center">Resources</h3>
+
+                <dl class="dl-horizontal">
+                    <dt>IP</dt>
+                    <dd>{{ worker.ip }}</dd>
+                    <dt>CPUs</dt>
+                    <dd>{{ worker.cpu_count }}</dd>
+                    <dt>Memory (MB)</dt>
+                    <dd>{{ worker.mem_mb }}</dd>
+                    <dt>GPUs</dt>
+                    <dd>{{ worker.gpus }}</dd>
+                    <dt>HDD (GB)</dt>
+                    <dd>{{ worker.harddrive_gb }}</dd>
+                    <dt>Queue</dt>
+                    <dd>{{ worker.queue|default_if_none:"Default" }}</dd>
+                </dl>
+
+            </div>
+            <div class="col-md-8">
+                <h3 class="text-center">Last 100 tasks</h3>
+
+                <table class="table table-responsive">
+                    <thead>
+                    <th>submission_id</th>
+                    <th>type</th>
+                    <th>start</th>
+                    <th>end</th>
+                    <th>failed_to_complete</th>
+                    <th>status</th>
+                    </thead>
+                    <tbody>
+                    {% for t in task_history %}
+                        <tr>
+                            <td>{{ t.submission_id }}</td>
+                            <td>
+                                {% if t.is_scoring %}
+                                    scoring
+                                {% else %}
+                                    prediction
+                                {% endif %}
+                            </td>
+                            <td>{{ t.start|timesince }}</td>
+                            <td>{{ t.end|timesince }}</td>
+                            <td>{{ t.failed_to_complete|default:"" }}</td>
+                            <td>{{ t.submission.status }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center"><i>No tasks in history!</i></td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}
