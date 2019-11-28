@@ -693,10 +693,35 @@ class SubmissionScoreView(views.APIView):
     """
     Provides a way to grab scores given a specific PK and the owner is the one making the request
     """
+
+    logs_to_grab = [
+        'inputfile',
+        'output_file',
+        'private_output_file',
+        'stdout_file',
+        'stderr_file',
+        'history_file',
+        'scores_file',
+        'detailed_results_file',
+        'prediction_runfile',
+        'prediction_output_file',
+        'exception_details',
+        'prediction_stdout_file',
+        'prediction_stderr_file',
+        'ingestion_program_stdout_file',
+        'ingestion_program_stderr_file',
+    ]
+
     def get(self, request, *args, **kwargs):
         submission_id = self.kwargs.get('submission_id')
         try:
             sub = CompetitionSubmission.objects.get(pk=submission_id)
+            log_sas_urls = {}
+            if sub:
+                for log_attr in self.logs_to_grab:
+                    # TODO: Will this cause errors when None? Did not have this occur when testing with Eric
+                    if hasattr(getattr(sub, log_attr), 'file'):
+                        log_sas_urls[log_attr] = _make_url_sassy(getattr(sub, log_attr).file.name, permission='r', duration=60 * 60 * 24)
             if not sub.participant.user == self.request.user:
                 raise PermissionDenied("Not authorized!")
             try:
@@ -711,24 +736,21 @@ class SubmissionScoreView(views.APIView):
                             if int(scoredata['id']) == int(submission_id):
                                 temp_data = {
                                     'score': default_score['val'],
-                                    'status': sub.status.codename
+                                    'status': sub.status.codename,
+                                    'logs': log_sas_urls
                                 }
                                 response = Response(temp_data, status=status.HTTP_200_OK)
                                 return response
                         except (KeyError, StopIteration):
                             pass
             except (KeyError, IndexError):
-                pass
-        except ObjectDoesNotExist:
-            temp_data = {
-                'error': 'Object not found!'
-            }
-            response = Response(temp_data, status=status.HTTP_404_NOT_FOUND)
-            return response
-        temp_data = {
-            'error': 'Submission is not on leaderboard or is not accessible!'
-        }
-        response = Response(temp_data, status=status.HTTP_404_NOT_FOUND)
+                response = Response(
+                    "Submission is not on leaderboard or is not accessible!",
+                    status=status.HTTP_404_NOT_FOUND
+                )
+        except CompetitionSubmission.DoesNotExist:
+            # This is probably not the right response...
+            response = Response("Submission is not on leaderboard or is not accessible!", status=status.HTTP_404_NOT_FOUND)
         return response
 
 
@@ -740,32 +762,23 @@ class AddChagradeBotView(views.APIView):
         competition_id = self.kwargs.get('competition_id')
         try:
             comp = Competition.objects.get(pk=competition_id)
-            if not comp.creator == self.request.user and self.request.user not in comp.admins.all():
-                raise PermissionDenied("Not authorized!")
+        except Competition.DoesNotExist:
+            return Response("Competition not found or is not accessible!", status=status.HTTP_404_NOT_FOUND)
+        if not comp.creator == self.request.user and self.request.user not in comp.admins.all():
+            raise PermissionDenied("Not authorized!")
+        try:
             bot_user = ClUser.objects.get(username='chagrade_bot')
+        except ClUser.DoesNotExist:
+            return Response("Chagrade bot user not found or is not accessible!", status=status.HTTP_404_NOT_FOUND)
+        exists = CompetitionParticipant.objects.filter(user=bot_user, competition=comp)
+        if not exists:
             approved_status = ParticipantStatus.objects.get(codename=ParticipantStatus.APPROVED)
-            exists = CompetitionParticipant.objects.filter(user=bot_user, competition=comp)
-            if not exists:
-                CompetitionParticipant.objects.create(user=bot_user, competition=comp, status=approved_status, reason='Organizer approved bot for API functionallity.')
-                temp_data = {
-                    'status': 'Created chagrade bot participant'
-                }
-                response = Response(temp_data, status=status.HTTP_201_CREATED)
-                return response
-            else:
-                temp_data = {
-                    'status': 'Chagrade bot already exists'
-                }
-                response = Response(temp_data, status=status.HTTP_200_OK)
-                return response
-        except ObjectDoesNotExist:
-            temp_data = {
-                'error': 'Could not find competition: {}'.format(competition_id)
-            }
-            response = Response(temp_data, status=status.HTTP_404_NOT_FOUND)
-            return response
-        temp_data = {
-            'error': 'Competition is not found or is not accessible!'
-        }
-        response = Response(temp_data, status=status.HTTP_404_NOT_FOUND)
-        return response
+            CompetitionParticipant.objects.create(
+                user=bot_user,
+                competition=comp,
+                status=approved_status,
+                reason='Organizer approved bot for API functionallity.'
+            )
+            return Response('Created chagrade bot participant', status=status.HTTP_201_CREATED)
+        else:
+            return Response("Chagrade bot already exists!", status=status.HTTP_200_OK)
