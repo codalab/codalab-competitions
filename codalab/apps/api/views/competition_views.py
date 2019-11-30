@@ -720,8 +720,9 @@ class SubmissionScoreView(views.APIView):
             if sub:
                 for log_attr in self.logs_to_grab:
                     # TODO: Will this cause errors when None? Did not have this occur when testing with Eric
-                    if hasattr(getattr(sub, log_attr), 'file'):
-                        log_sas_urls[log_attr] = _make_url_sassy(getattr(sub, log_attr).file.name, permission='r', duration=60 * 60 * 24)
+                    temp_log_field = getattr(sub, log_attr)
+                    if hasattr(temp_log_field, 'file'):
+                        log_sas_urls[log_attr] = _make_url_sassy(temp_log_field.file.name, permission='r', duration=60 * 60 * 24)
             if not sub.participant.user == self.request.user:
                 raise PermissionDenied("Not authorized!")
             try:
@@ -739,19 +740,17 @@ class SubmissionScoreView(views.APIView):
                                     'status': sub.status.codename,
                                     'logs': log_sas_urls
                                 }
-                                response = Response(temp_data, status=status.HTTP_200_OK)
-                                return response
+                                return Response(temp_data, status=status.HTTP_200_OK)
                         except (KeyError, StopIteration):
                             pass
             except (KeyError, IndexError):
-                response = Response(
-                    "Submission is not on leaderboard or is not accessible!",
-                    status=status.HTTP_404_NOT_FOUND
-                )
+                pass
         except CompetitionSubmission.DoesNotExist:
-            # This is probably not the right response...
-            response = Response("Submission is not on leaderboard or is not accessible!", status=status.HTTP_404_NOT_FOUND)
-        return response
+            raise Http404("Submission is not on leaderboard or is not accessible!")
+        return Response(
+            "Submission is not on leaderboard or is not accessible!",
+            status=status.HTTP_404_NOT_FOUND
+        )
 
 
 class AddChagradeBotView(views.APIView):
