@@ -217,7 +217,7 @@ class CompetitionParticipantForm(forms.ModelForm):
 class OrganizerDataSetModelForm(forms.ModelForm):
     class Meta:
         model = models.OrganizerDataSet
-        fields = ["name", "description", "type", "data_file", "sub_data_files"]
+        fields = ["name", "description", "type", "data_file", "sub_data_files", "is_public"]
 
     def __init__(self, *args, **kwargs):
         self.request_user = kwargs.pop('user')

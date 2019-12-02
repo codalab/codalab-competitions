@@ -41,6 +41,7 @@ urlpatterns = patterns(
     url(r'^datasets/delete/(?P<pk>\d+)', views.OrganizerDataSetDelete.as_view(), name='my_datasets_delete'),
     url(r'^datasets/delete_multiple/', views.datasets_delete_multiple, name="datasets_delete_multiple"),
     url(r'^datasets/download/(?P<dataset_key>.+)', views.download_dataset, name='datasets_download'),
+    url(r'^datasets/publish/(?P<dataset_key>.+)', views.publish_dataset, name='my_datasets_publish'),
 
     # User settings
     url(r'^settings/', views.UserSettingsView.as_view(), name='user_settings')

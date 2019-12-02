@@ -2364,6 +2364,13 @@ class OrganizerDataSet(ChaHubSaveMixin, models.Model):
     def get_chahub_endpoint(self):
         return "datasets/"
 
+    def get_whitelist(self):
+        return [
+            'remote_id',
+            'creator_id',
+            'is_public',
+        ]
+
     def get_chahub_data(self):
         http_or_https = "https" if settings.SSL_CERTIFICATE else "http"
         return self.clean_private_data({

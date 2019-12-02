@@ -40,7 +40,7 @@
                                         <th>Description</th>
                                         <th>Type</th>
                                         <th>Is Public?</th>
-                                        <th width="180">Actions</th>
+                                        <th width="250">Actions</th>
                                         <th width="100">Multi-delete? <span class="label label-danger">(unsafe!)</span></th>
                                     </tr>
                                 </thead>
@@ -51,8 +51,14 @@
                                             <td>{{ dataset.key }}</td>
                                             <td>{{ dataset.description }}</td>
                                             <td>{{ dataset.type }}</td>
+                                            <td>{{ dataset.is_public|default:"" }}</td>
                                             <td>
-                                                <a href="{% url 'datasets_download' dataset_key=dataset.key %}" class="button btn btn-default btn-sm">Download</a>
+                                                <a href="{% url 'datasets_download' dataset_key=dataset.key %}" class="button btn btn-primary btn-sm">Download</a>
+                                                {% if dataset.is_public %}
+                                                    <a href="{% url 'my_datasets_publish' dataset_key=dataset.key %}" class="button btn btn-default btn-sm publish">Unpublish</a>
+                                                {% else %}
+                                                    <a href="{% url 'my_datasets_publish' dataset_key=dataset.key %}" class="button btn btn-default btn-sm publish">Publish</a>
+                                                {% endif %}
                                                 <a href="{% url 'my_datasets_delete' pk=dataset.pk %}" class="button btn btn-danger btn-sm delete">Delete</a>
                                             </td>
                                             <td align="center"><input type="checkbox" name="delete_dataset" value="{{ dataset.pk }}"></td>
