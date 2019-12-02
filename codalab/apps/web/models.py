@@ -2293,7 +2293,7 @@ def dataset_data_file(dataset, filename="data.zip"):
     return os.path.join("datasets", str(dataset.pk), str(uuid.uuid4()), filename)
 
 
-class OrganizerDataSet(models.Model):
+class OrganizerDataSet(ChaHubSaveMixin, models.Model):
     TYPES = (
         ("Reference Data", "Reference Data"),
         ("Scoring Program", "Scoring Program"),
@@ -2317,11 +2317,17 @@ class OrganizerDataSet(models.Model):
     sub_data_files = models.ManyToManyField('OrganizerDataSet', null=True, blank=True, verbose_name="Bundle of data files")
     uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL)
     key = UUIDField(version=4)
+    is_public = models.BooleanField(default=False)
+    created_when = models.DateTimeField(null=True, blank=True)
 
     def save(self, **kwargs):
         if self.key is None or self.key == '':
             self.key = "%s" % (uuid.uuid4())
         self.full_name = "%s uploaded by %s" % (self.name, self.uploaded_by)
+
+        if not self.created_when:
+            self.created_when = now()
+
         super(OrganizerDataSet, self).save(**kwargs)
 
     def __unicode__(self):
@@ -2351,6 +2357,27 @@ class OrganizerDataSet(models.Model):
             lines.append("%s: %s" % (file_name, _make_url_sassy(dataset.data_file.file.name, duration=one_hundred_years)))
 
         self.data_file.save("metadata", ContentFile("\n".join(lines)))
+
+    def get_absolute_url(self):
+        return reverse("datasets_download", kwargs={"dataset_key": self.key})
+
+    def get_chahub_endpoint(self):
+        return "datasets/"
+
+    def get_chahub_data(self):
+        http_or_https = "https" if settings.SSL_CERTIFICATE else "http"
+        return self.clean_private_data({
+            'creator_id': self.uploaded_by.id,
+            'remote_id': self.pk,
+            'created_by': str(self.uploaded_by.username),
+            'created_when': self.created_when.isoformat(),
+            'name': self.name,
+            'type': self.type,
+            'description': self.description,
+            'key': str(self.key),
+            'is_public': self.is_public,
+            'download_url': "{}://{}{}".format(http_or_https, settings.CODALAB_SITE_DOMAIN, self.get_absolute_url()),
+        })
 
 
 class CompetitionSubmissionMetadata(models.Model):

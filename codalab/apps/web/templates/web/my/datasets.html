@@ -22,7 +22,7 @@
             <a href="/my/#my_managing">Competitions I'm Running</a>
         </li>
         <li class="active">
-            <a href="{% url 'my_datasets' %}">My Datasets</a>
+            <a href="{% url 'my_datasets' %}">My Repo</a>
         </li>
     </ul>
     <div class="tab-content">
@@ -39,6 +39,7 @@
                                         <th>Key</th>
                                         <th>Description</th>
                                         <th>Type</th>
+                                        <th>Is Public?</th>
                                         <th width="180">Actions</th>
                                         <th width="100">Multi-delete? <span class="label label-danger">(unsafe!)</span></th>
                                     </tr>
@@ -58,7 +59,7 @@
                                         </tr>
                                     {% empty %}
                                         <tr>
-                                            <td colspan="6" class="text-center">
+                                            <td colspan="7" class="text-center">
                                                 <i>No datasets added yet!</i>
                                             </td>
                                         </tr>

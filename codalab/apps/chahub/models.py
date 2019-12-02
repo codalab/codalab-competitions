@@ -66,6 +66,21 @@ class ChaHubSaveMixin(models.Model):
     # -------------------------------------------------------------------------
     # Regular methods
     # -------------------------------------------------------------------------
+    def clean_private_data(self, data):
+        """Override this to clean up any data that should not be sent to chahub if the object is not public"""
+        if hasattr(self, 'is_public'):
+            public = self.is_public
+        elif hasattr(self, 'published'):
+            public = self.published
+        else:
+            # assume data is good to push to chahub if there is no field saying otherwise
+            public = True
+        if not public:
+            for key in data.keys():
+                if key not in self.get_whitelist():
+                    data[key] = None
+        return data
+
     def save(self, force_to_chahub=False, *args, **kwargs):
         # We do a save here to give us an ID for generating URLs and such
         try:
