@@ -766,13 +766,13 @@ class AddChagradeBotView(views.APIView):
         try:
             comp = Competition.objects.get(pk=competition_id)
         except Competition.DoesNotExist:
-            return Response("Competition not found or is not accessible!", status=status.HTTP_404_NOT_FOUND)
+            raise Http404("Competition not found or is not accessible!")
         if not comp.creator == self.request.user and self.request.user not in comp.admins.all():
             raise PermissionDenied("Not authorized!")
         try:
             bot_user = ClUser.objects.get(username='chagrade_bot')
         except ClUser.DoesNotExist:
-            return Response("Chagrade bot user not found or is not accessible!", status=status.HTTP_404_NOT_FOUND)
+            raise Http404("Chagrade bot user not found or is not accessible!")
         exists = CompetitionParticipant.objects.filter(user=bot_user, competition=comp)
         if not exists:
             approved_status = ParticipantStatus.objects.get(codename=ParticipantStatus.APPROVED)
