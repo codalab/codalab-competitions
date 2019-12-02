@@ -700,7 +700,6 @@ class SubmissionScoreView(views.APIView):
         'private_output_file',
         'stdout_file',
         'stderr_file',
-        'history_file',
         'scores_file',
         'detailed_results_file',
         'prediction_runfile',
@@ -723,6 +722,9 @@ class SubmissionScoreView(views.APIView):
                     temp_log_field = getattr(sub, log_attr)
                     if hasattr(temp_log_field, 'file'):
                         # 315360000 = 60 * 60 * 24 * 365 * 10 (10 years)
+                        if log_attr == 'detailed_results_file':
+                            if not sub.phase.competition.enable_detailed_results:
+                                continue
                         log_sas_urls[log_attr] = _make_url_sassy(
                             temp_log_field.file.name,
                             permission='r',
