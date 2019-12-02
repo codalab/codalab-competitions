@@ -316,6 +316,13 @@ class Competition(ChaHubSaveMixin, models.Model):
     def get_chahub_endpoint(self):
         return "competitions/"
 
+    def get_whitelist(self):
+        return [
+            'remote_id',
+            'created_by',
+            'published',
+        ]
+
     def get_chahub_data(self):
         phase_data = []
         phases = list(self.phases.all().order_by('start_date'))
@@ -351,7 +358,7 @@ class Competition(ChaHubSaveMixin, models.Model):
             submitted_at__gt=now() - datetime.timedelta(days=30)
         ).exists()
 
-        return [{
+        return [self.clean_private_data({
             "remote_id": self.id,
             "title": self.title,
             "created_by": str(self.creator),
@@ -367,7 +374,7 @@ class Competition(ChaHubSaveMixin, models.Model):
             "prize": self.reward,
             "url_redirect": self.url_redirect,
             "published": self.published
-        }]
+        })]
 
     def save(self, *args, **kwargs):
         # Make sure the image_url_base is set from the actual storage implementation
