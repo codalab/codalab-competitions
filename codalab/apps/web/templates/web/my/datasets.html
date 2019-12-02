@@ -55,13 +55,13 @@
                                             <td>
                                                 <a href="{% url 'datasets_download' dataset_key=dataset.key %}" class="button btn btn-primary btn-sm">Download</a>
                                                 {% if dataset.is_public %}
-                                                    <a href="{% url 'my_datasets_publish' dataset_key=dataset.key %}"
+                                                    <a href="{% url 'my_datasets_publish_toggle' dataset_key=dataset.key %}"
                                                        onclick="return confirm('Are you sure you want to unpublish this?')"
                                                        class="button btn btn-default btn-sm publish">
                                                         Unpublish
                                                     </a>
                                                 {% else %}
-                                                    <a href="{% url 'my_datasets_publish' dataset_key=dataset.key %}"
+                                                    <a href="{% url 'my_datasets_publish_toggle' dataset_key=dataset.key %}"
                                                        onclick="return confirm('Are you sure you want to publish this?')"
                                                        class="button btn btn-default btn-sm publish">
                                                         Publish

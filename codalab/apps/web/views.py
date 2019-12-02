@@ -1583,7 +1583,7 @@ def download_dataset(request, dataset_key):
         return HttpResponse(msg, status=400, content_type='text/plain')
 
 
-def publish_dataset(request, dataset_key):
+def toggle_publish_dataset(request, dataset_key):
     """Toggle datasets to be public or not"""
     try:
         dataset = models.OrganizerDataSet.objects.get(uploaded_by=request.user, key=dataset_key)
