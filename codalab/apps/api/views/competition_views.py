@@ -722,7 +722,12 @@ class SubmissionScoreView(views.APIView):
                     # TODO: Will this cause errors when None? Did not have this occur when testing with Eric
                     temp_log_field = getattr(sub, log_attr)
                     if hasattr(temp_log_field, 'file'):
-                        log_sas_urls[log_attr] = _make_url_sassy(temp_log_field.file.name, permission='r', duration=60 * 60 * 24)
+                        # 315360000 = 60 * 60 * 24 * 365 * 10 (10 years)
+                        log_sas_urls[log_attr] = _make_url_sassy(
+                            temp_log_field.file.name,
+                            permission='r',
+                            duration=315360000
+                        )
             if not sub.participant.user == self.request.user:
                 raise PermissionDenied("Not authorized!")
             try:
@@ -746,11 +751,10 @@ class SubmissionScoreView(views.APIView):
             except (KeyError, IndexError):
                 pass
         except CompetitionSubmission.DoesNotExist:
+            # This one is specific to not being able to find the submission
             raise Http404("Submission is not on leaderboard or is not accessible!")
-        return Response(
-            "Submission is not on leaderboard or is not accessible!",
-            status=status.HTTP_404_NOT_FOUND
-        )
+        # This one is for if anything else goes wrong in the logic, our default response is an Http404.
+        raise Http404("Could not retrieve submission info!")
 
 
 class AddChagradeBotView(views.APIView):
