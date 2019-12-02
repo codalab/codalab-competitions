@@ -2373,7 +2373,7 @@ class OrganizerDataSet(ChaHubSaveMixin, models.Model):
 
     def get_chahub_data(self):
         http_or_https = "https" if settings.SSL_CERTIFICATE else "http"
-        return self.clean_private_data({
+        return [self.clean_private_data({
             'creator_id': self.uploaded_by.id,
             'remote_id': self.pk,
             'created_by': str(self.uploaded_by.username),
@@ -2384,7 +2384,7 @@ class OrganizerDataSet(ChaHubSaveMixin, models.Model):
             'key': str(self.key),
             'is_public': self.is_public,
             'download_url': "{}://{}{}".format(http_or_https, settings.CODALAB_SITE_DOMAIN, self.get_absolute_url()),
-        })
+        })]
 
 
 class CompetitionSubmissionMetadata(models.Model):

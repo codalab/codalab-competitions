@@ -7,7 +7,7 @@ import json
 logger = logging.getLogger(__name__)
 
 
-def send_to_chahub(endpoint, data, update=False):
+def send_to_chahub(endpoint, data):
     """
     Does a post request to the specified API endpoint on chahub with the inputted data.
     :param endpoint: String designating which API endpoint; IE: 'producers/'
