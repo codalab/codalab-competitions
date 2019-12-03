@@ -727,7 +727,7 @@ class SubmissionScoreView(views.APIView):
                         log_sas_urls[log_attr] = _make_url_sassy(
                             temp_log_field.file.name,
                             permission='r',
-                            duration=315360000  # 315360000 = 60 * 60 * 24 * 365 * 10 (10 years)
+                            duration=604800  # 604800 = 60 * 60 * 24 * 7 (1 week), limited by Amazon >:(
                         )
             if not sub.participant.user == self.request.user:
                 raise PermissionDenied("Not authorized!")
