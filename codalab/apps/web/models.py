@@ -321,6 +321,7 @@ class Competition(ChaHubSaveMixin, models.Model):
             'remote_id',
             'created_by',
             'published',
+            'phases',
         ]
 
     def get_chahub_data(self):
