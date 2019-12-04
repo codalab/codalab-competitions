@@ -2366,7 +2366,7 @@ class OrganizerDataSet(ChaHubSaveMixin, models.Model):
 
         self.data_file.save("metadata", ContentFile("\n".join(lines)))
 
-    def get_absolute_url(self):
+    def get_download_url(self):
         return reverse("datasets_download", kwargs={"dataset_key": self.key})
 
     def get_chahub_endpoint(self):
@@ -2391,7 +2391,7 @@ class OrganizerDataSet(ChaHubSaveMixin, models.Model):
             'description': self.description,
             'key': str(self.key),
             'is_public': self.is_public,
-            'download_url': "{}://{}{}".format(http_or_https, settings.CODALAB_SITE_DOMAIN, self.get_absolute_url()),
+            'download_url': "{}://{}{}".format(http_or_https, settings.CODALAB_SITE_DOMAIN, self.get_download_url()),
         })]
 
 
