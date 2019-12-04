@@ -709,6 +709,8 @@ class SubmissionScoreView(views.APIView):
         'prediction_stderr_file',
         'ingestion_program_stdout_file',
         'ingestion_program_stderr_file',
+        's3_file',
+        'file',
     ]
 
     def get(self, request, *args, **kwargs):
