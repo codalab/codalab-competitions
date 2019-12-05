@@ -319,7 +319,6 @@ class Competition(ChaHubSaveMixin, models.Model):
     def get_whitelist(self):
         return [
             'remote_id',
-            'created_by',
             'creator_id',
             'published',
             'phases',
