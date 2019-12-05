@@ -362,7 +362,7 @@ class Competition(ChaHubSaveMixin, models.Model):
         return [self.clean_private_data({
             "remote_id": self.id,
             "title": self.title,
-            "created_by": str(self.creator),
+            "created_by": self.creator.pk,
             "start": self.start_date.isoformat() if self.start_date else None,
             "logo": self.image_url.replace(" ", "%20") if self.image_url else None,
             "url": "{}://{}{}".format(http_or_https, settings.CODALAB_SITE_DOMAIN, self.get_absolute_url()),
