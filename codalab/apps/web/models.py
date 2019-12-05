@@ -1406,14 +1406,24 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
     def get_chahub_endpoint(self):
         return "submissions/"
 
+    def get_whitelist(self):
+        return [
+            "remote_id",
+            "competition",
+            "phase_index",
+            "owner",
+            "submitted_at"
+        ]
+
     def get_chahub_data(self):
-        return {
+        return self.clean_private_data({
             "remote_id": self.id,
             "competition": self.phase.competition_id,
             "phase_index": self.phase.phasenumber,
-            "participant": self.participant.user.username,
+            "owner": self.participant.user.pk,
+            "participant_name": self.participant.user.username,
             "submitted_at": self.submitted_at.isoformat(),
-        }
+        })
 
     def save(self, ignore_submission_limits=False, *args, **kwargs):
         print "Saving competition submission."
