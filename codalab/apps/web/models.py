@@ -2333,7 +2333,7 @@ class OrganizerDataSet(ChaHubSaveMixin, models.Model):
             self.key = "%s" % (uuid.uuid4())
         self.full_name = "%s uploaded by %s" % (self.name, self.uploaded_by)
 
-        if not self.created_when:
+        if not self.created_when and not self.pk:
             self.created_when = now()
 
         super(OrganizerDataSet, self).save(**kwargs)
