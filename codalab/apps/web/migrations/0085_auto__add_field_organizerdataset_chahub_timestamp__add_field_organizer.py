@@ -23,6 +23,11 @@ class Migration(SchemaMigration):
                       self.gf('django.db.models.fields.BooleanField')(default=False),
                       keep_default=False)
 
+        # Adding field 'OrganizerDataSet.deleted'
+        db.add_column(u'web_organizerdataset', 'deleted',
+                      self.gf('django.db.models.fields.BooleanField')(default=False),
+                      keep_default=False)
+
         # Adding field 'OrganizerDataSet.is_public'
         db.add_column(u'web_organizerdataset', 'is_public',
                       self.gf('django.db.models.fields.BooleanField')(default=False),
@@ -31,6 +36,11 @@ class Migration(SchemaMigration):
         # Adding field 'OrganizerDataSet.created_when'
         db.add_column(u'web_organizerdataset', 'created_when',
                       self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True),
+                      keep_default=False)
+
+        # Adding field 'CompetitionSubmission.deleted'
+        db.add_column(u'web_competitionsubmission', 'deleted',
+                      self.gf('django.db.models.fields.BooleanField')(default=False),
                       keep_default=False)
 
 
@@ -44,11 +54,17 @@ class Migration(SchemaMigration):
         # Deleting field 'OrganizerDataSet.chahub_needs_retry'
         db.delete_column(u'web_organizerdataset', 'chahub_needs_retry')
 
+        # Deleting field 'OrganizerDataSet.deleted'
+        db.delete_column(u'web_organizerdataset', 'deleted')
+
         # Deleting field 'OrganizerDataSet.is_public'
         db.delete_column(u'web_organizerdataset', 'is_public')
 
         # Deleting field 'OrganizerDataSet.created_when'
         db.delete_column(u'web_organizerdataset', 'created_when')
+
+        # Deleting field 'CompetitionSubmission.deleted'
+        db.delete_column(u'web_competitionsubmission', 'deleted')
 
 
     models = {
@@ -70,8 +86,12 @@ class Migration(SchemaMigration):
             'allow_admin_status_updates': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'allow_forum_notifications': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'bibtex': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
+            'chahub_data_hash': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
+            'chahub_needs_retry': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'chahub_timestamp': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'contact_email': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'null': 'True', 'blank': 'True'}),
             'date_joined': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
+            'deleted': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'email': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'blank': 'True'}),
             'email_on_submission_finished_successfully': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'first_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
@@ -84,6 +104,7 @@ class Migration(SchemaMigration):
             'last_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
             'method_description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'method_name': ('django.db.models.fields.CharField', [], {'max_length': '20', 'null': 'True', 'blank': 'True'}),
+            'newsletter_opt_in': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'organization_or_affiliation': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'organizer_direct_message_updates': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'organizer_status_updates': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
@@ -271,6 +292,7 @@ class Migration(SchemaMigration):
             'chahub_timestamp': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'completed_at': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'coopetition_file': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
+            'deleted': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'description': ('django.db.models.fields.CharField', [], {'max_length': '256', 'blank': 'True'}),
             'detailed_results_file': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'dislike_count': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
@@ -410,6 +432,7 @@ class Migration(SchemaMigration):
             'chahub_timestamp': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'created_when': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'data_file': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
+            'deleted': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'full_name': ('django.db.models.fields.TextField', [], {'default': "''"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),

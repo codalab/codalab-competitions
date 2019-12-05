@@ -218,14 +218,6 @@ def _uuidify(directory):
     return wrapped_uuidify
 
 
-class CompetitionManager(models.Manager):
-    def get_queryset(self):
-        return super(CompetitionManager, self).get_queryset().filter(deleted=False)
-
-    def get_all_competitions(self):
-        return super(CompetitionManager, self).get_queryset()
-
-
 class Competition(ChaHubSaveMixin, models.Model):
     """ Model representing a competition. """
     # compute_worker_vhost = models.CharField(max_length=128, null=True, blank=True, help_text="(don't edit unless you're instructed to, will break submissions -- only admins can see this!)")
@@ -276,10 +268,6 @@ class Competition(ChaHubSaveMixin, models.Model):
     allow_organizer_teams = models.BooleanField(default=False, verbose_name="Allow Organizer Teams")
 
     competition_docker_image = models.CharField(max_length=128, default='', blank=True)
-
-    deleted = models.BooleanField(default=False)
-
-    objects = CompetitionManager()
 
     class Meta:
         permissions = (

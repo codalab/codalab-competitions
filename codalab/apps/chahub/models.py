@@ -12,14 +12,24 @@ from apps.chahub.utils import send_to_chahub
 logger = logging.getLogger(__name__)
 
 
+class ChaHubModelManager(models.Manager):
+    def get_queryset(self):
+        return super(ChaHubModelManager, self).get_queryset().filter(deleted=False)
+
+    def all_objects(self):
+        return super(ChaHubModelManager, self).get_queryset()
+
+
 class ChaHubSaveMixin(models.Model):
     """Helper mixin for saving model data to ChaHub.
 
     To use:
     1) Override `get_chahub_endpoint()` to return the endpoint on ChaHub API for this model
     2) Override `get_chahub_data()` to return a dictionary to send to ChaHub
-    3) Override `get_chahub_is_valid()` to return True/False on whether or not the object is ready to send to ChaHub
-    4) Data is sent on `save()` and `chahub_timestamp` timestamp is set
+    3) Override `get_whitelist()` to return a whitelist of fields to send to ChaHub if obj not public
+    4) Be sure to call `self.clean_private_data()` inside `get_chahub_data`
+    5) Override `get_chahub_is_valid()` to return True/False on whether or not the object is ready to send to ChaHub
+    6) Data is sent on `save()` and `chahub_timestamp` timestamp is set
 
     To update remove the `chahub_timestamp` timestamp and call `save()`"""
     # Timestamp set whenever a successful update happens
@@ -31,12 +41,24 @@ class ChaHubSaveMixin(models.Model):
     # If sending to chahub fails, we may need a retry. Signal that by setting this attribute to True
     chahub_needs_retry = models.BooleanField(default=False)
 
+    # Set to true if celery attempt at deletion does not get a 204 resp from chahub, so we can retry later
+    deleted = models.BooleanField(default=False)
+
+    objects = ChaHubModelManager()
+
     class Meta:
         abstract = True
 
     # -------------------------------------------------------------------------
     # METHODS TO OVERRIDE WHEN USING THIS MIXIN!
     # -------------------------------------------------------------------------
+    def get_whitelist(self):
+        """Override this to set the return the whitelisted fields for private data
+        Example:
+            return ['remote_id', 'is_public']
+        """
+        raise NotImplementedError()
+
     def get_chahub_endpoint(self):
         """Override this to return the endpoint URL for this resource
 
