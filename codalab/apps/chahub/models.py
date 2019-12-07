@@ -13,6 +13,8 @@ logger = logging.getLogger(__name__)
 
 
 class ChaHubModelManager(models.Manager):
+    """Makes `deleted` models automatically filtered. Use `Model.objects.all_objects()`
+    to get all objects."""
     def get_queryset(self):
         return super(ChaHubModelManager, self).get_queryset().filter(deleted=False)
 

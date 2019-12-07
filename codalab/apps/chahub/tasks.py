@@ -157,26 +157,13 @@ def do_chahub_retries(limit=None):
 
     chahub_models = inheritors(ChaHubSaveMixin)
     for model in chahub_models:
-        # Special case for competition model manager, with deleted competitions
-        # if hasattr(model.objects, 'get_all_competitions'):
-        #     needs_retry = model.objects.get_all_competitions().filter(chahub_needs_retry=True)
-        # else:
-
         needs_retry = model.objects.filter(chahub_needs_retry=True)
-
         if limit:
             needs_retry = needs_retry[:limit]
         for instance in needs_retry:
             # Saving forces chahub update
             instance.save(force_to_chahub=True)
 
-
-
-
-    # for model in chahub_models:
-    #     # do all retries
-    #     batch_send_to_chahub(model, retry_only=True, limit=limit)
-    #
         # then delete all objects that need to be deleted
         objects_to_be_deleted = model.objects.all_objects().filter(
             chahub_timestamp__isnull=False,

@@ -7,6 +7,8 @@ from apps.newsletter.models import NewsletterSubscription
 
 
 class CodalabUserManager(ChaHubModelManager, UserManager):
+    """We want to mix the base UserManager in along with our ChaHubSaveMixin-required
+    manager ChaHubModelManager, so we have a nicely handled `deleted` field."""
     pass
 
 
