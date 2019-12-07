@@ -456,15 +456,15 @@ class Base(Settings):
             'schedule': timedelta(seconds=60 * 5),
         },
         'chahub_retries': {
-            'task': 'apps.web.tasks.do_chahub_retries',
+            'task': 'apps.chahub.tasks.do_chahub_retries',
             'schedule': timedelta(seconds=60 * 10),
         },
         'chahub_competition_updates': {
-            'task': 'apps.web.tasks.send_chahub_competition_updates',
+            'task': 'apps.chahub.tasks.send_chahub_competition_updates',
             'schedule': timedelta(seconds=60 * 60 * 24),
         },
         'chahub_general_statistics': {
-            'task': 'apps.web.tasks.send_chahub_general_stats',
+            'task': 'apps.chahub.tasks.send_chahub_general_stats',
             'schedule': timedelta(seconds=60 * 60 * 24),
         },
         'retry_mailing_list': {

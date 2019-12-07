@@ -1,8 +1,13 @@
+from django.contrib.auth.models import UserManager
 from django.db import models
 from django.contrib.auth import models as auth_models
 
-from apps.chahub.models import ChaHubSaveMixin
+from apps.chahub.models import ChaHubSaveMixin, ChaHubModelManager
 from apps.newsletter.models import NewsletterSubscription
+
+
+class CodalabUserManager(ChaHubModelManager, UserManager):
+    pass
 
 
 class ClUser(ChaHubSaveMixin, auth_models.AbstractUser):
@@ -35,6 +40,8 @@ class ClUser(ChaHubSaveMixin, auth_models.AbstractUser):
     rabbitmq_queue_limit = models.PositiveIntegerField(default=5, blank=True)
     rabbitmq_username = models.CharField(max_length=36, null=True, blank=True)
     rabbitmq_password = models.CharField(max_length=36, null=True, blank=True)
+
+    objects = CodalabUserManager()
 
     def get_chahub_endpoint(self):
         return "profiles/"

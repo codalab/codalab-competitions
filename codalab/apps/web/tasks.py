@@ -38,8 +38,6 @@ from django.template.loader import render_to_string
 from django.contrib.sites.models import Site
 
 from apps.authenz.models import ClUser
-from apps.chahub.models import ChaHubSaveMixin
-from apps.chahub.utils import send_to_chahub
 from apps.jobs.models import (Job,
                               run_job_task,
                               JobTaskResult,
@@ -810,72 +808,6 @@ def send_mass_email(competition_pk, body=None, subject=None, from_email=None, to
     message.send()
 
     logger.info("Finished sending emails.")
-
-
-@task(queue='site-worker')
-def do_chahub_retries(limit=None):
-    if not settings.CHAHUB_API_URL:
-        return
-
-    logger.info("Checking whether ChaHub is online before sending retries")
-    try:
-        response = requests.get(settings.CHAHUB_API_URL)
-        if response.status_code != 200:
-            return
-    except requests.exceptions.RequestException:
-        # This base exception works for HTTP errors, Connection errors, etc.
-        return
-
-    logger.info("ChaHub is online, checking for objects needing to be re-sent to ChaHub")
-    chahub_models = inheritors(ChaHubSaveMixin)
-    for model in chahub_models:
-        # Special case for competition model manager, with deleted competitions
-        if hasattr(model.objects, 'get_all_competitions'):
-            needs_retry = model.objects.get_all_competitions().filter(chahub_needs_retry=True)
-        else:
-            needs_retry = model.objects.filter(chahub_needs_retry=True)
-
-        if limit:
-            needs_retry = needs_retry[:limit]
-        for instance in needs_retry:
-            # Saving forces chahub update
-            instance.save(force_to_chahub=True)
-
-
-@task(queue='site-worker')
-def send_chahub_general_stats():
-    if settings.DATABASES.get('default').get('ENGINE') == 'django.db.backends.postgresql_psycopg2':
-        # Only Postgres supports 'distinct', so if we can use the database, if not use some Python Set magic
-        organizer_count = Competition.objects.all().distinct('creator').count()
-    else:
-        users_with_competitions = list(ClUser.objects.filter(competitioninfo_creator__isnull=False))
-        user_set = set(users_with_competitions)
-        # Only unique users that have competitions
-        organizer_count = len(user_set)
-    approved_status = ParticipantStatus.objects.get(codename=ParticipantStatus.APPROVED)
-    data = {
-        'competition_count': Competition.objects.filter(published=True).count(),
-        'dataset_count': OrganizerDataSet.objects.count(),
-        'participant_count': CompetitionParticipant.objects.filter(status=approved_status).count(),
-        'submission_count': CompetitionSubmission.objects.count(),
-        'user_count': ClUser.objects.count(),
-        'organizer_count': organizer_count
-    }
-
-    try:
-        send_to_chahub('producers/{}/'.format(settings.CHAHUB_PRODUCER_ID), data)
-    except requests.ConnectionError:
-        logger.info("There was a problem reaching Chahub, it is currently offline. Re-trying in 5 minutes.")
-        send_chahub_general_stats.apply_async(eta=timezone.now() + timedelta(minutes=5))
-
-
-@task(queue='site-worker')
-def send_chahub_updates():
-    competitions = Competition.objects.filter(published=True).annotate(participant_count=Count('participants'))
-    for comp in competitions:
-        # saving generates new participant_count -- will be sent if it is different from
-        # what was sent last time.
-        comp.save()
 
 
 @task(queue='site-worker')

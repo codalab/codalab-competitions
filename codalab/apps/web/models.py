@@ -2376,6 +2376,7 @@ class OrganizerDataSet(ChaHubSaveMixin, models.Model):
             'remote_id',
             'creator_id',
             'is_public',
+            'deleted',
         ]
 
     def get_chahub_data(self):
@@ -2384,7 +2385,7 @@ class OrganizerDataSet(ChaHubSaveMixin, models.Model):
             'creator_id': self.uploaded_by.id,
             'remote_id': self.pk,
             'created_by': str(self.uploaded_by.username),
-            'created_when': self.created_when.isoformat(),
+            'created_when': self.created_when.isoformat() if self.created_when else None,
             'name': self.name,
             'type': self.type,
             'description': self.description,

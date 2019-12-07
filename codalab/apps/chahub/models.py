@@ -149,3 +149,14 @@ class ChaHubSaveMixin(models.Model):
                 # valid again
                 self.chahub_needs_retry = False
                 super(ChaHubSaveMixin, self).save(force_update=True)
+
+    def delete(self, real_delete=False, **kwargs):
+        if real_delete:
+            super(ChaHubSaveMixin, self).delete(**kwargs)
+        else:
+            # So this can be sent to ChaHub, with retries and such, don't actually delete
+            self.deleted = True
+            self.save()
+
+            from .tasks import delete_from_chahub
+            delete_from_chahub.apply_async((self._meta.app_label, self._meta.object_name, self.pk))
