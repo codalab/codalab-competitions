@@ -304,7 +304,7 @@ class Competition(ChaHubSaveMixin, models.Model):
     def get_chahub_endpoint(self):
         return "competitions/"
 
-    def get_whitelist(self):
+    def get_chahub_whitelist(self):
         return [
             'remote_id',
             'creator_id',
@@ -1394,7 +1394,7 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
     def get_chahub_endpoint(self):
         return "submissions/"
 
-    def get_whitelist(self):
+    def get_chahub_whitelist(self):
         return [
             "remote_id",
             "competition",
@@ -2371,7 +2371,7 @@ class OrganizerDataSet(ChaHubSaveMixin, models.Model):
     def get_chahub_endpoint(self):
         return "datasets/"
 
-    def get_whitelist(self):
+    def get_chahub_whitelist(self):
         return [
             'remote_id',
             'creator_id',

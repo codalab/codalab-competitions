@@ -28,7 +28,7 @@ class ChaHubSaveMixin(models.Model):
     To use:
     1) Override `get_chahub_endpoint()` to return the endpoint on ChaHub API for this model
     2) Override `get_chahub_data()` to return a dictionary to send to ChaHub
-    3) Override `get_whitelist()` to return a whitelist of fields to send to ChaHub if obj not public
+    3) Override `get_chahub_whitelist()` to return a whitelist of fields to send to ChaHub if obj not public
     4) Be sure to call `self.clean_private_data()` inside `get_chahub_data`
     5) Override `get_chahub_is_valid()` to return True/False on whether or not the object is ready to send to ChaHub
     6) Data is sent on `save()` and `chahub_timestamp` timestamp is set
@@ -54,7 +54,7 @@ class ChaHubSaveMixin(models.Model):
     # -------------------------------------------------------------------------
     # METHODS TO OVERRIDE WHEN USING THIS MIXIN!
     # -------------------------------------------------------------------------
-    def get_whitelist(self):
+    def get_chahub_whitelist(self):
         """Override this to set the return the whitelisted fields for private data
         Example:
             return ['remote_id', 'is_public']
@@ -101,7 +101,7 @@ class ChaHubSaveMixin(models.Model):
             public = True
         if not public:
             for key in data.keys():
-                if key not in self.get_whitelist():
+                if key not in self.get_chahub_whitelist():
                     data[key] = None
         return data
 
