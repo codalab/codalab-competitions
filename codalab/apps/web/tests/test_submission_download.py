@@ -1,5 +1,6 @@
 import datetime
 
+import requests
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.client import Client
@@ -78,9 +79,7 @@ class CompetitionSubmissionDownloadTests(TestCase):
     def test_submission_info_download_returns_proper_data(self):
         self.client.login(username="participant", password="pass")
         resp = self.client.get(self.url)
-        # Todo: Removed this test for now because it's failing on AutoDL, but works on v1.5
-        # self.assertEquals(resp.content, self.submission_1.stdout_file.read())
-        self.assertEquals(resp.streaming_content, self.submission_1.stdout_file.read())
+        self.assertEquals(resp.content, self.submission_1.stdout_file.read())
 
     # def test_submission_download_public_requires_participation_access(self):
     #     self.submission_1.is_public = True
@@ -117,6 +116,7 @@ class CompetitionSubmissionDownloadTests(TestCase):
             submitted_at=datetime.datetime.now() - datetime.timedelta(days=29),
             stdout_file=SimpleUploadedFile(name="test.txt", content="new stdout")
         )
+
         new_url = reverse(
             "my_competition_output",
             kwargs={
@@ -126,5 +126,10 @@ class CompetitionSubmissionDownloadTests(TestCase):
         )
         self.client.login(username="participant", password="pass")
         resp = self.client.get(new_url)
-        self.assertEquals(resp.status_code, 200)
-        self.assertEquals(resp.streaming_content, "new stdout")
+
+        if resp.status_code == 302:
+            # For special circumstances (S3 hosting) follow this path
+            resp = requests.get(resp._headers['location'][1])
+
+        assert resp.status_code == 200
+        assert resp.content == "new stdout"

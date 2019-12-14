@@ -39,7 +39,6 @@ from django.template import Context
 from django.template.loader import render_to_string
 from django.contrib.sites.models import Site
 
-from apps.chahub.models import ChaHubSaveMixin
 from apps.jobs.models import (Job,
                               run_job_task,
                               JobTaskResult,
@@ -143,6 +142,7 @@ _FINAL_STATES = {
     CompetitionSubmissionStatus.FAILED,
     CompetitionSubmissionStatus.CANCELLED
 }
+
 
 def _set_submission_status(submission_id, status_codename):
     """
@@ -1035,29 +1035,6 @@ def send_mass_email(competition_pk, body=None, subject=None, from_email=None, to
     mail_tuples = ((subject, text, html, from_email, [e]) for e in to_emails)
 
     _send_mass_html_mail(mail_tuples)
-
-
-@app.task(queue='site-worker')
-def do_chahub_retries():
-    if not settings.CHAHUB_API_URL:
-        return
-
-    logger.info("Checking whether ChaHub is online before sending retries")
-    try:
-        response = requests.get(settings.CHAHUB_API_URL)
-        if response.status_code != 200:
-            return
-    except requests.exceptions.RequestException:
-        # This base exception works for HTTP errors, Connection errors, etc.
-        return
-
-    logger.info("ChaHub is online, checking for objects needing to be re-sent to ChaHub")
-    chahub_models = inheritors(ChaHubSaveMixin)
-    for model in chahub_models:
-        needs_retry = model.objects.filter(chahub_needs_retry=True)
-        for instance in needs_retry:
-            # Saving forces chahub update
-            instance.save()
 
 
 @app.task(queue='site-worker')

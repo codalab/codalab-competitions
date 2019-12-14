@@ -48,7 +48,7 @@ from django.utils.functional import cached_property
 from rest_framework.exceptions import ParseError
 from s3direct.fields import S3DirectField
 
-from apps.chahub.models import ChaHubSaveMixin
+from apps.chahub.models import ChaHubSaveMixin, ChaHubModelManager
 from apps.forums.models import Forum
 from apps.coopetitions.models import DownloadRecord
 from apps.authenz.models import ClUser
@@ -313,6 +313,14 @@ class Competition(ChaHubSaveMixin, models.Model):
     def get_chahub_endpoint(self):
         return "competitions/"
 
+    def get_chahub_whitelist(self):
+        return [
+            'remote_id',
+            'creator_id',
+            'published',
+            'phases',
+        ]
+
     def get_chahub_data(self):
         phase_data = []
         phases = list(self.phases.all().order_by('start_date'))
@@ -348,10 +356,11 @@ class Competition(ChaHubSaveMixin, models.Model):
             submitted_at__gt=now() - datetime.timedelta(days=30)
         ).exists()
 
-        return {
+        return [self.clean_private_data({
             "remote_id": self.id,
             "title": self.title,
-            "created_by": str(self.creator),
+            "created_by": self.creator.username,
+            "creator_id": self.creator.pk,
             "start": self.start_date.isoformat() if self.start_date else None,
             "logo": self.image_url.replace(" ", "%20") if self.image_url else None,
             "url": "{}://{}{}".format(http_or_https, settings.CODALAB_SITE_DOMAIN, self.get_absolute_url()),
@@ -362,7 +371,7 @@ class Competition(ChaHubSaveMixin, models.Model):
             "html_text": html_text,
             "active": active,
             "prize": self.reward,
-        }
+        })]
 
     def save(self, *args, **kwargs):
         # Make sure the image_url_base is set from the actual storage implementation
@@ -1446,6 +1455,8 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
     parent_submission = models.ForeignKey('CompetitionSubmission', null=True, blank=True, related_name="child_submissions")
     task_id = models.CharField(default='', max_length=64)
 
+    objects = ChaHubModelManager()
+
     class Meta:
         unique_together = (('submission_number','phase','participant'),)
 
@@ -1515,14 +1526,24 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
     def get_chahub_endpoint(self):
         return "submissions/"
 
+    def get_chahub_whitelist(self):
+        return [
+            "remote_id",
+            "competition",
+            "phase_index",
+            "owner",
+            "submitted_at"
+        ]
+
     def get_chahub_data(self):
-        return {
+        return self.clean_private_data({
             "remote_id": self.id,
             "competition": self.phase.competition_id,
             "phase_index": self.phase.phasenumber,
-            "participant": self.participant.user.username,
+            "owner": self.participant.user.pk,
+            "participant_name": self.participant.user.username,
             "submitted_at": self.submitted_at.isoformat(),
-        }
+        })
 
     @property
     def detailed_results_ready(self):
@@ -1639,7 +1660,10 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
 
         # only at save on object creation should it be submitted
         if not self.pk:
-            subnum = CompetitionSubmission.objects.filter(phase=self.phase, participant=self.participant).aggregate(
+            # Have to get all_objects here to keep submission number climbing properly.
+            # Submissions are soft-deleted and hidden instead of completely deleted, until
+            # they are sent to chahub and really deleted
+            subnum = CompetitionSubmission.objects.all_objects().filter(phase=self.phase, participant=self.participant).aggregate(
                 Max('submission_number')
             )['submission_number__max']
             if subnum is not None:
@@ -2528,7 +2552,7 @@ def dataset_data_file(dataset, filename="data.zip"):
     return os.path.join("datasets", str(dataset.pk), str(uuid.uuid4()), filename)
 
 
-class OrganizerDataSet(models.Model):
+class OrganizerDataSet(ChaHubSaveMixin, models.Model):
     TYPES = (
         ("Reference Data", "Reference Data"),
         ("Scoring Program", "Scoring Program"),
@@ -2552,10 +2576,16 @@ class OrganizerDataSet(models.Model):
     sub_data_files = models.ManyToManyField('OrganizerDataSet', blank=True, verbose_name="Bundle of data files")
     uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL)
     key = models.UUIDField()
+    is_public = models.BooleanField(default=False)
+    created_when = models.DateTimeField(null=True, blank=True)
 
     def save(self, **kwargs):
         if self.key is None or self.key == '':
             self.key = "%s" % (uuid.uuid4())
+
+        if not self.created_when and not self.pk:
+            self.created_when = now()
+
         self.full_name = "%s uploaded by %s" % (self.name, self.uploaded_by)
         super(OrganizerDataSet, self).save(**kwargs)
 
@@ -2586,6 +2616,35 @@ class OrganizerDataSet(models.Model):
             lines.append("%s: %s" % (file_name, _make_url_sassy(dataset.data_file.file.name, duration=one_hundred_years)))
 
         self.data_file.save("metadata", ContentFile("\n".join(lines)))
+
+    def get_download_url(self):
+        return reverse("datasets_download", kwargs={"dataset_key": self.key})
+
+    def get_chahub_endpoint(self):
+        return "datasets/"
+
+    def get_chahub_whitelist(self):
+        return [
+            'remote_id',
+            'creator_id',
+            'is_public',
+            'deleted',
+        ]
+
+    def get_chahub_data(self):
+        http_or_https = "https" if settings.SSL_CERTIFICATE else "http"
+        return [self.clean_private_data({
+            'creator_id': self.uploaded_by.id,
+            'remote_id': self.pk,
+            'created_by': str(self.uploaded_by.username),
+            'created_when': self.created_when.isoformat() if self.created_when else None,
+            'name': self.name,
+            'type': self.type,
+            'description': self.description,
+            'key': str(self.key),
+            'is_public': self.is_public,
+            'download_url': "{}://{}{}".format(http_or_https, settings.CODALAB_SITE_DOMAIN, self.get_download_url()),
+        })]
 
 
 class CompetitionSubmissionMetadata(models.Model):

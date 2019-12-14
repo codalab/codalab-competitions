@@ -1,6 +1,15 @@
+from django.contrib.auth.models import UserManager
 from django.db import models
 from django.contrib.auth import models as auth_models
-import uuid
+
+from apps.chahub.models import ChaHubSaveMixin, ChaHubModelManager
+
+
+class CodalabUserManager(ChaHubModelManager, UserManager):
+    """We want to mix the base UserManager in along with our ChaHubSaveMixin-required
+    manager ChaHubModelManager, so we have a nicely handled `deleted` field."""
+    pass
+
 
 class ClUser(auth_models.AbstractUser):
     """
@@ -29,3 +38,5 @@ class ClUser(auth_models.AbstractUser):
     rabbitmq_queue_limit = models.PositiveIntegerField(default=5, blank=True)
     rabbitmq_username = models.CharField(max_length=36, null=True, blank=True)
     rabbitmq_password = models.CharField(max_length=36, null=True, blank=True)
+
+    objects = CodalabUserManager()

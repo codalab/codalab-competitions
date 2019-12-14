@@ -467,6 +467,7 @@ class Base(Configuration):
     # CELERYD_GROUP = "workeruser"
     # CELERYD_MAX_TASKS_PER_CHILD = 100  # Make celery restart every N tasks to stop leaks
     CELERY_CELERYBEAT_SCHEDULE = {
+        # NOTE *** This was moved to celer.py! ***
         # 'phase_migrations': {
         #     'task': 'apps.web.tasks.do_phase_migrations',
         #     'schedule': timedelta(seconds=300),

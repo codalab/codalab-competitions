@@ -1264,7 +1264,10 @@ class MyCompetitionSubmissionToggleMakePublic(LoginRequiredMixin, View):
     """
     def get(self, request, *args, **kwargs):
         try:
-            submission = models.CompetitionSubmission.objects.get(pk=kwargs.get('submission_id'))
+            try:
+                submission = models.CompetitionSubmission.objects.get(pk=kwargs.get('submission_id'))
+            except models.CompetitionSubmission.DoesNotExist:
+                raise Http404()
             if request.user == submission.participant.user or request.user == submission.phase.competition.creator \
                 or request.user in submission.phase.competition.admins.all():
                 submission.is_public = not submission.is_public
@@ -1716,6 +1719,19 @@ def download_dataset(request, dataset_key):
         formatted_lines = traceback.format_exc().splitlines()
         msg = "There was an error retrieving the file. Please try again later or report the issue."
         return HttpResponse(msg, status=400, content_type='text/plain')
+
+
+def toggle_publish_dataset(request, dataset_key):
+    """Toggle datasets to be public or not"""
+    try:
+        dataset = models.OrganizerDataSet.objects.get(uploaded_by=request.user, key=dataset_key)
+    except ObjectDoesNotExist:
+        raise Http404()
+
+    dataset.is_public = not dataset.is_public
+    dataset.save()
+
+    return HttpResponseRedirect(reverse('my_datasets'))
 
 
 def datasets_delete_multiple(request):
