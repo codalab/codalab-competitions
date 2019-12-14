@@ -109,8 +109,11 @@ class ChaHubSaveMixin(models.Model):
         # We do a save here to give us an ID for generating URLs and such
         try:
             super(ChaHubSaveMixin, self).save(*args, **kwargs)
-        except IntegrityError:
+        except IntegrityError as e:
             logger.info("Object already has ID skipping save in Chahub mixin.")
+
+            # re raise the error so it's not swallowed and confusing that things aren't saved!
+            raise e
 
         if os.environ.get('PYTEST') and not settings.PYTEST_FORCE_CHAHUB:
             # For tests let's just assume Chahub isn't available

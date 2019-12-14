@@ -44,7 +44,7 @@ from django_extensions.db.fields import UUIDField
 from django.utils.functional import cached_property
 from s3direct.fields import S3DirectField
 
-from apps.chahub.models import ChaHubSaveMixin
+from apps.chahub.models import ChaHubSaveMixin, ChaHubModelManager
 from apps.forums.models import Forum
 from apps.coopetitions.models import DownloadRecord
 from apps.authenz.models import ClUser
@@ -1361,6 +1361,8 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
 
     queue_name = models.TextField(null=True, blank=True)
 
+    objects = ChaHubModelManager()
+
     class Meta:
         unique_together = (('submission_number','phase','participant'),)
 
@@ -1450,7 +1452,10 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
                 ignore_submission_limits = True
             if not ignore_submission_limits:
                 print "This is a new submission, getting the submission number."
-                subnum = CompetitionSubmission.objects.filter(phase=self.phase, participant=self.participant).aggregate(Max('submission_number'))['submission_number__max']
+                # Have to get all_objects here to keep submission number climbing properly.
+                # Submissions are soft-deleted and hidden instead of completely deleted, until
+                # they are sent to chahub and really deleted
+                subnum = CompetitionSubmission.objects.all_objects().filter(phase=self.phase, participant=self.participant).aggregate(Max('submission_number'))['submission_number__max']
                 if subnum is not None:
                     self.submission_number = subnum + 1
                 else:
