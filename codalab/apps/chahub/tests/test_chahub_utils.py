@@ -8,7 +8,7 @@ from django.test.utils import override_settings
 from apps.authenz.models import ClUser
 from apps.web.models import CompetitionSubmission, Competition, CompetitionPhase, CompetitionParticipant, \
     ParticipantStatus
-from apps.web.tasks import send_chahub_general_stats
+from apps.chahub.tasks import send_chahub_general_stats
 
 
 class ChahubUtillityTests(TestCase):
@@ -34,7 +34,7 @@ class ChahubUtillityTests(TestCase):
     @override_settings(CHAHUB_API_URL='http://host.docker.internal/')
     def test_send_to_chahub_utillity(self):
         # with mock.patch('apps.web.models.CompetitionSubmission.send_to_chahub') as send_to_chahub_mock:
-        with mock.patch('apps.web.tasks.send_to_chahub') as send_to_chahub_mock:
+        with mock.patch('apps.chahub.tasks.send_to_chahub') as send_to_chahub_mock:
             send_to_chahub_mock.return_value = None
             # Calling this as a function instead of a task?
             send_chahub_general_stats()
