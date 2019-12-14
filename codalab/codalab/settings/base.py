@@ -474,6 +474,9 @@ class Base(Settings):
     }
     CELERY_TIMEZONE = 'UTC'
 
+    if os.environ.get("PYTEST"):
+        CELERY_ALWAYS_EAGER = True
+
 
     # =========================================================================
     # Single Competition Mode

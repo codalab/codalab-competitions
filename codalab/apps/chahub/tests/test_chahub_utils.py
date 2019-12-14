@@ -33,7 +33,6 @@ class ChahubUtillityTests(TestCase):
 
     @override_settings(CHAHUB_API_URL='http://host.docker.internal/')
     def test_send_to_chahub_utillity(self):
-        # with mock.patch('apps.web.models.CompetitionSubmission.send_to_chahub') as send_to_chahub_mock:
         with mock.patch('apps.chahub.tasks.send_to_chahub') as send_to_chahub_mock:
             send_to_chahub_mock.return_value = None
             # Calling this as a function instead of a task?
