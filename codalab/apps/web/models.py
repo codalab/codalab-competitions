@@ -365,12 +365,13 @@ class Competition(ChaHubSaveMixin, models.Model):
             "logo": self.image_url.replace(" ", "%20") if self.image_url else None,
             "url": "{}://{}{}".format(http_or_https, settings.CODALAB_SITE_DOMAIN, self.get_absolute_url()),
             "phases": phase_data,
-            "participant_count": self.get_participant_count,
+            "participant_count": self.participants.all().count(),
             "end": self.end_date.isoformat() if self.end_date else None,
             "description": self.description,
             "html_text": html_text,
             "active": active,
             "prize": self.reward,
+            "published": self.published
         })]
 
     def save(self, *args, **kwargs):
