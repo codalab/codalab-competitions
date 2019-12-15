@@ -249,6 +249,7 @@ class Base(Configuration):
         'apps.forums',
         'apps.coopetitions',
         'apps.common',
+        'apps.chahub',
         'apps.queues',
         'apps.teams',
         'apps.customizer',

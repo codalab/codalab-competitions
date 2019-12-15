@@ -4,6 +4,7 @@ import logging
 import os
 
 from django.conf import settings
+from django.core.exceptions import FieldError
 from django.db import models, IntegrityError
 from django.utils import timezone
 
@@ -16,7 +17,12 @@ class ChaHubModelManager(models.Manager):
     """Makes `deleted` models automatically filtered. Use `Model.objects.all_objects()`
     to get all objects."""
     def get_queryset(self):
-        return super(ChaHubModelManager, self).get_queryset().filter(deleted=False)
+        try:
+            return super(ChaHubModelManager, self).get_queryset().filter(deleted=False)
+        except FieldError:
+            # For some reason in this version of Django we get an exception that Competition's don't
+            # have a deleted field on start ... they do.. ?
+            return super(ChaHubModelManager, self).get_queryset()
 
     def all_objects(self):
         return super(ChaHubModelManager, self).get_queryset()
