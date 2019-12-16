@@ -94,7 +94,7 @@ def delete_from_chahub(app_label, model_name, pk):
 
     if resp and resp.status_code == 204:
         logger.info("ChaHub :: Received response {} {}".format(resp.status_code, resp.content))
-        obj.delete()
+        obj.delete(real_delete=True)
     else:
         status = getattr(resp, 'status_code', 'N/A')
         body = getattr(resp, 'content', 'N/A')
@@ -183,33 +183,6 @@ def send_everything_to_chahub(limit=None):
     chahub_models = get_chahub_models()
     for model in chahub_models:
         batch_send_to_chahub(model, limit=limit)
-
-
-@task(queue='site-worker')
-def send_chahub_general_stats():
-    if settings.DATABASES.get('default').get('ENGINE') == 'django.db.backends.postgresql_psycopg2':
-        # Only Postgres supports 'distinct', so if we can use the database, if not use some Python Set magic
-        organizer_count = Competition.objects.all().distinct('creator').count()
-    else:
-        users_with_competitions = list(ClUser.objects.filter(competitioninfo_creator__isnull=False))
-        user_set = set(users_with_competitions)
-        # Only unique users that have competitions
-        organizer_count = len(user_set)
-    approved_status = ParticipantStatus.objects.get(codename=ParticipantStatus.APPROVED)
-    data = {
-        'competition_count': Competition.objects.filter(published=True).count(),
-        'dataset_count': OrganizerDataSet.objects.count(),
-        'participant_count': CompetitionParticipant.objects.filter(status=approved_status).count(),
-        'submission_count': CompetitionSubmission.objects.count(),
-        'user_count': ClUser.objects.count(),
-        'organizer_count': organizer_count
-    }
-
-    try:
-        send_to_chahub('producers/{}/'.format(settings.CHAHUB_PRODUCER_ID), data)
-    except requests.ConnectionError:
-        logger.info("There was a problem reaching Chahub, it is currently offline. Re-trying in 5 minutes.")
-        send_chahub_general_stats.apply_async(eta=timezone.now() + timedelta(minutes=5))
 
 
 @task(queue='site-worker')

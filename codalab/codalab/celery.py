@@ -44,10 +44,6 @@ app.conf.beat_schedule = {
         'task': 'apps.chahub.tasks.send_chahub_competition_updates',
         'schedule': 60 * 60 * 24,
     },
-    'chahub_general_statistics': {
-        'task': 'apps.chahub.tasks.send_chahub_general_stats',
-        'schedule': 60 * 60 * 24,
-    },
     'check_all_parent_submissions': {
         'task': 'apps.web.tasks.check_all_parent_submissions',
         'schedule': 60,
