@@ -111,7 +111,7 @@ class ChaHubSaveMixin(models.Model):
                     data[key] = None
         return data
 
-    def save(self, send_to_chahub=True, force_to_chahub=False, *args, **kwargs):
+    def save(self, dont_send_to_chahub=False, force_to_chahub=False, *args, **kwargs):
         # We do a save here to give us an ID for generating URLs and such
         try:
             super(ChaHubSaveMixin, self).save(*args, **kwargs)
@@ -126,7 +126,7 @@ class ChaHubSaveMixin(models.Model):
             # We can mock proper responses
             return None
 
-        if not send_to_chahub:
+        if dont_send_to_chahub:
             logger.info("ChaHub :: {}={} saved but not sent to Chahub".format(self.__class__.__name__, self.pk, is_valid))
             return None
 
@@ -174,7 +174,7 @@ class ChaHubSaveMixin(models.Model):
             self.deleted = True
             # Make sure we don't send to Chahub here, because we're sending deletion below
             # via a celery task
-            self.save(send_to_chahub=False)
+            self.save(dont_send_to_chahub=True)
 
             from .tasks import delete_from_chahub
             delete_from_chahub.apply_async((self._meta.app_label, self._meta.object_name, self.pk))
