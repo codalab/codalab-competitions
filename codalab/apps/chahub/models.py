@@ -127,7 +127,7 @@ class ChaHubSaveMixin(models.Model):
             return None
 
         if dont_send_to_chahub:
-            logger.info("ChaHub :: {}={} saved but not sent to Chahub".format(self.__class__.__name__, self.pk, is_valid))
+            logger.info("ChaHub :: {}={} saved but not sent to Chahub".format(self.__class__.__name__, self.pk))
             return None
 
         # Make sure we're not sending these in tests
