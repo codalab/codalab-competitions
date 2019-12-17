@@ -304,9 +304,6 @@ class Competition(ChaHubSaveMixin, models.Model):
     def __unicode__(self):
         return self.title
 
-    def get_chahub_is_valid(self):
-        return self.published
-
     def set_owner(self, user):
         return assign_perm('view_task', user, self)
 
