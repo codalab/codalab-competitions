@@ -356,7 +356,7 @@ class Competition(ChaHubSaveMixin, models.Model):
             submitted_at__gt=now() - datetime.timedelta(days=30)
         ).exists()
 
-        return [self.clean_private_data({
+        return self.clean_private_data({
             "remote_id": self.id,
             "title": self.title,
             "created_by": self.creator.username,
@@ -372,7 +372,7 @@ class Competition(ChaHubSaveMixin, models.Model):
             "active": active,
             "prize": self.reward,
             "published": self.published
-        })]
+        })
 
     def save(self, *args, **kwargs):
         # Make sure the image_url_base is set from the actual storage implementation
@@ -2634,7 +2634,7 @@ class OrganizerDataSet(ChaHubSaveMixin, models.Model):
 
     def get_chahub_data(self):
         http_or_https = "https" if settings.SSL_CERTIFICATE else "http"
-        return [self.clean_private_data({
+        return self.clean_private_data({
             'creator_id': self.uploaded_by.id,
             'remote_id': self.pk,
             'created_by': str(self.uploaded_by.username),
@@ -2645,7 +2645,7 @@ class OrganizerDataSet(ChaHubSaveMixin, models.Model):
             'key': str(self.key),
             'is_public': self.is_public,
             'download_url': "{}://{}{}".format(http_or_https, settings.CODALAB_SITE_DOMAIN, self.get_download_url()),
-        })]
+        })
 
 
 class CompetitionSubmissionMetadata(models.Model):

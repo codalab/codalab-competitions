@@ -111,7 +111,7 @@ class ChaHubSaveMixin(models.Model):
                     data[key] = None
         return data
 
-    def save(self, force_to_chahub=False, *args, **kwargs):
+    def save(self, send_to_chahub=True, force_to_chahub=False, *args, **kwargs):
         # We do a save here to give us an ID for generating URLs and such
         try:
             super(ChaHubSaveMixin, self).save(*args, **kwargs)
@@ -126,6 +126,10 @@ class ChaHubSaveMixin(models.Model):
             # We can mock proper responses
             return None
 
+        if not send_to_chahub:
+            logger.info("ChaHub :: {}={} saved but not sent to Chahub".format(self.__class__.__name__, self.pk, is_valid))
+            return None
+
         # Make sure we're not sending these in tests
         if settings.CHAHUB_API_URL:
             is_valid = self.get_chahub_is_valid()
@@ -135,7 +139,9 @@ class ChaHubSaveMixin(models.Model):
             if is_valid and self.chahub_needs_retry and not force_to_chahub:
                 logger.info("ChaHub :: This has already been tried, waiting for do_retries to force resending")
             elif is_valid:
-                data = json.dumps(self.get_chahub_data())
+                # Make sure get_chahub_data is always wrapped in an array, chahub expects
+                # to receive a list of objects at end endpoint
+                data = json.dumps([self.get_chahub_data()])
                 data_hash = hashlib.md5(data).hexdigest()
 
                 # Send to chahub if we haven't yet, we have new data
@@ -165,9 +171,10 @@ class ChaHubSaveMixin(models.Model):
         if real_delete:
             super(ChaHubSaveMixin, self).delete(**kwargs)
         else:
-            # So this can be sent to ChaHub, with retries and such, don't actually delete
             self.deleted = True
-            self.save()
+            # Make sure we don't send to Chahub here, because we're sending deletion below
+            # via a celery task
+            self.save(send_to_chahub=False)
 
             from .tasks import delete_from_chahub
             delete_from_chahub.apply_async((self._meta.app_label, self._meta.object_name, self.pk))

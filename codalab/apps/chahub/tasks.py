@@ -155,7 +155,6 @@ def do_chahub_retries(limit=None):
     chahub_models = get_chahub_models()
     logger.info('Retrying for ChaHub models: {}'.format(chahub_models))
 
-    chahub_models = inheritors(ChaHubSaveMixin)
     for model in chahub_models:
         needs_retry = model.objects.filter(chahub_needs_retry=True)
         if limit:
@@ -173,7 +172,7 @@ def do_chahub_retries(limit=None):
         if limit is not None:
             objects_to_be_deleted = objects_to_be_deleted[:limit]
         for obj in objects_to_be_deleted:
-            obj.delete(real_delete=True)
+            delete_from_chahub.apply_async((obj._meta.app_label, obj._meta.object_name, obj.pk))
 
 
 @task(queue='site-worker')
