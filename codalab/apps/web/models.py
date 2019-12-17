@@ -1521,9 +1521,6 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
                     sub_run_time = datetime.timedelta(seconds=max_sub_time)
         return sub_run_time
 
-    def get_chahub_is_valid(self):
-        return self.phase.competition.published
-
     def get_chahub_endpoint(self):
         return "submissions/"
 
