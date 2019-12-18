@@ -348,11 +348,6 @@ class Competition(ChaHubSaveMixin, models.Model):
                 document = lxml.html.document_fromstring(page.html)
                 html_text += document.text_content()
 
-        active = CompetitionSubmission.objects.filter(
-            phase=self.phases.all(),
-            submitted_at__gt=now() - datetime.timedelta(days=30)
-        ).exists()
-
         return self.clean_private_data({
             "remote_id": self.id,
             "title": self.title,
@@ -366,7 +361,6 @@ class Competition(ChaHubSaveMixin, models.Model):
             "end": self.end_date.isoformat() if self.end_date else None,
             "description": self.description,
             "html_text": html_text,
-            "active": active,
             "prize": self.reward,
             "published": self.published
         })
