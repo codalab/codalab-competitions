@@ -54,29 +54,10 @@ class CompetitionSubmissionSerial(serializers.ModelSerializer):
 
 class PhaseSerial(serializers.ModelSerializer):
     start_date = serializers.DateField(format='%Y-%m-%d')
-    is_active = serializers.Field()
 
     class Meta:
         model = webmodels.CompetitionPhase
-        fields = (
-            'competition',
-            'description',
-            'phasenumber',
-            'label',
-            'start_date',
-            'max_submissions',
-            'max_submissions_per_day',
-            'is_scoring_only',
-            'id',
-            'is_migrated',
-            'is_active',
-            'phase_never_ends',
-        )
-        extra_kwargs = {
-            'datasets': {'read_only': True},
-            'is_active': {'read_only': True},
-            'id': {'read_only': True},
-        }
+        read_only_fields = ['datasets']
 
 class CompetitionPhaseSerial(serializers.ModelSerializer):
     end_date = serializers.DateField(format='%Y-%m-%d')
