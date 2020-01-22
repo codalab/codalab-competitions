@@ -103,7 +103,7 @@ class MyAdminView(TemplateView):
 
 class HomePageView(TemplateView):
     """Template View for homepage."""
-    template_name = "web/highlights.html"
+    template_name = "web/index.html"
 
     def get(self, *args, **kwargs):
         if settings.SINGLE_COMPETITION_VIEW_PK:
