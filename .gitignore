@@ -4,7 +4,6 @@
 !certs/.gitkeep
 certs/
 var/*
-var_*/
 docker-compose.override.yml
 *_old/
 .pytest_cache
