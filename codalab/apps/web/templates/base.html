@@ -202,29 +202,20 @@
     <script type="text/javascript" src="{{STATIC_URL}}js/Competition.js"></script>
     <script type="text/javascript" src="{{STATIC_URL}}js/main.js"></script>
 
-
-    <div id="migration_modal" class="modal fade" tabindex="-1" role="dialog">
+    <div id="maintenance_modal" class="modal fade" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">Migration warning</h4>
+                    <h4 class="modal-title">Maintenance warning</h4>
                 </div>
                 <div class="modal-body">
-                    <p>We have scheduled a important maintenance operation for the Codalab public instance (<a href="http://competitions.codalab.org">http://competitions.codalab.org</a>) for Saturday, September 8th.</p>
-
-                    <p>The migration will start at approximately 9AM PST and should hopefully be completed by approximately 1PM PST that same day.
-                        During that time the server will be down.</p>
-
-                    <p>If you have a scheduling conflict with this move, please let us know before September
-                        1st by posting an issue to GitHub here:</br>
-                        <a href="https://github.com/codalab/codalab-competitions/issues">https://github.com/codalab/codalab-competitions/issues</a></p>
-
+                    <!-- maintenance warning message.. -->
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button id="hide_migration_warning" type="button" class="btn btn-primary" data-dismiss="modal" onclick="hide_migration_warning">OK don't tell me again!</button>
+                    <button id="hide_maintenance_warning" type="button" class="btn btn-primary" data-dismiss="modal" onclick="hide_maintenance_warning">OK don't tell me again!</button>
                 </div>
             </div>
         </div>
@@ -253,25 +244,25 @@
         }
 
         /*
-         * If we want to do a migration again, can use this warning!
+         * If we want to do huge maintenance again, can use this warning!
+         *
         $(document).ready(function() {
-            var migration_warning = localStorage.getItem('migration_warning')
-            if(migration_warning === null) {
-                $("#migration_modal").modal('show')
+            var maintenance_warning = localStorage.getItem('maintenance_warning')
+            if(maintenance_warning === null) {
+                $("#maintenance_modal").modal('show')
             }
 
-            $("#hide_migration_warning").click(function() {
-                localStorage.setItem('migration_warning', true)
+            $("#hide_maintenance_warning").click(function() {
+                localStorage.setItem('maintenance_warning', true)
             })
         })*/
     </script>
-    {% block jsincludes %}
 
+    {% block jsincludes %}
     {% endblock jsincludes %}
 
     {% analytical_body_top %}
     {% analytical_body_bottom %}
     <div class="eupopup eupopup-top"></div>
-
 </body>
 </html>

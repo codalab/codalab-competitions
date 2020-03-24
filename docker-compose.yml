@@ -162,11 +162,14 @@ services:
     entrypoint: >
       /bin/sh -c "
       set -x
-      while ! nc -z minio 9000; echo 'Waiting for minio to startup...' && sleep 0.1;
+      while ! nc -z minio 9000; echo 'Waiting for minio to startup...' && sleep .1;
       /usr/bin/mc config host add minio_docker http://minio:$MINIO_PORT $MINIO_ACCESS_KEY $MINIO_SECRET_KEY;
       /usr/bin/mc mb minio_docker/$AWS_STORAGE_BUCKET_NAME;
       /usr/bin/mc mb minio_docker/$AWS_STORAGE_PRIVATE_BUCKET_NAME;
       /usr/bin/mc policy set download minio_docker/$AWS_STORAGE_BUCKET_NAME;
+      /usr/bin/mc policy set upload minio_docker/$AWS_STORAGE_BUCKET_NAME;
+      /usr/bin/mc policy set download minio_docker/$AWS_STORAGE_PRIVATE_BUCKET_NAME;
+      /usr/bin/mc policy set upload minio_docker/$AWS_STORAGE_PRIVATE_BUCKET_NAME;
       exit 0;
       "
 
