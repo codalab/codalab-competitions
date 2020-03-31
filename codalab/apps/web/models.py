@@ -1191,6 +1191,7 @@ class CompetitionPhase(models.Model):
                 for sdef in result['scoredefs']:
                     if sdef.computed:
                         operation = getattr(models, sdef.computed_score.operation)
+                        weights = sdef.computed_score.weights
                         if (operation.name == 'Avg'):
                             try:
                                 cnt = len(computed_deps[sdef.id])
@@ -1198,7 +1199,15 @@ class CompetitionPhase(models.Model):
                                     computed_values = {}
                                     for id in submission_ids:
                                         try:
-                                            computed_values[id] = sum([ranks[d.id][id] for d in computed_deps[sdef.id]]) / float(cnt)
+                                            if weights == '':
+                                                # Average rank computation
+                                                computed_values[id] = sum([ranks[d.id][id] for d in computed_deps[sdef.id]]) / float(cnt)
+                                            else:
+                                                # Weighted average rank computation
+                                                weights_list = []
+                                                for w in weights.split(","):
+                                                    weights_list.append(float(w.strip()))
+                                                computed_values[id] = sum([ranks[d.id][id] * weights_list[i] for i, d in enumerate(computed_deps[sdef.id])])
                                         except KeyError:
                                             pass
 
@@ -2153,7 +2162,10 @@ class CompetitionDefBundle(models.Model):
                                 key=key,
                                 computed=is_computed,
                                 defaults=sdefaults)
-                    sc, cr = SubmissionComputedScore.objects.get_or_create(scoredef=sd, operation=vals['computed']['operation'])
+                    weights = '' # weights for average rank computation
+                    if 'weights' in vals['computed']: 
+                        weights = vals['computed']['weights']
+                    sc, cr = SubmissionComputedScore.objects.get_or_create(scoredef=sd, operation=vals['computed']['operation'], weights=weights)
                     for f in vals['computed']['fields'].split(","):
                         f=f.strip()
                         # Note the lookup in brats_score_defs. The assumption is that computed properties are defined in
@@ -2217,6 +2229,7 @@ class SubmissionComputedScore(models.Model):
     scoredef = models.OneToOneField(SubmissionScoreDef, related_name='computed_score')
     operation = models.CharField(max_length=10, choices=(('Max', 'Max'),
                                                         ('Avg', 'Average')))
+    weights = models.CharField(max_length=200)
 
 
 class SubmissionComputedScoreField(models.Model):
