@@ -373,9 +373,6 @@ class Base(Settings):
     AWS_STORAGE_PRIVATE_BUCKET_NAME = os.environ.get('AWS_STORAGE_PRIVATE_BUCKET_NAME')
     AWS_S3_CALLING_FORMAT = os.environ.get('AWS_S3_CALLING_FORMAT', 'boto.s3.connection.OrdinaryCallingFormat')
     AWS_S3_HOST = os.environ.get('AWS_S3_HOST', 's3-us-west-2.amazonaws.com')
-    AWS_S3_REGION_NAME = os.environ.get('AWS_S3_REGION_NAME', 'us-east-1')
-    AWS_S3_USE_SSL = strtobool(os.environ.get('AWS_S3_USE_SSL', "True"))
-    AWS_USE_SIGV4 = strtobool(os.environ.get('AWS_USE_SIGV4', "True"))
     AWS_S3_SECURE_URLS = strtobool(os.environ.get('AWS_S3_SECURE_URLS', "True"))
     AWS_QUERYSTRING_AUTH = os.environ.get(
         # This stops signature/auths from appearing in saved URLs
@@ -399,7 +396,6 @@ class Base(Settings):
     # S3Direct (S3 uploads)
     # =========================================================================
     S3DIRECT_REGION = os.environ.get('S3DIRECT_REGION', 'us-west-2')
-    S3DIRECT_URL_STRUCTURE = os.environ.get('S3DIRECT_URL_STRUCTURE', 'https://{0}/{1}')
     S3DIRECT_DESTINATIONS = {
         'competitions': {
             'key': lambda f: _uuidpathext(f, 'uploads/competitions/'),

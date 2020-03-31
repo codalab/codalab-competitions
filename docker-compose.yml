@@ -140,39 +140,7 @@ services:
       options:
         max-size: "200k"
     container_name: django
-
-
-  #-----------------------------------------------
-  # Minio local storage helper
-  #-----------------------------------------------
-  minio:
-    image: minio/minio:RELEASE.2020-03-14T02-21-58Z
-    command: server /export
-    volumes:
-      - ./var/data/minio:/export
-    ports:
-      - ${MINIO_PORT}:9000
-    env_file: .env
-
-  createbuckets:
-    image: minio/mc
-    depends_on:
-      - minio
-    env_file: .env
-    entrypoint: >
-      /bin/sh -c "
-      set -x
-      while ! nc -z minio 9000; echo 'Waiting for minio to startup...' && sleep .1;
-      /usr/bin/mc config host add minio_docker http://minio:$MINIO_PORT $MINIO_ACCESS_KEY $MINIO_SECRET_KEY;
-      /usr/bin/mc mb minio_docker/$AWS_STORAGE_BUCKET_NAME;
-      /usr/bin/mc mb minio_docker/$AWS_STORAGE_PRIVATE_BUCKET_NAME;
-      /usr/bin/mc policy set download minio_docker/$AWS_STORAGE_BUCKET_NAME;
-      /usr/bin/mc policy set upload minio_docker/$AWS_STORAGE_BUCKET_NAME;
-      /usr/bin/mc policy set download minio_docker/$AWS_STORAGE_PRIVATE_BUCKET_NAME;
-      /usr/bin/mc policy set upload minio_docker/$AWS_STORAGE_PRIVATE_BUCKET_NAME;
-      exit 0;
-      "
-
+    
 
   # --------------------------------------------------------------------------
   # Celery Workers
