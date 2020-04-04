@@ -132,6 +132,7 @@ def create_competition(job_id, comp_def_id):
     except Exception as e:
         result = JobTaskResult(status=Job.FAILED, info={'error': str(e)})
         update_job_status_task(job_id, result.get_dict())
+        logging.exception("Failed unpacking competition")
 
 
 # CompetitionSubmission states which are final.
