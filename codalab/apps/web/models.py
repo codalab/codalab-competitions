@@ -1714,13 +1714,11 @@ class CompetitionDefBundle(models.Model):
             from apps.web.tasks import _make_url_sassy
             url = _make_url_sassy(self.s3_config_bundle)
             logger.info("CompetitionDefBundle::unpacking url=%s", url)
-            competition_def_data = urllib.urlopen(
-                url
-            ).read()
+            competition_def_data = urllib.urlopen(url).read()
             zf = zipfile.ZipFile(io.BytesIO(competition_def_data))
         else:
             zf = zipfile.ZipFile(self.config_bundle)
-        logger.debug("CompetitionDefBundle::unpack creating base competition (pk=%s)", self.pk)
+        logger.info("CompetitionDefBundle::unpack creating base competition (pk=%s)", self.pk)
         comp_spec_file = [x for x in zf.namelist() if ".yaml" in x][0]
         yaml_contents = zf.open(comp_spec_file).read()
 
@@ -1760,7 +1758,7 @@ class CompetitionDefBundle(models.Model):
 
         comp = Competition(**comp_base)
         comp.save()
-        logger.debug("CompetitionDefBundle::unpack created base competition (pk=%s)", self.pk)
+        logger.info("CompetitionDefBundle::unpack created base competition (pk=%s)", self.pk)
 
         # if admin_names:
         #     logger.debug("CompetitionDefBundle::unpack looking up admins %s", comp_spec['admin_names'])
@@ -1782,23 +1780,21 @@ class CompetitionDefBundle(models.Model):
         if 'competition_docker_image' in comp_base:
             try:
                 comp.docker_image = comp_base['competition_docker_image']
-                logger.debug(
+                logger.info(
                     "CompetitionDefBundle::unpack saved competition docker image {0} for competition {1}".format(
                         comp.docker_image, comp.pk))
             except KeyError:
-                logger.debug(
+                logger.info(
                     "CompetitionDefBundle::unpack found no competition docker image {0} for competition {1}".format(
                         comp.docker_image, comp.pk))
 
         # Unpack and save the logo
         if 'image' in comp_base:
             try:
-                comp.image.save(
-                    comp_base['image'],
-                    File(io.BytesIO(zf.read(comp_base['image'])))
-                )
+                logger.info("CompetitionDefBundle::unpack attempting to save competition logo (pk=%s)", self.pk)
+                comp.image.save(comp_base['image'], File(io.BytesIO(zf.read(comp_base['image']))))
                 comp.save()
-                logger.debug("CompetitionDefBundle::unpack saved competition logo (pk=%s)", self.pk)
+                logger.info("CompetitionDefBundle::unpack saved competition logo (pk=%s)", self.pk)
             except KeyError:
                 assert False, "Could not find file in archive, make sure scoring_program, reference_data and logo are " \
                               "set to correct file paths."
@@ -1857,7 +1853,7 @@ class CompetitionDefBundle(models.Model):
             rank=2,
             html=""
         )
-        logger.debug("CompetitionDefBundle::unpack created competition pages (pk=%s)", self.pk)
+        logger.info("CompetitionDefBundle::unpack created competition pages (pk=%s)", self.pk)
 
         data_set_cache = {}
 
@@ -1891,11 +1887,11 @@ class CompetitionDefBundle(models.Model):
             if index == 0:
                 phase_spec['auto_migration'] = False
                 comp.last_phase_migration = phase_spec['phasenumber']
-                logger.debug('Set last_phase_migration to #%s' % phase_spec['phasenumber'])
+                logger.info('Set last_phase_migration to #%s' % phase_spec['phasenumber'])
                 comp.save()
 
             phase, created = CompetitionPhase.objects.get_or_create(**phase_spec)
-            logger.debug("CompetitionDefBundle::unpack created phase (pk=%s)", self.pk)
+            logger.info("CompetitionDefBundle::unpack created phase (pk=%s)", self.pk)
 
             # Set default for max submissions per day
             if not hasattr(phase, 'max_submissions_per_day'):
@@ -1909,7 +1905,7 @@ class CompetitionDefBundle(models.Model):
 
                     file_name = os.path.splitext(os.path.basename(phase_spec['scoring_program']))[0]
                     if phase_spec['scoring_program'] not in data_set_cache:
-                        logger.debug('Adding organizer dataset to cache: %s' % phase_spec['scoring_program'])
+                        logger.info('Adding organizer dataset to cache: %s' % phase_spec['scoring_program'])
                         data_set_cache[phase_spec['scoring_program']] = OrganizerDataSet.objects.create(
                             name="%s_%s_%s" % (file_name, phase.phasenumber, comp.pk),
                             type="Scoring Program",
@@ -1918,7 +1914,7 @@ class CompetitionDefBundle(models.Model):
                         )
                     phase.scoring_program_organizer_dataset = data_set_cache[phase_spec['scoring_program']]
                 else:
-                    logger.debug("CompetitionDefBundle::unpack getting dataset for scoring_program with key %s", phase_spec["scoring_program"])
+                    logger.info("CompetitionDefBundle::unpack getting dataset for scoring_program with key %s", phase_spec["scoring_program"])
                     try:
                         data_set = OrganizerDataSet.objects.get(key=phase_spec["scoring_program"])
                         phase.scoring_program = data_set.data_file.file.name
@@ -1932,7 +1928,7 @@ class CompetitionDefBundle(models.Model):
 
                     file_name = os.path.splitext(os.path.basename(phase_spec['reference_data']))[0]
                     if phase_spec['reference_data'] not in data_set_cache:
-                        logger.debug('Adding organizer dataset to cache: %s' % phase_spec['reference_data'])
+                        logger.info('Adding organizer dataset to cache: %s' % phase_spec['reference_data'])
                         data_set_cache[phase_spec['reference_data']] = OrganizerDataSet.objects.create(
                             name="%s_%s_%s" % (file_name, phase.phasenumber, comp.pk),
                             type="Reference Data",
@@ -1941,7 +1937,7 @@ class CompetitionDefBundle(models.Model):
                         )
                     phase.reference_data_organizer_dataset = data_set_cache[phase_spec['reference_data']]
                 else:
-                    logger.debug("CompetitionDefBundle::unpack getting dataset for reference_data with key %s", phase_spec["reference_data"])
+                    logger.info("CompetitionDefBundle::unpack getting dataset for reference_data with key %s", phase_spec["reference_data"])
                     try:
                         data_set = OrganizerDataSet.objects.get(key=phase_spec["reference_data"])
                         phase.reference_data = data_set.data_file.file.name
@@ -1959,7 +1955,7 @@ class CompetitionDefBundle(models.Model):
 
                     file_name = os.path.splitext(os.path.basename(phase_spec['ingestion_program']))[0]
                     if phase_spec['ingestion_program'] not in data_set_cache:
-                        logger.debug('Adding organizer dataset to cache: %s' % phase_spec['ingestion_program'])
+                        logger.info('Adding organizer dataset to cache: %s' % phase_spec['ingestion_program'])
                         data_set_cache[phase_spec['ingestion_program']] = OrganizerDataSet.objects.create(
                             name="%s_%s_%s" % (file_name, phase.phasenumber, comp.pk),
                             type="Ingestion Program",
@@ -1968,7 +1964,7 @@ class CompetitionDefBundle(models.Model):
                         )
                     phase.ingestion_program_organizer_dataset = data_set_cache[phase_spec['ingestion_program']]
                 else:
-                    logger.debug("CompetitionDefBundle::unpack getting dataset for ingestion_program with key %s",
+                    logger.info("CompetitionDefBundle::unpack getting dataset for ingestion_program with key %s",
                                  phase_spec["ingestion_program"])
                     try:
                         data_set = OrganizerDataSet.objects.get(key=phase_spec["ingestion_program"])
@@ -1985,7 +1981,7 @@ class CompetitionDefBundle(models.Model):
 
                     file_name = os.path.splitext(os.path.basename(phase_spec['starting_kit']))[0]
                     if phase_spec['starting_kit'] not in data_set_cache:
-                        logger.debug('Adding organizer dataset to cache: %s' % phase_spec['starting_kit'])
+                        logger.info('Adding organizer dataset to cache: %s' % phase_spec['starting_kit'])
                         data_set_cache[phase_spec['starting_kit']] = OrganizerDataSet.objects.create(
                             name="%s_%s_%s" % (file_name, phase.phasenumber, comp.pk),
                             type="Starting Kit",
@@ -1994,7 +1990,7 @@ class CompetitionDefBundle(models.Model):
                         )
                     phase.starting_kit_organizer_dataset = data_set_cache[phase_spec['starting_kit']]
                 else:
-                    logger.debug("CompetitionDefBundle::unpack getting dataset for starting_kit with key %s", phase_spec["starting_kit"])
+                    logger.info("CompetitionDefBundle::unpack getting dataset for starting_kit with key %s", phase_spec["starting_kit"])
                     try:
                         data_set = OrganizerDataSet.objects.get(key=phase_spec["starting_kit"])
                         phase.starting_kit = data_set.data_file.file.name
@@ -2011,7 +2007,7 @@ class CompetitionDefBundle(models.Model):
 
                     file_name = os.path.splitext(os.path.basename(phase_spec['public_data']))[0]
                     if phase_spec['public_data'] not in data_set_cache:
-                        logger.debug('Adding organizer dataset to cache: %s' % phase_spec['public_data'])
+                        logger.info('Adding organizer dataset to cache: %s' % phase_spec['public_data'])
                         data_set_cache[phase_spec['public_data']] = OrganizerDataSet.objects.create(
                             name="%s_%s_%s" % (file_name, phase.phasenumber, comp.pk),
                             type="Public Data",
@@ -2020,7 +2016,7 @@ class CompetitionDefBundle(models.Model):
                         )
                     phase.public_data_organizer_dataset = data_set_cache[phase_spec['public_data']]
                 else:
-                    logger.debug(
+                    logger.info(
                         "CompetitionDefBundle::unpack getting dataset for public_data with key %s",
                         phase_spec["public_data"])
                     try:
@@ -2037,7 +2033,7 @@ class CompetitionDefBundle(models.Model):
 
                     file_name = os.path.splitext(os.path.basename(phase_spec['input_data']))[0]
                     if phase_spec['input_data'] not in data_set_cache:
-                        logger.debug('Adding organizer dataset to cache: %s' % phase_spec['input_data'])
+                        logger.info('Adding organizer dataset to cache: %s' % phase_spec['input_data'])
                         data_set_cache[phase_spec['input_data']] = OrganizerDataSet.objects.create(
                             name="%s_%s_%s" % (file_name, phase.phasenumber, comp.pk),
                             type="Input Data",
@@ -2046,7 +2042,7 @@ class CompetitionDefBundle(models.Model):
                         )
                     phase.input_data_organizer_dataset = data_set_cache[phase_spec['input_data']]
                 else:
-                    logger.debug("CompetitionDefBundle::unpack getting dataset for input_data with key %s", phase_spec["input_data"])
+                    logger.info("CompetitionDefBundle::unpack getting dataset for input_data with key %s", phase_spec["input_data"])
                     try:
                         data_set = OrganizerDataSet.objects.get(key=phase_spec["input_data"])
                         phase.input_data = data_set.data_file.file.name
@@ -2056,7 +2052,7 @@ class CompetitionDefBundle(models.Model):
 
             phase.auto_migration = bool(phase_spec.get('auto_migration', False))
             phase.save()
-            logger.debug("CompetitionDefBundle::unpack saved scoring program and reference data (pk=%s)", self.pk)
+            logger.info("CompetitionDefBundle::unpack saved scoring program and reference data (pk=%s)", self.pk)
             eft,cr_=ExternalFileType.objects.get_or_create(name="Data", codename="data")
             count = 1
             for ds in datasets.keys():
@@ -2067,9 +2063,9 @@ class CompetitionDefBundle(models.Model):
                 phase.datasets.add(d)
                 phase.save()
                 count += 1
-            logger.debug("CompetitionDefBundle::unpack saved datasets (pk=%s)", self.pk)
+            logger.info("CompetitionDefBundle::unpack saved datasets (pk=%s)", self.pk)
 
-        logger.debug("CompetitionDefBundle::unpack saved created competition phases (pk=%s)", self.pk)
+        logger.info("CompetitionDefBundle::unpack saved created competition phases (pk=%s)", self.pk)
 
         # Create leaderboard
         if 'leaderboard' in comp_spec:
@@ -2081,7 +2077,7 @@ class CompetitionDefBundle(models.Model):
                     leaderboards[rg.label] = rg
                     for gp in comp.phases.all():
                         rgp,crx = SubmissionResultGroupPhase.objects.get_or_create(phase=gp, group=rg)
-            logger.debug("CompetitionDefBundle::unpack created leaderboard (pk=%s)", self.pk)
+            logger.info("CompetitionDefBundle::unpack created leaderboard (pk=%s)", self.pk)
 
             # Create score groups
             if 'column_groups' in comp_spec['leaderboard']:
@@ -2096,7 +2092,7 @@ class CompetitionDefBundle(models.Model):
                     }
                     s,cr = SubmissionScoreSet.objects.get_or_create(competition=comp, key=key.strip(), defaults=setdefaults)
                     groups[s.label] = s
-            logger.debug("CompetitionDefBundle::unpack created score groups (pk=%s)", self.pk)
+            logger.info("CompetitionDefBundle::unpack created score groups (pk=%s)", self.pk)
 
             # Create scores.
             if 'columns' in comp_spec['leaderboard']:
@@ -2190,7 +2186,7 @@ class CompetitionDefBundle(models.Model):
 
                     # Associate the score definition with its leaderboard
                     sdg = SubmissionScoreDefGroup.objects.create(scoredef=sd, group=leaderboards[vals['leaderboard']['label']])
-                logger.debug("CompetitionDefBundle::unpack created scores (pk=%s)", self.pk)
+                logger.info("CompetitionDefBundle::unpack created scores (pk=%s)", self.pk)
 
         # Find any static files and save them to storage, ignoring actual assets directory itself
         assets = list(filter(lambda x: x.startswith('assets/') and x != "assets/", zf.namelist()))
@@ -2204,7 +2200,7 @@ class CompetitionDefBundle(models.Model):
         # Add owner as participant so they can view the competition
         approved = ParticipantStatus.objects.get(codename=ParticipantStatus.APPROVED)
         resulting_participant, created = CompetitionParticipant.objects.get_or_create(user=self.owner, competition=comp, defaults={'status':approved})
-        logger.debug("CompetitionDefBundle::unpack added owner as participant (pk=%s)", self.pk)
+        logger.info("CompetitionDefBundle::unpack added owner as participant (pk=%s)", self.pk)
 
         return comp
 
