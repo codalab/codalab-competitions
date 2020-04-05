@@ -1248,14 +1248,6 @@ class CompetitionPhase(models.Model):
                 group['scores'] = group['scores'].items()
         return results
 
-
-class CompetitionParticipantManager(models.Manager):
-    def get_queryset(self):
-        return super(CompetitionParticipantManager, self).get_queryset().filter(deleted=False)
-
-    def get_all_participants(self):
-        return super(CompetitionParticipantManager, self).get_queryset()
-
 # Competition Participant
 class CompetitionParticipant(models.Model):
     """
