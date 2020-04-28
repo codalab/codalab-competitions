@@ -831,8 +831,8 @@ def do_chahub_retries(limit=None):
     chahub_models = inheritors(ChaHubSaveMixin)
     for model in chahub_models:
         # Special case for competition model manager, with deleted competitions
-        if hasattr(model.objects, 'get_all_competitions'):
-            needs_retry = model.objects.get_all_competitions().filter(chahub_needs_retry=True)
+        if hasattr(model.objects, 'get_all_objects'):
+            needs_retry = model.objects.get_all_objects().filter(chahub_needs_retry=True)
         else:
             needs_retry = model.objects.filter(chahub_needs_retry=True)
 
