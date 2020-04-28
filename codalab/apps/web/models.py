@@ -2164,9 +2164,16 @@ class CompetitionDefBundle(models.Model):
                                 key=key,
                                 computed=is_computed,
                                 defaults=sdefaults)
-                    weights = '' # weights for average rank computation
+                    weights = ''  # weights for average rank computation
                     if 'weights' in vals['computed']: 
                         weights = vals['computed']['weights']
+
+                        try:
+                            # Dummy operations to confirm each weight is a proper float
+                            [float(w.strip()) for w in weights.split(",")]
+                        except (ValueError, TypeError):
+                            assert False, "One of the weights given was not a float: %s" % weights
+
                     sc, cr = SubmissionComputedScore.objects.get_or_create(scoredef=sd, operation=vals['computed']['operation'], weights=weights)
                     for f in vals['computed']['fields'].split(","):
                         f=f.strip()
