@@ -1,9 +1,7 @@
 import hashlib
 import json
 import logging
-
 import os
-import requests
 
 from django.conf import settings
 from django.db import models, IntegrityError
@@ -57,14 +55,13 @@ class ChaHubSaveMixin(models.Model):
         raise NotImplementedError()
 
     def get_chahub_is_valid(self):
-        """Override this to validate the specifc model before it's sent
+        """Override this to validate the specific model before it's sent
 
         Example:
             return comp.is_published
         """
         # By default, always push
         return True
-
 
     # -------------------------------------------------------------------------
     # Regular methods
