@@ -22,7 +22,8 @@ from apps.web.models import (Competition,
                              PhaseLeaderBoard,
                              PhaseLeaderBoardEntry,
                              add_submission_to_leaderboard, SubmissionResultGroup, SubmissionResultGroupPhase,
-                             SubmissionScoreDef, SubmissionScoreDefGroup, SubmissionScore, SubmissionScoreSet)
+                             SubmissionScoreDef, SubmissionScoreDefGroup, SubmissionScore, SubmissionScoreSet,
+                             SubmissionComputedScore, SubmissionComputedScoreField)
 # from apps.web.tasks import update_submission
 from apps.web.utils import push_submission_to_leaderboard_if_best
 
@@ -106,10 +107,38 @@ class SubmissionLeaderboardTests(TestCase):
             label=u"Test \u2020",
             sorting='desc',
         )
+        self.score_def_2 = SubmissionScoreDef.objects.create(
+            competition=self.competition,
+            key="TestKey2",  # avoids conflict with Key2 below
+            label=u"Test2 \u2020",
+            sorting='desc',
+        )
+
         SubmissionScoreDefGroup.objects.create(scoredef=self.score_def, group=self.result_group)
+        SubmissionScoreDefGroup.objects.create(scoredef=self.score_def_2, group=self.result_group)
         SubmissionScore.objects.create(result=self.submission_1, scoredef=self.score_def, value=123)
         SubmissionScore.objects.create(result=self.submission_2, scoredef=self.score_def, value=120)
         SubmissionScoreSet.objects.create(competition=self.competition, key="Key", label=u"Test \u2020", scoredef=self.score_def)
+        SubmissionScoreSet.objects.create(competition=self.competition, key="TestKey2", label=u"Test2 \u2020", scoredef=self.score_def_2)
+
+        # Weights additions
+        self.weighted_score_def = SubmissionScoreDef.objects.create(
+            competition=self.competition,
+            key="WeightedKey",
+            label=u"Weighted Test \u2020",
+            sorting='desc',
+            computed=True,
+        )
+        SubmissionScoreDefGroup.objects.create(scoredef=self.weighted_score_def, group=self.result_group)
+        SubmissionScoreSet.objects.create(competition=self.competition, key="WeightedKey", label=u"Test \u2020", scoredef=self.weighted_score_def)
+        self.weighted_submission_computed_score = SubmissionComputedScore.objects.create(
+            scoredef=self.weighted_score_def,
+            operation="Avg",
+            weights="0.8, 0.2"
+        )
+        weighted_fields = (self.score_def, self.score_def_2)
+        for f in weighted_fields:
+            SubmissionComputedScoreField.objects.get_or_create(computed=self.weighted_submission_computed_score, scoredef=f)
 
         # End scores setup
 
@@ -326,3 +355,31 @@ class SubmissionLeaderboardTests(TestCase):
         push_submission_to_leaderboard_if_best(self.sub_test_two)
         # result__participant = self.participant_1).first().result)
         assert PhaseLeaderBoardEntry.objects.filter(board=self.leader_board, result=self.sub_test_two)
+
+    def test_weighted_scores_calculations(self):
+        self.leader_board_entry_1.result = self.submission_4
+        self.leader_board_entry_1.save()
+
+        SubmissionScore.objects.create(
+            result=self.submission_4,
+            scoredef=self.score_def,
+            value=100,
+        )
+        SubmissionScore.objects.create(
+            result=self.submission_4,
+            scoredef=self.score_def_2,
+            value=100,
+        )
+
+        scores = self.phase_1.scores()[0]['scores']
+        organizer_score = scores[0][1]
+        participant_score = scores[1][1]
+
+        # these vals correspond to: score 1, score 2, and the weighted scores (weights = 0.8 and 0.2)
+        assert organizer_score['values'][0]['val'] == '120.0'
+        assert organizer_score['values'][1]['val'] == '-'
+        assert organizer_score['values'][2]['val'] == '1.2'
+
+        assert participant_score['values'][0]['val'] == '100.0'
+        assert participant_score['values'][1]['val'] == '100.0'
+        assert participant_score['values'][2]['val'] == '1.8'
