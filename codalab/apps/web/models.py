@@ -2231,7 +2231,7 @@ class SubmissionComputedScore(models.Model):
     scoredef = models.OneToOneField(SubmissionScoreDef, related_name='computed_score')
     operation = models.CharField(max_length=10, choices=(('Max', 'Max'),
                                                         ('Avg', 'Average')))
-    weights = models.CharField(max_length=200)
+    weights = models.CharField(max_length=200, null=True, blank=True)
 
 
 class SubmissionComputedScoreField(models.Model):
