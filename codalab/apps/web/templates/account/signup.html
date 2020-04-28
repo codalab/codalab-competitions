@@ -9,6 +9,20 @@
 {% block content %}
 <div class="row">
     <div class="col-md-6">
+        {% if socialaccount.providers %}
+            <p>
+                {% blocktrans %}
+                    You may sign up with one of your existing third party accounts.
+                {% endblocktrans %}
+            </p>
+            <div class="socialaccount_ballot">
+                <ul class="socialaccount_providers">
+                    {% include "socialaccount/snippets/provider_list.html" %}
+                </ul>
+                <div class="login-or">{% trans 'Or, sign up with the form below:' %}</div>
+            </div>
+            {% include "socialaccount/snippets/login_extra.html" %}
+        {% endif %}
 	    <form class="signup" id="signup_form" method="post" action="{% url 'account_signup' %}">
 		    {% csrf_token %}
 
@@ -39,18 +53,13 @@
             </div>
 
             {% if USE_MAILCHIMP %}
-            <div class="form-group">
-                <input type='checkbox' id="id_newsletter_opt_in" name='newsletter_opt_in' value="{{ form.newsletter_opt_in.value|default_if_none:"" }}">
-                <label for="id_newsletter_opt_in">I'd like to receive the CodaLab newsletter</label>
-            </div>
+                <div class="form-group">
+                    <input type='checkbox' id="id_newsletter_opt_in" name='newsletter_opt_in' value="{{ form.newsletter_opt_in.value|default_if_none:"" }}">
+                    <label for="id_newsletter_opt_in">I'd like to receive the CodaLab newsletter</label>
+                </div>
             {% else %}
                 <input type='hidden' id="id_newsletter_opt_in" value="">
             {% endif %}
-
-            <div class="form-group">
-                <input type='checkbox' id="id_newsletter_opt_in" name='newsletter_opt_in' value="{{ form.newsletter_opt_in.value|default_if_none:"" }}">
-                <label for="id_newsletter_opt_in">I'd like to receive the CodaLab newsletter</label>
-            </div>
 
             <div class="form-group">
                 <input type='checkbox' id="id_accept_rules" name='accept_rules' required="True">
@@ -62,6 +71,13 @@
             {% endif %}
             <button class="btn btn-primary margin-top" type="submit">{% trans "Sign Up" %}</button>
 	    </form>
+        <p>
+        <p>
+            {% blocktrans %}
+                <a href="{{ login_url }}">Already have an account? Login instead!</a>
+            {% endblocktrans %}
+        </p>
+        </p>
     </div>
 </div>
 {% endblock %}

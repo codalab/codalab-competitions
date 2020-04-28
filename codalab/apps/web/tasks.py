@@ -132,6 +132,7 @@ def create_competition(job_id, comp_def_id):
     except Exception as e:
         result = JobTaskResult(status=Job.FAILED, info={'error': str(e)})
         update_job_status_task(job_id, result.get_dict())
+        logging.exception("Failed unpacking competition")
 
 
 # CompetitionSubmission states which are final.
@@ -830,8 +831,8 @@ def do_chahub_retries(limit=None):
     chahub_models = inheritors(ChaHubSaveMixin)
     for model in chahub_models:
         # Special case for competition model manager, with deleted competitions
-        if hasattr(model.objects, 'get_all_competitions'):
-            needs_retry = model.objects.get_all_competitions().filter(chahub_needs_retry=True)
+        if hasattr(model.objects, 'get_all_objects'):
+            needs_retry = model.objects.get_all_objects().filter(chahub_needs_retry=True)
         else:
             needs_retry = model.objects.filter(chahub_needs_retry=True)
 

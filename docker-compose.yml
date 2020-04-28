@@ -140,7 +140,7 @@ services:
       options:
         max-size: "200k"
     container_name: django
-
+    
 
   # --------------------------------------------------------------------------
   # Celery Workers
