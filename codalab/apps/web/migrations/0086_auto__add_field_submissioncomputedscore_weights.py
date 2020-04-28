@@ -10,7 +10,7 @@ class Migration(SchemaMigration):
     def forwards(self, orm):
         # Adding field 'SubmissionComputedScore.weights'
         db.add_column(u'web_submissioncomputedscore', 'weights',
-                      self.gf('django.db.models.fields.CharField')(default='', max_length=200),
+                      self.gf('django.db.models.fields.CharField')(max_length=200, null=True, blank=True),
                       keep_default=False)
 
 
@@ -194,6 +194,7 @@ class Migration(SchemaMigration):
         u'web.competitionparticipant': {
             'Meta': {'unique_together': "(('user', 'competition'),)", 'object_name': 'CompetitionParticipant'},
             'competition': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'participants'", 'to': u"orm['web.Competition']"}),
+            'deleted': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'reason': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'status': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['web.ParticipantStatus']"}),
@@ -432,7 +433,7 @@ class Migration(SchemaMigration):
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'operation': ('django.db.models.fields.CharField', [], {'max_length': '10'}),
             'scoredef': ('django.db.models.fields.related.OneToOneField', [], {'related_name': "'computed_score'", 'unique': 'True', 'to': u"orm['web.SubmissionScoreDef']"}),
-            'weights': ('django.db.models.fields.CharField', [], {'max_length': '200'})
+            'weights': ('django.db.models.fields.CharField', [], {'max_length': '200', 'null': 'True', 'blank': 'True'})
         },
         u'web.submissioncomputedscorefield': {
             'Meta': {'object_name': 'SubmissionComputedScoreField'},
