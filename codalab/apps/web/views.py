@@ -674,6 +674,9 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
         context['phase'] = None
         competition = models.Competition.objects.get(pk=self.kwargs['id'])
 
+        # Set this context variable so we can see our own submission details in _submission_details_template
+        context['is_viewing_own_submissions'] = True
+
         if settings.USE_AWS:
             context['form'] = forms.SubmissionS3UploadForm
 
