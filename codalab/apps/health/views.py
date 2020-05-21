@@ -118,7 +118,7 @@ def simple_health(request):
     qs = qs.order_by('-submitted_at')
     qs = qs.select_related('phase__competition')
     qs = qs.select_related('participant__user__username')
-    qs = qs.prefetch_related('phase', 'status')
+    qs = qs.prefetch_related('phase', 'status', 'metadatas')
     return render(request, "health/simple_health.html", {
         "submissions": qs[:250],
     })
