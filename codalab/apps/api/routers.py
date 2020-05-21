@@ -25,6 +25,7 @@ urlpatterns += (
     url(r'^competition/(?P<competition_id>\d+)/submission/sas$',views.CompetitionSubmissionSasApi.as_view(), name='api_competition_submission_sas'),
     url(r'^competition/(?P<competition_id>\d+)/submission/(?P<pk>\d+)$',views.competition_submission_retrieve,name='api_competition_submission_get'),
     url(r'^competition/(?P<competition_id>\d+)/submission/(?P<pk>\d+)/leaderboard$',views.competition_submission_leaderboard,name='api_competition_submission_leaderboard'),
+    url(r'^competition/(?P<competition_id>\d+)/submissions/?$', views.competition_submission_list, name='api_competition_submission_list'),
 
     url(r'^competition/(?P<pk>\d+)/phases/(?P<phasenumber>\d+)$',views.competitionphase_retrieve,name='api_competitionphase'),
     url(r'^competition/(?P<competition_id>\d+)/phases/(?P<phase_id>\d+)/leaderboard$',views.leaderboard_retrieve, name='api_phase_leaderboard'),

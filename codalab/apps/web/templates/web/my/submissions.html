@@ -7,273 +7,110 @@
 {% block page_title %}Submissions{% endblock page_title %}
 {% block head_title %}Submissions{% endblock %}
 
-{% block content %}
-    <div class="submissions">
-        <div class="well submission-phase-select">
-            <div class="row">
-                <div class="col-md-6">
-                    <h4>Phase</h4>
-                </div>
-                <div class="col-md-6">
-                    <a href="{% url "competitions:view" pk=competition.pk %}" class="pull-right">Go Back to Competition
-                        Homepage</a>
-                </div>
-            </div>
-            <select id="phase_selector" class="form-control">
-                {% for phase in competition.phases.all %}
-                    <option {% if phase.id == selected_phase_id %}selected{% endif %}
-                            value="{{ phase.id }}">{{ phase.label }} - {{ phase.start_date|utc }} UTC
-                    </option>
-                {% endfor %}
-            </select>
-        </div>
+{% block extra_headers %}
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
 
-        {% if scoring_exception and bad_scores %}
-            <button class="btn btn-danger" data-toggle="collapse" data-target="#leaderboard-debug">Show Leaderboard Debug</button>
+    <style>
+        /*#app table {
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-bottom-color: transparent;
+        }*/
 
-            <div id="leaderboard-debug" class="collapse well">
-                <p>{{ scoring_exception }}</p>
-                <strong>Bad Scores:</strong>
-                <table class="table table-bordered table-responsive bg-warning">
-                    <thead>
-                    <tr>
-                        <th>Rank:</th>
-                        <th>Value:</th>
-                        <th>Column Name:</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for bad_score in bad_scores %}
-                        <tr>
-                            <td>{{ bad_score.rnk }}</td>
-                            <td>{{ bad_score.val }}</td>
-                            <td>{{ bad_score.name }}</td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            <br>
-        {% endif %}
+        #app table tbody {
+            background-color: #f7f7f7;
+        }
 
-        <a href="{% url "competitions:competition_submissions_metadata" competition_id=competition.pk phase_id=selected_phase.id %}">View
-            all submission's metadata</a>
-
-        <h4>Select phase description</h4>
-        {% if phase.description %}
-            <p>{{ phase.description }}</p>
-        {% else %}
-            <p>None</p>
-        {% endif %}
-        <p><b>Max submissions per day: </b> {{ phase.max_submissions_per_day }}</p>
-        <p><b>Max submissions total: </b> {{ phase.max_submissions }}</p>
-
-        <h4>Submissions</h4>
-        {% if submission_info_list|length > 0 %}
-            <a class="btn btn-default icon-excel"
-               href="{% url 'competitions:competition_results_complete_download' id=selected_phase.competition.id phase=selected_phase.id %}">Download
-                CSV</a>
-            <button class="btn btn-default re_run_all_submissions_button">Re-run all submissions in this phase</button>
-        {% endif %}
-
-        {% if not submission_info_list %}
-            <p>There are no submissions.</p>
-        {% else %}
-            <div class="table-responsive">
-                <table class="table resultsTable">
-                    <thead>
-                    <tr>
-                        <th>#</th>
-                        {% for column in columns %}
-                            <th>
-                                <a href="?phase={{ selected_phase_id }}&order=
-
-                                        {{ column.name }}{% if direction == 'asc' and order == column.name %}&direction=desc{% endif %}">
-                                    {{ column.label }} <span class="glyphicon
-
-                                        {% if order == column.name %}{% if direction == 'asc' %}glyphicon-arrow-down{% else %}glyphicon-arrow-up{% endif %}{% endif %} pull-right"></span>
-                                </a>
-                            </th>
-                        {% endfor %}
-                        <th width="40"></th>
-                        <th width="40"></th>
-                        <th width="40"></th>
-                        <th width="40"></th>
-                        <th width="40"></th>
-                        <th width="40"></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for submission in submission_info_list %}
-                        <tr id="{{ submission.id }}"
-                            {% if submission.exception_details %}
-                                data-exception="{{ submission.exception_details|escape }}"
-                            {% endif %}
-                            {% if submission.status_name == "Finished" %}
-                                class="finished-submission"
-                            {% elif submission.status_name == "Failed" %}
-                                class="failed-submission"
-                            {% endif %}
-                            data-description="{{ submission.description|default_if_none:""|escape }}"
-                            data-method-name="{{ submission.method_name|default_if_none:""|escape }}"
-                            data-method-description="{{ submission.method_description|default_if_none:""|escape }}"
-                            data-project-url="{{ submission.project_url|default_if_none:""|escape }}"
-                            data-publication-url="{{ submission.publication_url|default_if_none:""|escape }}"
-                            data-team-name="{{ submission.team_name|default_if_none:""|escape }}"
-                            data-organization-or-affiliation="{{ submission.organization_or_affiliation|default_if_none:""|escape }}"
-                            data-bibtex="{{ submission.bibtex|default_if_none:""|escape }}"
-                            data-is-public="{% if submission.is_public %}True{% endif %}">
-                            <td>{{ forloop.counter|offset_for_loop_counter:submission_info_list.number }} </td>
-                            {% for column in columns %}
-                                {% if column.name == 'filename' %}
-                                    <td>
-                                        <a href="/my/competition/submission/{{ submission.id }}/input.zip">{{ submission.filename }}</a>
-                                    </td>
-                                {% else %}
-                                    <td>{{ submission|get_item:column.name }}</td>
-                                {% endif %}
-                            {% endfor %}
-                            <td align="center"><a href="#{{ submission.id }}"
-                                                  onclick="Competition.showOrHideSubmissionDetails(this)"><span
-                                    class="glyphicon glyphicon-plus"></span></a></td>
-                            <td align="center"><a class="btn btn-danger btn-xs"
-                                                  href="{% url "competitions:submission_delete" pk=submission.id %}">DEL</a>
-                            </td>
-                            <td align="center">
-                                <button class="btn btn-danger btn-xs hide_or_show_submission_button">
-                                    {% if submission.is_in_leaderboard %}
-                                        HIDE
-                                    {% else %}
-                                        SHOW
-                                    {% endif %}
-                                </button>
-                            </td>
-                            <td align="center">
-                                <button class="btn btn-danger btn-xs mark_as_failed_button">FAILED</button>
-                            </td>
-                            <td align="center">
-                                <button class="btn btn-danger btn-xs re_run_submission_button">RE-RUN</button>
-                            </td>
-                            {% if submission.is_in_leaderboard and next_phase %}
-                                {% if submission.is_migrated %}
-                                    <td align="center">
-                                        <button class="btn btn-primary btn-xs">MIGRATED</button>
-                                    </td>
-                                {% else %}
-                                    <td align="center">
-                                        <button class="btn btn-danger btn-xs submission_migrate_button">MIGRATE</button>
-                                    </td>
-                                {% endif %}
-                            {% endif %}
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        {% endif %}
-
-        <nav aria-label="Page navigation example">
-            <ul class="pagination">
-                    {% if submission_info_list.has_previous %}
-                        <li><a href="?page=1{% if selected_phase %}&phase={{ selected_phase.pk }}{% endif %}">&laquo; first</a></li>
-                        <li><a href="?page={{ submission_info_list.previous_page_number }}{% if selected_phase %}&phase={{ selected_phase.pk }}{% endif %}">previous</a></li>
-                    {% endif %}
-
-                    {% if submission_info_list.has_next %}
-                        <li><a href="?page={{ submission_info_list.next_page_number }}{% if selected_phase %}&phase={{ selected_phase.pk }}{% endif %}">next</a></li>
-                        <li><a href="?page={{ submission_info_list.paginator.num_pages }}{% if selected_phase %}&phase={{ selected_phase.pk }}{% endif %}">last &raquo;</a></li>
-                    {% endif %}
-            </ul>
-        </nav>
-        Page {{ submission_info_list.number }} of {{ submission_info_list.paginator.num_pages }}.
-
-        {% include "web/common/_submission_details_template.html" %}
-
-    </div>
+        /*#app .v-data-footer {
+            background-color: #fff;
+            border: 1px solid #ccc;
+        }*/
+    </style>
 {% endblock %}
-<script type="text/javascript">
-    {% block js %}
 
-        $(function () {
-            $("#phase_selector").change(function () {
-                window.location = "/my/competition/{{competition.id}}/submissions/?phase=" + $(this).val();
-            });
+{% block content %}
+    Add phase selector<br/>
+    Display phase max submissions and such<br/>
+    {% verbatim %}
+        <div id="app">
+            <v-app>
+                <v-card outlined>
+                    <v-card-title>
+                        Phase drop down selector here, defaults to all phases
+                        <v-spacer></v-spacer>
+                        <v-text-field
+                                v-model="search"
+                                append-icon="mdi-magnify"
+                                label="Search"
+                                single-line
+                                hide-details
+                        ></v-text-field>
+                    </v-card-title>
 
-            $(".mark_as_failed_button").click(function () {
-                if (confirm("Are you sure you want to mark this submission as failed?")) {
-                    var parent_tr = $(this).parents('tr');
-                    var pk = parent_tr.prop('id');
-                    $.post("/competitions/mark_as_failed/" + pk)
-                        .success(function () {
-                            parent_tr.find('td:nth-child(6)').text('Failed');
-                        })
-                        .error(function () {
-                            alert("Failed to mark submission as failed, is your Internet connection working? If this problem persists contact an admin.");
-                        });
+                    <v-data-table
+                            :search="search"
+                            :loading="items === undefined"
+                            :headers="headers"
+                            :items="items"
+                    >
+                        <template v-slot:item.submitted_at="{ item }">
+                            <span>{{ new Date(item.submitted_at).toLocaleString() }}</span>
+                        </template>
+
+                        <template v-slot:item.leaderboard="{ item }">
+                    <span v-if="item.leaderboard">
+                        &#10003;
+                    </span>
+                        </template>
+                    </v-data-table>
+                </v-card>
+            </v-app>
+        </div>
+    {% endverbatim %}
+{% endblock %}
+
+{% block extra_scripts %}
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+    <script>
+        $(document).ready(function () {
+            new Vue({
+                el: '#app',
+                vuetify: new Vuetify(),
+                data: function () {
+                    return {
+                        search: '',
+                        headers: [
+                            /*
+                            #
+                            SUBMITTED
+                            SUBMITTED BY
+                            SUBMISSION ID
+                            FILENAME
+                            STATUS
+                            LEADERBOARD
+                            RESULTS
+
+                            Actions: Del, Show, Failed, Re-run
+                             */
+                            {text: 'ID', value: 'id', width: '75px'},
+                            {text: 'Submitted at', value: 'submitted_at', width: '200px'},
+                            {text: 'Participant', value: 'username'},
+                            {text: 'Filename', value: 'filename'},
+                            {text: 'Status', value: 'status'},
+                            {text: 'Leaderboard', value: 'leaderboard'},
+                            {text: 'Results', value: 'results'},
+                            //{text: '', value: 'actions'},
+                        ],
+                        items: undefined,
+                    }
+                },
+                async mounted() {
+                    let resp = await $.get("/api/competition/6/submissions/")
+                    this.items = resp
                 }
-            });
-
-            $(".hide_or_show_submission_button").click(function () {
-                var self = this;
-                var parent_tr = $(this).parents('tr');
-                var old_state = parent_tr.find('td:nth-child(7)').text();
-                var pk = parent_tr.prop('id');
-                $.post("/competitions/toggle_leaderboard/" + pk)
-                    .success(function () {
-                        // toggle "Leaderboard" column label
-                        if (old_state.indexOf("True") != -1) {
-                            parent_tr.find('td:nth-child(7)').text('False');
-                            $(self).text('SHOW');
-                        } else {
-                            parent_tr.find('td:nth-child(7)').text('True');
-                            $(self).text('HIDE');
-                        }
-                    })
-                    .error(function () {
-                        alert("Cannot show/hide a non 'Finished' submission");
-                    });
-            });
-
-            $(".re_run_submission_button").click(function () {
-                var self = this;
-                var parent_tr = $(self).parents('tr');
-                var pk = parent_tr.prop('id');
-                $.post("/competitions/submission_re_run/" + pk)
-                    .success(function () {
-                        alert("Successfully re-ran submission, please refresh the page!");
-                    })
-                    .error(function () {
-                        alert("Failed to re-run submission, make sure your Internet connection is working and if the problem persists contact an admin.");
-                    });
-            });
-
-            $(".re_run_all_submissions_button").click(function () {
-                if (!confirm("Are you sure? This could take hours.")) {
-                    return;
-                }
-
-                $.post("/competitions/submission_re_run_all/{{ phase.pk }}")
-
-                alert("Submissions will be re-ran, please refresh the page to see results as they update.")
-            });
-
-            //Function to submit the new submission for new phase
-            $('.submission_migrate_button').click(function () {
-                var parent_tr = $(this).parents('tr');
-                console.log(parent_tr);
-                var pk = parent_tr.prop('id');
-                $.ajax({
-                    url: '/competitions/submission_migrate/' + pk,
-                    type: 'POST',
-                })
-                    .done(function () {
-                        alert("Migrating to next phase, please refresh the page");
-                    })
-                    .fail(function () {
-                        alert("Failed to migrate, try again later and if the problem persists contact an admin");
-                    })
-            });
-        });
-    {% endblock js %}
-</script>
-
+            })
+        })
+    </script>
+{% endblock %}

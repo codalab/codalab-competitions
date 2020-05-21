@@ -7,8 +7,9 @@ import os
 
 from uuid import uuid4
 
+from django.db.models import Q
 from django.utils.text import slugify
-from rest_framework import (permissions, status, viewsets, views, filters)
+from rest_framework import (permissions, status, viewsets, views, filters, mixins)
 from rest_framework.decorators import action, link, permission_classes
 from rest_framework.exceptions import PermissionDenied, ParseError
 from rest_framework.response import Response
@@ -31,7 +32,8 @@ from apps.authenz.models import ClUser
 from apps.jobs.models import Job
 from apps.web import models as webmodels
 from apps.teams import models as teammodels
-from apps.web.models import CompetitionSubmission, Competition, CompetitionParticipant, ParticipantStatus
+from apps.web.models import CompetitionSubmission, Competition, CompetitionParticipant, ParticipantStatus, \
+    PhaseLeaderBoardEntry
 from apps.web.tasks import (create_competition, evaluate_submission, _make_url_sassy)
 
 from codalab.azure_storage import make_blob_sas_url, PREFERRED_STORAGE_X_MS_VERSION
@@ -548,13 +550,8 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
         return self.queryset.filter(phase__competition__pk=self.kwargs['competition_id'])
 
     def pre_save(self, obj):
-        try:
-            obj.participant = webmodels.CompetitionParticipant.objects.filter(
-                                competition=self.kwargs['competition_id'], user=self.request.user).get()
-        except ObjectDoesNotExist:
-            raise PermissionDenied()
-        if not obj.participant.is_approved:
-            raise PermissionDenied()
+        self.check_submission_participant(obj)
+
         phase_id = self.request.QUERY_PARAMS.get('phase_id', "")
         for phase in webmodels.CompetitionPhase.objects.filter(competition=self.kwargs['competition_id'], id=phase_id):
             if phase.is_active is True:
@@ -646,10 +643,67 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
         response['status'] = (201 if cr else 200)
         return Response(response, status=response['status'], content_type="application/json")
 
+    def destroy(self, request, *args, **kwargs):
+        obj = self.get_object()
+        self.check_submission_participant(obj)
+
+        obj.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def check_submission_participant(self, obj):
+        try:
+            obj.participant = webmodels.CompetitionParticipant.objects.filter(
+                                competition=self.kwargs['competition_id'], user=self.request.user).get()
+        except ObjectDoesNotExist:
+            raise PermissionDenied()
+        if not obj.participant.is_approved:
+            raise PermissionDenied()
+
+
 competition_submission_retrieve = CompetitionSubmissionViewSet.as_view({'get':'retrieve'})
 competition_submission_create = CompetitionSubmissionViewSet.as_view({'post':'create'})
 competition_submission_leaderboard = CompetitionSubmissionViewSet.as_view(
                                         {'post':'addToLeaderboard', 'delete':'removeFromLeaderboard'})
+
+
+class CompetitionSubmissionListViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    queryset = CompetitionSubmission.objects.all()
+    serializer_class = serializers.CompetitionSubmissionListSerializer
+    # paginate_by = 10
+    # paginate_by_param = 'page_size'
+
+    def get_queryset(self, *args, **kwargs):
+        qs = super(CompetitionSubmissionListViewSet, self).get_queryset(*args, **kwargs)
+
+        # Only get submissions for this competition, and only if you're an admin
+        competition_id = self.kwargs['competition_id']
+        qs = qs.filter(phase__competition_id=competition_id)
+        qs = qs.filter(Q(phase__competition__creator=self.request.user) | Q(phase__competition__admins__in=[self.request.user]))
+
+        qs = qs.select_related(
+            'status',
+            'participant',
+            'participant__user',
+            'phase',
+            'phase__competition',
+        )
+        return qs
+
+    def get_serializer_context(self, *args, **kwargs):
+        context = super(CompetitionSubmissionListViewSet, self).get_serializer_context(*args, **kwargs)
+
+        # To reduce queries, let's collect a bit of data to make processing submissions easier
+        competition_id = self.kwargs['competition_id']
+        # leaderboard_entries =
+        context['leaderboard_submissions'] = PhaseLeaderBoardEntry.objects.filter(
+            board__phase__competition_id=competition_id
+        ).values_list('id', flat=True)
+
+        return context
+
+
+competition_submission_list = CompetitionSubmissionListViewSet.as_view({'get': 'list'})
+
 
 class LeaderBoardViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.LeaderBoardSerial
