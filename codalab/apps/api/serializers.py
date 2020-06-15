@@ -61,21 +61,33 @@ class CompetitionSubmissionListSerializer(serializers.ModelSerializer):
     filename = serializers.Field(source="get_filename")
     username = serializers.CharField(source='participant.user.username')
     leaderboard = serializers.SerializerMethodField('get_leaderboard')
+    can_be_migrated = serializers.SerializerMethodField('get_can_be_migrated')
+    participant_submission_number = serializers.CharField(read_only=True)
 
     class Meta:
         model = webmodels.CompetitionSubmission
         fields = (
             'id',
             'status',
+            'submission_number',
+            'participant_submission_number',
+            'phase',
             'submitted_at',
             'leaderboard',
             # 'results',
             'filename',
             'username',
+            'is_migrated',
+
+            # Would it maybe be possible to migrate this to another phase?
+            'can_be_migrated',
         )
 
     def get_leaderboard(self, instance):
         return instance.id in self.context['leaderboard_submissions']
+
+    def get_can_be_migrated(self, instance):
+        return instance.id in self.context['migratable_submissions']
 
 
 class PhaseSerial(serializers.ModelSerializer):

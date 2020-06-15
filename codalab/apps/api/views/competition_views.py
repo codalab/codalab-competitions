@@ -33,7 +33,7 @@ from apps.jobs.models import Job
 from apps.web import models as webmodels
 from apps.teams import models as teammodels
 from apps.web.models import CompetitionSubmission, Competition, CompetitionParticipant, ParticipantStatus, \
-    PhaseLeaderBoardEntry
+    PhaseLeaderBoardEntry, get_first_previous_active_and_next_phases
 from apps.web.tasks import (create_competition, evaluate_submission, _make_url_sassy)
 
 from codalab.azure_storage import make_blob_sas_url, PREFERRED_STORAGE_X_MS_VERSION
@@ -440,6 +440,7 @@ class CompetitionParticipantAPIViewSet(viewsets.ModelViewSet):
         competition_id = self.kwargs.get('competition_id', None)
         return self.queryset.filter(competition__pk=competition_id)
 
+
 class CompetitionPhaseAPIViewset(viewsets.ModelViewSet):
     serializer_class = serializers.CompetitionPhaseSerial
     queryset = webmodels.Competition.objects.all()
@@ -453,6 +454,7 @@ class CompetitionPhaseAPIViewset(viewsets.ModelViewSet):
         if phasenumber:
             kw['phases__phasenumber'] = phasenumber
         return self.queryset.filter(**kw)
+
 
 competitionphase_list = CompetitionPhaseAPIViewset.as_view({'get':'list', 'post':'create'})
 competitionphase_retrieve = CompetitionPhaseAPIViewset.as_view({'get':'retrieve',
@@ -677,8 +679,19 @@ class CompetitionSubmissionListViewSet(mixins.ListModelMixin, viewsets.GenericVi
 
         # Only get submissions for this competition, and only if you're an admin
         competition_id = self.kwargs['competition_id']
-        qs = qs.filter(phase__competition_id=competition_id)
+        qs = qs.filter(phase__competition_id=competition_id).order_by('-pk')
         qs = qs.filter(Q(phase__competition__creator=self.request.user) | Q(phase__competition__admins__in=[self.request.user]))
+
+        qs = qs.extra(
+            select={
+                'participant_submission_number':
+                    # 'DISTINCT "web_competitionsubmission"."participant_id" '
+                    # 'DENSE_RANK() OVER(ORDER BY "web_competitionsubmission"."id" ASC) '
+                    # 'DENSE_RANK() OVER(ORDER BY "web_competitionsubmission"."id" ASC) '
+                    'DENSE_RANK() OVER(PARTITION BY "web_competitionsubmission"."participant_id" ORDER BY "web_competitionsubmission"."id" ASC) '
+                    # 'GROUP BY "web_competitionsubmission"."participant_id"'
+            }
+        )
 
         qs = qs.select_related(
             'status',
@@ -694,15 +707,28 @@ class CompetitionSubmissionListViewSet(mixins.ListModelMixin, viewsets.GenericVi
 
         # To reduce queries, let's collect a bit of data to make processing submissions easier
         competition_id = self.kwargs['competition_id']
-        # leaderboard_entries =
         context['leaderboard_submissions'] = PhaseLeaderBoardEntry.objects.filter(
             board__phase__competition_id=competition_id
-        ).values_list('id', flat=True)
+        ).values_list('result__id', flat=True)
+
+        first_phase, previous_phase, active_phase, next_phase = get_first_previous_active_and_next_phases(
+            Competition.objects.get(pk=competition_id)
+        )
+
+        # Get all submissions that can be migrated into another phase (must be on leaderboard already and
+        # the next phase must have auto_migration
+        if next_phase and next_phase.auto_migration:
+            active_phase_submissions = CompetitionSubmission.objects.filter(
+                phase=active_phase,
+            ).values_list('id', flat=True)
+            context['migratable_submissions'] = filter(lambda x: x in context["leaderboard_submissions"], active_phase_submissions)
+        else:
+            context['migratable_submissions'] = []
 
         return context
 
 
-competition_submission_list = CompetitionSubmissionListViewSet.as_view({'get': 'list'})
+# competition_submission_list = CompetitionSubmissionListViewSet.as_view({'get': 'list'})
 
 
 class LeaderBoardViewSet(viewsets.ModelViewSet):

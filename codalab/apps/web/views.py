@@ -32,7 +32,7 @@ from django.db.models import Q, Max, Min, Count
 from django.http import Http404, HttpResponseForbidden
 from django.http import HttpResponse, HttpResponseRedirect
 from django.http import StreamingHttpResponse
-from django.shortcuts import render_to_response, render, redirect
+from django.shortcuts import render_to_response, render, redirect, get_object_or_404
 from django.template import RequestContext, loader
 from django.utils.decorators import method_decorator
 from django.utils.html import strip_tags
@@ -1298,6 +1298,31 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
             raise Http404()
         
         return super(MyCompetitionSubmissionsPage, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(MyCompetitionSubmissionsPage, self).get_context_data(**kwargs)
+        competition = get_object_or_404(models.Competition, pk=self.kwargs['competition_id'])
+        context['competition'] = competition
+        phase_id = self.request.GET.get('phase')
+
+        # Get the phase by id OR active phase
+        selected_phase = None
+        if phase_id:
+            selected_phase = get_object_or_404(models.CompetitionPhase, pk=phase_id)
+        else:
+            phases = list(competition.phases.all())
+            # Get latest active phase..
+            selected_phase = phases[0]
+            for phase in phases:
+                if phase.is_active:
+                    # context['selected_phase_id'] = phase.id
+                    selected_phase = phase
+
+        if not selected_phase:
+            raise Http404()
+
+        context['selected_phase'] = selected_phase
+        return context
 
     # def get_context_data(self, **kwargs):
     #     phase_id = self.request.GET.get('phase')
