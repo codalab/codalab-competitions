@@ -13,7 +13,6 @@ services:
       - ./certs:/app/certs
       - ./docker:/app/docker
       - ./codalab:/app/codalab
-      - ./acme-challenge:/app/acme-challenge
       - ${LOGGING_DIR}/nginx:/var/log/nginx/
     env_file: .env
     links:
@@ -141,7 +140,7 @@ services:
       options:
         max-size: "200k"
     container_name: django
-
+    
 
   # --------------------------------------------------------------------------
   # Celery Workers

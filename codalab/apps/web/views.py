@@ -12,6 +12,7 @@ import zipfile
 
 from decimal import Decimal
 
+from django.utils.safestring import mark_safe
 from django.views.generic.base import ContextMixin
 from yaml.representer import SafeRepresenter
 
@@ -58,6 +59,7 @@ from apps.web.models import SubmissionScore, SubmissionScoreDef, get_current_pha
     get_first_previous_active_and_next_phases, Competition, CompetitionSubmission
 
 from apps.authenz.models import ClUser
+from apps.customizer.models import Configuration
 from tasks import evaluate_submission, re_run_all_submissions_in_phase, create_competition, _make_url_sassy, \
     make_modified_bundle
 from apps.teams.models import Team, TeamMembership, get_user_team, get_competition_teams, get_competition_pending_teams, get_competition_deleted_teams, get_last_team_submissions, get_user_requests, get_team_pending_membership
@@ -103,7 +105,7 @@ class MyAdminView(TemplateView):
 
 class HomePageView(TemplateView):
     """Template View for homepage."""
-    template_name = "web/highlights.html"
+    template_name = "web/index.html"
 
     def get(self, *args, **kwargs):
         if settings.SINGLE_COMPETITION_VIEW_PK:
@@ -138,6 +140,9 @@ class HomePageView(TemplateView):
         context['featured_competitions'] = get_featured_competitions(
             popular_competitions_to_filter=popular_competitions
         )
+
+        config, _ = Configuration.objects.get_or_create(pk=1)
+        context["front_page_message"] = mark_safe(config.front_page_message)
         return context
 
 
@@ -668,6 +673,9 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
         context = super(CompetitionSubmissionsPage, self).get_context_data(**kwargs)
         context['phase'] = None
         competition = models.Competition.objects.get(pk=self.kwargs['id'])
+
+        # Set this context variable so we can see our own submission details in _submission_details_template
+        context['is_viewing_own_submissions'] = True
 
         if settings.USE_AWS:
             context['form'] = forms.SubmissionS3UploadForm
