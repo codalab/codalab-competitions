@@ -473,9 +473,8 @@ class Base(Settings):
     }
     CELERY_TIMEZONE = 'UTC'
 
-
     # =========================================================================
-    # Single Competition Mode
+    # Customizing Codalab
     # =========================================================================
     # Single competition mode features can be enabled on the customization page
     # or via ENV vars here.
@@ -484,6 +483,8 @@ class Base(Settings):
 
     # NOTE! The above values are secondarily controlled via Configuration model objects,
     # which take precedence over these Env vars
+
+    USE_HIGHLIGHTS_AS_INDEX = os.environ.get('USE_HIGHLIGHTS_AS_INDEX')
 
 
     # =========================================================================

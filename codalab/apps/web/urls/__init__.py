@@ -9,7 +9,6 @@ from apps.web.models import Competition
 from .. import views
 
 urlpatterns = patterns('',
-    url(r'^$', views.HomePageView.as_view(), name='home'),
     url(r'^_ver', views.VersionView.as_view(),name='_version'),
     url(r'^my/', include('apps.web.urls.my')),
     url(r'^profile/(?P<pk>\d+)$', views.UserDetailView.as_view(), name='user_details'),
@@ -42,6 +41,14 @@ urlpatterns = patterns('',
     url(r'^close/$', TemplateView.as_view(template_name='close.html')),
 )
 
+if settings.USE_HIGHLIGHTS_AS_INDEX:
+    urlpatterns += patterns('',
+        url(r'^$', TemplateView.as_view(template_name='web/highlights.html'), name="home"),
+    )
+else:
+    urlpatterns += patterns('',
+        url(r'^$', views.HomePageView.as_view(), name='home'),
+    )
 
 if settings.DEBUG:
     '''
