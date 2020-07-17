@@ -1479,6 +1479,25 @@ class OrganizerDataSetCreate(OrganizerDataSetFormMixin, CreateView):
     def get_success_url(self):
         return reverse("my_datasets")
 
+    def get_context_data(self, **kwargs):
+        """
+        Insert the form into the context dict.
+        """
+        if 'form' not in kwargs:
+            kwargs['form'] = self.get_form(self.form_class)
+        return super(OrganizerDataSetCreate, self).get_context_data(**kwargs)
+
+    def post(self, request, *args, **kwargs):
+        """
+        Handles POST requests, instantiating a form instance with the passed
+        POST variables and then checked for validity.
+        """
+        form = self.get_form(self.form_class)
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
 
 class OrganizerDataSetCheckOwnershipMixin(LoginRequiredMixin):
     def get_object(self, queryset=None):
