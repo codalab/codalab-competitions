@@ -1,4 +1,4 @@
-from base import DevBase
+from .base import DevBase
 
 
 class Test(DevBase):

@@ -34,7 +34,7 @@ jobs:
       - run:
           name: Run PyTest
           environment:
-            DJANGO_SETTINGS_MODULE: "codalab.settings"
+            DJANGO_SETTINGS_MODULE: "codalab.settings.local"
             DJANGO_CONFIGURATION: "Test"
             CHAHUB_API_URL: "http://localhost/test/"
             CHAHUB_API_KEY: "some-secret-key"
