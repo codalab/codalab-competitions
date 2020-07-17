@@ -1,4 +1,5 @@
 import datetime
+import requests
 
 from django.core.urlresolvers import reverse
 from django.test import TestCase
@@ -48,7 +49,7 @@ class CompetitionSubmissionDownloadTests(TestCase):
             status=self.submission_finished_status,
             is_public=False,
             submitted_at=datetime.datetime.now() - datetime.timedelta(days=29),
-            stdout_file=SimpleUploadedFile(name="test.txt", content="test std out")
+            stdout_file=SimpleUploadedFile(name="test.txt", content="test std out".encode('utf-8'))
         )
 
         self.url = reverse("my_competition_output", kwargs={"submission_id": self.submission_1.pk,
@@ -59,26 +60,36 @@ class CompetitionSubmissionDownloadTests(TestCase):
     def test_submission_info_download_when_submitter_returns_200(self):
         self.client.login(username="participant", password="pass")
         resp = self.client.get(self.url)
-        self.assertEquals(resp.status_code, 200)
+        # TODO: This seems to have previously returned a 200, but now returns a 302. It is a redirect to AWS
+        self.assertEqual(resp.status_code, 302)
 
     def test_submission_info_download_when_admin_returns_200(self):
         self.client.login(username="organizer", password="pass")
         resp = self.client.get(self.url)
-        self.assertEquals(resp.status_code, 200)
+
+        # Response code seems to have changed with Django upgrade. 302 seems to be the correct status code as we are doing
+        # a redirect
+        self.assertEqual(resp.status_code, 302)
 
     def test_submission_info_download_when_non_admin_and_non_submitter_returns_404(self):
         self.client.login(username="other", password="pass")
         resp = self.client.get(self.url)
-        self.assertEquals(resp.status_code, 404)
+        self.assertEqual(resp.status_code, 404)
 
     def test_submission_info_download_when_non_logged_in_returns_404(self):
         resp = self.client.get(self.url)
-        self.assertEquals(resp.status_code, 404)
+        self.assertEqual(resp.status_code, 404)
 
     def test_submission_info_download_returns_proper_data(self):
         self.client.login(username="participant", password="pass")
         resp = self.client.get(self.url)
-        self.assertEquals(resp.content, self.submission_1.stdout_file.read())
+
+        self.assertEqual(resp.status_code, 302)
+
+        redirect_resp = requests.get(resp.url)
+
+        self.assertEqual(redirect_resp.status_code, 200)
+        self.assertEqual(redirect_resp.content, self.submission_1.stdout_file.read())
 
     # def test_submission_download_public_requires_participation_access(self):
     #     self.submission_1.is_public = True
@@ -102,7 +113,10 @@ class CompetitionSubmissionDownloadTests(TestCase):
         self.submission_1.save()
         self.client.login(username="other", password="pass")
         resp = self.client.get(self.url)
-        self.assertEquals(resp.status_code, 200)
+
+        # Response code seems to have changed with Django upgrade. 302 seems to be the correct status code as we are doing
+        # a redirect
+        self.assertEqual(resp.status_code, 302)
 
     def test_submission_deleted_then_re_evaluated_does_not_make_output_corrupted(self):
         self.submission_1.delete()
@@ -113,7 +127,7 @@ class CompetitionSubmissionDownloadTests(TestCase):
             status=self.submission_finished_status,
             is_public=False,
             submitted_at=datetime.datetime.now() - datetime.timedelta(days=29),
-            stdout_file=SimpleUploadedFile(name="test.txt", content="new stdout")
+            stdout_file=SimpleUploadedFile(name="test.txt", content="new stdout".encode('utf-8'))
         )
         new_url = reverse(
             "my_competition_output",
@@ -124,5 +138,12 @@ class CompetitionSubmissionDownloadTests(TestCase):
         )
         self.client.login(username="participant", password="pass")
         resp = self.client.get(new_url)
-        self.assertEquals(resp.status_code, 200)
-        self.assertEquals(resp.content, "new stdout")
+
+        # Response code seems to have changed with Django upgrade. 302 seems to be the correct status code as we are doing
+        # a redirect
+        self.assertEqual(resp.status_code, 302)
+
+        redirect_resp = requests.get(resp.url)
+
+        self.assertEqual(redirect_resp.status_code, 200)
+        self.assertEqual(redirect_resp.content, b"new stdout")

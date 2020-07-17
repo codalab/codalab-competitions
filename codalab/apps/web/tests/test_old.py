@@ -265,19 +265,20 @@ class CompetitionDefinitionTests(TestCase):
         data = yaml.load("key: {0}".format(dt_str))
         return CompetitionDefBundle.localize_datetime(data['key'])
 
+    # TODO: Double check dates on these tests. 2to3 changed some of them
     def test_import_date_1(self):
         dta = CompetitionDefinitionTests.read_date('2014-03-01')
-        dte = utc.localize(datetime.datetime(2014,03,01))
+        dte = utc.localize(datetime.datetime(2014,0o3,0o1))
         self.assertEqual(dte, dta)
 
     def test_import_date_2(self):
         dta = CompetitionDefinitionTests.read_date('2014-03-01 10:00:01')
-        dte = utc.localize(datetime.datetime(2014,03,01,10,00,01))
+        dte = utc.localize(datetime.datetime(2014,0o3,0o1,10,00,0o1))
         self.assertEqual(dte, dta)
 
     def test_import_date_3(self):
         dta = CompetitionDefinitionTests.read_date('2014-03-01 18:15')
-        dte = utc.localize(datetime.datetime(2014,03,01,18,15))
+        dte = utc.localize(datetime.datetime(2014,0o3,0o1,18,15))
         self.assertEqual(dte, dta)
 
     def test_import_date_4(self):

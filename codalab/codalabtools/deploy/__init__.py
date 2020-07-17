@@ -280,7 +280,8 @@ class DeploymentConfig(BaseConfig):
         Gets the list of web instances. Each name in the list if of the form '<service-name>.cloudapp.net:<port>'.
         """
         service_name = self.getServiceName()  # e.g., codalab
-        vm_numbers = range(1, 1 + self.getServiceInstanceCount())  # e.g., prod
+        # TODO: Check if casting to a list is necessary here from 2to3
+        vm_numbers = list(range(1, 1 + self.getServiceInstanceCount()))  # e.g., prod
         ssh_port = self.getServiceInstanceSshPort()
         return ['{0}.cloudapp.net:{1}'.format(service_name, str(ssh_port + vm_number)) for vm_number in vm_numbers]
 
