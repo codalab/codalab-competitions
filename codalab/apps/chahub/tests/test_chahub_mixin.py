@@ -3,7 +3,7 @@ import mock
 from django.conf import settings
 from django.http.response import HttpResponseBase
 from django.test import TestCase
-# from django.test.utils import override_settings
+from django.test.utils import override_settings
 
 from apps.authenz.models import ClUser
 from apps.web.models import CompetitionSubmission, Competition, CompetitionPhase, CompetitionParticipant, \
@@ -36,6 +36,9 @@ class ChahubMixinTests(TestCase):
     def tearDown(self):
         settings.PYTEST_FORCE_CHAHUB = False
 
+    # It seems if we don't want these tests to pass without actual chahub settings, either these tests should get passed
+    # or if not set we override them to force tests. For now overriding settings so these tests run.
+    @override_settings(CHAHUB_API_URL='http://test_chahub.com', CHAHUB_API_KEY='123456789', CHAHUB_PRODUCER_ID=1)
     def test_submission_mixin_save_doesnt_resend_same_data(self):
         submission = CompetitionSubmission(phase=self.phase, participant=self.participant)
         with mock.patch('apps.chahub.models.send_to_chahub') as send_to_chahub_mock:
@@ -63,6 +66,7 @@ class ChahubMixinTests(TestCase):
     #         submission.save()
     #         assert not send_to_chahub_mock.called
 
+    @override_settings(CHAHUB_API_URL='http://test_chahub.com', CHAHUB_API_KEY='123456789', CHAHUB_PRODUCER_ID=1)
     def test_submission_invalid_not_marked_for_retry_again(self):
         # Make submission invalid
         self.competition.published = False
@@ -74,6 +78,7 @@ class ChahubMixinTests(TestCase):
             submission.save()
             assert not send_to_chahub_mock.called
 
+    @override_settings(CHAHUB_API_URL='http://test_chahub.com', CHAHUB_API_KEY='123456789', CHAHUB_PRODUCER_ID=1)
     def test_submission_valid_not_retried_again(self):
         # Mark submission for retry
         submission = CompetitionSubmission(phase=self.phase, participant=self.participant, chahub_needs_retry=True)
@@ -84,6 +89,7 @@ class ChahubMixinTests(TestCase):
             # It does not call send method, only during "do_retries" task should it
             assert not send_to_chahub_mock.called
 
+    @override_settings(CHAHUB_API_URL='http://test_chahub.com', CHAHUB_API_KEY='123456789', CHAHUB_PRODUCER_ID=1)
     def test_submission_retry_valid_retried_then_sent_and_not_retried_again(self):
         # Mark submission for retry
         submission = CompetitionSubmission(phase=self.phase, participant=self.participant, chahub_needs_retry=True)

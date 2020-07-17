@@ -30,6 +30,7 @@ def check_user_needs_initialization(user):
 
 def initialize_user(user):
     """Check whether user has a rabbitmq account already, creates it if not."""
+    # TODO: Turn this into a logger
     print("Making new rabbitmq user for {}".format(user))
     user.rabbitmq_username = uuid.uuid4()
     user.rabbitmq_password = uuid.uuid4()

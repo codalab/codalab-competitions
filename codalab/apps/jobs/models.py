@@ -96,7 +96,8 @@ class Job(models.Model):
         FAILED: { 'code_name': 'failed', 'display_text': 'Failed' }
     }
     # Reverse map to get integer code from friendly code name
-    STATUS_BY_CODE_NAME = { v['code_name']: k  for (k, v) in STATUS_BY_CODE.items() }
+    # TODO: Was this change from 2to3 necessary?
+    STATUS_BY_CODE_NAME = { v['code_name']: k  for (k, v) in list(STATUS_BY_CODE.items()) }
 
     created = models.DateTimeField('Date of creation', auto_now_add=True)
     updated = models.DateTimeField('Date of last update', auto_now=True)
@@ -182,7 +183,7 @@ def update_job_status_task(job_id, args):
     info_json = None
     if 'info' in args:
         info_json = json.dumps(args['info'])
-    with transaction.commit_on_success():
+    with transaction.atomic():
         job = Job.objects.select_for_update().get(pk=job_id)
         if job.can_transition_to(status):
             job.status = status

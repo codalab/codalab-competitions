@@ -330,6 +330,8 @@ class CompetitionOrganizerTeams(FormView):
         return super(CompetitionOrganizerTeams, self).dispatch(*args, **kwargs)
 
     def get_form(self, form_class=None):
+        if not form_class:
+            form_class = self.form_class
         if self.kwargs.get('pk'):
             current_team = Team.objects.get(pk=self.kwargs['pk'])
             return form_class(instance=current_team, **self.get_form_kwargs())
@@ -378,6 +380,7 @@ def delete_organizer_team(request, team_pk, competition_pk):
                 if request.user not in comp.admins.all():
                     return HttpResponseForbidden(status=403)
 
+            # TODO: Change to logger
             print("Deleting team {0} from competition {1}".format(team_to_delete, comp))
             team_to_delete.delete()
             return redirect('my_competition_participants', competition_id=comp.pk)

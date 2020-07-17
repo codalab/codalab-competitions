@@ -32,7 +32,9 @@ def get_most_popular_competitions(min_participants=400, limit=5, fill_in=True):
             .select_related('creator') \
             .order_by('-num_participants')[:10]
         try:
-            competitions += sample(random_competitions, limit - comp_count)
+            # Had to convert to set/list in Py3
+            # TODO: Is this a cause for popular/featured test failing?
+            competitions += sample(set(random_competitions), limit - comp_count)
         except ValueError:
             # Eeep! We don't even have $limit competitions to choose from
             competitions += list(random_competitions)
@@ -85,7 +87,9 @@ def get_featured_competitions(popular_competitions_to_filter=None, limit=5):
             .exclude(pk__in=popular_filter_pks) \
             .exclude(pk__in=existing_pks)[:50]
         try:
-            featured_competitions += sample(random_competitions, limit - featured_comp_count)
+            # Had to convert to set for Py3
+            # TODO: Is this a cause for popular/featured test failing?
+            featured_competitions += sample(set(random_competitions), limit - featured_comp_count)
         except ValueError:
             # Eeep! We don't even have $limit competitions to choose from
             featured_competitions += list(random_competitions)

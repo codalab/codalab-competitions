@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.forms.widgets import ClearableFileInput, Input, CheckboxInput
 from django.utils.html import escape, conditional_escape
-from django.utils.encoding import force_unicode
+from django.utils.encoding import force_text
 from tinymce.widgets import TinyMCE
 from django.utils import timezone
 from apps.web.models import Competition
@@ -11,7 +11,6 @@ from apps.authenz.models import ClUser
 from apps.teams.models import TeamMembership, Team, TeamStatus, TeamMembershipStatus
 from django.utils.safestring import mark_safe
 import os
-import datetime
 import logging
 
 logger = logging.getLogger(__name__)
@@ -33,7 +32,8 @@ class CustomImageField(ClearableFileInput):
             template = self.template_with_initial
             substitutions['initial'] = ('<div class="logo-image-container"><img class="logo-image" src="%s" alt="%s"/></div>'
                                         % (escape(value.url),
-                                           escape(force_unicode(value))))
+                                           # Force unicode was replaced with force_text
+                                           escape(force_text(value))))
             if not self.is_required:
                 checkbox_name = self.clear_checkbox_name(name)
                 checkbox_id = self.clear_checkbox_id(checkbox_name)
@@ -185,7 +185,8 @@ class OrganizerTeamsCSVForm(forms.Form):
                 else:
                     # String line is the literal line from a file.
                     # It's split on comma's, and every string from the split is stripped and turned into a list
-                    list_line = [s.strip() for s in string_line.split(',')]
+                    # TODO: Why do we need to do it this way now? Do we need to decode the original string so this looks cleaner?
+                    list_line = [s.strip() for s in string_line.split(','.encode('utf-8'))]
                     # Pop the first value in the list, the team name, out as our dictionary key and set the value
                     #  to the list of members, the rest of the list
                     teams_dict[list_line.pop(0)] = list_line
@@ -197,7 +198,7 @@ class OrganizerTeamsCSVForm(forms.Form):
 
     def save(self):
         if self.cleaned_data.get('csv_file'):
-            for team_name, team_member_list in self.cleaned_data.get('csv_file').iteritems():
+            for team_name, team_member_list in self.cleaned_data.get('csv_file').items():
                 existing_team = Team.objects.filter(name=team_name, competition=self.competition).first()
                 if not existing_team:
                     new_team = Team.objects.create(

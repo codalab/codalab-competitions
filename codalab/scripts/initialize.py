@@ -2,6 +2,14 @@
 # Run this script from the CodaLab virtual environment to insert
 # initial data required by the web app into the database.
 
+# NOTE: This is no longer called from `run_django.sh`, instead we use the fixture `initial_data` under web/fixtures.
+# If changes are needed, reset the db, migrate, make your changes here, call this from shell via
+# from scripts.initialize import insert_data
+# insert_data()
+# Then use `python manage.py dump_data web --output inital_data.json` to create a new initial_data fixture file.
+# Move the new fixture file from the project root to web/fixtures and replace the old one. You could of course create the
+# objects manually, but this seems more convenient.
+
 import sys, os.path, os
 
 root_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "codalab")
@@ -66,9 +74,9 @@ def insert_data():
     site.save()
 
     if ContentCategory.objects.all().count() > 0:
-        print "Initial data has been detected in the database: skipping all inserts. Running data migration..."
+        print("Initial data has been detected in the database: skipping all inserts. Running data migration...")
         migrate_data()
-        print "Data migration complete."
+        print("Data migration complete.")
         return
 
     #

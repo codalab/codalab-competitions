@@ -16,7 +16,7 @@ class DefaultContentSerial(serializers.ModelSerializer):
         model = webmodels.DefaultContentItem
 
 class PageSerial(serializers.ModelSerializer):
-    container = serializers.RelatedField(required=False)
+    container = serializers.RelatedField(required=False, read_only=True)
 
     class Meta:
         model = webmodels.Page
@@ -44,12 +44,12 @@ class CompetitionParticipantSerial(serializers.ModelSerializer):
     class Meta:
         model = webmodels.CompetitionParticipant
 
+# TODO: Double check why filename was pulled
 class CompetitionSubmissionSerial(serializers.ModelSerializer):
     status = serializers.SlugField(source="status.codename", read_only=True)
-    filename = serializers.Field(source="get_filename")
     class Meta:
         model = webmodels.CompetitionSubmission
-        fields = ('id','status','status_details','submitted_at','submission_number', 'file', 'filename', 'exception_details', 'description', 'method_name', 'method_description', 'project_url', 'publication_url', 'bibtex', 'organization_or_affiliation')
+        fields = ('id','status','status_details','submitted_at','submission_number', 'file', 'exception_details', 'description', 'method_name', 'method_description', 'project_url', 'publication_url', 'bibtex', 'organization_or_affiliation')
         read_only_fields = ('participant', 'phase', 'id','status_details','submitted_at','submission_number', 'exception_details')
 
 class PhaseSerial(serializers.ModelSerializer):
@@ -74,7 +74,7 @@ class LeaderBoardSerial(serializers.ModelSerializer):
 
 class CompetitionDataSerial(serializers.ModelSerializer):
     image_url = serializers.URLField(source='image.url', read_only=True)
-    phases = serializers.RelatedField(many=True)
+    phases = serializers.RelatedField(many=True, read_only=True)
     class Meta:
         model = webmodels.Competition
 
@@ -88,12 +88,9 @@ class PhaseRel(serializers.RelatedField):
     def from_native(self,data=None,files=None):
         kw = {'data': data,'partial':self.partial}
         args = []
-        print data
-        print type(data)
         if 'id' in data:
             instance = webmodels.CompetitionPhase.objects.filter(pk=data['id']).get()
             args.append(instance)
-            print instance
         o = PhaseSerial(*args,**kw)
 
         if o.is_valid():
@@ -102,13 +99,15 @@ class PhaseRel(serializers.RelatedField):
             raise Exception(o.errors)
 
 class CompetitionSerial(serializers.ModelSerializer):
-    phases = PhaseRel(many=True,read_only=False)
-    image_url = serializers.CharField(source='image_url',read_only=True)
+    phases = PhaseRel(many=True, read_only=True)
+    image_url = serializers.CharField(read_only=True)
     pages = PageSerial(source='pagecontent.pages', read_only=True)
 
     class Meta:
         model = webmodels.Competition
         read_only_fields = ['image_url_base']
+        # TODO: Do we want to allow access to all fields here?
+        fields = '__all__'
 
 class CompetitionFilter(django_filters.FilterSet):
     creator = django_filters.CharFilter(name="creator__username")
