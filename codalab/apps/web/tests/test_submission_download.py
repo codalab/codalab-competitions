@@ -6,6 +6,7 @@ from django.test import TestCase
 from django.test.client import Client
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.auth import get_user_model
+from django.conf import settings
 
 from apps.web.models import (Competition,
                              CompetitionParticipant,
@@ -16,6 +17,10 @@ from apps.web.models import (Competition,
 
 User = get_user_model()
 
+
+# Note: Previously seems that Django returned a 200 on redirect. Now if we redirect to AWS when using USE_AWS
+# (apps.web.views, line 1225) we get a 302 and have to goto the response's url to make a request to AWS. This is why
+# I've added checks for USE_AWS in the tests, and the split logic.
 
 class CompetitionSubmissionDownloadTests(TestCase):
     def setUp(self):
@@ -60,16 +65,19 @@ class CompetitionSubmissionDownloadTests(TestCase):
     def test_submission_info_download_when_submitter_returns_200(self):
         self.client.login(username="participant", password="pass")
         resp = self.client.get(self.url)
-        # TODO: This seems to have previously returned a 200, but now returns a 302. It is a redirect to AWS
-        self.assertEqual(resp.status_code, 302)
+        if settings.USE_AWS:
+            self.assertEqual(resp.status_code, 302)
+        else:
+            self.assertEqual(resp.status_code, 200)
 
     def test_submission_info_download_when_admin_returns_200(self):
         self.client.login(username="organizer", password="pass")
         resp = self.client.get(self.url)
 
-        # Response code seems to have changed with Django upgrade. 302 seems to be the correct status code as we are doing
-        # a redirect
-        self.assertEqual(resp.status_code, 302)
+        if settings.USE_AWS:
+            self.assertEqual(resp.status_code, 302)
+        else:
+            self.assertEqual(resp.status_code, 200)
 
     def test_submission_info_download_when_non_admin_and_non_submitter_returns_404(self):
         self.client.login(username="other", password="pass")
@@ -84,12 +92,16 @@ class CompetitionSubmissionDownloadTests(TestCase):
         self.client.login(username="participant", password="pass")
         resp = self.client.get(self.url)
 
-        self.assertEqual(resp.status_code, 302)
+        if settings.USE_AWS:
+            self.assertEqual(resp.status_code, 302)
 
-        redirect_resp = requests.get(resp.url)
+            redirect_resp = requests.get(resp.url)
 
-        self.assertEqual(redirect_resp.status_code, 200)
-        self.assertEqual(redirect_resp.content, self.submission_1.stdout_file.read())
+            self.assertEqual(redirect_resp.status_code, 200)
+            self.assertEqual(redirect_resp.content, self.submission_1.stdout_file.read())
+        else:
+            self.assertEqual(resp.status_code, 200)
+            self.assertEqual(resp.content, self.submission_1.stdout_file.read())
 
     # def test_submission_download_public_requires_participation_access(self):
     #     self.submission_1.is_public = True
@@ -114,9 +126,10 @@ class CompetitionSubmissionDownloadTests(TestCase):
         self.client.login(username="other", password="pass")
         resp = self.client.get(self.url)
 
-        # Response code seems to have changed with Django upgrade. 302 seems to be the correct status code as we are doing
-        # a redirect
-        self.assertEqual(resp.status_code, 302)
+        if settings.USE_AWS:
+            self.assertEqual(resp.status_code, 302)
+        else:
+            self.assertEqual(resp.status_code, 200)
 
     def test_submission_deleted_then_re_evaluated_does_not_make_output_corrupted(self):
         self.submission_1.delete()
@@ -139,11 +152,13 @@ class CompetitionSubmissionDownloadTests(TestCase):
         self.client.login(username="participant", password="pass")
         resp = self.client.get(new_url)
 
-        # Response code seems to have changed with Django upgrade. 302 seems to be the correct status code as we are doing
-        # a redirect
-        self.assertEqual(resp.status_code, 302)
+        if settings.USE_AWS:
+            self.assertEqual(resp.status_code, 302)
 
-        redirect_resp = requests.get(resp.url)
+            redirect_resp = requests.get(resp.url)
 
-        self.assertEqual(redirect_resp.status_code, 200)
-        self.assertEqual(redirect_resp.content, b"new stdout")
+            self.assertEqual(redirect_resp.status_code, 200)
+            self.assertEqual(redirect_resp.content, b"new stdout")
+        else:
+            self.assertEqual(resp.status_code, 200)
+            self.assertEqual(resp.content, b"new stdout")
