@@ -15,12 +15,14 @@ from apps.web.models import Competition, CompetitionSubmission
 
 def get_most_popular_competitions(min_participants=400, limit=5, fill_in=True):
     today = datetime.datetime.today()
+    # TODO: This queryset returns none when `.order_by('?')` is used, breaking this functionality.
     competitions = Competition.objects.filter(published=True) \
         .filter(Q(end_date__gte=today) | Q(end_date=None)) \
         .annotate(num_participants=Count('participants')) \
         .filter(num_participants__gte=min_participants) \
-        .order_by('?') \
         .select_related('creator')[:limit]
+        # .order_by('?') \
+        # .select_related('creator')[:limit]
     # shuffle works in place, so turn competitions into list and shuffle it by reference
     competitions = list(competitions)
     comp_count = len(competitions)
