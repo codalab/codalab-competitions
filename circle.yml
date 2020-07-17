@@ -22,9 +22,6 @@ jobs:
           name: Install Memcached reqs
           command: sudo apt-get update && sudo apt-get install libmemcached-dev --fix-missing
       - run:
-          name: Install Memcached if not already installed
-          command: sudo apt-get install memcached
-      - run:
           name: PIP Install Requirements
           command: pip install -r codalab/requirements/common.txt
       - save_cache:
@@ -38,7 +35,7 @@ jobs:
           name: Run PyTest
           environment:
             DJANGO_SETTINGS_MODULE: "codalab.settings"
-            DJANGO_CONFIGURATION: "Dev"
+            DJANGO_CONFIGURATION: "Test"
             CHAHUB_API_URL: "http://localhost/test/"
             CHAHUB_API_KEY: "some-secret-key"
           command: cd codalab && py.test
