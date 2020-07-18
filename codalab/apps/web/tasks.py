@@ -299,6 +299,10 @@ def compute_worker_run(data, priority=None, **kwargs):
 
 
 def _make_url_sassy(path, permission='r', duration=60 * 60 * 24):
+    if not path:
+        logger.info("Make URL sassy received an empty path!")
+        return ''
+
     if settings.USE_AWS:
         if permission == 'r':
             # GET instead of r (read) for AWS
@@ -319,36 +323,21 @@ def _make_url_sassy(path, permission='r', duration=60 * 60 * 24):
         url = ''
 
         if settings.USE_BOTO3:
-            # TODO: Use meta from connection to get client
             logger.info("Path is: {}".format(path))
-            if not path:
-                logger.info("Make URL sassy received an empty path!")
-                return
+            # This was necessary because otherwise the url generated would have double slashes
             if path[0] == '/':
-                # Remove extra slash
                 path = path[1:]
 
-            s3_client = boto3.client('s3')
             try:
-                if permission == 'w':
-                    url = s3_client.generate_presigned_url(
-                        'put_object',
-                        Params={
-                            'Bucket': settings.AWS_STORAGE_PRIVATE_BUCKET_NAME,
-                            'Key': path
-                        },
-                        ExpiresIn=duration,
-                        # HttpMethod="PUT",
-                    )
-                else:
-                    url = s3_client.generate_presigned_url(
-                        'get_object',
-                        Params={
-                            'Bucket': settings.AWS_STORAGE_PRIVATE_BUCKET_NAME,
-                            'Key': path
-                        },
-                        ExpiresIn=duration
-                    )
+                url =  BundleStorage.bucket.meta.client.generate_presigned_url(
+                    ClientMethod='put_object' if permission == 'w' else 'get_object',
+                    Params={
+                        'Bucket': settings.AWS_STORAGE_PRIVATE_BUCKET_NAME,
+                        'Key': path
+                    },
+                    ExpiresIn=duration,
+                    HttpMethod=method
+                )
             except ClientError as e:
                 logger.error(e)
                 return ''
