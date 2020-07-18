@@ -15,14 +15,14 @@ from apps.web.models import Competition, CompetitionSubmission
 
 def get_most_popular_competitions(min_participants=400, limit=5, fill_in=True):
     today = datetime.datetime.today()
-    # TODO: This queryset returns none when `.order_by('?')` is used, breaking this functionality.
     competitions = Competition.objects.filter(published=True) \
-        .filter(Q(end_date__gte=today) | Q(end_date=None)) \
-        .annotate(num_participants=Count('participants')) \
-        .filter(num_participants__gte=min_participants) \
-        .select_related('creator')[:limit]
-        # .order_by('?') \
-        # .select_related('creator')[:limit]
+                       .filter(Q(end_date__gte=today) | Q(end_date=None)) \
+                       .filter(pk__in=Competition.objects \
+                               .annotate(num_participants=Count('participants')) \
+                               .filter(num_participants__gte=min_participants) \
+                               ) \
+                       .order_by('?') \
+                       .select_related('creator')[:limit]
     # shuffle works in place, so turn competitions into list and shuffle it by reference
     competitions = list(competitions)
     comp_count = len(competitions)
@@ -35,7 +35,6 @@ def get_most_popular_competitions(min_participants=400, limit=5, fill_in=True):
             .order_by('-num_participants')[:10]
         try:
             # Had to convert to set/list in Py3
-            # TODO: Is this a cause for popular/featured test failing?
             competitions += sample(set(random_competitions), limit - comp_count)
         except ValueError:
             # Eeep! We don't even have $limit competitions to choose from
@@ -90,7 +89,6 @@ def get_featured_competitions(popular_competitions_to_filter=None, limit=5):
             .exclude(pk__in=existing_pks)[:50]
         try:
             # Had to convert to set for Py3
-            # TODO: Is this a cause for popular/featured test failing?
             featured_competitions += sample(set(random_competitions), limit - featured_comp_count)
         except ValueError:
             # Eeep! We don't even have $limit competitions to choose from
