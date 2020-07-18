@@ -144,7 +144,7 @@ class CompetitionSubmissionDownloadTests(TestCase):
         self.client.login(username="participant", password="pass")
         resp = self.client.get(new_url)
 
-        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp.status_code, self.expected_return_value)
 
         if self.expected_return_value == 302:
             redirect_resp = requests.get(resp.url)
