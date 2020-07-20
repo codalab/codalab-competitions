@@ -30,7 +30,6 @@ class CompetitionDownloadCSVTests(TestCase):
     def setUp(self):
         super(CompetitionDownloadCSVTests, self).setUp()
 
-        # TODO: Ensure the unicode in the strings/etc this test are still working
         self.user = User.objects.create(email='test@user.com', username='testuser\u2020')
         self.other_user = User.objects.create(email='other@user.com', username='other')
         self.competition = Competition.objects.create(creator=self.user, modified_by=self.user)

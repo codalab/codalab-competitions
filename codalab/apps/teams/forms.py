@@ -178,15 +178,14 @@ class OrganizerTeamsCSVForm(forms.Form):
     def clean_csv_file(self):
         teams_dict = {}
         if self.cleaned_data.get('csv_file'):
-            csv_team_list = [line.rstrip() for line in self.cleaned_data.get('csv_file')]
+            csv_team_list = [line.rstrip().decode('utf-8') for line in self.cleaned_data.get('csv_file')]
             for string_line in csv_team_list:
                 if string_line == '' or string_line == ' ':
                     logger.log("String read from CSV is not readable.")
                 else:
                     # String line is the literal line from a file.
                     # It's split on comma's, and every string from the split is stripped and turned into a list
-                    # TODO: Why do we need to do it this way now? Do we need to decode the original string so this looks cleaner?
-                    list_line = [s.strip() for s in string_line.split(','.encode('utf-8'))]
+                    list_line = [s.strip() for s in string_line.split(',')]
                     # Pop the first value in the list, the team name, out as our dictionary key and set the value
                     #  to the list of members, the rest of the list
                     teams_dict[list_line.pop(0)] = list_line

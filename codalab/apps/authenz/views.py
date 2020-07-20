@@ -98,7 +98,6 @@ class InfoApi(ScopedProtectedResourceView):
         if names is None or type(names) is not list or len(names) == 0:
             return {'code': 400}
         for name in names:
-            # TODO: Ensure this check is correct
             if type(name) != str or len(name) < 1:
                 return {'code': 400}
         try:

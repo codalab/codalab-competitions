@@ -5,7 +5,6 @@ from django.contrib import admin
 
 from .. import views
 
-# urlpatterns = patterns('',
 urlpatterns = [
     url(r'^$', views.HomePageView.as_view(), name='home'),
     url(r'^_ver', views.VersionView.as_view(),name='_version'),
@@ -106,7 +105,3 @@ if settings.DEBUG:
     urlpatterns += [
         url(r'^admin/', include(admin.site.urls)),
     ]
-
-    # Local static files
-    from django.contrib.staticfiles.views import serve
-    urlpatterns += [url(r'^static/(?P<path>.*)$', serve), ]

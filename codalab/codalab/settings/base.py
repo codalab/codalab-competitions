@@ -141,6 +141,9 @@ class Base(Configuration):
     MIDDLEWARE = [
         # TODO: Switchuser is not Python 3 compatible. Do we upgrade it ourselves?
         # "django_switchuser.middleware.SuStateMiddleware",
+        'django.middleware.security.SecurityMiddleware',
+        'whitenoise.middleware.WhiteNoiseMiddleware',
+        'django.middleware.clickjacking.XFrameOptionsMiddleware',
         'apps.web.middleware.SingleCompetitionMiddleware',
         'django.middleware.common.CommonMiddleware',
         'django.contrib.sessions.middleware.SessionMiddleware',
@@ -170,9 +173,6 @@ class Base(Configuration):
                     'django.template.context_processors.static',
                     'django.template.context_processors.tz',
                     'django.contrib.messages.context_processors.messages',
-                    # TODO: Do we need these allauth context processors?
-                    # "allauth.account.context_processors.account",
-                    # "allauth.socialaccount.context_processors.socialaccount",
                     "codalab.context_processors.app_version_proc",
                     'django.template.context_processors.request',
                     "codalab.context_processors.common_settings",
@@ -207,10 +207,7 @@ class Base(Configuration):
         'mptt',
 
         # TODO: Document the need for these
-        # TODO: Could not find any usages of these apps. I think we can pull them.
-        # 'django_config_gen',
         'compressor',
-        # 'django_js_reverse',
         'guardian',
         'captcha',
         'bootstrapform',
@@ -416,7 +413,7 @@ class Base(Configuration):
 
     # Default to {1}.{0} for `virtual` style addressing versus path. Path was deprecated by AWS. Use 'https://{0}/{1}' for path.
     # first arg (0) is host, second arg (1) is bucket name.
-    S3DIRECT_URL_STRUCTURE = os.environ.get('S3DIRECT_URL_STRUCTURE', 'http://{1}.{0}')
+    S3DIRECT_URL_STRUCTURE = os.environ.get('S3DIRECT_URL_STRUCTURE', 'https://{1}.{0}')
 
 
     # =========================================================================

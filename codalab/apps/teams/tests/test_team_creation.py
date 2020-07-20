@@ -32,7 +32,6 @@ class CompetitionTeamsTests(TestCase):
             reason="Creator"
         )
 
-        # TODO: Why does this teamstatus not exist in tests? I confirmed it exists in the actual db
         TeamStatus.objects.get_or_create(name="Pending", codename="pending", description="Team is pending approval.")
         TeamStatus.objects.get_or_create(name="Approved", codename="approved", description="Team was approved")
 
