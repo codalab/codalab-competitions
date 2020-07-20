@@ -1,17 +1,4 @@
 import datetime
-import json
-
-import io
-import zipfile
-
-import mock
-from django.core.files.base import ContentFile
-
-from django.core.urlresolvers import reverse
-from django.test import TestCase
-from django.test.client import Client
-from django.contrib.auth import get_user_model
-
 # from apps.jobs.models import Job
 from apps.web.models import (Competition,
                              CompetitionParticipant,
@@ -25,6 +12,11 @@ from apps.web.models import (Competition,
                              SubmissionScoreDef, SubmissionScoreDefGroup, SubmissionScore, SubmissionScoreSet)
 # from apps.web.tasks import update_submission
 from apps.web.utils import push_submission_to_leaderboard_if_best
+from django.contrib.auth import get_user_model
+from django.core.files.base import ContentFile
+from django.core.urlresolvers import reverse
+from django.test import TestCase
+from django.test.client import Client
 
 User = get_user_model()
 

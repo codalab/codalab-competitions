@@ -142,7 +142,6 @@ class Base(Configuration):
         # TODO: Switchuser is not Python 3 compatible. Do we upgrade it ourselves?
         # "django_switchuser.middleware.SuStateMiddleware",
         'django.middleware.security.SecurityMiddleware',
-        'whitenoise.middleware.WhiteNoiseMiddleware',
         'django.middleware.clickjacking.XFrameOptionsMiddleware',
         'apps.web.middleware.SingleCompetitionMiddleware',
         'django.middleware.common.CommonMiddleware',
