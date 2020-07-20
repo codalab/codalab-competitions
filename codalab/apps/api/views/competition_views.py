@@ -159,7 +159,6 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
 
         return Response(json.dumps(response), content_type="application/json")
 
-    # TODO: Do we need detail=True here?
     @action(methods=['GET'], detail=True, permission_classes=[permissions.IsAuthenticated])
     def publish(self, request, pk):
         """
@@ -184,7 +183,6 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
             response['status'] = 403
         return Response(json.dumps(response), content_type="application/json")
 
-    # TODO: Do we need detail=True here?
     @action(methods=['GET'], detail=True, permission_classes=[permissions.IsAuthenticated])
     def unpublish(self, request, pk):
         """
@@ -213,7 +211,6 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
         message.attach_alternative(html, 'text/html')
         message.send()
 
-    # TODO: Do we need detail = True here, and methods defined?
     @action(methods=['POST'], detail=True, permission_classes=[permissions.IsAuthenticated])
     def participate(self, request, pk=None):
         comp = self.get_object()
@@ -305,12 +302,10 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
             status = 400
         return Response(resp, status=status)
 
-    # TODO: Do we need detail, and methods
     @action(detail=True, methods=['get'], permission_classes=[permissions.IsAuthenticated])
     def mystatus(self, request, pk=None):
         return self._get_userstatus(request, pk)
 
-    # TODO: Do we need detail, and methods
     @action(detail=True, methods=['POST', 'PUT'], permission_classes=[permissions.IsAuthenticated])
     def participation_status(self, request, pk=None):
         comp = self.get_object()
@@ -393,7 +388,6 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
 
         return Response(json.dumps(resp), content_type="application/json")
 
-    # TODO: Do we need detail/method
     @action(detail=True, methods=['POST', 'PUT'], permission_classes=[permissions.IsAuthenticated])
     def team_status(self, request, pk=None):
         comp = self.get_object()
@@ -421,7 +415,6 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
             }
         return Response(json.dumps(resp), content_type="application/json")
 
-    # TODO: Do we need detail?
     @action(detail=True, permission_classes=[permissions.IsAuthenticated])
     def info(self, request, *args, **kwargs):
         comp = self.get_object()
@@ -630,7 +623,6 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
             exc = PermissionDenied(detail=str(exc))
         return super(CompetitionSubmissionViewSet, self).handle_exception(exc)
 
-    # TODO: Do we need detail/Authenticated?
     @action(detail=True, methods=["DELETE"], permission_classes=[permissions.IsAuthenticated])
     def removeFromLeaderboard(self, request, pk=None, competition_id=None):
         try:
@@ -657,7 +649,6 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
         except ObjectDoesNotExist:
             raise PermissionDenied()
 
-    # TODO: Do we need detail/methods
     @action(detail=True, methods=["POST"], permission_classes=[permissions.IsAuthenticated])
     def addToLeaderboard(self, request, pk=None, competition_id=None):
         try:

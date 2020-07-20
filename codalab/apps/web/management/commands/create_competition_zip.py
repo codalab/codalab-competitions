@@ -82,7 +82,7 @@ class Command(BaseCommand):
 
         #get files and make edits
         yaml_file = requests.get(yaml_file_url)
-        comp_yaml_obj = yaml.load(yaml_file.content)
+        comp_yaml_obj = yaml.full_load(yaml_file.content)
 
         #put our date changed phases and with random name
         tz_now = datetime.datetime.now()

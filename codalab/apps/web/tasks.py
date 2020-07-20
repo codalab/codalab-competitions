@@ -2,74 +2,52 @@
 Defines background tasks needed by the web site.
 """
 import csv
+import io
 import json
 import logging
-import io
-import traceback
-
 import requests
+import time
+import traceback
 import yaml
 import zipfile
-
-# Python3 boto3 support
-import boto3
-from botocore.exceptions import ClientError
-
-from django.utils import timezone
-from yaml.representer import SafeRepresenter
-from zipfile import ZipFile
-from collections import OrderedDict
-
-from datetime import timedelta
-from celery import task
-from celery.app import app_or_default
-from celery.exceptions import SoftTimeLimitExceeded
-from django.conf import settings
-from django.core.files.base import ContentFile
-from django.core.mail import get_connection, EmailMultiAlternatives, send_mail
-from django.db import transaction
-from django.db.models import Count
-from django.template.loader import render_to_string
-from django.contrib.sites.models import Site
-
 from apps.authenz.models import ClUser
 from apps.chahub.models import ChaHubSaveMixin
 from apps.chahub.utils import send_to_chahub
+from apps.coopetitions.models import DownloadRecord
 from apps.jobs.models import (Job,
                               run_job_task,
                               JobTaskResult,
-                              getQueue, update_job_status_task)
+                              update_job_status_task)
+from apps.web import models
+from apps.web.models import CompetitionDump
 from apps.web.models import (add_submission_to_leaderboard,
                              Competition,
                              CompetitionSubmission,
                              CompetitionDefBundle,
                              CompetitionSubmissionStatus,
                              CompetitionPhase,
-                             submission_prediction_output_filename,
-                             submission_output_filename,
-                             submission_detailed_results_filename,
-                             submission_private_output_filename,
-                             submission_stdout_filename,
-                             submission_stderr_filename,
-                             submission_history_file_name,
-                             submission_scores_file_name,
-                             submission_coopetition_file_name,
-                             predict_submission_stdout_filename,
-                             predict_submission_stderr_filename,
                              SubmissionScore,
                              SubmissionScoreDef,
                              CompetitionSubmissionMetadata, BundleStorage, SubmissionResultGroup,
-                             SubmissionScoreDefGroup, OrganizerDataSet, CompetitionParticipant, ParticipantStatus,
-                             PhaseLeaderBoardEntry, PhaseLeaderBoard)
-from apps.coopetitions.models import DownloadRecord
-
-import time
+                             SubmissionScoreDefGroup, OrganizerDataSet, CompetitionParticipant, ParticipantStatus)
 from apps.web.utils import inheritors, push_submission_to_leaderboard_if_best
+# Python3 boto3 support
+from botocore.exceptions import ClientError
+from celery import task
+from celery.app import app_or_default
+from celery.exceptions import SoftTimeLimitExceeded
 from codalab.azure_storage import make_blob_sas_url
-
-from apps.web import models
-
-from apps.web.models import CompetitionDump
+from collections import OrderedDict
+from datetime import timedelta
+from django.conf import settings
+from django.contrib.sites.models import Site
+from django.core.files.base import ContentFile
+from django.core.mail import EmailMultiAlternatives, send_mail
+from django.db import transaction
+from django.db.models import Count
+from django.template.loader import render_to_string
+from django.utils import timezone
+from zipfile import ZipFile
 
 logger = logging.getLogger(__name__)
 

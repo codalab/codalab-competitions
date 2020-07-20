@@ -1,62 +1,61 @@
 import csv
-import urllib.request, urllib.parse, urllib.error
-from datetime import datetime, timedelta
-import json
-import os
 import io
+import json
+import logging
+import os
 import sys
 import traceback
+import urllib.error
+import urllib.parse
+import urllib.request
+import uuid
 import yaml
 import zipfile
-
-from django.utils.safestring import mark_safe
-
-from django.db import connection
+from apps.authenz.models import ClUser
+from apps.common.competition_utils import get_most_popular_competitions, get_featured_competitions
+from apps.coopetitions.models import Like, Dislike
+from apps.customizer.models import Configuration
+from apps.forums.models import Forum
+from apps.health.models import HealthSettings
+from apps.jobs.models import Job
+from apps.teams.forms import OrganizerTeamsCSVForm
+from apps.teams.models import Team, get_user_team, get_competition_pending_teams, get_last_team_submissions, \
+    get_user_requests, get_team_pending_membership
+from apps.web import forms
+from apps.web import models
+from apps.web import tasks
+from apps.web.exceptions import ScoringException
+from apps.web.forms import CompetitionS3UploadForm
+from apps.web.models import SubmissionScore, SubmissionScoreDef, get_current_phase, \
+    get_first_previous_active_and_next_phases, Competition, CompetitionSubmission
+from datetime import datetime, timedelta
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.sites.models import Site
 from django.core.cache import cache
 from django.core.exceptions import ImproperlyConfigured
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.core.urlresolvers import reverse, reverse_lazy
+from django.core.urlresolvers import reverse
+from django.db import connection
 from django.db.models import Q, Max, Min, Count
 from django.http import Http404, HttpResponseForbidden
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render_to_response, render, redirect
-from django.template import RequestContext, loader
+from django.shortcuts import render_to_response, render
+from django.template import RequestContext
+from django.utils import timezone
+from django.utils.html import strip_tags
+from django.utils.safestring import mark_safe
 from django.views.generic import FormView
 from django.views.generic import View, TemplateView, DetailView, ListView, UpdateView, CreateView, DeleteView
-from django.utils.html import strip_tags
-from django.utils import timezone
-
-from apps.teams.forms import OrganizerTeamsCSVForm
-from apps.jobs.models import Job
-from apps.health.models import HealthSettings
-from apps.web import forms
-from apps.web import models
-from apps.web import tasks
-from apps.coopetitions.models import Like, Dislike
-from apps.forums.models import Forum
-from apps.common.competition_utils import get_most_popular_competitions, get_featured_competitions
-from apps.web.exceptions import ScoringException
-from apps.web.forms import CompetitionS3UploadForm, SubmissionS3UploadForm
-from apps.web.models import SubmissionScore, SubmissionScoreDef, get_current_phase, \
-    get_first_previous_active_and_next_phases, Competition, CompetitionSubmission
-
-from apps.authenz.models import ClUser
-from apps.customizer.models import Configuration
-from .tasks import evaluate_submission, re_run_all_submissions_in_phase, create_competition, _make_url_sassy, \
-    make_modified_bundle
-from apps.teams.models import Team, TeamMembership, get_user_team, get_competition_teams, get_competition_pending_teams, get_competition_deleted_teams, get_last_team_submissions, get_user_requests, get_team_pending_membership
-
 from extra_views import UpdateWithInlinesView, InlineFormSet, NamedFormsetsMixin
 
+from .tasks import evaluate_submission, re_run_all_submissions_in_phase, create_competition, _make_url_sassy, \
+    make_modified_bundle
 from .utils import check_bad_scores
-
-from django.contrib.auth.mixins import LoginRequiredMixin
 
 try:
     import azure
@@ -67,6 +66,8 @@ except ImportError:
         "See https://github.com/WindowsAzure/azure-sdk-for-python")
 
 User = get_user_model()
+
+logger = logging.getLogger(__name__)
 
 ############################################################
 # General: template views
@@ -583,7 +584,7 @@ class CompetitionDetailView(DetailView):
         except ObjectDoesNotExist:
             context['top_three_leaders'] = None
             context['graph'] = None
-            print("Could not find a score def!")
+            logger.info("Could not find a score def!")
 
         if settings.USE_AWS:
             context['submission_upload_form'] = forms.SubmissionS3UploadForm
@@ -1383,7 +1384,6 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
             for score_group_index, score_group in enumerate(scores):
                 # Need to figure out a way to check if submission is garbage.
                 try:
-                    # TODO: Double check this. 2to3 changed it quite a bit.
                     user_score = [user_score for user_score in score_group['scores'] if user_score[1]['id'] == submission.id][0] # This line return error.
                     main_score = [main_score for main_score in user_score[1]['values'] if main_score['name'] == score_group['headers'][0]['key']][0]
                     submission_info['score_' + str(score_group_index)] = main_score['val']
@@ -1407,14 +1407,11 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
         context['submission_info_list'] = paginator.page(page)
 
         # We need a way to check if next phase.auto_migration = True
-        # TODO: Rewrite without sys.exc_clear
         try:
-            # next_phase = competition.phases.get(phasenumber=submission.phase.phasenumber+1)
             next_phase = competition.phases.get(phasenumber=active_phase.phasenumber+1)
             context['next_phase'] = next_phase.auto_migration
         except Exception:
-            # sys.exc_clear()
-            print("Normally call Py2 sys.exc_clear()")
+            traceback.print_exc()
         context['phase'] = active_phase
 
         if competition.creator == self.request.user or self.request.user in competition.admins.all():
@@ -1592,16 +1589,15 @@ def download_dataset(request, dataset_key):
         else:
             return HttpResponseRedirect(_make_url_sassy(dataset.data_file.file.name))
     except:
-        # TODO: Replace prints with logger
         exc_type, exc_value, exc_traceback = sys.exc_info()
-        print("*** print_tb:")
+        logger.error("*** print_tb:")
         traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
-        print("*** print_exception:")
+        logger.error("*** print_exception:")
         traceback.print_exception(exc_type, exc_value, exc_traceback,
                                   limit=2, file=sys.stdout)
-        print("*** print_exc:")
+        logger.error("*** print_exc:")
         traceback.print_exc()
-        print("*** format_exc, first and last line:")
+        logger.error("*** format_exc, first and last line:")
         formatted_lines = traceback.format_exc().splitlines()
         msg = "There was an error retrieving the file. Please try again later or report the issue."
         return HttpResponse(msg, status=400, content_type='text/plain')
@@ -1671,15 +1667,14 @@ def download_competition_bundle(request, competition_pk):
     try:
         zip_buffer = io.BytesIO()
         zip_file = zipfile.ZipFile(zip_buffer, "w")
-        yaml_data = yaml.load(competition.original_yaml_file)
+        yaml_data = yaml.full_load(competition.original_yaml_file)
 
         # Grab logo
         zip_file.writestr(yaml_data["image"], competition.image.file.read())
 
         # Grab html pages
         for p in competition.pagecontent.pages.all():
-            # TODO: Check that casting to a list from 2to3 is necessary
-            if p.codename in list(yaml_data["html"].keys()) or p.codename == 'terms_and_conditions' or p.codename == 'get_data':
+            if p.codename in yaml_data["html"].keys() or p.codename == 'terms_and_conditions' or p.codename == 'get_data':
                 if p.codename == 'terms_and_conditions':
                     # overwrite this for consistency
                     p.codename = 'terms'
@@ -1692,8 +1687,7 @@ def download_competition_bundle(request, competition_pk):
         file_name_cache = []
 
         for phase in competition.phases.all():
-            # TODO: Check that casting to a list from 2to3 is necessary
-            for phase_index, phase_yaml in list(yaml_data["phases"].items()):
+            for phase_index, phase_yaml in yaml_data["phases"].items():
                 if phase_yaml["phasenumber"] == phase.phasenumber:
                     if phase.reference_data and phase.reference_data.file.name not in file_name_cache:
                         yaml_data["phases"][phase_index]["reference_data"] = phase.reference_data.file.name
@@ -1714,20 +1708,23 @@ def download_competition_bundle(request, competition_pk):
 
         zip_file.close()
 
+        # There seems to be some disagreement between boto3 and s3direct on how to format names between upload/unpack when the file contains spaces
+        # Formatting it before download so users can expect to be able to take the output and re-upload it without issue.
+        formatted_title = "{}-{}".format(competition.title.replace(" ", "_"), str(uuid.uuid4())[:6])
+
         resp = HttpResponse(zip_buffer.getvalue(), content_type="application/x-zip-compressed")
-        resp['Content-Disposition'] = 'attachment; filename=%s-%s.zip' % (competition.title, competition.pk)
+        resp['Content-Disposition'] = 'attachment; filename=%s-%s.zip' % (formatted_title, competition.pk)
         return resp
     except:
-        # TODO: Replace prints with logger
         exc_type, exc_value, exc_traceback = sys.exc_info()
-        print("*** print_tb:")
+        logger.error("*** print_tb:")
         traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
-        print("*** print_exception:")
+        logger.error("*** print_exception:")
         traceback.print_exception(exc_type, exc_value, exc_traceback,
                                   limit=2, file=sys.stdout)
-        print("*** print_exc:")
+        logger.error("*** print_exc:")
         traceback.print_exc()
-        print("*** format_exc, first and last line:")
+        logger.error("*** format_exc, first and last line:")
         formatted_lines = traceback.format_exc().splitlines()
         msg = "There was an error retrieving the file. Please try again later or report the issue."
         return HttpResponse(msg, status=400, content_type='text/plain')
@@ -1762,8 +1759,7 @@ def download_leaderboard_results(request, competition_pk, phase_pk):
                                                                   result__participant__competition=competition):
             user_on_team = result.result.participant.user
             team_name_cache[user_on_team.team_name] = user_on_team.team_members
-        # TODO: Check if casting to a list is necessary from 2to3
-        for name, members in list(team_name_cache.items()):
+        for name, members in team_name_cache.items():
             team_name_string += "Team: %s; members: %s\n" % (name, members)
 
         if team_name_string:
@@ -1797,8 +1793,7 @@ def download_leaderboard_results(request, competition_pk, phase_pk):
                 'Publication URL': submission.participant.user.publication_url,
                 'Bibtex': submission.participant.user.bibtex,
             }
-            # TODO: Check if casting to a list from 2to3 is necessary
-            user_profile_data_string = '\n'.join(['%s: %s' % (k, v) for k, v in list(user_profile_data.items())])
+            user_profile_data_string = '\n'.join(['%s: %s' % (k, v) for k, v in user_profile_data.items()])
             zip_file.writestr(profile_data_file_name, user_profile_data_string.encode('utf-8'))
 
             metadata_fields = ['method_name', 'method_description', 'project_url', 'publication_url', 'bibtex', 'team_name', 'organization_or_affiliation']
@@ -1815,16 +1810,15 @@ def download_leaderboard_results(request, competition_pk, phase_pk):
         resp['Content-Disposition'] = 'attachment; filename=%s-%s-results.zip' % (competition.title, competition.pk)
         return resp
     except:
-        # TODO: Replace prints with logger
         exc_type, exc_value, exc_traceback = sys.exc_info()
-        print("*** print_tb:")
+        logger.error("*** print_tb:")
         traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
-        print("*** print_exception:")
+        logger.error("*** print_exception:")
         traceback.print_exception(exc_type, exc_value, exc_traceback,
                                   limit=2, file=sys.stdout)
-        print("*** print_exc:")
+        logger.error("*** print_exc:")
         traceback.print_exc()
-        print("*** format_exc, first and last line:")
+        logger.error("*** format_exc, first and last line:")
         formatted_lines = traceback.format_exc().splitlines()
         msg = "There was an error retrieving the file. Please try again later or report the issue."
         return HttpResponse(msg, status=400, content_type='text/plain')
@@ -2030,8 +2024,7 @@ def start_make_bundle_task(request, competition_pk):
             exclude_datasets_flag = False
         else:
             exclude_datasets_flag = True
-        # TODO: Change to logger
-        print("Datasets flag is {}".format(exclude_datasets_flag))
+        logger.info("Datasets flag is {}".format(exclude_datasets_flag))
         make_modified_bundle.apply_async((competition.pk, exclude_datasets_flag,))
     return HttpResponse()
 

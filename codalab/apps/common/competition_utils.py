@@ -15,14 +15,15 @@ from apps.web.models import Competition, CompetitionSubmission
 
 def get_most_popular_competitions(min_participants=400, limit=5, fill_in=True):
     today = datetime.datetime.today()
+
+    sub_query = Competition.objects.annotate(num_participants=Count('participants')) \
+        .filter(num_participants__gte=min_participants)
+
     competitions = Competition.objects.filter(published=True) \
-                       .filter(Q(end_date__gte=today) | Q(end_date=None)) \
-                       .filter(pk__in=Competition.objects \
-                               .annotate(num_participants=Count('participants')) \
-                               .filter(num_participants__gte=min_participants) \
-                               ) \
-                       .order_by('?') \
-                       .select_related('creator')[:limit]
+       .filter(Q(end_date__gte=today) | Q(end_date=None)) \
+       .filter(pk__in=sub_query) \
+       .order_by('?') \
+       .select_related('creator')[:limit]
     # shuffle works in place, so turn competitions into list and shuffle it by reference
     competitions = list(competitions)
     comp_count = len(competitions)

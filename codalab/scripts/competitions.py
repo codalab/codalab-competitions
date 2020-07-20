@@ -321,7 +321,6 @@ for phase in [1, 2, 3]:
         start_date=phase_start, max_submissions=4)
 
 # Participants for the competition
-# TODO: Check casting to a list here is necessary from 2to3
 participants = [User.objects.get(username="guest%d" % random.choice(list(range(1, 10))))
                 for i in range(random.choice(list(range(1, 5))))]
 # print participants

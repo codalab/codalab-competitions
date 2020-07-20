@@ -28,7 +28,6 @@ class CompetitionOrganizerTeamsTests(TestCase):
         self.competition.admins.add(self.admin)
         self.competition.save()
 
-        # TODO: Why does these objects not exist in tests? I already confirmed they existed in the actual db.
         team_status = [("Denied", "denied", "Team was denied."),
                        ("Approved", "approved", "Team was approved."),
                        ("Pending", "pending", "Team is pending approval."),

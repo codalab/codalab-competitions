@@ -1,8 +1,7 @@
-from django.conf.urls import include, url
-from django.conf import settings
-from django.contrib import admin
-
 from apps.web.views import MyAdminView
+from django.conf import settings
+from django.conf.urls import include, url
+from django.contrib import admin
 
 admin.autodiscover()
 
@@ -26,18 +25,6 @@ urlpatterns = [
     # TODO: Switch user is not compatible with Python 3 currently
     # Switch User
     # url(r"^su/", include("django_switchuser.urls")),
-
-    # TODO: Not sure if we need these static/media url delcarations in the newest version of Django. Seems to be working without
-    # Static files
-    # url(r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_ROOT}),
-
-    # Media files
-    # url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT}),
-
-    # Todo: Could not find any usages of jsreverse. If we re-add it, it needs to be installed from scratch with the latest version.
-    # JS Reverse for saner AJAX calls
-    # url(r'^jsreverse/$', 'django_js_reverse.views.urls_js', name='js_reverse')
-    # url(r'^jsreverse/$', include('django_js_reverse.views.urls_js'), name='js_reverse')
 ]
 
 if settings.DEBUG:

@@ -92,8 +92,7 @@ class NewsletterSubscription(models.Model):
         except requests.exceptions.RequestException as e:
             self.needs_retry = True
             self.save()
-            # TODO: Turn this into a logger
-            print(e)
+            logger.error(e)
 
     def retry(self):
         if self.subscription_active:

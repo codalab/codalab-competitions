@@ -1,21 +1,24 @@
 import csv
 import datetime
-from . import exceptions
+import io
 import json
 import logging
+import lxml.html
+import math
 import operator
 import os
-import io
 import re
-import urllib.request, urllib.parse, urllib.error
+import urllib.error
+import urllib.parse
+import urllib.request
 import uuid
-
 import yaml
 import zipfile
-import math
-
-from os.path import split
-
+from apps.chahub.models import ChaHubSaveMixin
+from apps.coopetitions.models import DownloadRecord
+from apps.forums.models import Forum
+from apps.teams.models import Team, get_user_team, TeamMembership
+from apps.web.utils import PublicStorage, BundleStorage, clean_html_script, get_object_base_url
 from decimal import Decimal
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
@@ -30,26 +33,18 @@ from django.db import transaction
 from django.db.models import Max
 from django.db.models.signals import post_save
 from django.utils.dateparse import parse_datetime
-from django.utils.timezone import now
 from django.utils.deconstruct import deconstructible
-
-from mptt.models import MPTTModel, TreeForeignKey
-
-from pytz import utc
-from guardian.shortcuts import assign_perm
-from django_extensions.db.fields import UUIDField
 from django.utils.functional import cached_property
+from django.utils.timezone import now
+from django_extensions.db.fields import UUIDField
+from functools import cmp_to_key
+from guardian.shortcuts import assign_perm
+from mptt.models import MPTTModel, TreeForeignKey
+from os.path import split
+from pytz import utc
 from s3direct.fields import S3DirectField
 
-from apps.chahub.models import ChaHubSaveMixin
-from apps.forums.models import Forum
-from apps.coopetitions.models import DownloadRecord
-from apps.web.utils import PublicStorage, BundleStorage, clean_html_script, get_object_base_url
-from apps.teams.models import Team, get_user_team, TeamMembershipStatus, TeamMembership
-
-import lxml.html
-
-from functools import cmp_to_key
+from . import exceptions
 
 User = settings.AUTH_USER_MODEL
 logger = logging.getLogger(__name__)
@@ -694,7 +689,6 @@ class Page(models.Model):
     def processed_html(self):
         # We cannot just pass a blank URL anymore with S3 Boto3
         # So we pass a space, and remove it
-        # TODO: Is there a nice method that gives us the base url?
 
         if settings.USE_BOTO3:
             url = PublicStorage.url(" ").replace("%20", "")
@@ -1280,7 +1274,6 @@ class CompetitionPhase(models.Model):
                                 scores[id]['values'].append({'val': v, 'hidden_rnk': r, 'name' : sdef.key})
                         if (sdef.key == result['selection_key']):
                             overall_ranks = ranks[sdef.id]
-                    # TODO: Ensure this is correct. cmp was deprecated, so now we use the key arg and cmp_to_key util func
                     ranked_submissions = sorted(submission_ids, key=cmp_to_key(CompetitionPhase.rank_submissions(overall_ranks)))
                     final_scores = [(overall_ranks[id], scores[id]) for id in ranked_submissions]
                     result['scores'] = final_scores
@@ -1790,7 +1783,7 @@ class CompetitionDefBundle(models.Model):
         yaml.add_representer(OrderedDict, dict_representer)
         yaml.add_constructor(_mapping_tag, dict_constructor)
 
-        comp_spec = yaml.load(yaml_contents)
+        comp_spec = yaml.full_load(yaml_contents)
         comp_base = comp_spec.copy()
 
         for block in ['html', 'phases', 'leaderboard']:
