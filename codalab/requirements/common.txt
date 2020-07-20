@@ -90,4 +90,3 @@ pytest-env==0.6.2
 lxml==4.1.1
 
 certifi==2020.6.20
-whitenoise==5.1.0

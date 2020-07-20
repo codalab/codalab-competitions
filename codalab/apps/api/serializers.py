@@ -15,11 +15,23 @@ class DefaultContentSerial(serializers.ModelSerializer):
     class Meta:
         model = webmodels.DefaultContentItem
 
+
+class PageContainerSerial(serializers.ModelSerializer):
+    class Meta:
+        model = webmodels.PageContainer
+        fields = [
+            'name',
+            'object_id',
+            'id',
+        ]
+
+
 class PageSerial(serializers.ModelSerializer):
+    container = PageContainerSerial(read_only=True)
     class Meta:
         model = webmodels.Page
         fields = [
-            # 'container',
+            'container',
             'codename',
             'title',
             'label',
