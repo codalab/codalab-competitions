@@ -1204,7 +1204,7 @@ class CompetitionPhase(models.Model):
                                     computed_values = {}
                                     for id in submission_ids:
                                         try:
-                                            if weights == '':
+                                            if not weights:
                                                 # Average rank computation
                                                 computed_values[id] = sum([ranks[d.id][id] for d in computed_deps[sdef.id]]) / float(cnt)
                                             else:
