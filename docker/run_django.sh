@@ -18,14 +18,13 @@ python manage.py collectstatic --noinput
 
 # Syncdb is deperecated, replaced with migrate. Keeping this here for history.
 # migrate db, so we have the latest db schema
-#python manage.py syncdb --migrate
 
 python manage.py migrate
-python manage.py loaddata initial_data.json
 
-# For Django 1.7 we cannot run this here. Now using fixtures above with loaddata, keeping this here for history
+# For Django 1.7 we cannot run this here. Now using fixtures with loaddata, keeping this here for history
 # Insert initial data into the database
-#python scripts/initialize.py
+
+python manage.py loaddata initial_data.json initial_team_data.json
 
 # start development server on public ip interface, on port 8000
 PYTHONUNBUFFERED=TRUE gunicorn codalab.wsgi \

@@ -20,8 +20,6 @@ django-js-reverse>=0.2.0
 django-mptt==0.9.1
 django-nose==1.4.6
 django-oauth-toolkit==0.11.0
-# django-storages==1.1.8 # Replaced by storages-redux.. need to uninstall storages..
-# Regular django-storages is now maintained by the author of redux
 django-storages==1.9.1
 django-tinymce==2.7.1
 djangorestframework==3.8.2
@@ -44,7 +42,6 @@ newrelic==2.54.0.41
 pylibmc==1.5.2
 
 celery==4.4.6
-boto==2.45.0
 boto3==1.14.22
 # We need a modified s3direct 0.4.1 which can use AWS_S3_HOST instead of forcing aws
 git+https://github.com/codalab/django-s3direct.git@feature/allow-different-endpoint
@@ -56,14 +53,10 @@ gunicorn==20.0.4
 #gevent==1.2.2
 
 #Extras added
-# Branch below got merged into django-switch-user, django-switch-user is incompatible with Python3 at the moment
-# git+https://github.com/Tthomas63/django-switchuser.git@eb8b71622201f66ef1862a4976c12ef83145b5e8
-# django-switch-user==1.0.0
-# django-switch-user==1.3.0
+git+https://github.com/Tthomas63/django-switchuser.git@convert-python3
 Sphinx==1.4.1
 
-# django-allauth==0.11.1
-# Patched a vulnerability in allauth. The login view redirects to the next parameter in the url after successful form validation. Before, there was 
+# Patched a vulnerability in allauth. The login view redirects to the next parameter in the url after successful form validation. Before, there was
 # minimal validation, so it could be manually changed in the browser to any host. Now, it is checked against django.utils.is_safe_url before the 
 # redirect occurs.
 # 7/16/2020: I would think the above vulnerability would be patched in later versions that we are using now. Leaving in-case we need to reference

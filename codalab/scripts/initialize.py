@@ -6,7 +6,8 @@
 # If changes are needed, reset the db, migrate, make your changes here, call this from shell via
 # from scripts.initialize import insert_data
 # insert_data()
-# Then use `python manage.py dump_data web --output inital_data.json` to create a new initial_data fixture file.
+# Then use `python manage.py dumpdata <app> --output <fixture-name>.json` to create a new initial_data fixture file.
+# You'll need to do this for both the web and team apps.
 # Move the new fixture file from the project root to web/fixtures and replace the old one. You could of course create the
 # objects manually, but this seems more convenient.
 

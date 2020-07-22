@@ -397,7 +397,8 @@ class Competition(ChaHubSaveMixin, models.Model):
 
     def save(self, *args, **kwargs):
         # Make sure the image_url_base is set from the actual storage implementation
-        # get_object_base_url was due to differences in boto vs boto3. A utility function seemed the best route
+        # get_object_base_url was due to differences in boto vs boto3. A utility function seemed the best route to
+        # handle different storage implementations
         self.image_url_base = get_object_base_url(self, 'image')
 
         if self.description:
@@ -690,7 +691,7 @@ class Page(models.Model):
         # We cannot just pass a blank URL anymore with S3 Boto3
         # So we pass a space, and remove it
 
-        if settings.USE_BOTO3:
+        if settings.USE_AWS:
             url = PublicStorage.url(" ").replace("%20", "")
         else:
             url = PublicStorage.url("")
@@ -1569,7 +1570,8 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
         if self.participant.competition.enable_teams:
             self.team = get_user_team(self.participant, self.participant.competition)
 
-        # get_object_base_url was due to differences in boto vs boto3. A utility function seemed the best route
+        # get_object_base_url was due to differences in boto vs boto3. A utility function seemed the best route to
+        # handle different storage implementations
         self.file_url_base = get_object_base_url(self, 'file')
         res = super(CompetitionSubmission, self).save(*args, **kwargs)
         return res

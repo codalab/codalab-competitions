@@ -24,7 +24,7 @@ urlpatterns = [
 
     # TODO: Switch user is not compatible with Python 3 currently
     # Switch User
-    # url(r"^su/", include("django_switchuser.urls")),
+    url(r"^su/", include("django_switchuser.urls")),
 ]
 
 if settings.DEBUG:
