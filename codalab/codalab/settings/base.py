@@ -139,7 +139,6 @@ class Base(Configuration):
     SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', "a-hidden-secret")
 
     MIDDLEWARE = [
-        # TODO: Switchuser is not Python 3 compatible. Do we upgrade it ourselves?
         'django.middleware.security.SecurityMiddleware',
         "django_switchuser.middleware.SuStateMiddleware",
         'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -246,7 +245,6 @@ class Base(Configuration):
         'haystack',
         'django_extensions',
 
-        # TODO: Switch user is not Python 3 compatible. Do we upgrade this library ourselves for Python 3+?
         # Switch User
         "django_switchuser",
 
