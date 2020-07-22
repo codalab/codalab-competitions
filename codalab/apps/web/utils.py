@@ -120,7 +120,7 @@ def inheritors(klass):
     return subclasses
 
 def get_object_base_url(object, attr):
-    if settings.USE_BOTO3:
+    if settings.USE_AWS:
         # Boto3 does not like receiving an empty path.
         return getattr(object, attr).storage.url(' ').replace("%20", "")
     else:

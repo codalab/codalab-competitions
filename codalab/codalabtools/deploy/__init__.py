@@ -199,7 +199,7 @@ class DeploymentConfig(BaseConfig):
 
     def getUseAWS(self):
         """Gets the service cloud storage account name."""
-        return self._svc['storage'].get('storage-class') == 'storages.backends.s3boto.S3BotoStorage'
+        return self._svc['storage'].get('storage-class') == 'storages.backends.s3boto3.S3BotoStorage'
 
     def getFileStorageClass(self):
         """Gets the service cloud storage account name."""

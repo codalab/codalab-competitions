@@ -140,8 +140,8 @@ class Base(Configuration):
 
     MIDDLEWARE = [
         # TODO: Switchuser is not Python 3 compatible. Do we upgrade it ourselves?
-        # "django_switchuser.middleware.SuStateMiddleware",
         'django.middleware.security.SecurityMiddleware',
+        "django_switchuser.middleware.SuStateMiddleware",
         'django.middleware.clickjacking.XFrameOptionsMiddleware',
         'apps.web.middleware.SingleCompetitionMiddleware',
         'django.middleware.common.CommonMiddleware',
@@ -175,6 +175,7 @@ class Base(Configuration):
                     "codalab.context_processors.app_version_proc",
                     'django.template.context_processors.request',
                     "codalab.context_processors.common_settings",
+                    "django_switchuser.context_processors.su_state",
                 ],
                 'debug': DEBUG
             }
@@ -247,7 +248,7 @@ class Base(Configuration):
 
         # TODO: Switch user is not Python 3 compatible. Do we upgrade this library ourselves for Python 3+?
         # Switch User
-        # "django_switchuser",
+        "django_switchuser",
 
         # Lockout
         'pin_passcode',
@@ -357,9 +358,7 @@ class Base(Configuration):
     DEFAULT_FILE_STORAGE = os.environ.get('DEFAULT_FILE_STORAGE', 'django.core.files.storage.FileSystemStorage')
 
     # S3 from AWS
-    USE_AWS = DEFAULT_FILE_STORAGE == 'storages.backends.s3boto.S3BotoStorage' or DEFAULT_FILE_STORAGE == 'storages.backends.s3boto3.S3Boto3Storage'
-    # Needed a way to check if we're using boto3 version of s3boto because of the differences between them
-    USE_BOTO3 = DEFAULT_FILE_STORAGE == 'storages.backends.s3boto3.S3Boto3Storage'
+    USE_AWS = DEFAULT_FILE_STORAGE == 'storages.backends.s3boto3.S3Boto3Storage'
     AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
     AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
     AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')

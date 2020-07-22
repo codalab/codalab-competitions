@@ -203,7 +203,8 @@ class Team(models.Model):
 
     def save(self, *args, **kwargs):
         # Make sure the image_url_base is set from the actual storage implementation
-        # get_object_base_url was due to differences in boto vs boto3. A utility function seemed the best route
+        # get_object_base_url was due to differences in boto vs boto3. A utility function seemed the best route to
+        # handle different storage implementations
         self.image_url_base = get_object_base_url(self, 'image')
         self.last_modified=now()
 

@@ -31,7 +31,6 @@ from apps.web.models import (add_submission_to_leaderboard,
                              CompetitionSubmissionMetadata, BundleStorage, SubmissionResultGroup,
                              SubmissionScoreDefGroup, OrganizerDataSet, CompetitionParticipant, ParticipantStatus)
 from apps.web.utils import inheritors, push_submission_to_leaderboard_if_best
-# Python3 boto3 support
 from botocore.exceptions import ClientError
 from celery import task
 from celery.app import app_or_default
@@ -300,34 +299,24 @@ def _make_url_sassy(path, permission='r', duration=60 * 60 * 24):
 
         url = ''
 
-        if settings.USE_BOTO3:
-            logger.info("Path is: {}".format(path))
-            # This was necessary because otherwise the url generated would have double slashes
-            if path[0] == '/':
-                path = path[1:]
+        logger.info("Path is: {}".format(path))
+        # This was necessary because otherwise the url generated would have double slashes
+        if path[0] == '/':
+            path = path[1:]
 
-            try:
-                url =  BundleStorage.bucket.meta.client.generate_presigned_url(
-                    ClientMethod='put_object' if permission == 'w' else 'get_object',
-                    Params={
-                        'Bucket': settings.AWS_STORAGE_PRIVATE_BUCKET_NAME,
-                        'Key': path
-                    },
-                    ExpiresIn=duration,
-                    HttpMethod=method
-                )
-            except ClientError as e:
-                logger.error(e)
-                return ''
-        else:
-            url = BundleStorage.connection.generate_url(
-                expires_in=duration,
-                method=method,
-                bucket=settings.AWS_STORAGE_PRIVATE_BUCKET_NAME,
-                key=path,
-                query_auth=True,
-                force_http=not settings.AWS_S3_SECURE_URLS,
+        try:
+            url =  BundleStorage.bucket.meta.client.generate_presigned_url(
+                ClientMethod='put_object' if permission == 'w' else 'get_object',
+                Params={
+                    'Bucket': settings.AWS_STORAGE_PRIVATE_BUCKET_NAME,
+                    'Key': path
+                },
+                ExpiresIn=duration,
+                HttpMethod=method
             )
+        except ClientError as e:
+            logger.error(e)
+            return ''
 
         # Replace the default URL with the proper AWS_S3_HOST if we have one
         if settings.AWS_S3_HOST:
