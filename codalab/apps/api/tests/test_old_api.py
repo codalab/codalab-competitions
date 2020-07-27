@@ -164,19 +164,19 @@ class ParticipationStatusEmailTests(TestCase):
         with mock.patch.object(CompetitionAPIViewSet, '_send_mail', new=_new_send_mail):
             resp = self._participant_join_competition()
 
-            self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.status_code, 200)
 
-            subjects = [m.subject for m in mail.outbox]
-            self.assertIn('Application to Test Competition sent', subjects)
-            self.assertIn('%s applied to your competition' % self.participant_user, subjects)
+        subjects = [m.subject for m in mail.outbox]
+        self.assertIn('Application to Test Competition sent', subjects)
+        self.assertIn('%s applied to your competition' % self.participant_user, subjects)
 
     def test_participation_update_emails_contain_valid_links(self):
         with mock.patch.object(CompetitionAPIViewSet, '_send_mail', new=_new_send_mail):
             self._participant_join_competition()
 
-            for m in mail.outbox:
-                self.assertIn("http://example.com/my/settings", m.body)
-                self.assertIn("http://example.com/competitions/%s" % self.competition.pk, m.body)
+        for m in mail.outbox:
+            self.assertIn("http://example.com/my/settings", m.body)
+            self.assertIn("http://example.com/competitions/%s" % self.competition.pk, m.body)
 
     def test_attempting_to_join_competition_auto_approved_sends_emails(self):
         with mock.patch.object(CompetitionAPIViewSet, '_send_mail', new=_new_send_mail):
@@ -184,26 +184,25 @@ class ParticipationStatusEmailTests(TestCase):
             self.competition.save()
             resp = self._participant_join_competition()
 
-            self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.status_code, 200)
 
-            subjects = [m.subject for m in mail.outbox]
-            self.assertIn('Accepted into Test Competition!', subjects)
-            self.assertIn('%s accepted into your competition!' % self.participant_user, subjects)
+        subjects = [m.subject for m in mail.outbox]
+        self.assertIn('Accepted into Test Competition!', subjects)
+        self.assertIn('%s accepted into your competition!' % self.participant_user, subjects)
 
     def test_attempting_to_join_competition_not_logged_in_doesnt_send_email(self):
         with mock.patch.object(CompetitionAPIViewSet, '_send_mail', new=_new_send_mail):
             resp = self.client.post(reverse('competition-participate', kwargs={'pk': self.competition.pk}))
 
-            self.assertEqual(resp.status_code, 403)
-            self.assertEqual(len(mail.outbox), 0)
+        self.assertEqual(resp.status_code, 403)
+        self.assertEqual(len(mail.outbox), 0)
 
     def test_participation_status_update_approved_sends_email(self):
+        self._participant_join_competition(cleanup_email=True)
+        participant = CompetitionParticipant.objects.get(competition=self.competition, user=self.participant_user)
+        self.client.login(username="organizer", password="pass")
+
         with mock.patch.object(CompetitionAPIViewSet, '_send_mail', new=_new_send_mail):
-            self._participant_join_competition(cleanup_email=True)
-
-            participant = CompetitionParticipant.objects.get(competition=self.competition, user=self.participant_user)
-
-            self.client.login(username="organizer", password="pass")
             resp = self.client.post(
                 reverse('competition-participation-status', kwargs={'pk': self.competition.pk}),
                 {
@@ -213,19 +212,18 @@ class ParticipationStatusEmailTests(TestCase):
                 }
             )
 
-            self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.status_code, 200)
 
-            subjects = [m.subject for m in mail.outbox]
-            self.assertIn('Accepted into %s!' % self.competition, subjects)
-            self.assertIn('%s accepted into your competition!' % self.participant_user, subjects)
+        subjects = [m.subject for m in mail.outbox]
+        self.assertIn('Accepted into %s!' % self.competition, subjects)
+        self.assertIn('%s accepted into your competition!' % self.participant_user, subjects)
 
     def test_participation_status_update_revoked_sends_email(self):
+        self._participant_join_competition(cleanup_email=True)
+        participant = CompetitionParticipant.objects.get(competition=self.competition, user=self.participant_user)
+        self.client.login(username="organizer", password="pass")
+
         with mock.patch.object(CompetitionAPIViewSet, '_send_mail', new=_new_send_mail):
-            self._participant_join_competition(cleanup_email=True)
-
-            participant = CompetitionParticipant.objects.get(competition=self.competition, user=self.participant_user)
-
-            self.client.login(username="organizer", password="pass")
             resp = self.client.post(
                 reverse('competition-participation-status', kwargs={'pk': self.competition.pk}),
                 {
@@ -235,29 +233,29 @@ class ParticipationStatusEmailTests(TestCase):
                 }
             )
 
-            self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.status_code, 200)
 
-            subjects = [m.subject for m in mail.outbox]
-            self.assertIn('Permission revoked from Test Competition!', subjects)
-            self.assertIn("%s's permission revoked from your competition!" % self.participant_user, subjects)
+        subjects = [m.subject for m in mail.outbox]
+        self.assertIn('Permission revoked from Test Competition!', subjects)
+        self.assertIn("%s's permission revoked from your competition!" % self.participant_user, subjects)
 
     def test_participation_status_update_not_sent_when_participant_disables_status_notifications(self):
-        with mock.patch.object(CompetitionAPIViewSet, '_send_mail', new=_new_send_mail):
-            self.participant_user.participation_status_updates = False
-            self.participant_user.save()
+        self.participant_user.participation_status_updates = False
+        self.participant_user.save()
 
+        with mock.patch.object(CompetitionAPIViewSet, '_send_mail', new=_new_send_mail):
             self._participant_join_competition()
 
-            self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(len(mail.outbox), 1)
 
     def test_organizer_not_notified_participant_joining_competition_if_opted_out(self):
-        with mock.patch.object(CompetitionAPIViewSet, '_send_mail', new=_new_send_mail):
-            self.organizer_user.organizer_status_updates = False
-            self.organizer_user.save()
+        self.organizer_user.organizer_status_updates = False
+        self.organizer_user.save()
 
+        with mock.patch.object(CompetitionAPIViewSet, '_send_mail', new=_new_send_mail):
             self._participant_join_competition()
 
-            self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(len(mail.outbox), 1)
 
 
 class ParticipationStatusPermissionsTests(TestCase):
