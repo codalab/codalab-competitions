@@ -25,7 +25,7 @@ django-tinymce==2.7.1
 djangorestframework==3.8.2
 mock==1.0.1
 oauthlib==1.1.2
-psutil==2.1.1
+psutil==5.7.2
 python-openid==2.2.5
 python-ptrace==0.6.5
 pytz==2015.7
