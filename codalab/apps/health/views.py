@@ -119,8 +119,18 @@ def simple_health(request):
     qs = qs.select_related('phase__competition')
     qs = qs.select_related('participant__user__username')
     qs = qs.prefetch_related('phase', 'status', 'metadatas')
+
+    submissions = qs[:250]
+    for s in submissions:
+        # Get file attribute whether we're on S3 or Azure
+        if settings.USE_AWS:
+            from apps.web.utils import BundleStorage
+            s.submission_size = BundleStorage.bucket.get_key(s.s3_file).size
+        else:
+            s.submission_size = s.file.size
+
     return render(request, "health/simple_health.html", {
-        "submissions": qs[:250],
+        "submissions": submissions,
     })
 
 
