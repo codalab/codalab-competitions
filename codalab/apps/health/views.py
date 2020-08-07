@@ -125,7 +125,9 @@ def simple_health(request):
         # Get file attribute whether we're on S3 or Azure
         if settings.USE_AWS:
             from apps.web.utils import BundleStorage
-            s.submission_size = BundleStorage.bucket.get_key(s.s3_file).size
+            # get file url without base path
+            file_key = s.s3_file.split(BundleStorage.bucket.name + "/")[1]
+            s.submission_size = BundleStorage.bucket.get_key(file_key).size
         else:
             s.submission_size = s.file.size
 
