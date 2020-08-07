@@ -24,7 +24,7 @@
         <td>{{ sub.phase.competition }}</td>
         <td>{{ sub.participant.user.username }}</td>
         <td>{{ sub.submitted_at|timesince }} ago</td>
-        <td>{{ sub.submission_size }} ago</td>
+        <td>{{ sub.submission_size }}</td>
         <td>{{ sub.status }}</td>
         <td>
             {% for metadata in sub.metadatas.all %}
