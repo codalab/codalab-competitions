@@ -127,7 +127,11 @@ def simple_health(request):
             from apps.web.utils import BundleStorage
             # get file url without base path
             file_key = s.s3_file.split(BundleStorage.bucket.name + "/")[1]
-            s.submission_size = BundleStorage.bucket.get_key(file_key).size / 1024 / 1024
+            file_object = s.submission_size = BundleStorage.bucket.get_key(file_key)
+            if file_object:
+                s.submission_size = file_object.size / 1024 / 1024
+            else:
+                s.submission_size = 0
         else:
             s.submission_size = s.file.size
 
