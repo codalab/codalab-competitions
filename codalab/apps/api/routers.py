@@ -12,7 +12,6 @@ router.register(r'competition/(?P<competition_id>\d+)/participants', views.Compe
 router.register(r'competition', views.CompetitionAPIViewSet)
 router.register(r'competition/(?P<competition_id>\d+)/leaderboards', views.LeaderBoardViewSet)
 router.register(r'defaultcontent', views.DefaultContentViewSet)
-# router.register(r'submissions', views.CompetitionSubmissionListViewSet, )
 
 urlpatterns = router.urls
 
@@ -26,7 +25,6 @@ urlpatterns += (
     url(r'^competition/(?P<competition_id>\d+)/submission/sas$',views.CompetitionSubmissionSasApi.as_view(), name='api_competition_submission_sas'),
     url(r'^competition/(?P<competition_id>\d+)/submission/(?P<pk>\d+)$',views.competition_submission_retrieve,name='api_competition_submission_get'),
     url(r'^competition/(?P<competition_id>\d+)/submission/(?P<pk>\d+)/leaderboard$',views.competition_submission_leaderboard,name='api_competition_submission_leaderboard'),
-    # url(r'^competition/(?P<competition_id>\d+)/submissions/?$', views.competition_submission_list, name='api_competition_submission_list'),
     url(r'^competition/(?P<competition_id>\d+)/submissions/?$', views.CompetitionSubmissionListViewSet.as_view({'get': 'list'}), name='api_competition_submission_list'),
 
     url(r'^competition/(?P<pk>\d+)/phases/(?P<phasenumber>\d+)$',views.competitionphase_retrieve,name='api_competitionphase'),

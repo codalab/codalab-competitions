@@ -610,7 +610,6 @@
                             }
                         },
                         async migrate_submission(submission) {
-                            // '/competitions/submission_migrate/' + phase pk? or submission pk? not sure,
                             try {
                                 const resp = await $.post(`/competitions/submission_migrate/${submission.id}/`)
 
