@@ -12,12 +12,6 @@
     <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
 
     <style>
-        /*#app table {
-            background-color: #fff;
-            border: 1px solid #ccc;
-            border-bottom-color: transparent;
-        }*/
-
         /* Move us closer to header.. */
         .page-header {
             margin: 0;
@@ -47,10 +41,6 @@
         }
 
         /* Table header */
-        #app .submission-table thead th {
-        {#vertical-align: middle;#}
-        }
-
         #app .submission-table tbody {
             background-color: #f7f7f7;
         }
@@ -68,8 +58,8 @@
         }
 
         #app .submission-table tbody tr.v-data-table__expanded__content {
-        {#box-shadow: inset 0 4px 8px -5px rgba(50, 50, 50, .35),#}{#inset 0 -4px 8px -5px rgba(50, 50, 50, .35);#} box-shadow: none;
-        {#background-color: rgba(38, 66, 75, 0.05);#} border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+            box-shadow: none;
+            border-bottom: 2px solid rgba(0, 0, 0, 0.1);
         }
 
         /* Turn off hover inside expanded submission data sections */
@@ -82,32 +72,22 @@
             padding: 0;
         }
 
-        /*#app .v-data-footer {
-            background-color: #fff;
-            border: 1px solid #ccc;
-        }*/
-
         .v-card {
-        {#.v-card:not(.v-sheet--tile):not(.v-card--shaped) {#} border: 1px solid #ccc !important;
+            border: 1px solid #ccc !important;
         }
 
         .v-card__title {
-            background-color: #739cb9;
-            color: white;
+            background-color: #fff;
+            border-bottom: 1px solid #e5e5e5;
         }
 
         /*
         Fix up search bar..
          */
-        {#.v-application .primary--text#}
         .v-label {
             font-weight: 400 !important;
             font-family: 'Segoe UI';
             font-size: 1.1rem;
-        }
-
-        .theme--light.v-input, .theme--light.v-input input, .theme--light.v-input textarea {
-            color: white !important;
         }
     </style>
 {% endblock %}
@@ -191,7 +171,6 @@
                                         item-text="label"
                                         label="Select phase.."
                                         clearable
-                                        dark
                                 ></v-select>
 
                                 <span v-if="phase" class="phase-details">
@@ -223,7 +202,6 @@
                                         label="Search (username, filename, submission id, etc.)"
                                         single-line
                                         hide-details
-                                        dark
                                 ></v-text-field>
                             </v-col>
                         </v-row>
