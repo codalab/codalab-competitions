@@ -63,6 +63,7 @@ class CompetitionSubmissionListSerializer(serializers.ModelSerializer):
     leaderboard = serializers.SerializerMethodField('get_leaderboard')
     can_be_migrated = serializers.SerializerMethodField('get_can_be_migrated')
     participant_submission_number = serializers.CharField(read_only=True)
+    phase_number = serializers.IntegerField(source='phase.phasenumber')
 
     class Meta:
         model = webmodels.CompetitionSubmission
@@ -72,6 +73,7 @@ class CompetitionSubmissionListSerializer(serializers.ModelSerializer):
             'submission_number',
             'participant_submission_number',
             'phase',
+            'phase_number',
             'submitted_at',
             'leaderboard',
             # 'results',
@@ -79,7 +81,7 @@ class CompetitionSubmissionListSerializer(serializers.ModelSerializer):
             'username',
             'is_migrated',
 
-            # Would it maybe be possible to migrate this to another phase?
+            # Is it possible to migrate this to the next phase?
             'can_be_migrated',
         )
 

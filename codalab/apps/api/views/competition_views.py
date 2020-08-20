@@ -645,13 +645,6 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
         response['status'] = (201 if cr else 200)
         return Response(response, status=response['status'], content_type="application/json")
 
-    def destroy(self, request, *args, **kwargs):
-        obj = self.get_object()
-        self.check_submission_participant(obj)
-
-        obj.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
     def check_submission_participant(self, obj):
         try:
             obj.participant = webmodels.CompetitionParticipant.objects.filter(
@@ -671,8 +664,6 @@ competition_submission_leaderboard = CompetitionSubmissionViewSet.as_view(
 class CompetitionSubmissionListViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     queryset = CompetitionSubmission.objects.all()
     serializer_class = serializers.CompetitionSubmissionListSerializer
-    # paginate_by = 10
-    # paginate_by_param = 'page_size'
 
     def get_queryset(self, *args, **kwargs):
         qs = super(CompetitionSubmissionListViewSet, self).get_queryset(*args, **kwargs)
@@ -685,11 +676,7 @@ class CompetitionSubmissionListViewSet(mixins.ListModelMixin, viewsets.GenericVi
         qs = qs.extra(
             select={
                 'participant_submission_number':
-                    # 'DISTINCT "web_competitionsubmission"."participant_id" '
-                    # 'DENSE_RANK() OVER(ORDER BY "web_competitionsubmission"."id" ASC) '
-                    # 'DENSE_RANK() OVER(ORDER BY "web_competitionsubmission"."id" ASC) '
                     'DENSE_RANK() OVER(PARTITION BY "web_competitionsubmission"."participant_id" ORDER BY "web_competitionsubmission"."id" ASC) '
-                    # 'GROUP BY "web_competitionsubmission"."participant_id"'
             }
         )
 
@@ -716,19 +703,14 @@ class CompetitionSubmissionListViewSet(mixins.ListModelMixin, viewsets.GenericVi
         )
 
         # Get all submissions that can be migrated into another phase (must be on leaderboard already and
-        # the next phase must have auto_migration
+        # the next phase must have auto_migration = True)
         if next_phase and next_phase.auto_migration:
-            active_phase_submissions = CompetitionSubmission.objects.filter(
-                phase=active_phase,
-            ).values_list('id', flat=True)
+            active_phase_submissions = active_phase.submissions.all().values_list('id', flat=True)
             context['migratable_submissions'] = filter(lambda x: x in context["leaderboard_submissions"], active_phase_submissions)
         else:
             context['migratable_submissions'] = []
 
         return context
-
-
-# competition_submission_list = CompetitionSubmissionListViewSet.as_view({'get': 'list'})
 
 
 class LeaderBoardViewSet(viewsets.ModelViewSet):

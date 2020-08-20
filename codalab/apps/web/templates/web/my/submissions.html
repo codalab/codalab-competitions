@@ -26,6 +26,13 @@
         #app {
             margin-top: 20px;
         }
+        #app.loading {
+            /* for initial loading, hide */
+            display: none;
+        }
+        #app.loaded {
+            display: block !important;
+        }
 
         .theme--light.v-application {
             background: inherit;
@@ -165,7 +172,7 @@
     {#    <button class="btn btn-default re_run_all_submissions_button">Re-run all submissions in this phase</button>#}
 
     {% verbatim %}
-        <div id="app">
+        <div id="app" class="loading" :class="{'loaded': !loading}">
             <v-app>
                 <v-card
                         outlined
@@ -199,12 +206,14 @@
                                         :disabled="!phase"
                                         @click="re_run_all_submissions"
                                 >
-                                    re-run all submissions in this phase
+                                    <v-icon size="medium">mdi-restart-alert</v-icon>
+                                    &nbsp; re-run all submissions in this phase
                                 </v-btn>
                                 <v-btn
                                         @click="get_submissions"
                                 >
-                                    Refresh table
+                                    <v-icon size="medium">mdi-refresh</v-icon>
+                                    &nbsp; Refresh table
                                 </v-btn>
                             </v-col>
                             <v-col cols="5">
@@ -396,11 +405,9 @@
                                 </v-tooltip>
 
 
-                                <!--<span v-if="item.is_migrated">M</span>-->
-
                                 <v-tooltip
                                         bottom
-                                        v-if="item.can_be_migrated"
+                                        v-if="item.can_be_migrated && !item.is_migrated"
                                 >
                                     <template v-slot:activator="{ on }">
                                         <v-btn
@@ -408,12 +415,30 @@
                                                 icon
                                                 @click.stop="migrate_submission(item)"
                                                 v-on="on"
+                                                :disabled="item.is_migrated"
                                         >
                                             <!-- Migrate -->
                                             <v-icon>mdi-forward</v-icon>
                                         </v-btn>
                                     </template>
                                     <span>Migrate submission to next phase</span>
+                                </v-tooltip>
+
+                                <v-tooltip
+                                        bottom
+                                        v-if="item.is_migrated"
+                                >
+                                    <template v-slot:activator="{ on }">
+                                        <v-btn
+                                                x-small
+                                                icon
+                                                v-on="on"
+                                        >
+                                            <!-- We've been migrated! -->
+                                            M
+                                        </v-btn>
+                                    </template>
+                                    <span>Submission migrated to next phase</span>
                                 </v-tooltip>
                             </v-btn-toggle>
                         </template>
@@ -439,12 +464,14 @@
                         return {
                             search: '',
                             expanded_rows: [],
+                            loading: true,
                             headers: [
                                 {text: 'Submitted', value: 'submitted_at', width: '200px'},
                                 // Hiding phase for now, no name yet
                                 // {text: 'Phase', value: 'phase', width: '100px'},
                                 {text: 'Participant', value: 'username'},
                                 {text: 'Participant Submission #', value: 'participant_submission_number'},
+                                {text: 'Phase', value: 'phase_number'},
                                 {text: 'Submission ID', value: 'id'},
                                 {text: 'Filename', value: 'filename'},
                                 {text: 'Status', value: 'status'},
@@ -473,6 +500,8 @@
                         }
                     },
                     mounted() {
+                        this.loading = false
+
                         this.get_submissions()
 
                         // Our last call sets loading = false
@@ -580,9 +609,17 @@
                                 }
                             }
                         },
-                        async submission_migrate() {
+                        async migrate_submission(submission) {
                             // '/competitions/submission_migrate/' + phase pk? or submission pk? not sure,
-                            alert("NEED TO IMPLEMENT!")
+                            try {
+                                const resp = await $.post(`/competitions/submission_migrate/${submission.id}/`)
+
+                                // Update the list of submissions
+                                this.get_submissions()
+                            } catch (e) {
+                                console.log("Error deleting submission..")
+                                console.log(e.response)
+                            }
                         },
 
                     }

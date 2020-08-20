@@ -1287,8 +1287,6 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
     .. note::
 
         Requires an authenticated user who is an administrator of the competition."""
-    # queryset = models.Competition.objects.all()
-    # model = models.Competition
     template_name = 'web/my/submissions.html'
 
     def get(self, request, *args, **kwargs):
@@ -1315,7 +1313,6 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
             selected_phase = phases[0]
             for phase in phases:
                 if phase.is_active:
-                    # context['selected_phase_id'] = phase.id
                     selected_phase = phase
 
         if not selected_phase:
@@ -1323,144 +1320,6 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
 
         context['selected_phase'] = selected_phase
         return context
-
-    # def get_context_data(self, **kwargs):
-    #     phase_id = self.request.GET.get('phase')
-    #     context = super(MyCompetitionSubmissionsPage, self).get_context_data(**kwargs)
-    #     competition = models.Competition.objects.get(pk=self.kwargs['competition_id'])
-    #     context['competition'] = competition
-    #
-    #     if self.request.user.id != competition.creator_id and self.request.user not in competition.admins.all():
-    #         raise Http404()
-    #
-    #     # find the active phase
-    #     if phase_id:
-    #         context['selected_phase_id'] = int(phase_id)
-    #         try:
-    #             active_phase = competition.phases.get(id=phase_id)
-    #         except ObjectDoesNotExist:
-    #             raise Http404()
-    #     else:
-    #         phases = list(competition.phases.all())
-    #         active_phase = phases[0]
-    #         for phase in phases:
-    #             if phase.is_active:
-    #                 context['selected_phase_id'] = phase.id
-    #                 active_phase = phase
-    #
-    #     context['selected_phase'] = active_phase
-    #
-    #     submissions = models.CompetitionSubmission.objects.filter(phase=active_phase).select_related('participant', 'participant__user', 'status')
-    #     # find which submissions are in the leaderboard, if any and only if phase allows seeing results.
-    #     leaderboard_entries = list(models.PhaseLeaderBoardEntry.objects.filter(board__phase__competition=competition))
-    #     id_of_submissions_in_leaderboard = [e.result.id for e in leaderboard_entries if e.result in submissions]
-    #     # create column definition
-    #     columns = [
-    #         {
-    #             'label': 'SUBMITTED',
-    #             'name': 'submitted_at'
-    #         },
-    #         {
-    #             'label': 'SUBMITTED BY',
-    #             'name': 'submitted_by'
-    #         },
-    #         {
-    #             'label': 'SUBMISSION ID',
-    #             'name': 'submission_pk'
-    #         },
-    #         {
-    #             'label': 'FILENAME',
-    #             'name': 'filename'
-    #         },
-    #         {
-    #             'label': 'STATUS',
-    #             'name': 'status_name'
-    #         },
-    #         {
-    #             'label': 'LEADERBOARD',
-    #             'name': 'is_in_leaderboard'
-    #         },
-    #     ]
-    #
-    #     # This line is causing problems...
-    #     # Active phase should be fine
-    #     scores = active_phase.scores(include_scores_not_on_leaderboard=True)
-    #     bad_score_count, bad_scores = check_bad_scores(scores)
-    #     try:
-    #         if bad_score_count > 0:
-    #             raise ScoringException("Improperly configured leaderboard or scoring program!")
-    #     except ScoringException:
-    #         context['scoring_exception'] = "ERROR: Improperly configured leaderboard or scoring program. Some " \
-    #                                        "scores have NaN! Please check your leaderboard configuration and" \
-    #                                        " scoring program for the competition!"
-    #         context['bad_scores'] = bad_scores
-    #         context['bad_score_count'] = bad_score_count
-    #
-    #     for score_group_index, score_group in enumerate(scores):
-    #         column = {
-    #             'label': score_group['label'],
-    #             'name': 'score_' + str(score_group_index),
-    #         }
-    #         columns.append(column)
-    #     # map submissions to view data
-    #     submission_info_list = []
-    #     for submission in submissions:
-    #         submission_info = {
-    #             'id': submission.id,
-    #             'submitted_by': submission.participant.user.username,
-    #             'user_pk': submission.participant.user.pk,
-    #             'number': submission.submission_number,
-    #             'filename': submission.get_filename(),
-    #             'submitted_at': submission.submitted_at,
-    #             'status_name': submission.status.name,
-    #             'is_in_leaderboard': submission.id in id_of_submissions_in_leaderboard,
-    #             'exception_details': submission.exception_details,
-    #             'description': submission.description,
-    #             'is_public': submission.is_public,
-    #             'submission_pk': submission.id,
-    #             'is_migrated': submission.is_migrated
-    #         }
-    #         # Removed if to show scores on submissions view.
-    #
-    #         #if (submission_info['is_in_leaderboard'] == True):
-    #         # add score groups into data columns
-    #         for score_group_index, score_group in enumerate(scores):
-    #             # Need to figure out a way to check if submission is garbage.
-    #             try:
-    #                 user_score = filter(lambda user_score: user_score[1]['id'] == submission.id, score_group['scores'])[0] # This line return error.
-    #                 main_score = filter(lambda main_score: main_score['name'] == score_group['headers'][0]['key'], user_score[1]['values'])[0]
-    #                 submission_info['score_' + str(score_group_index)] = main_score['val']
-    #             # If submission is garbage put in garbage data.
-    #             except:
-    #                 user_score = "---"
-    #                 main_score = "---"
-    #                 submission_info['score_' + str(score_group_index)] = "---"
-    #         submission_info_list.append(submission_info)
-    #     # order results
-    #     sort_data_table(self.request, context, submission_info_list)
-    #     # complete context
-    #     context['columns'] = columns
-    #
-    #     paginator = Paginator(submission_info_list, 25)
-    #     page = self.request.GET.get('page')
-    #     if page is None:
-    #         # If we don't get page back in the request dict, default to 1st page.
-    #         page = 1
-    #
-    #     context['submission_info_list'] = paginator.page(page)
-    #
-    #     # We need a way to check if next phase.auto_migration = True
-    #     try:
-    #         next_phase = competition.phases.get(phasenumber=submission.phase.phasenumber+1)
-    #         context['next_phase'] = next_phase.auto_migration
-    #     except Exception:
-    #         sys.exc_clear()
-    #     context['phase'] = active_phase
-    #
-    #     if competition.creator == self.request.user or self.request.user in competition.admins.all():
-    #         context['is_admin_or_owner'] = True
-    #
-    #     return context
 
 
 class VersionView(TemplateView):
