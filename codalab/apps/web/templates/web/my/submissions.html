@@ -357,7 +357,7 @@
                                         <v-btn
                                                 x-small
                                                 icon
-                                                @click.stop="fail_submission(item)"
+                                                @click.stop="mark_submission_failed(item)"
                                                 v-on="on"
                                         >
                                             <!-- Failed -->
@@ -543,18 +543,18 @@
                                 // Update the list of submissions
                                 this.get_submissions()
                             } catch (e) {
-                                console.log("Error deleting submission..")
+                                console.log("Error toggling leaderboard..")
                                 console.log(e.response)
                             }
                         },
                         async mark_submission_failed(submission) {
                             try {
-                                const resp = await $.post(`/competitions/toggle_leaderboard/${submission.id}/`)
+                                const resp = await $.post(`/competitions/mark_as_failed/${submission.id}/`)
 
                                 // Update the list of submissions
                                 this.get_submissions()
                             } catch (e) {
-                                console.log("Error deleting submission..")
+                                console.log("Error marking as failed..")
                                 console.log(e.response)
                             }
                         },
