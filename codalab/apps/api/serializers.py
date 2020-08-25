@@ -40,17 +40,57 @@ class CompetitionDatasetSerial(serializers.ModelSerializer):
             attr[source] = None
         return attr
 
+
 class CompetitionParticipantSerial(serializers.ModelSerializer):
     class Meta:
         model = webmodels.CompetitionParticipant
 
+
 class CompetitionSubmissionSerial(serializers.ModelSerializer):
     status = serializers.SlugField(source="status.codename", read_only=True)
     filename = serializers.Field(source="get_filename")
+
     class Meta:
         model = webmodels.CompetitionSubmission
         fields = ('id','status','status_details','submitted_at','submission_number', 'file', 'filename', 'exception_details', 'description', 'method_name', 'method_description', 'project_url', 'publication_url', 'bibtex', 'organization_or_affiliation')
         read_only_fields = ('participant', 'phase', 'id','status_details','submitted_at','submission_number', 'exception_details')
+
+
+class CompetitionSubmissionListSerializer(serializers.ModelSerializer):
+    status = serializers.SlugField(source="status.codename", read_only=True)
+    filename = serializers.Field(source="get_filename")
+    username = serializers.CharField(source='participant.user.username')
+    leaderboard = serializers.SerializerMethodField('get_leaderboard')
+    can_be_migrated = serializers.SerializerMethodField('get_can_be_migrated')
+    participant_submission_number = serializers.CharField(read_only=True)
+    phase_number = serializers.IntegerField(source='phase.phasenumber')
+
+    class Meta:
+        model = webmodels.CompetitionSubmission
+        fields = (
+            'id',
+            'status',
+            'submission_number',
+            'participant_submission_number',
+            'phase',
+            'phase_number',
+            'submitted_at',
+            'leaderboard',
+            # 'results',
+            'filename',
+            'username',
+            'is_migrated',
+
+            # Is it possible to migrate this to the next phase?
+            'can_be_migrated',
+        )
+
+    def get_leaderboard(self, instance):
+        return instance.id in self.context['leaderboard_submissions']
+
+    def get_can_be_migrated(self, instance):
+        return instance.id in self.context['migratable_submissions']
+
 
 class PhaseSerial(serializers.ModelSerializer):
     start_date = serializers.DateField(format='%Y-%m-%d')
@@ -58,6 +98,7 @@ class PhaseSerial(serializers.ModelSerializer):
     class Meta:
         model = webmodels.CompetitionPhase
         read_only_fields = ['datasets']
+
 
 class CompetitionPhaseSerial(serializers.ModelSerializer):
     end_date = serializers.DateField(format='%Y-%m-%d')

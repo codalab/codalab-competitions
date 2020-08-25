@@ -7,273 +7,600 @@
 {% block page_title %}Submissions{% endblock page_title %}
 {% block head_title %}Submissions{% endblock %}
 
-{% block content %}
-    <div class="submissions">
-        <div class="well submission-phase-select">
-            <div class="row">
-                <div class="col-md-6">
-                    <h4>Phase</h4>
-                </div>
-                <div class="col-md-6">
-                    <a href="{% url "competitions:view" pk=competition.pk %}" class="pull-right">Go Back to Competition
-                        Homepage</a>
-                </div>
-            </div>
-            <select id="phase_selector" class="form-control">
-                {% for phase in competition.phases.all %}
-                    <option {% if phase.id == selected_phase_id %}selected{% endif %}
-                            value="{{ phase.id }}">{{ phase.label }} - {{ phase.start_date|utc }} UTC
-                    </option>
-                {% endfor %}
-            </select>
-        </div>
+{% block extra_headers %}
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
 
-        {% if scoring_exception and bad_scores %}
-            <button class="btn btn-danger" data-toggle="collapse" data-target="#leaderboard-debug">Show Leaderboard Debug</button>
+    <style>
+        /* Move us closer to header.. */
+        .page-header {
+            margin: 0;
+        }
 
-            <div id="leaderboard-debug" class="collapse well">
-                <p>{{ scoring_exception }}</p>
-                <strong>Bad Scores:</strong>
-                <table class="table table-bordered table-responsive bg-warning">
-                    <thead>
-                    <tr>
-                        <th>Rank:</th>
-                        <th>Value:</th>
-                        <th>Column Name:</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for bad_score in bad_scores %}
-                        <tr>
-                            <td>{{ bad_score.rnk }}</td>
-                            <td>{{ bad_score.val }}</td>
-                            <td>{{ bad_score.name }}</td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            <br>
-        {% endif %}
+        #app {
+            margin-top: 20px;
+        }
+        #app.loading {
+            /* for initial loading, hide */
+            display: none;
+        }
+        #app.loaded {
+            display: block !important;
+        }
 
-        <a href="{% url "competitions:competition_submissions_metadata" competition_id=competition.pk phase_id=selected_phase.id %}">View
-            all submission's metadata</a>
+        .theme--light.v-application {
+            background: inherit;
+        }
 
-        <h4>Select phase description</h4>
-        {% if phase.description %}
-            <p>{{ phase.description }}</p>
-        {% else %}
-            <p>None</p>
-        {% endif %}
-        <p><b>Max submissions per day: </b> {{ phase.max_submissions_per_day }}</p>
-        <p><b>Max submissions total: </b> {{ phase.max_submissions }}</p>
+        /* Phase bits at top of table */
+        #app .phase-details {
+            font-size: 12px;
+        }
+        #app .v-input__icon--clear button::before {
+            color: #c32f2fbd;
+        }
 
-        <h4>Submissions</h4>
-        {% if submission_info_list|length > 0 %}
-            <a class="btn btn-default icon-excel"
-               href="{% url 'competitions:competition_results_complete_download' id=selected_phase.competition.id phase=selected_phase.id %}">Download
-                CSV</a>
-            <button class="btn btn-default re_run_all_submissions_button">Re-run all submissions in this phase</button>
-        {% endif %}
+        /* Table header */
+        #app .submission-table tbody {
+            background-color: #f7f7f7;
+        }
 
-        {% if not submission_info_list %}
-            <p>There are no submissions.</p>
-        {% else %}
-            <div class="table-responsive">
-                <table class="table resultsTable">
-                    <thead>
-                    <tr>
-                        <th>#</th>
-                        {% for column in columns %}
-                            <th>
-                                <a href="?phase={{ selected_phase_id }}&order=
+        #app .submission-table tbody tr {
+            cursor: pointer;
+        }
 
-                                        {{ column.name }}{% if direction == 'asc' and order == column.name %}&direction=desc{% endif %}">
-                                    {{ column.label }} <span class="glyphicon
+        #app .submission-table tbody tr.item-status-finished {
+            background-color: rgba(0, 200, 50, 0.1);
+        }
 
-                                        {% if order == column.name %}{% if direction == 'asc' %}glyphicon-arrow-down{% else %}glyphicon-arrow-up{% endif %}{% endif %} pull-right"></span>
-                                </a>
-                            </th>
-                        {% endfor %}
-                        <th width="40"></th>
-                        <th width="40"></th>
-                        <th width="40"></th>
-                        <th width="40"></th>
-                        <th width="40"></th>
-                        <th width="40"></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for submission in submission_info_list %}
-                        <tr id="{{ submission.id }}"
-                            {% if submission.exception_details %}
-                                data-exception="{{ submission.exception_details|escape }}"
-                            {% endif %}
-                            {% if submission.status_name == "Finished" %}
-                                class="finished-submission"
-                            {% elif submission.status_name == "Failed" %}
-                                class="failed-submission"
-                            {% endif %}
-                            data-description="{{ submission.description|default_if_none:""|escape }}"
-                            data-method-name="{{ submission.method_name|default_if_none:""|escape }}"
-                            data-method-description="{{ submission.method_description|default_if_none:""|escape }}"
-                            data-project-url="{{ submission.project_url|default_if_none:""|escape }}"
-                            data-publication-url="{{ submission.publication_url|default_if_none:""|escape }}"
-                            data-team-name="{{ submission.team_name|default_if_none:""|escape }}"
-                            data-organization-or-affiliation="{{ submission.organization_or_affiliation|default_if_none:""|escape }}"
-                            data-bibtex="{{ submission.bibtex|default_if_none:""|escape }}"
-                            data-is-public="{% if submission.is_public %}True{% endif %}">
-                            <td>{{ forloop.counter|offset_for_loop_counter:submission_info_list.number }} </td>
-                            {% for column in columns %}
-                                {% if column.name == 'filename' %}
-                                    <td>
-                                        <a href="/my/competition/submission/{{ submission.id }}/input.zip">{{ submission.filename }}</a>
-                                    </td>
-                                {% else %}
-                                    <td>{{ submission|get_item:column.name }}</td>
-                                {% endif %}
-                            {% endfor %}
-                            <td align="center"><a href="#{{ submission.id }}"
-                                                  onclick="Competition.showOrHideSubmissionDetails(this)"><span
-                                    class="glyphicon glyphicon-plus"></span></a></td>
-                            <td align="center"><a class="btn btn-danger btn-xs"
-                                                  href="{% url "competitions:submission_delete" pk=submission.id %}">DEL</a>
-                            </td>
-                            <td align="center">
-                                <button class="btn btn-danger btn-xs hide_or_show_submission_button">
-                                    {% if submission.is_in_leaderboard %}
-                                        HIDE
-                                    {% else %}
-                                        SHOW
-                                    {% endif %}
-                                </button>
-                            </td>
-                            <td align="center">
-                                <button class="btn btn-danger btn-xs mark_as_failed_button">FAILED</button>
-                            </td>
-                            <td align="center">
-                                <button class="btn btn-danger btn-xs re_run_submission_button">RE-RUN</button>
-                            </td>
-                            {% if submission.is_in_leaderboard and next_phase %}
-                                {% if submission.is_migrated %}
-                                    <td align="center">
-                                        <button class="btn btn-primary btn-xs">MIGRATED</button>
-                                    </td>
-                                {% else %}
-                                    <td align="center">
-                                        <button class="btn btn-danger btn-xs submission_migrate_button">MIGRATE</button>
-                                    </td>
-                                {% endif %}
-                            {% endif %}
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        {% endif %}
+        #app .submission-table tbody tr.item-status-failed {
+            background-color: rgba(200, 0, 50, 0.1);
+        }
 
-        <nav aria-label="Page navigation example">
-            <ul class="pagination">
-                    {% if submission_info_list.has_previous %}
-                        <li><a href="?page=1{% if selected_phase %}&phase={{ selected_phase.pk }}{% endif %}">&laquo; first</a></li>
-                        <li><a href="?page={{ submission_info_list.previous_page_number }}{% if selected_phase %}&phase={{ selected_phase.pk }}{% endif %}">previous</a></li>
-                    {% endif %}
+        #app .submission-table tbody tr.v-data-table__expanded__content {
+            box-shadow: none;
+            border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+        }
 
-                    {% if submission_info_list.has_next %}
-                        <li><a href="?page={{ submission_info_list.next_page_number }}{% if selected_phase %}&phase={{ selected_phase.pk }}{% endif %}">next</a></li>
-                        <li><a href="?page={{ submission_info_list.paginator.num_pages }}{% if selected_phase %}&phase={{ selected_phase.pk }}{% endif %}">last &raquo;</a></li>
-                    {% endif %}
-            </ul>
-        </nav>
-        Page {{ submission_info_list.number }} of {{ submission_info_list.paginator.num_pages }}.
+        /* Turn off hover inside expanded submission data sections */
+        .theme--light.v-data-table tbody tr:hover:not(.v-data-table__expanded__content):not(.v-data-table__empty-wrapper) {
+            background: inherit;
+        }
 
-        {% include "web/common/_submission_details_template.html" %}
+        /* Fix default vuetify padding */
+        .v-application ol, .v-application ul {
+            padding: 0;
+        }
 
-    </div>
+        .v-card {
+            border: 1px solid #ccc !important;
+        }
+
+        .v-card__title {
+            background-color: #fff;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        /*
+        Fix up search bar..
+         */
+        .v-label {
+            font-weight: 400 !important;
+            font-family: 'Segoe UI';
+            font-size: 1.1rem;
+        }
+    </style>
 {% endblock %}
-<script type="text/javascript">
-    {% block js %}
 
-        $(function () {
-            $("#phase_selector").change(function () {
-                window.location = "/my/competition/{{competition.id}}/submissions/?phase=" + $(this).val();
-            });
+{% block content %}
+    <a href="{% url "competitions:competition_submissions_metadata" competition_id=competition.pk phase_id=selected_phase.id %}"
+       class="pull-left">
+        View all submission's metadata
+    </a>
 
-            $(".mark_as_failed_button").click(function () {
-                if (confirm("Are you sure you want to mark this submission as failed?")) {
-                    var parent_tr = $(this).parents('tr');
-                    var pk = parent_tr.prop('id');
-                    $.post("/competitions/mark_as_failed/" + pk)
-                        .success(function () {
-                            parent_tr.find('td:nth-child(6)').text('Failed');
-                        })
-                        .error(function () {
-                            alert("Failed to mark submission as failed, is your Internet connection working? If this problem persists contact an admin.");
-                        });
-                }
-            });
+    <a href="{% url "competitions:view" pk=competition.pk %}" class="pull-right">
+        Go Back to Competition Homepage
+    </a>
 
-            $(".hide_or_show_submission_button").click(function () {
-                var self = this;
-                var parent_tr = $(this).parents('tr');
-                var old_state = parent_tr.find('td:nth-child(7)').text();
-                var pk = parent_tr.prop('id');
-                $.post("/competitions/toggle_leaderboard/" + pk)
-                    .success(function () {
-                        // toggle "Leaderboard" column label
-                        if (old_state.indexOf("True") != -1) {
-                            parent_tr.find('td:nth-child(7)').text('False');
-                            $(self).text('SHOW');
-                        } else {
-                            parent_tr.find('td:nth-child(7)').text('True');
-                            $(self).text('HIDE');
+    <!-- Fix floats from above links -->
+    <div class="clear"></div>
+
+    {% if scoring_exception and bad_scores %}
+        <button class="btn btn-danger" data-toggle="collapse" data-target="#leaderboard-debug">
+            Show Leaderboard Debug
+        </button>
+
+        <div id="leaderboard-debug" class="collapse well">
+            <p>{{ scoring_exception }}</p>
+            <strong>Bad Scores:</strong>
+            <table class="table table-bordered table-responsive bg-warning">
+                <thead>
+                <tr>
+                    <th>Rank:</th>
+                    <th>Value:</th>
+                    <th>Column Name:</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for bad_score in bad_scores %}
+                    <tr>
+                        <td>{{ bad_score.rnk }}</td>
+                        <td>{{ bad_score.val }}</td>
+                        <td>{{ bad_score.name }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <br>
+    {% endif %}
+
+
+
+    {#    <span style="color: red;">#}
+    {#        re run all submissions button header of table???#}
+    {#    </span>#}
+
+
+
+    {#    <p><b>Max submissions per day: </b> {{ phase.max_submissions_per_day }}</p>#}
+    {#    <p><b>Max submissions total: </b> {{ phase.max_submissions }}</p>#}
+
+    {#    <a class="btn btn-default icon-excel"#}
+    {#       href="{% url 'competitions:competition_results_complete_download' id=selected_phase.competition.id phase=selected_phase.id %}">Download#}
+    {#        CSV</a>#}
+    {#    <button class="btn btn-default re_run_all_submissions_button">Re-run all submissions in this phase</button>#}
+
+    {% verbatim %}
+        <div id="app" class="loading" :class="{'loaded': !loading}">
+            <v-app>
+                <v-card
+                        outlined
+                        tile
+                        class="elevation-0"
+                        :loading="loading"
+                >
+                    <v-card-title>
+                        <v-row>
+                            <v-col>
+                                <v-select
+                                        v-model="phase"
+                                        :items="phases"
+                                        return-object
+                                        item-value="id"
+                                        item-text="label"
+                                        label="Select phase.."
+                                        clearable
+                                ></v-select>
+
+                                <span v-if="phase" class="phase-details">
+                                    Max submissions per day: <strong>{{ phase.max_submissions_per_day }}</strong><br>
+                                    Max submissions total: <strong>{{ phase.max_submissions }}</strong><br>
+                                </span>
+                                <span v-else class="phase-details">
+                                    Select a phase to view details & run actions against it<br>
+                                </span>
+
+                                <v-btn
+                                        :disabled="!phase"
+                                        @click="re_run_all_submissions"
+                                >
+                                    <v-icon size="medium">mdi-restart-alert</v-icon>
+                                    &nbsp; re-run all submissions in this phase
+                                </v-btn>
+                                <v-btn
+                                        @click="get_submissions"
+                                >
+                                    <v-icon size="medium">mdi-refresh</v-icon>
+                                    &nbsp; Refresh table
+                                </v-btn>
+                            </v-col>
+                            <v-col cols="5">
+                                <v-text-field
+                                        v-model="search"
+                                        append-icon="mdi-magnify"
+                                        label="Search (username, filename, submission id, etc.)"
+                                        single-line
+                                        hide-details
+                                ></v-text-field>
+                            </v-col>
+                        </v-row>
+                    </v-card-title>
+
+                    <v-data-table
+                            class="submission-table"
+                            :search="search"
+                            :headers="headers"
+                            :items="filtered_submissions"
+                            :items-per-page="100"
+                            :footer-props="footer_properties"
+                            :expanded="expanded_rows"
+                            :item-class="get_item_class"
+                            @click:row="submission_clicked"
+                            show-expand
+                            multi-sort
+                    >
+                        <template v-slot:item.submitted_at="{ item }">
+                            <span>{{ new Date(item.submitted_at).toLocaleString() }}</span>
+                        </template>
+
+                        <!-- Do we want to show phase? Need to get name if so..
+                        <template v-slot:item.phase="{ item }">
+                            <span>{{ item.phase }}</span>
+                        </template>
+                        -->
+
+                        <template v-slot:item.leaderboard="{ item }">
+                            <span v-if="item.leaderboard">
+                                &#10003;
+                            </span>
+                        </template>
+
+                        <!--<template v-slot:item="{ item }">
+                            <tr></tr>
+                        </template>-->
+
+                        <template v-slot:expanded-item="{ headers, item }">
+                            <td :colspan="headers.length">
+                                <!--<a :href="`/my/competition/submission/${item.id}/input.zip`">Download your submission</a><br/>-->
+                                <!--<a :href="`/my/competition/submission/${item.id}/stdout.txt`" target="_blank">View scoring output log</a><br/>
+                                <a :href="`/my/competition/submission/${item.id}/stderr.txt`" target="_blank">View scoring error log</a><br/>-->
+                                <!--<a :href="`/my/competition/submission/${item.id}/predict_stdout.txt`" target="_blank">View predict output log</a><br/>
+                                <a :href="`/my/competition/submission/${item.id}/predict_stderr.txt`" target="_blank">View predict error log</a><br/>-->
+                                <!--<a :href="`/my/competition/submission/${item.id}/prediction-output.zip`">Download output from prediction step</a><br/>-->
+                                <!--<a :href="`/my/competition/submission/${item.id}/ingestion_program_stdout_file.txt`" target="_blank">View ingestion output log</a><br/>
+                                <a :href="`/my/competition/submission/${item.id}/ingestion_program_stderr_file.txt`" target="_blank">View ingestion error log</a><br/>-->
+                                <!--<a :href="`/my/competition/submission/${item.id}/detailed_results`" target="_blank">View detailed results</a><br/>-->
+                                <!--<a :href="`/my/competition/submission/${item.id}/output.zip`">Download output from scoring step</a><br/>-->
+                                <!--<a :href="`/my/competition/submission/${item.id}/private_output.zip`">Download private output from scoring step</a><br/>-->
+
+                                <table class="table">
+                                    <thead>
+                                    <th class="text-center">Submission</th>
+                                    <th class="text-center">Ingestion Step</th>
+                                    <th class="text-center">Prediction Step</th>
+                                    <th class="text-center">Scoring Step</th>
+                                    </thead>
+                                    <tbody style="background-color: white;">
+                                    <td class="text-center">
+                                        <ul class="list-unstyled">
+                                            <li>
+                                                <a :href="`/my/competition/submission/${item.id}/input.zip`"
+                                                   target="_blank">Submission</a>
+                                            </li>
+                                        </ul>
+                                    </td>
+                                    <td class="text-center">
+                                        <ul class="list-unstyled">
+                                            <li>
+                                                <a :href="`/my/competition/submission/${item.id}/ingestion_program_stdout_file.txt`"
+                                                   target="_blank">Output log</a>
+                                            </li>
+                                            <li>
+                                                <a :href="`/my/competition/submission/${item.id}/ingestion_program_stderr_file.txt`"
+                                                   target="_blank">Error log</a>
+                                            </li>
+                                        </ul>
+                                    </td>
+                                    <td class="text-center">
+                                        <ul class="list-unstyled">
+                                            <li>
+                                                <a :href="`/my/competition/submission/${item.id}/predict_stdout.txt`"
+                                                   target="_blank">Output log</a>
+                                            </li>
+                                            <li>
+                                                <a :href="`/my/competition/submission/${item.id}/predict_stderr.txt`"
+                                                   target="_blank">Error log</a>
+                                            </li>
+                                            <li>
+                                                <a :href="`/my/competition/submission/${item.id}/prediction-output.zip`">Output</a><br/>
+                                            </li>
+                                        </ul>
+                                    </td>
+                                    <td class="text-center">
+                                        <ul class="list-unstyled">
+                                            <li>
+                                                <a :href="`/my/competition/submission/${item.id}/detailed_results`"
+                                                   target="_blank">Detailed results</a><br/>
+                                            </li>
+                                            <li>
+                                                <a :href="`/my/competition/submission/${item.id}/stdout.txt`"
+                                                   target="_blank">Output log</a>
+                                            </li>
+                                            <li>
+                                                <a :href="`/my/competition/submission/${item.id}/stderr.txt`"
+                                                   target="_blank">Error log</a>
+                                            </li>
+                                            <li>
+                                                <a :href="`/my/competition/submission/${item.id}/output.zip`"
+                                                   target="_blank">Output</a><br/>
+                                            </li>
+                                            <li>
+                                                <a :href="`/my/competition/submission/${item.id}/private_output.zip`"
+                                                   target="_blank">Private output</a><br/>
+                                            </li>
+                                        </ul>
+                                    </td>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </template>
+
+                        <template v-slot:item.actions="{ item }">
+                            <v-btn-toggle tile group>
+                                <v-tooltip bottom>
+                                    <template v-slot:activator="{ on }">
+                                        <v-btn x-small icon @click.stop="delete_submission(item)" v-on="on">
+                                            <v-icon>mdi-delete</v-icon>
+                                        </v-btn>
+                                    </template>
+                                    <span>Delete submission</span>
+                                </v-tooltip>
+
+                                <v-tooltip bottom>
+                                    <template v-slot:activator="{ on }">
+                                        <v-btn
+                                                x-small
+                                                icon
+                                                @click.stop="toggle_leaderboard_for_submission(item)"
+                                                v-on="on"
+                                        >
+                                            <!-- Hide -->
+                                            <v-icon>mdi-eye-off</v-icon>
+                                        </v-btn>
+                                    </template>
+                                    <span>Toggle leaderboard</span>
+                                </v-tooltip>
+
+                                <v-tooltip bottom>
+                                    <template v-slot:activator="{ on }">
+                                        <v-btn
+                                                x-small
+                                                icon
+                                                @click.stop="mark_submission_failed(item)"
+                                                v-on="on"
+                                        >
+                                            <!-- Failed -->
+                                            <v-icon>mdi-card-bulleted-off</v-icon>
+                                        </v-btn>
+                                    </template>
+                                    <span>Mark submission failed</span>
+                                </v-tooltip>
+
+                                <v-tooltip bottom>
+                                    <template v-slot:activator="{ on }">
+                                        <v-btn
+                                                x-small
+                                                icon
+                                                @click.stop="re_run_submission(item)"
+                                                v-on="on"
+                                        >
+                                            <!-- Re-run -->
+                                            <v-icon>mdi-restart-alert</v-icon>
+                                        </v-btn>
+                                    </template>
+                                    <span>Re-run submission</span>
+                                </v-tooltip>
+
+
+                                <v-tooltip
+                                        bottom
+                                        v-if="item.can_be_migrated && !item.is_migrated"
+                                >
+                                    <template v-slot:activator="{ on }">
+                                        <v-btn
+                                                x-small
+                                                icon
+                                                @click.stop="migrate_submission(item)"
+                                                v-on="on"
+                                                :disabled="item.is_migrated"
+                                        >
+                                            <!-- Migrate -->
+                                            <v-icon>mdi-forward</v-icon>
+                                        </v-btn>
+                                    </template>
+                                    <span>Migrate submission to next phase</span>
+                                </v-tooltip>
+
+                                <v-tooltip
+                                        bottom
+                                        v-if="item.is_migrated"
+                                >
+                                    <template v-slot:activator="{ on }">
+                                        <v-btn
+                                                x-small
+                                                icon
+                                                v-on="on"
+                                        >
+                                            <!-- We've been migrated! -->
+                                            M
+                                        </v-btn>
+                                    </template>
+                                    <span>Submission migrated to next phase</span>
+                                </v-tooltip>
+                            </v-btn-toggle>
+                        </template>
+                    </v-data-table>
+                </v-card>
+            </v-app>
+        </div>
+    {% endverbatim %}
+{% endblock %}
+
+{% block extra_scripts %}
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+    {#    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>#}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vuetify/2.3.0-beta.6/vuetify.js"></script>
+    <script>
+        $(document).ready(function () {
+            var COMPETITION_ID = {{ competition.id }}
+                {#var PHASE_ID = {{ selected_phase.id }}#}
+                new Vue({
+                    el: '#app',
+                    vuetify: new Vuetify(),
+                    data: function () {
+                        return {
+                            search: '',
+                            expanded_rows: [],
+                            loading: true,
+                            headers: [
+                                {text: 'Submitted', value: 'submitted_at', width: '200px'},
+                                // Hiding phase for now, no name yet
+                                // {text: 'Phase', value: 'phase', width: '100px'},
+                                {text: 'Participant', value: 'username'},
+                                {text: 'Participant Submission #', value: 'participant_submission_number'},
+                                {text: 'Phase', value: 'phase_number'},
+                                {text: 'Submission ID', value: 'id'},
+                                {text: 'Filename', value: 'filename'},
+                                {text: 'Status', value: 'status'},
+                                {text: 'Leaderboard', value: 'leaderboard'},
+                                {text: 'Results', value: 'results'},
+                                {text: '', value: 'actions'},
+                            ],
+                            footer_properties: {
+                                'items-per-page-options': [50, 100, -1],
+                            },
+                            submissions: [],
+                            phase: null,
+                            phases: [],
+                            loading: true
                         }
-                    })
-                    .error(function () {
-                        alert("Cannot show/hide a non 'Finished' submission");
-                    });
-            });
+                    },
+                    computed: {
+                        filtered_submissions() {
+                            return this.submissions.filter(s => {
+                                if (this.phase) {
+                                    return this.phase.id !== s.phase.id
+                                } else {
+                                    return true
+                                }
+                            })
+                        }
+                    },
+                    mounted() {
+                        this.loading = false
 
-            $(".re_run_submission_button").click(function () {
-                var self = this;
-                var parent_tr = $(self).parents('tr');
-                var pk = parent_tr.prop('id');
-                $.post("/competitions/submission_re_run/" + pk)
-                    .success(function () {
-                        alert("Successfully re-ran submission, please refresh the page!");
-                    })
-                    .error(function () {
-                        alert("Failed to re-run submission, make sure your Internet connection is working and if the problem persists contact an admin.");
-                    });
-            });
+                        this.get_submissions()
 
-            $(".re_run_all_submissions_button").click(function () {
-                if (!confirm("Are you sure? This could take hours.")) {
-                    return;
-                }
+                        // Our last call sets loading = false
+                        this.get_phases()
+                    },
+                    methods: {
+                        async get_submissions() {
+                            try {
+                                this.submissions = await $.get(`/api/competition/${COMPETITION_ID}/submissions/`)
+                            } catch (e) {
+                                console.log(e)
+                                console.log(e.response)
+                            }
+                        },
 
-                $.post("/competitions/submission_re_run_all/{{ phase.pk }}")
+                        async get_phases() {
+                            try {
+                                const resp = await $.get(`/api/competition/${COMPETITION_ID}/phases/`)
+                                this.phases = resp[0].phases
+                                this.loading = false
+                            } catch (e) {
+                                console.log(e)
+                                console.log(e.response)
+                            }
+                        },
+                        // Toggles expanding the submission row
+                        submission_clicked(submission) {
+                            const index = this.expanded_rows.indexOf(submission)
+                            if (index === -1) {
+                                this.expanded_rows.push(submission)
+                            } else {
+                                this.expanded_rows.splice(index, 1)
+                            }
+                        },
 
-                alert("Submissions will be re-ran, please refresh the page to see results as they update.")
-            });
+                        // Helps us get the class for the item and show whether it's failed/successful
+                        get_item_class(item) {
+                            return `item-status-${item.status}`
+                        },
 
-            //Function to submit the new submission for new phase
-            $('.submission_migrate_button').click(function () {
-                var parent_tr = $(this).parents('tr');
-                console.log(parent_tr);
-                var pk = parent_tr.prop('id');
-                $.ajax({
-                    url: '/competitions/submission_migrate/' + pk,
-                    type: 'POST',
+                        /*
+                        CRUD for submissions
+                         */
+                        async delete_submission(submission) {
+                            if (confirm("Are you sure you want to delete this submission?")) {
+                                try {
+                                    const resp = await $.post(`/competitions/submission_delete/${submission.id}/`)
+
+                                    // Update the list of submissions
+                                    this.get_submissions()
+                                } catch (e) {
+                                    console.log("Error deleting submission..")
+                                    console.log(e.response)
+                                }
+                            }
+                        },
+                        async toggle_leaderboard_for_submission(submission) {
+                            try {
+                                const resp = await $.post(`/competitions/toggle_leaderboard/${submission.id}/`)
+
+                                // Update the list of submissions
+                                this.get_submissions()
+                            } catch (e) {
+                                console.log("Error toggling leaderboard..")
+                                console.log(e.response)
+                            }
+                        },
+                        async mark_submission_failed(submission) {
+                            try {
+                                const resp = await $.post(`/competitions/mark_as_failed/${submission.id}/`)
+
+                                // Update the list of submissions
+                                this.get_submissions()
+                            } catch (e) {
+                                console.log("Error marking as failed..")
+                                console.log(e.response)
+                            }
+                        },
+                        async re_run_submission(submission) {
+                            try {
+                                const resp = await $.post(`/competitions/submission_re_run/${submission.id}/`)
+
+                                // Update the list of submissions
+                                this.get_submissions()
+                            } catch (e) {
+                                console.log("Error deleting submission..")
+                                console.log(e.response)
+                            }
+                        },
+                        async re_run_all_submissions() {
+                            if(!this.phase) {
+                                alert("Cannot re-run all submissions, no phase selected.")
+                                return false
+                            }
+
+                            if (confirm("Are you sure? This could take hours!")) {
+                                try {
+                                    const resp = await $.post(`/competitions/submission_re_run_all/${this.phase.id}/`)
+
+                                    // Update the list of submissions
+                                    this.get_submissions()
+                                } catch (e) {
+                                    console.log("Error deleting submission..")
+                                    console.log(e.response)
+                                }
+                            }
+                        },
+                        async migrate_submission(submission) {
+                            try {
+                                const resp = await $.post(`/competitions/submission_migrate/${submission.id}/`)
+
+                                // Update the list of submissions
+                                this.get_submissions()
+                            } catch (e) {
+                                console.log("Error deleting submission..")
+                                console.log(e.response)
+                            }
+                        },
+
+                    }
                 })
-                    .done(function () {
-                        alert("Migrating to next phase, please refresh the page");
-                    })
-                    .fail(function () {
-                        alert("Failed to migrate, try again later and if the problem persists contact an admin");
-                    })
-            });
-        });
-    {% endblock js %}
-</script>
-
+        })
+    </script>
+{% endblock %}
