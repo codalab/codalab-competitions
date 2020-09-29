@@ -70,7 +70,7 @@ from apps.coopetitions.models import DownloadRecord
 
 import time
 # import cProfile
-from apps.web.utils import inheritors, push_submission_to_leaderboard_if_best
+from apps.web.utils import inheritors, push_submission_to_leaderboard_if_best, s3_key_from_path
 from codalab.azure_storage import make_blob_sas_url
 
 from apps.web import models
@@ -132,7 +132,10 @@ def create_competition(job_id, comp_def_id):
     except Exception as e:
         result = JobTaskResult(status=Job.FAILED, info={'error': str(e)})
         update_job_status_task(job_id, result.get_dict())
-        logging.exception("Failed unpacking competition")
+        logging.exception("Failed unpacking competition. Deleting uploaded bundle.")
+        if competition_def.competition:
+            competition_def.competition.delete()
+        competition_def.delete()
 
 
 # CompetitionSubmission states which are final.
@@ -316,17 +319,13 @@ def _make_url_sassy(path, permission='r', duration=60 * 60 * 24):
             # Default to get if we don't know
             method = 'GET'
 
-        # Remove the beginning of the URL (before bucket name) so we just have the path to the file
-        path = path.split("{}/".format(settings.AWS_STORAGE_PRIVATE_BUCKET_NAME))[-1]
-
-        # Path could also be in a format <bucket>.<url> so check that as well
-        path = path.split("{}.{}".format(settings.AWS_STORAGE_PRIVATE_BUCKET_NAME, settings.AWS_S3_HOST))[-1]
+        key = s3_key_from_path(path)
 
         url = BundleStorage.connection.generate_url(
             expires_in=duration,
             method=method,
             bucket=settings.AWS_STORAGE_PRIVATE_BUCKET_NAME,
-            key=path,
+            key=key,
             query_auth=True,
             force_http=not settings.AWS_S3_SECURE_URLS,
         )
