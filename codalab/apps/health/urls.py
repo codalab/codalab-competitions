@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, include, url
 
-from apps.web.health import views
+from apps.health import views
 
 
 urlpatterns = patterns('',
