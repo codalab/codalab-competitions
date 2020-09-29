@@ -189,12 +189,12 @@ class Team(models.Model):
         return "[%s] %s - %s" % (self.status.codename, self.competition.title, self.name)
 
     name = models.CharField(max_length=100, null=False, blank=False)
-    competition = models.ForeignKey('web.Competition')
+    competition = models.ForeignKey('web.Competition', on_delete=models.CASCADE)
     description = models.TextField(null=True, blank=True)
     image = models.FileField(upload_to='team_logo', storage=PublicStorage, null=True, blank=True, verbose_name="Logo")
     image_url_base = models.CharField(max_length=255)
     allow_requests = models.BooleanField(default=True, verbose_name="Allow requests")
-    creator = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='team_creator')
+    creator = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='team_creator', on_delete=models.CASCADE)
     members = models.ManyToManyField(settings.AUTH_USER_MODEL, through='TeamMembership', blank=True, null=True, related_name='teams')
     created_at = models.DateTimeField(null=True, auto_now_add=True)
     last_modified = models.DateTimeField(auto_now_add=True)
@@ -277,8 +277,8 @@ class TeamMembershipStatus(models.Model):
 
 
 class TeamMembership(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='team_memberships')
-    team = models.ForeignKey(Team)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='team_memberships', on_delete=models.CASCADE)
+    team = models.ForeignKey(Team, on_delete=models.CASCADE)
     is_invitation = models.BooleanField(default=False)
     is_request = models.BooleanField(default=False)
     start_date = models.DateTimeField(null=True, blank=True, verbose_name="Start Date (UTC)")

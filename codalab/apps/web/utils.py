@@ -118,3 +118,48 @@ def inheritors(klass):
                 subclasses.add(child)
                 work.append(child)
     return subclasses
+
+
+def s3_key_from_path(path):
+    if not path or path == '':
+        return
+    # Remove the beginning of the URL (before bucket name) so we just have the path to the file
+    key = path.split("{}/".format(settings.AWS_STORAGE_PRIVATE_BUCKET_NAME))[-1]
+    # Path could also be in a format <bucket>.<url> so check that as well
+    key = key.split("{}.{}/".format(settings.AWS_STORAGE_PRIVATE_BUCKET_NAME, settings.AWS_S3_HOST))[-1]
+    return key
+
+
+def get_competition_size(comp):
+    from boto.s3.connection import S3Connection
+    conn = S3Connection(host=settings.AWS_S3_HOST, calling_format=settings.AWS_S3_CALLING_FORMAT)
+    conn.auth_region_name = settings.S3DIRECT_REGION
+    bucket = conn.get_bucket(settings.AWS_STORAGE_PRIVATE_BUCKET_NAME)
+    data = {
+        'id': comp.id,
+        'title': comp.title,
+        'creator': "{0} ({1})".format(comp.creator.email, comp.creator.username),
+        'submissions': 0,
+        'datasets': 0
+    }
+    data_file_attrs = [
+        'reference_data_organizer_dataset',
+        'input_data_organizer_dataset',
+        'scoring_program_organizer_dataset'
+    ]
+    for phase in comp.phases.all():
+        # submissions
+        for submission in phase.submissions.all():
+            key = s3_key_from_path(submission.s3_file)
+            logger.info("Got key as: {}".format(key))
+            key_obj = bucket.lookup(key)
+            if key_obj:
+                data['submissions'] += key_obj.size or 0
+        # datasets
+        for attr in data_file_attrs:
+            dataset = getattr(phase, attr)
+            if dataset:
+                data['datasets'] += dataset.data_file.size
+    data['datasets'] = data['datasets']
+    data['submissions'] = data['submissions']
+    return data

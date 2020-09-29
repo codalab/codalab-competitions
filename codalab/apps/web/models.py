@@ -32,9 +32,11 @@ from django.db import IntegrityError
 from django.db import models
 from django.db import transaction
 from django.db.models import Max
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
 from django.utils.dateparse import parse_datetime
 from django.utils.timezone import now
+
+from django.dispatch import receiver
 
 from mptt.models import MPTTModel, TreeForeignKey
 
@@ -49,7 +51,7 @@ from apps.forums.models import Forum
 from apps.coopetitions.models import DownloadRecord
 from apps.authenz.models import ClUser
 from apps.web.exceptions import ScoringException
-from apps.web.utils import PublicStorage, BundleStorage, clean_html_script
+from apps.web.utils import PublicStorage, BundleStorage, clean_html_script, s3_key_from_path
 from apps.teams.models import Team, get_user_team, TeamMembershipStatus, TeamMembership
 
 import lxml.html
@@ -174,7 +176,7 @@ class ExternalFile(models.Model):
     Class representing a External File.
     """
     type = models.ForeignKey(ExternalFileType)
-    creator = models.ForeignKey(settings.AUTH_USER_MODEL)
+    creator = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     source_url = models.URLField()
     source_address_info = models.CharField(max_length=200, blank=True)
@@ -218,18 +220,6 @@ def _uuidify(directory):
     return wrapped_uuidify
 
 
-class SoftDeletableObjectManager(models.Manager):
-    """
-    Class shared by Competitions + CompetitionParticipants to handle soft deletion while still being able to query the
-    deleted objects
-    """
-    def get_queryset(self):
-        return super(SoftDeletableObjectManager, self).get_queryset().filter(deleted=False)
-
-    def get_all_objects(self):
-        return super(SoftDeletableObjectManager, self).get_queryset()
-
-
 class Competition(ChaHubSaveMixin, models.Model):
     """ Model representing a competition. """
     # compute_worker_vhost = models.CharField(max_length=128, null=True, blank=True, help_text="(don't edit unless you're instructed to, will break submissions -- only admins can see this!)")
@@ -249,7 +239,7 @@ class Competition(ChaHubSaveMixin, models.Model):
     has_registration = models.BooleanField(default=False, verbose_name="Registration Required")
     start_date = models.DateTimeField(null=True, blank=True, verbose_name="Start Date (UTC)")
     end_date = models.DateTimeField(null=True, blank=True, verbose_name="End Date (UTC)")
-    creator = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='competitioninfo_creator')
+    creator = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='competitioninfo_creator', on_delete=models.CASCADE)
     admins = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='competition_admins', blank=True, null=True)
     modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='competitioninfo_modified_by')
     last_modified = models.DateTimeField(auto_now_add=True)
@@ -283,20 +273,12 @@ class Competition(ChaHubSaveMixin, models.Model):
 
     deleted = models.BooleanField(default=False)
 
-    objects = SoftDeletableObjectManager()
-
     class Meta:
         permissions = (
             ('is_owner', 'Owner'),
             ('can_edit', 'Edit'),
             )
         ordering = ['end_date']
-
-    def delete(self, using=None):
-        self.published = False
-        self.deleted = True
-        self.save()
-        self.participants.update(deleted=True)
 
     @property
     def pagecontent(self):
@@ -641,7 +623,7 @@ class Page(models.Model):
     visibility = models.BooleanField(default=True, verbose_name="Visible")
     markup = models.TextField(blank=True)
     html = models.TextField(blank=True, verbose_name="Content")
-    competition = models.ForeignKey(Competition, related_name='pages', null=True)
+    competition = models.ForeignKey(Competition, related_name='pages', null=True, on_delete=models.CASCADE)
 
     def __unicode__(self):
         return self.label
@@ -670,11 +652,11 @@ class Page(models.Model):
 # Dataset model
 class Dataset(models.Model):
     """Model to create a dataset for a competition."""
-    creator = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='datasets')
+    creator = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='datasets', on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
     description = models.TextField()
     number = models.PositiveIntegerField(default=1)
-    datafile = models.ForeignKey(ExternalFile)
+    datafile = models.ForeignKey(ExternalFile, on_delete=models.CASCADE)
 
     class Meta:
         ordering = ["number"]
@@ -847,7 +829,7 @@ class CompetitionPhase(models.Model):
         ('purple', 'Purple'),
     )
 
-    competition = models.ForeignKey(Competition, related_name='phases')
+    competition = models.ForeignKey(Competition, related_name='phases', on_delete=models.CASCADE)
     description = models.CharField(max_length=1000, null=True, blank=True)
     # Is this 0 based or 1 based?
     phasenumber = models.PositiveIntegerField(verbose_name="Number")
@@ -1266,12 +1248,11 @@ class CompetitionParticipant(models.Model):
 
         A participant needs to be a registerd user.
     """
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='participation')
-    competition = models.ForeignKey(Competition, related_name='participants')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='participation', on_delete=models.CASCADE)
+    competition = models.ForeignKey(Competition, related_name='participants', on_delete=models.CASCADE)
     status = models.ForeignKey(ParticipantStatus)
     reason = models.CharField(max_length=100, null=True, blank=True)
     deleted = models.BooleanField(default=False)
-    objects = SoftDeletableObjectManager()
 
     class Meta:
         unique_together = (('user', 'competition'),)
@@ -1317,8 +1298,8 @@ class CompetitionSubmissionStatus(models.Model):
 # Competition Submission
 class CompetitionSubmission(ChaHubSaveMixin, models.Model):
     """Represents a submission from a competition participant."""
-    participant = models.ForeignKey(CompetitionParticipant, related_name='submissions')
-    phase = models.ForeignKey(CompetitionPhase, related_name='submissions')
+    participant = models.ForeignKey(CompetitionParticipant, related_name='submissions', on_delete=models.CASCADE)
+    phase = models.ForeignKey(CompetitionPhase, related_name='submissions', on_delete=models.CASCADE)
     secret = models.CharField(max_length=128, default='', blank=True)
     docker_image = models.CharField(max_length=128, default='', blank=True)
     file = models.FileField(upload_to=_uuidify('submission_file_name'), storage=BundleStorage, null=True, blank=True)
@@ -1635,9 +1616,52 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
         return scores
 
 
+@receiver(post_delete, sender=CompetitionSubmission)
+def submission_post_delete_handler(sender, **kwargs):
+    submission = kwargs['instance']
+    file_attrs = [
+        'inputfile',
+        'runfile',
+        'output_file',
+        'private_output_file',
+        'stdout_file',
+        'stderr_file',
+        'history_file',
+        'scores_file',
+        'coopetition_file',
+        'detailed_results_file',
+        'prediction_runfile',
+        'prediction_output_file',
+        'prediction_stdout_file',
+        'prediction_stderr_file',
+        'ingestion_program_stdout_file',
+        'ingestion_program_stderr_file',
+    ]
+
+    # This specific attribute for the main uploaded zip file differs between type on S3/Azure
+    if settings.USE_AWS:
+        key = s3_key_from_path(submission.s3_file)
+        key_obj = BundleStorage.bucket.lookup(key)
+        if key_obj:
+            if key_obj.exists():
+                logger.info("Attempting to delete key: {}".format(key))
+                key_obj.delete()
+    else:
+        if submission.file.name:
+            logger.info("Attempting to delete key: {}".format(submission.name))
+            BundleStorage.delete(submission.file.name)
+
+    for file_attr in file_attrs:
+        # For s3 and azure .name should give us the 'key' instead of the full-path.
+        sub_attr = getattr(submission, file_attr)
+        if sub_attr.name and sub_attr.name != '':
+            logger.info("Attempting to delete key: {}".format(sub_attr.name))
+            BundleStorage.delete(sub_attr.name)
+
+
 class SubmissionResultGroup(models.Model):
     """Defines the Leaderboard of a Competition."""
-    competition = models.ForeignKey(Competition)
+    competition = models.ForeignKey(Competition, on_delete=models.CASCADE)
     key = models.CharField(max_length=50)
     label = models.CharField(max_length=50)
     ordering = models.PositiveIntegerField(default=1)
@@ -1652,8 +1676,8 @@ class SubmissionResultGroup(models.Model):
 
 class SubmissionResultGroupPhase(models.Model):
     """Defines the columns of a Leaderboard."""
-    group = models.ForeignKey(SubmissionResultGroup)
-    phase = models.ForeignKey(CompetitionPhase)
+    group = models.ForeignKey(SubmissionResultGroup, on_delete=models.CASCADE)
+    phase = models.ForeignKey(CompetitionPhase, on_delete=models.CASCADE)
 
     class Meta:
         unique_together = (('group', 'phase'),)
@@ -1666,7 +1690,7 @@ class SubmissionResultGroupPhase(models.Model):
 
 class SubmissionScoreDef(models.Model):
     """Defines the columns of a Leaderboard."""
-    competition = models.ForeignKey(Competition)
+    competition = models.ForeignKey(Competition, on_delete=models.CASCADE)
     key = models.CharField(max_length=50, db_index=True)
     label = models.CharField(max_length=50)
     sorting = models.SlugField(max_length=20, default='asc', choices=(('asc', 'Ascending'),('desc','Descending')))
@@ -1688,8 +1712,10 @@ class CompetitionDefBundle(models.Model):
     """Defines a competition bundle."""
     config_bundle = models.FileField(upload_to=_uuidify('competition-bundles'), storage=BundleStorage, null=True, blank=True)
     s3_config_bundle = S3DirectField(dest='competitions', null=True, blank=True)
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='owner')
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='owner', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    competition = models.OneToOneField(Competition, related_name='bundle', null=True, blank=True, on_delete=models.CASCADE)
 
     @staticmethod
     def localize_datetime(dt):
@@ -1764,6 +1790,8 @@ class CompetitionDefBundle(models.Model):
 
         comp = Competition(**comp_base)
         comp.save()
+        self.competition = comp
+        self.save()
         logger.info("CompetitionDefBundle::unpack created base competition (pk=%s)", self.pk)
 
         # if admin_names:
@@ -2218,9 +2246,27 @@ class CompetitionDefBundle(models.Model):
         return comp
 
 
+@receiver(post_delete, sender=CompetitionDefBundle)
+def competitiondefbundle_post_delete_handler(sender, **kwargs):
+    def_bundle = kwargs['instance']
+    # This specific attribute for the main uploaded zip file differs between type on S3/Azure
+    if settings.USE_AWS:
+        # Deletes the actual submission file
+        key = s3_key_from_path(def_bundle.s3_config_bundle)
+        key_obj = BundleStorage.bucket.lookup(key)
+        if key_obj:
+            if key_obj.exists():
+                logger.info("Attempting to delete key: {}".format(key))
+                key_obj.delete()
+    else:
+        if def_bundle.config_bundle.name:
+            logger.info("Attempting to delete key: {}".format(def_bundle.config_bundle.name))
+            BundleStorage.delete(def_bundle.config_bundle.name)
+
+
 class SubmissionScoreDefGroup(models.Model):
-    scoredef = models.ForeignKey(SubmissionScoreDef)
-    group = models.ForeignKey(SubmissionResultGroup)
+    scoredef = models.ForeignKey(SubmissionScoreDef, on_delete=models.CASCADE)
+    group = models.ForeignKey(SubmissionResultGroup, on_delete=models.CASCADE)
 
     class Meta:
         unique_together = (('scoredef', 'group'),)
@@ -2235,15 +2281,15 @@ class SubmissionScoreDefGroup(models.Model):
 
 
 class SubmissionComputedScore(models.Model):
-    scoredef = models.OneToOneField(SubmissionScoreDef, related_name='computed_score')
+    scoredef = models.OneToOneField(SubmissionScoreDef, related_name='computed_score', on_delete=models.CASCADE)
     operation = models.CharField(max_length=10, choices=(('Max', 'Max'),
                                                         ('Avg', 'Average')))
     weights = models.CharField(max_length=200, null=True, blank=True)
 
 
 class SubmissionComputedScoreField(models.Model):
-    computed = models.ForeignKey(SubmissionComputedScore, related_name='fields')
-    scoredef = models.ForeignKey(SubmissionScoreDef)
+    computed = models.ForeignKey(SubmissionComputedScore, related_name='fields', on_delete=models.CASCADE)
+    scoredef = models.ForeignKey(SubmissionScoreDef, on_delete=models.CASCADE)
 
     def save(self, *args, **kwargs):
         if self.scoredef.computed is True:
@@ -2253,7 +2299,7 @@ class SubmissionComputedScoreField(models.Model):
 
 class SubmissionScoreSet(MPTTModel):
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children')
-    competition = models.ForeignKey(Competition)
+    competition = models.ForeignKey(Competition, on_delete=models.CASCADE)
     key = models.CharField(max_length=50)
     label = models.CharField(max_length=50)
     scoredef = models.ForeignKey(SubmissionScoreDef, null=True, blank=True, on_delete=models.CASCADE)
@@ -2267,8 +2313,8 @@ class SubmissionScoreSet(MPTTModel):
 
 
 class SubmissionScore(models.Model):
-    result = models.ForeignKey(CompetitionSubmission, related_name='scores')
-    scoredef = models.ForeignKey(SubmissionScoreDef)
+    result = models.ForeignKey(CompetitionSubmission, related_name='scores', on_delete=models.CASCADE)
+    scoredef = models.ForeignKey(SubmissionScoreDef, on_delete=models.CASCADE)
     value = models.DecimalField(max_digits=20, decimal_places=10)
 
     class Meta:
@@ -2281,7 +2327,7 @@ class SubmissionScore(models.Model):
 
 
 class PhaseLeaderBoard(models.Model):
-    phase = models.OneToOneField(CompetitionPhase, related_name='board')
+    phase = models.OneToOneField(CompetitionPhase, related_name='board', on_delete=models.CASCADE)
     is_open = models.BooleanField(default=True)
 
     def submissions(self):
@@ -2302,8 +2348,8 @@ class PhaseLeaderBoard(models.Model):
 
 
 class PhaseLeaderBoardEntry(models.Model):
-    board = models.ForeignKey(PhaseLeaderBoard, related_name='entries')
-    result = models.ForeignKey(CompetitionSubmission, related_name='leaderboard_entry_result')
+    board = models.ForeignKey(PhaseLeaderBoard, related_name='entries', on_delete=models.CASCADE)
+    result = models.ForeignKey(CompetitionSubmission, related_name='leaderboard_entry_result', on_delete=models.CASCADE)
 
     class Meta:
         unique_together = (('board', 'result'),)
@@ -2372,10 +2418,40 @@ class OrganizerDataSet(models.Model):
 
         self.data_file.save("metadata", ContentFile("\n".join(lines)))
 
+    @property
+    def is_in_use(self):
+        attrs_to_check = [
+            "input_data_organizer_dataset",
+            "reference_data_organizer_dataset",
+            "scoring_program_organizer_dataset",
+            "starting_kit_organizer_dataset",
+            "public_data_organizer_dataset",
+            "ingestion_program_organizer_dataset",
+        ]
+        for attr in attrs_to_check:
+            attr_ref = getattr(self, attr)
+            if attr_ref:
+                if attr_ref.exists():
+                    return True
+        return False
+
+
+
+@receiver(post_delete, sender=OrganizerDataSet)
+def organizerdataset_post_delete_handler(sender, **kwargs):
+    organizer_dataset = kwargs['instance']
+
+    if organizer_dataset.data_file.name and organizer_dataset.data_file.name != '':
+        logger.info("Attempting to delete key: {}".format(organizer_dataset.data_file.name))
+        BundleStorage.delete(organizer_dataset.data_file.name)
+
+    for dataset in organizer_dataset.sub_data_files.all():
+        dataset.delete()
+
 
 class CompetitionSubmissionMetadata(models.Model):
     """Define extra Meta data for a submission."""
-    submission = models.ForeignKey(CompetitionSubmission, related_name="metadatas")
+    submission = models.ForeignKey(CompetitionSubmission, related_name="metadatas", on_delete=models.CASCADE)
     is_predict = models.BooleanField(default=False)
     is_scoring = models.BooleanField(default=False)
     hostname = models.CharField(max_length=255, blank=True, null=True)
@@ -2496,7 +2572,7 @@ def get_first_previous_active_and_next_phases(competition):
 
 
 class CompetitionDump(models.Model):
-    competition = models.ForeignKey(Competition, related_name='dumps')
+    competition = models.ForeignKey(Competition, related_name='dumps', on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=64, default="Starting")
     data_file = models.FileField(
@@ -2519,3 +2595,11 @@ class CompetitionDump(models.Model):
 
     def filename(self):
         return os.path.basename(self.data_file.name)
+
+
+@receiver(post_delete, sender=CompetitionDump)
+def competitiondump_post_delete_handler(sender, **kwargs):
+    comp_dump = kwargs['instance']
+    if comp_dump.data_file.name and comp_dump.data_file.name != '':
+        logger.info("Attempting to delete key: {}".format(comp_dump.data_file.name))
+        BundleStorage.delete(comp_dump.data_file.name)

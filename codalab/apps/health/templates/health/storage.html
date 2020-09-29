@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% load humanize %}
+{% load codalab_tags %}
+
+{% block head_title %}Storage Analytics{% endblock head_title %}
+{% block page_title %}Storage Analytics{% endblock page_title %}
+
+
+{% block extra_headers %}
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+{% endblock %}
+
+
+{% block content %}
+    {% verbatim %}
+        <h4>Total Storage Usage</h4>
+        <div id="storage-total-app">
+                <table class="table table-responsive">
+                    <tbody>
+                        <tr>
+                            <td>Total in bytes:</td>
+                            <td>{{ storage_analytics_data.total_bytes }}</td>
+                        <tr>
+                        <tr>
+                            <td>Total in kilobytes:</td>
+                            <td>{{ storage_analytics_data.total_kilobytes }}</td>
+                        <tr>
+                        <tr>
+                            <td>Total in megabytes:</td>
+                            <td>{{ storage_analytics_data.total_megabytes }}</td>
+                        <tr>
+                        <tr>
+                            <td>Total in gigabytes:</td>
+                            <td>{{ storage_analytics_data.total_gigabytes }}</td>
+                        <tr>
+                    </tbody>
+                </table>
+        </div>
+        <h4>Competition Storage Analytics</h4>
+        <div id="storage-competitions-app">
+                <v-data-table
+                            :headers="headers"
+                            :items="comp_list"
+                            :items-per-page="100"
+                            :footer-props="footer_properties"
+                            :loading="loading"
+                            multi-sort
+                    >
+                </v-data-table>
+        </div>
+    {% endverbatim %}
+{% endblock %}
+
+{% block extra_scripts %}
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vuetify/2.3.0-beta.6/vuetify.js"></script>
+    <script>
+        $(document).ready(function () {
+                new Vue({
+                    el: '#storage-total-app',
+                    vuetify: new Vuetify(),
+                    data: function () {
+                        return {
+                            storage_analytics_data: {
+                                total_bytes: 'Loading!',
+                                total_megabytes: 'Loading!',
+                                total_kilobytes: 'Loading!',
+                                total_gigabytes: 'Loading!'
+                            }
+                        }
+                    },
+                    computed: {
+                    },
+                    mounted: function() {
+                        this.get_storage_analytics()
+                    },
+                    methods: {
+                        async get_storage_analytics() {
+                            try {
+                                this.storage_analytics_data = await $.get(`/api/storage/get_total_analytics`)
+                            } catch (e) {
+                                console.log(e)
+                                console.log(e.response)
+                            }
+                        },
+                    }
+                })
+                new Vue({
+                    el: '#storage-competitions-app',
+                    vuetify: new Vuetify(),
+                    data: function () {
+                        return {
+                            loading: true,
+                            comp_list: [],
+                            headers: [
+                                {text: 'ID', value: 'id'},
+                                {text: 'Title', value: 'title'},
+                                {text: 'Creator', value: 'creator'},
+                                {text: 'Dataset Usage', value: 'datasets'},
+                                {text: 'Submission Usage', value: 'submissions'},
+                            ],
+                            footer_properties: {
+                                'items-per-page-options': [25, 50, -1],
+                            },
+                        }
+                    },
+                    computed: {
+                    },
+                    mounted: function() {
+                        this.get_comp_storage_analytics()
+                    },
+                    methods: {
+                        async get_comp_storage_analytics() {
+                            try {
+                                this.comp_list = await $.get(`/api/storage/get_competition_analytics`)
+                                this.loading = false
+                            } catch (e) {
+                                console.log(e)
+                                console.log(e.response)
+                                this.loading = false
+                            }
+                        },
+                    }
+                })
+        })
+    </script>
+{% endblock %}
