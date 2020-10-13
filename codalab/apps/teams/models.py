@@ -6,8 +6,11 @@ from django.utils.timezone import now
 from django.utils.functional import cached_property
 from django import template
 import apps.web as web
-from apps.web.utils import PublicStorage, BundleStorage
+from apps.web.utils import PublicStorage, BundleStorage, delete_key_from_storage
 from datetime import datetime, timedelta
+
+from django.dispatch import receiver
+from django.db.models.signals import post_delete
 
 register = template.Library()
 User = settings.AUTH_USER_MODEL
@@ -260,6 +263,12 @@ class Team(models.Model):
                 members.append(member)
 
         return members
+
+
+@receiver(post_delete, sender=Team)
+def team_post_delete_handler(sender, **kwargs):
+    team = kwargs['instance']
+    delete_key_from_storage(team, 'image')
 
 
 class TeamMembershipStatus(models.Model):

@@ -1,81 +1,57 @@
 """
 Defines background tasks needed by the web site.
 """
+import StringIO
 import csv
 import io
 import json
 import logging
-import StringIO
-import os
-import traceback
-
 import requests
+import time
+import traceback
 import yaml
 import zipfile
-
-from urllib import pathname2url
-
-from django.core.exceptions import ObjectDoesNotExist
-from django.utils import timezone
-from yaml.representer import SafeRepresenter
-from zipfile import ZipFile
-from collections import OrderedDict
-
-import sys
-
-from datetime import datetime, timedelta
-from boto.s3.connection import S3Connection
-from celery import task
-from celery.app import app_or_default
-from celery.exceptions import SoftTimeLimitExceeded
-from django.conf import settings
-from django.core.files.base import ContentFile
-from django.core.mail import get_connection, EmailMultiAlternatives, send_mail
-from django.db import transaction
-from django.db.models import Count
-from django.template import Context
-from django.template.loader import render_to_string
-from django.contrib.sites.models import Site
-
 from apps.authenz.models import ClUser
 from apps.chahub.models import ChaHubSaveMixin
 from apps.chahub.utils import send_to_chahub
+from apps.coopetitions.models import DownloadRecord
+from apps.health.models import StorageDataPoint
 from apps.jobs.models import (Job,
                               run_job_task,
                               JobTaskResult,
-                              getQueue, update_job_status_task)
+                              update_job_status_task)
+from apps.web import models
+from apps.web.models import CompetitionDump
 from apps.web.models import (add_submission_to_leaderboard,
                              Competition,
                              CompetitionSubmission,
                              CompetitionDefBundle,
                              CompetitionSubmissionStatus,
                              CompetitionPhase,
-                             submission_prediction_output_filename,
-                             submission_output_filename,
-                             submission_detailed_results_filename,
-                             submission_private_output_filename,
-                             submission_stdout_filename,
-                             submission_stderr_filename,
-                             submission_history_file_name,
-                             submission_scores_file_name,
-                             submission_coopetition_file_name,
-                             predict_submission_stdout_filename,
-                             predict_submission_stderr_filename,
                              SubmissionScore,
                              SubmissionScoreDef,
                              CompetitionSubmissionMetadata, BundleStorage, SubmissionResultGroup,
-                             SubmissionScoreDefGroup, OrganizerDataSet, CompetitionParticipant, ParticipantStatus,
-                             PhaseLeaderBoardEntry, PhaseLeaderBoard)
-from apps.coopetitions.models import DownloadRecord
-
-import time
+                             SubmissionScoreDefGroup, OrganizerDataSet, CompetitionParticipant, ParticipantStatus)
 # import cProfile
-from apps.web.utils import inheritors, push_submission_to_leaderboard_if_best, s3_key_from_path
+from apps.web.utils import inheritors, push_submission_to_leaderboard_if_best, s3_key_from_url, \
+    get_competition_size_data, storage_get_total_use
+from celery import task
+from celery.app import app_or_default
+from celery.exceptions import SoftTimeLimitExceeded
 from codalab.azure_storage import make_blob_sas_url
-
-from apps.web import models
-
-from apps.web.models import CompetitionDump
+from collections import OrderedDict
+from datetime import timedelta
+from django.conf import settings
+from django.contrib.sites.models import Site
+from django.core.files.base import ContentFile
+from django.core.mail import EmailMultiAlternatives, send_mail
+from django.db import transaction
+from django.db.models import Count
+from django.template import Context
+from django.template.loader import render_to_string
+from django.utils import timezone
+from yaml.representer import SafeRepresenter
+from zipfile import ZipFile
 
 logger = logging.getLogger(__name__)
 
@@ -319,7 +295,7 @@ def _make_url_sassy(path, permission='r', duration=60 * 60 * 24):
             # Default to get if we don't know
             method = 'GET'
 
-        key = s3_key_from_path(path)
+        key = s3_key_from_url(path)
 
         url = BundleStorage.connection.generate_url(
             expires_in=duration,
@@ -626,7 +602,8 @@ def update_submission(job_id, args, secret):
                     logger.info("Force submission added submission to leaderboard (submission_id=%s)", submission.id)
 
                 if submission.phase.force_best_submission_to_leaderboard:
-                    push_submission_to_leaderboard_if_best(submission)
+                    keep_only_best = submission.phase.keep_only_best_submissions
+                    push_submission_to_leaderboard_if_best(submission, keep_only_best=keep_only_best)
                 result = Job.FINISHED
 
                 if submission.participant.user.email_on_submission_finished_successfully:
@@ -876,6 +853,30 @@ def send_chahub_updates():
         # saving generates new participant_count -- will be sent if it is different from
         # what was sent last time.
         comp.save()
+
+
+@task(queue='site-worker')
+def create_storage_statistic_datapoint():
+        total_bytes = storage_get_total_use(BundleStorage)
+        data = {
+            'total_use': total_bytes,
+            'bucket_name': BundleStorage.bucket.name
+        }
+        competition_use = 0
+        for comp in Competition.objects.all():
+            comp_data = get_competition_size_data(comp)
+            competition_use += comp_data.get('total', 0)
+        data['competition_use'] = competition_use
+        submission_use = 0
+        for sub in CompetitionSubmission.objects.all():
+            submission_use += sub.size
+        data['submission_use'] = submission_use
+        dataset_use = sum([dataset.size for dataset in OrganizerDataSet.objects.all()])
+        data['dataset_use'] = dataset_use
+        bundle_use = sum([bundle.size for bundle in CompetitionDefBundle.objects.all()])
+        data['bundle_use'] = bundle_use
+        StorageDataPoint.objects.create(**data)
+        logger.info("Created storage statistic datapoint.")
 
 
 @task(queue='site-worker')
