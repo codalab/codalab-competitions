@@ -164,19 +164,14 @@ def get_competition_size_data(competition):
         for attr in data_file_attrs:
             dataset = getattr(phase, attr)
             if dataset:
-                # data['datasets'] += dataset.data_file.size or 0
                 data['datasets'] += dataset.size
     # bundle
     if competition.bundle:
         data['bundle'] = competition.bundle.size
     # dumps
     if competition.dumps.exists():
-        for dump in competition.dumps.all():
-            data['dumps'] += dump.size
-    total = 0
-    for key in keys_to_total:
-            total += data[key]
-    data['total'] = total
+        data['dumps'] = sum([dump.size for dump in competition.dumps.all()])
+    data['total'] = sum([data[key] for key in keys_to_total])
     return data
 
 def get_submission_size(submission):
@@ -215,8 +210,6 @@ def get_filefield_size(obj, attr, aws_attr=None, s3direct=False):
         if key_obj:
             size = key_obj.size
     else:
-        # We default to using fileField.size because it seems to be a cached property. Using boto methods does a new head
-        # request for each object, so this should save us time.
         attr_obj = getattr(obj, attr)
         if attr_obj.name and attr_obj.name != '':
             size = attr_obj.size
@@ -225,9 +218,6 @@ def get_filefield_size(obj, attr, aws_attr=None, s3direct=False):
 
 def delete_key_from_storage(obj, attr, aws_attr=None, s3direct=False, use_boto_method=True):
     """Helper function to do checks and delete a key from storage. Key is FileField.name"""
-    # Use boto method is so we can force any file fields to uses the boto library to delete the file.
-    # If the storage has the delete method implemented correctly, the alternate way should work as well.
-    # Boto seems more reliable which is why it's true by default. Storage implementation should call the same boto funcs
     if settings.USE_AWS and (use_boto_method or s3direct):
         if not aws_attr:
             aws_attr = attr
