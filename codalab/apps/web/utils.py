@@ -71,7 +71,7 @@ def _put_blob(url, file_path):
     )
 
 
-def push_submission_to_leaderboard_if_best(submission):
+def push_submission_to_leaderboard_if_best(submission, keep_only_best=False):
     from apps.web.models import PhaseLeaderBoard, PhaseLeaderBoardEntry, add_submission_to_leaderboard
     # In this phase get the submission score from the column with the lowest ordering
     score_def = submission.get_default_score_def()
@@ -88,19 +88,19 @@ def push_submission_to_leaderboard_if_best(submission):
         if score_def.sorting == 'asc':
             # The last value in ascending is the top score, 1 beats 3
             if score_value <= top_score:
-                add_submission_to_leaderboard(submission)
+                add_submission_to_leaderboard(submission, keep_only_best)
                 logger.info("Force best submission added submission to leaderboard in ascending order "
                             "(submission_id=%s, top_score=%s, score=%s)", submission.id, top_score,
                             score_value)
         elif score_def.sorting == 'desc':
             # The first value in descending is the top score, 3 beats 1
             if score_value >= top_score:
-                add_submission_to_leaderboard(submission)
+                add_submission_to_leaderboard(submission, keep_only_best)
                 logger.info(
                     "Force best submission added submission to leaderboard in descending order "
                     "(submission_id=%s, top_score=%s, score=%s)", submission.id, top_score, score_value)
     else:
-        add_submission_to_leaderboard(submission)
+        add_submission_to_leaderboard(submission, keep_only_best)
         logger.info(
             "Force best submission added submission: {0} with score: {1} to leaderboard: {2}"
             " because no submission was present".format(
@@ -120,46 +120,163 @@ def inheritors(klass):
     return subclasses
 
 
-def s3_key_from_path(path):
-    if not path or path == '':
+def s3_key_from_url(url):
+    if not url or url == '':
+        logger.error("Received an invalid url to convert to a key: {}".format(url))
         return
-    # Remove the beginning of the URL (before bucket name) so we just have the path to the file
-    key = path.split("{}/".format(settings.AWS_STORAGE_PRIVATE_BUCKET_NAME))[-1]
+    # Remove the beginning of the URL (before bucket name) so we just have the path(key) to the file
+    key = url.split("{}/".format(settings.AWS_STORAGE_PRIVATE_BUCKET_NAME))[-1]
     # Path could also be in a format <bucket>.<url> so check that as well
     key = key.split("{}.{}/".format(settings.AWS_STORAGE_PRIVATE_BUCKET_NAME, settings.AWS_S3_HOST))[-1]
     return key
 
 
-def get_competition_size(comp):
-    from boto.s3.connection import S3Connection
-    conn = S3Connection(host=settings.AWS_S3_HOST, calling_format=settings.AWS_S3_CALLING_FORMAT)
-    conn.auth_region_name = settings.S3DIRECT_REGION
-    bucket = conn.get_bucket(settings.AWS_STORAGE_PRIVATE_BUCKET_NAME)
+def get_competition_size_data(competition):
     data = {
-        'id': comp.id,
-        'title': comp.title,
-        'creator': "{0} ({1})".format(comp.creator.email, comp.creator.username),
+        'id': competition.id,
+        'title': competition.title,
+        'creator': "{0} ({1})".format(competition.creator.email, competition.creator.username),
+        'is_active': competition.is_active,
         'submissions': 0,
-        'datasets': 0
+        'datasets': 0,
+        'dumps': 0,
+        'bundle': 0,
     }
     data_file_attrs = [
         'reference_data_organizer_dataset',
         'input_data_organizer_dataset',
-        'scoring_program_organizer_dataset'
+        'scoring_program_organizer_dataset',
+        'public_data_organizer_dataset',
+        'starting_kit_organizer_dataset',
+        'ingestion_program_organizer_dataset',
     ]
-    for phase in comp.phases.all():
+    keys_to_total = [
+        'submissions',
+        'datasets',
+        'bundle',
+        'dumps',
+    ]
+    for phase in competition.phases.all():
         # submissions
         for submission in phase.submissions.all():
-            key = s3_key_from_path(submission.s3_file)
-            logger.info("Got key as: {}".format(key))
-            key_obj = bucket.lookup(key)
-            if key_obj:
-                data['submissions'] += key_obj.size or 0
+            data['submissions'] += get_submission_size(submission)
         # datasets
         for attr in data_file_attrs:
             dataset = getattr(phase, attr)
             if dataset:
-                data['datasets'] += dataset.data_file.size
-    data['datasets'] = data['datasets']
-    data['submissions'] = data['submissions']
+                # data['datasets'] += dataset.data_file.size or 0
+                data['datasets'] += dataset.size
+    # bundle
+    if competition.bundle:
+        data['bundle'] = competition.bundle.size
+    # dumps
+    if competition.dumps.exists():
+        for dump in competition.dumps.all():
+            data['dumps'] += dump.size
+    total = 0
+    for key in keys_to_total:
+            total += data[key]
+    data['total'] = total
     return data
+
+def get_submission_size(submission):
+    total = 0
+    file_attrs = [
+        'inputfile',
+        'runfile',
+        'output_file',
+        'private_output_file',
+        'stdout_file',
+        'stderr_file',
+        'history_file',
+        'scores_file',
+        'coopetition_file',
+        'detailed_results_file',
+        'prediction_runfile',
+        'prediction_output_file',
+        'prediction_stdout_file',
+        'prediction_stderr_file',
+        'ingestion_program_stdout_file',
+        'ingestion_program_stderr_file',
+    ]
+    total += get_filefield_size(submission, 'file', aws_attr='s3_file', s3direct=True)
+    for file_attr in file_attrs:
+        total += get_filefield_size(submission, file_attr)
+    return total
+
+def get_filefield_size(obj, attr, aws_attr=None, s3direct=False):
+    size = None
+    if settings.USE_AWS and s3direct and aws_attr:
+        attr_obj = getattr(obj, aws_attr)
+        bucket = BundleStorage.bucket
+        # S3DirectFields are stored as text fields with the full url to the key.
+        key = s3_key_from_url(attr_obj)
+        key_obj = bucket.lookup(key)
+        if key_obj:
+            size = key_obj.size
+    else:
+        # We default to using fileField.size because it seems to be a cached property. Using boto methods does a new head
+        # request for each object, so this should save us time.
+        attr_obj = getattr(obj, attr)
+        if attr_obj.name and attr_obj.name != '':
+            size = attr_obj.size
+    # Always make sure we return at least 0
+    return size or 0
+
+def delete_key_from_storage(obj, attr, aws_attr=None, s3direct=False, use_boto_method=True):
+    """Helper function to do checks and delete a key from storage. Key is FileField.name"""
+    # Use boto method is so we can force any file fields to uses the boto library to delete the file.
+    # If the storage has the delete method implemented correctly, the alternate way should work as well.
+    # Boto seems more reliable which is why it's true by default. Storage implementation should call the same boto funcs
+    if settings.USE_AWS and (use_boto_method or s3direct):
+        if not aws_attr:
+            aws_attr = attr
+        attr_obj = getattr(obj, aws_attr)
+        if s3direct:
+            storage = BundleStorage
+            key = s3_key_from_url(attr_obj)
+        else:
+            storage = attr_obj.storage
+            key = attr_obj.name
+        if key == '' or not key:
+            logger.error("Attempt to delete empty key: {}".format(key))
+            return
+        key_obj = storage.bucket.lookup(key)
+        if key_obj:
+            if key_obj.exists():
+                logger.info("Attempting to delete key: {}".format(key))
+                key_obj.delete()
+    else:
+        attr_obj = getattr(obj, attr)
+        storage = attr_obj.storage
+        if attr_obj.name and attr_obj.name != '':
+            logger.info("Attempting to delete storage file: {}".format(attr_obj.name))
+            storage.delete(attr_obj.name)
+
+def storage_recursive_find(storage, dir, depth=0):
+    found_files = []
+    if not depth == 99:
+        dirs, files = storage.listdir(dir)
+        for file in files:
+            found_files.append("{0}/{1}".format(dir, file))
+        for new_dir in dirs:
+            if dir != '':
+                new_files = storage_recursive_find(storage, "{}/{}".format(dir, new_dir), depth+1)
+            else:
+                new_files = storage_recursive_find(storage, "{}".format(new_dir), depth+1)
+            found_files += new_files
+    else:
+        logger.error("Max recursion reached in recursive storage find!")
+    return found_files
+
+def storage_get_total_use(storage):
+    total_bytes = 0
+    if settings.USE_AWS:
+        bucket = storage.bucket
+        for key in bucket:
+            total_bytes += key.size
+    else:
+        found_files = set(storage_recursive_find(storage, ''))
+        for file_path in found_files:
+            total_bytes += storage.size(file_path) or 0
+    return float(total_bytes)

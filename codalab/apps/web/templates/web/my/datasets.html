@@ -39,8 +39,9 @@
                                         <th>Key</th>
                                         <th>Description</th>
                                         <th>Type</th>
-                                        <th width="180">Actions</th>
-                                        <th width="100">Multi-delete? <span class="label label-danger">(unsafe!)</span></th>
+                                        <th>Size)</th>
+                                        <th width="160">Actions</th>
+                                        <th width="60">Select</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -54,6 +55,7 @@
                                             <td>{{ dataset.key }}</td>
                                             <td>{{ dataset.description }}</td>
                                             <td>{{ dataset.type }}</td>
+                                            <td>{{ dataset.size }} bytes</td>
                                             <td>
                                                 <a href="{% url 'datasets_download' dataset_key=dataset.key %}" class="button btn btn-default btn-sm">Download</a>
                                                 <a href="{% url 'my_datasets_delete' pk=dataset.pk %}" class="button btn btn-danger btn-sm delete">Delete</a>

@@ -1,60 +1,50 @@
+import StringIO
 import csv
 import datetime
 import exceptions
 import io
 import json
 import logging
+import lxml.html
+import math
 import operator
 import os
-import StringIO
 import re
 import urllib
 import uuid
-from urllib import pathname2url
-
 import yaml
 import zipfile
-import math
-
-from os.path import split
-
+from apps.chahub.models import ChaHubSaveMixin
+from apps.coopetitions.models import DownloadRecord
+from apps.forums.models import Forum
+from apps.teams.models import Team, get_user_team, TeamMembership
+from apps.web.utils import PublicStorage, BundleStorage, clean_html_script, s3_key_from_url, get_submission_size, \
+    delete_key_from_storage, get_filefield_size, get_competition_size_data
 from decimal import Decimal
 from django.conf import settings
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
-from django.core.cache import cache
 from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
 from django.core.files import File
 from django.core.files.base import ContentFile
-from django.core.files.storage import get_storage_class
 from django.core.urlresolvers import reverse
 from django.db import IntegrityError
 from django.db import models
 from django.db import transaction
 from django.db.models import Max
 from django.db.models.signals import post_save, post_delete
-from django.utils.dateparse import parse_datetime
-from django.utils.timezone import now
-
 from django.dispatch import receiver
-
-from mptt.models import MPTTModel, TreeForeignKey
-
-from pytz import utc
-from guardian.shortcuts import assign_perm
-from django_extensions.db.fields import UUIDField
+from django.utils.dateparse import parse_datetime
 from django.utils.functional import cached_property
+from django.utils.timezone import now
+from django_extensions.db.fields import UUIDField
+from guardian.shortcuts import assign_perm
+from mptt.models import MPTTModel, TreeForeignKey
+from os.path import split
+from pytz import utc
 from s3direct.fields import S3DirectField
+from django.core.validators import MaxValueValidator, MinValueValidator
 
-from apps.chahub.models import ChaHubSaveMixin
-from apps.forums.models import Forum
-from apps.coopetitions.models import DownloadRecord
-from apps.authenz.models import ClUser
-from apps.web.exceptions import ScoringException
-from apps.web.utils import PublicStorage, BundleStorage, clean_html_script, s3_key_from_path
-from apps.teams.models import Team, get_user_team, TeamMembershipStatus, TeamMembership
-
-import lxml.html
 
 User = settings.AUTH_USER_MODEL
 logger = logging.getLogger(__name__)
@@ -608,6 +598,11 @@ class Competition(ChaHubSaveMixin, models.Model):
 
 post_save.connect(Forum.competition_post_save, sender=Competition)
 
+@receiver(post_delete, sender=Competition)
+def competition_post_delete_handler(sender, **kwargs):
+    competition = kwargs['instance']
+    delete_key_from_storage(competition, 'image')
+
 
 class Page(models.Model):
     """
@@ -849,6 +844,24 @@ class CompetitionPhase(models.Model):
     execution_time_limit = models.PositiveIntegerField(default=(5 * 60), verbose_name="Execution time limit (in seconds)")
     color = models.CharField(max_length=24, choices=COLOR_CHOICES, blank=True, null=True)
 
+    max_submission_size = models.PositiveIntegerField(
+        default=0,
+        validators=[
+            MaxValueValidator(10000),
+            MinValueValidator(0)
+        ],
+        verbose_name="Max submission size in megabytes. (0 for disabled)"
+    )
+    participant_max_storage_use = models.PositiveIntegerField(
+        default=0,
+        validators=[
+            MaxValueValidator(500000),
+            MinValueValidator(0)
+        ],
+        verbose_name="Max megabyte usage for each participant. (0 for disabled)"
+    )
+    keep_only_best_submissions = models.BooleanField(default=False, verbose_name="Keep only the latest, best submission.")
+
     input_data_organizer_dataset = models.ForeignKey('OrganizerDataSet', null=True, blank=True, related_name="input_data_organizer_dataset", verbose_name="Input Data", on_delete=models.SET_NULL)
     reference_data_organizer_dataset = models.ForeignKey('OrganizerDataSet', null=True, blank=True, related_name="reference_data_organizer_dataset", verbose_name="Reference Data", on_delete=models.SET_NULL)
     scoring_program_organizer_dataset = models.ForeignKey('OrganizerDataSet', null=True, blank=True, related_name="scoring_program_organizer_dataset", verbose_name="Scoring Program", on_delete=models.SET_NULL)
@@ -911,24 +924,16 @@ class CompetitionPhase(models.Model):
         return _make_url_sassy(self.starting_kit_organizer_dataset.data_file.name)
 
     def get_starting_kit_size_mb(self):
-        size = float(self.starting_kit_organizer_dataset.data_file.size)
-        if self.starting_kit_organizer_dataset.sub_data_files and len(self.starting_kit_organizer_dataset.sub_data_files.all()) > 0:
-            size = float(0)
-            for sub_data in self.starting_kit_organizer_dataset.sub_data_files.all():
-                size += float(sub_data.data_file.size)
-        return size * 0.00000095367432
+        size = float(self.starting_kit_organizer_dataset.size) / 1000 / 1000
+        return size
 
     def get_public_data(self):
         from apps.web.tasks import _make_url_sassy
         return _make_url_sassy(self.public_data_organizer_dataset.data_file.name)
 
     def get_public_data_size_mb(self):
-        size = float(self.public_data_organizer_dataset.data_file.size)
-        if self.public_data_organizer_dataset.sub_data_files and len(self.public_data_organizer_dataset.sub_data_files.all()) > 0:
-            size = float(0)
-            for sub_data in self.public_data_organizer_dataset.sub_data_files.all():
-                size += float(sub_data.data_file.size)
-        return size * 0.00000095367432
+        size = float(self.public_data_organizer_dataset.size) / 1000 / 1000
+        return size
 
     class Meta:
         ordering = ['phasenumber']
@@ -1265,6 +1270,17 @@ class CompetitionParticipant(models.Model):
         """ Returns true if this participant is approved into the competition. """
         return self.status.codename == ParticipantStatus.APPROVED
 
+    def get_storage_use(self, use_cache=True):
+        total = 0
+        for submission in self.submissions.all():
+            if use_cache:
+                # Use the stored property on file field
+                total += submission.size or 0
+            else:
+                # Directly grabs the submission's size from storage
+                total += get_submission_size(submission) or 0
+        return total
+
 
 # Competition Submission Status
 class CompetitionSubmissionStatus(models.Model):
@@ -1360,11 +1376,28 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
 
     queue_name = models.TextField(null=True, blank=True)
 
+    sub_size = models.IntegerField(default=0)
+
     class Meta:
         unique_together = (('submission_number','phase','participant'),)
 
     def __unicode__(self):
         return "%s %s %s %s" % (self.pk, self.phase.competition.title, self.phase.label, self.participant.user.email)
+
+    @property
+    def size(self):
+        if self.sub_size == 0:
+            logger.info("Calculating sub size for submission: {}".format(self.pk))
+            size = get_submission_size(self) or 0
+            if size == 0:
+                # Could not get a valid result. Do not retry.
+                self.sub_size = -1
+            else:
+                self.sub_size = size
+                # Only save in a final state so that all files have been written to.
+                if self.status.codename == 'finished' or self.status.codename == 'failed':
+                    self.save()
+        return self.sub_size
 
     @property
     def metadata_predict(self):
@@ -1482,6 +1515,30 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
                     if (submissions_from_today_count + 1) > self.phase.max_submissions_per_day or self.phase.max_submissions_per_day == 0:
                         print 'PERMISSION DENIED'
                         raise PermissionDenied("The maximum number of submissions this day have been reached.")
+
+                sub_size = get_submission_size(self)
+
+                phase_max_bytes = self.phase.max_submission_size * 1000 * 1000
+                if phase_max_bytes > 0:
+                    if sub_size > phase_max_bytes:
+                        logger.info('Permission denied on submission upload: Exceeds max size for phase.')
+                        raise PermissionDenied(
+                            "The submission is over the max size of {0} megabyte(s). Size: {1:.2f} megabyte(s)".format(
+                                self.phase.max_submission_size,
+                                float(sub_size) / 1000 / 1000
+                            )
+                        )
+                phase_max_part_use = self.phase.participant_max_storage_use * 1000 * 1000
+                if phase_max_part_use > 0:
+                    part_storage_use = self.participant.get_storage_use()
+                    if part_storage_use + sub_size > phase_max_part_use:
+                        logger.info("Permission denied on submission upload: Exceeds max participant storage use.")
+                        raise PermissionDenied(
+                            "The submission would exceed the participant's max storage use of {0} megabyte(s). Space used after: {1:.2f} megabyte(s)".format(
+                                self.phase.participant_max_storage_use,
+                                (sub_size + part_storage_use) / 1000 / 1000
+                            )
+                        )
             else:
                 # Make sure we're incrementing the number if we're forcing in a new entry
                 while CompetitionSubmission.objects.filter(
@@ -1637,26 +1694,9 @@ def submission_post_delete_handler(sender, **kwargs):
         'ingestion_program_stdout_file',
         'ingestion_program_stderr_file',
     ]
-
-    # This specific attribute for the main uploaded zip file differs between type on S3/Azure
-    if settings.USE_AWS:
-        key = s3_key_from_path(submission.s3_file)
-        key_obj = BundleStorage.bucket.lookup(key)
-        if key_obj:
-            if key_obj.exists():
-                logger.info("Attempting to delete key: {}".format(key))
-                key_obj.delete()
-    else:
-        if submission.file.name:
-            logger.info("Attempting to delete key: {}".format(submission.name))
-            BundleStorage.delete(submission.file.name)
-
+    delete_key_from_storage(submission, 'file', aws_attr='s3_file', s3direct=True)
     for file_attr in file_attrs:
-        # For s3 and azure .name should give us the 'key' instead of the full-path.
-        sub_attr = getattr(submission, file_attr)
-        if sub_attr.name and sub_attr.name != '':
-            logger.info("Attempting to delete key: {}".format(sub_attr.name))
-            BundleStorage.delete(sub_attr.name)
+        delete_key_from_storage(submission, file_attr)
 
 
 class SubmissionResultGroup(models.Model):
@@ -1731,6 +1771,10 @@ class CompetitionDefBundle(models.Model):
         if dt.tzinfo is None:
             dt = utc.localize(dt)
         return dt
+
+    @property
+    def size(self):
+        return get_filefield_size(self, 'config_bundle', aws_attr='s3_config_bundle', s3direct=True)
 
     @transaction.commit_on_success
     def unpack(self):
@@ -2249,19 +2293,7 @@ class CompetitionDefBundle(models.Model):
 @receiver(post_delete, sender=CompetitionDefBundle)
 def competitiondefbundle_post_delete_handler(sender, **kwargs):
     def_bundle = kwargs['instance']
-    # This specific attribute for the main uploaded zip file differs between type on S3/Azure
-    if settings.USE_AWS:
-        # Deletes the actual submission file
-        key = s3_key_from_path(def_bundle.s3_config_bundle)
-        key_obj = BundleStorage.bucket.lookup(key)
-        if key_obj:
-            if key_obj.exists():
-                logger.info("Attempting to delete key: {}".format(key))
-                key_obj.delete()
-    else:
-        if def_bundle.config_bundle.name:
-            logger.info("Attempting to delete key: {}".format(def_bundle.config_bundle.name))
-            BundleStorage.delete(def_bundle.config_bundle.name)
+    delete_key_from_storage(def_bundle, 'config_bundle', aws_attr='s3_config_bundle', s3direct=True)
 
 
 class SubmissionScoreDefGroup(models.Model):
@@ -2435,16 +2467,15 @@ class OrganizerDataSet(models.Model):
                     return True
         return False
 
+    @property
+    def size(self):
+        return get_filefield_size(self, 'data_file')
 
 
 @receiver(post_delete, sender=OrganizerDataSet)
 def organizerdataset_post_delete_handler(sender, **kwargs):
     organizer_dataset = kwargs['instance']
-
-    if organizer_dataset.data_file.name and organizer_dataset.data_file.name != '':
-        logger.info("Attempting to delete key: {}".format(organizer_dataset.data_file.name))
-        BundleStorage.delete(organizer_dataset.data_file.name)
-
+    delete_key_from_storage(organizer_dataset, 'data_file')
     for dataset in organizer_dataset.sub_data_files.all():
         dataset.delete()
 
@@ -2495,7 +2526,7 @@ class CompetitionSubmissionMetadata(models.Model):
         }
 
 
-def add_submission_to_leaderboard(submission):
+def add_submission_to_leaderboard(submission, keep_only_best=False):
     """
     Adds the given submission to its leaderboard. It is the caller responsiblity to make
     sure the submission is ready to be added (e.g. it's in the finished state).
@@ -2516,6 +2547,12 @@ def add_submission_to_leaderboard(submission):
     for entry in entries:
         entry.delete()
     lbe, created = PhaseLeaderBoardEntry.objects.get_or_create(board=lb, result=submission)
+
+    if keep_only_best:
+        # All submissions to this current phase by this participant that exclude the current
+        subs_to_delete = submission.participant.submissions.filter(phase__id=submission.phase.id).exclude(pk=submission.pk)
+        subs_to_delete.delete()
+
     return lbe, created
 
 
@@ -2584,10 +2621,11 @@ class CompetitionDump(models.Model):
     )
 
     def get_size_mb(self):
-        if self.status == "Finished":
-            return float(self.data_file.size) * 0.00000095367432
-        else:
-            return 0
+        return float(self.size) / 1000 / 1000
+
+    @property
+    def size(self):
+        return get_filefield_size(self, 'data_file')
 
     def sassy_url(self):
         from apps.web.tasks import _make_url_sassy
@@ -2600,6 +2638,4 @@ class CompetitionDump(models.Model):
 @receiver(post_delete, sender=CompetitionDump)
 def competitiondump_post_delete_handler(sender, **kwargs):
     comp_dump = kwargs['instance']
-    if comp_dump.data_file.name and comp_dump.data_file.name != '':
-        logger.info("Attempting to delete key: {}".format(comp_dump.data_file.name))
-        BundleStorage.delete(comp_dump.data_file.name)
+    delete_key_from_storage(comp_dump, 'data_file')
