@@ -1392,6 +1392,7 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
             if size == 0:
                 # Could not get a valid result. Do not retry.
                 self.sub_size = -1
+                self.save()
             else:
                 self.sub_size = size
                 # Only save in a final state so that all files have been written to.
