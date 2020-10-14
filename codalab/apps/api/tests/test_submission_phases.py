@@ -65,7 +65,8 @@ class SubmissionCreationTests(TestCase):
 
     def test_submission_creation_saves_given_phase_id(self):
         with mock.patch('apps.api.views.competition_views.evaluate_submission') as evaluate_submission_mock:
-            self.client.post(self.url + "?phase_id=%s" % self.phase_2.pk, self.data)
+            with mock.patch('apps.web.utils.get_submission_size') as submission_size_mock:
+                self.client.post(self.url + "?phase_id=%s" % self.phase_2.pk, self.data)
         new_submission = CompetitionSubmission.objects.get(participant=self.participant)
         assert new_submission.phase == self.phase_2
 
