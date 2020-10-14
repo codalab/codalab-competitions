@@ -35,14 +35,14 @@ class GetStorageAnalyticTotalsView(views.APIView):
 @permission_classes((permissions.IsAuthenticated,))
 class GetCompetitionStorageAnalytics(views.APIView):
     """
-    Gets storage use for last 100 competitions
+    Gets storage use for competitions
     """
     def get(self, request, *args, **kwargs):
         if not self.request.user.is_staff:
             raise PermissionDenied(detail="Admin only")
 
         comp_list = []
-        qs = Competition.objects.all().reverse()[:100]
+        qs = Competition.objects.all().reverse()
         for comp in qs:
             comp_list.append(get_competition_size_data(comp))
 
@@ -52,7 +52,7 @@ class GetCompetitionStorageAnalytics(views.APIView):
 @permission_classes((permissions.IsAuthenticated,))
 class GetUserStorageAnalytics(views.APIView):
     """
-    Gets storage use for last 100 competitions
+    Gets storage use for users
     """
     def get(self, request, *args, **kwargs):
         if not self.request.user.is_staff:
