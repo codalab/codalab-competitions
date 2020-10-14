@@ -13,6 +13,8 @@ class Migration(SchemaMigration):
             for comp in comps_to_rename:
                 if not '-- DELETED: ' in comp.title:
                     comp.title = "-- DELETED: {} --".format(comp.title)
+                    if len(comp.title) > 100:
+                        comp.title = comp.title[:100]
                     comp.save()
 
     def backwards(self, orm):
