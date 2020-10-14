@@ -90,13 +90,11 @@ class GetCompetitionStorageAnalyticsOverTime(views.APIView):
         if not self.unit_table.get(unit_input, None):
             unit_input = 'years'
 
+        unit, factor, date_format = self.unit_table[unit_input]
         data_list = []
-
-        found_files = set(storage_recursive_find(BundleStorage, ''))
 
         for index in range(0, sample_points):
             total = 0
-            unit, factor, date_format = self.unit_table[unit_input]
             var_date = datetime.datetime.now() - datetime.timedelta(**{unit: factor*index})
             if settings.USE_AWS:
                 bucket = BundleStorage.bucket
@@ -106,6 +104,7 @@ class GetCompetitionStorageAnalyticsOverTime(views.APIView):
                     if last_modified_date.replace(tzinfo=None) <= var_date:
                         total += key.size
             else:
+                found_files = set(storage_recursive_find(BundleStorage))
                 for file_path in found_files:
                     if BundleStorage.modified_time(file_path) <= var_date:
                         total += BundleStorage.size(file_path) or 0
