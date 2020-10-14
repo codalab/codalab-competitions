@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from south.v2 import SchemaMigration
+from south.db import db
 
 
 class Migration(SchemaMigration):
@@ -7,11 +8,12 @@ class Migration(SchemaMigration):
     def forwards(self, orm):
         # This migration is simply to make it easier for users to recognize competitions they previously deleted and
         # were hidden
-        comps_to_rename = orm.Competition.objects.filter(deleted=True)
-        for comp in comps_to_rename:
-            if not '-- DELETED: ' in comp.title:
-                comp.title = "-- DELETED: {} --".format(comp.title)
-                comp.save()
+        if not db.dry_run:
+            comps_to_rename = orm.Competition.objects.filter(deleted=True)
+            for comp in comps_to_rename:
+                if not '-- DELETED: ' in comp.title:
+                    comp.title = "-- DELETED: {} --".format(comp.title)
+                    comp.save()
 
     def backwards(self, orm):
         pass
