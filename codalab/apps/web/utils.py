@@ -160,7 +160,8 @@ def get_competition_size_data(competition):
     for phase in competition.phases.all():
         # submissions
         for submission in phase.submissions.all():
-            data['submissions'] += get_submission_size(submission)
+            # submission.size should call get_submission_size anyway.
+            data['submissions'] += submission.size
         # datasets
         for attr in data_file_attrs:
             dataset = getattr(phase, attr)
