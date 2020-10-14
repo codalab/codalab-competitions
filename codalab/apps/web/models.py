@@ -1376,7 +1376,7 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
 
     queue_name = models.TextField(null=True, blank=True)
 
-    sub_size = models.IntegerField(default=0)
+    sub_size = models.BigIntegerField(default=0)
 
     class Meta:
         unique_together = (('submission_number','phase','participant'),)
