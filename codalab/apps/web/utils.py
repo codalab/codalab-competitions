@@ -1,7 +1,8 @@
-import re
-
 import logging
+import os
+import re
 import requests
+
 from django.conf import settings
 from django.core.files.storage import get_storage_class
 
@@ -176,27 +177,28 @@ def get_competition_size_data(competition):
 
 def get_submission_size(submission):
     total = 0
-    file_attrs = [
-        'inputfile',
-        'runfile',
-        'output_file',
-        'private_output_file',
-        'stdout_file',
-        'stderr_file',
-        'history_file',
-        'scores_file',
-        'coopetition_file',
-        'detailed_results_file',
-        'prediction_runfile',
-        'prediction_output_file',
-        'prediction_stdout_file',
-        'prediction_stderr_file',
-        'ingestion_program_stdout_file',
-        'ingestion_program_stderr_file',
-    ]
-    total += get_filefield_size(submission, 'file', aws_attr='s3_file', s3direct=True)
-    for file_attr in file_attrs:
-        total += get_filefield_size(submission, file_attr)
+    if not os.environ.get('PYTEST'):
+        file_attrs = [
+            'inputfile',
+            'runfile',
+            'output_file',
+            'private_output_file',
+            'stdout_file',
+            'stderr_file',
+            'history_file',
+            'scores_file',
+            'coopetition_file',
+            'detailed_results_file',
+            'prediction_runfile',
+            'prediction_output_file',
+            'prediction_stdout_file',
+            'prediction_stderr_file',
+            'ingestion_program_stdout_file',
+            'ingestion_program_stderr_file',
+        ]
+        total += get_filefield_size(submission, 'file', aws_attr='s3_file', s3direct=True)
+        for file_attr in file_attrs:
+            total += get_filefield_size(submission, file_attr)
     return total
 
 def get_filefield_size(obj, attr, aws_attr=None, s3direct=False):
