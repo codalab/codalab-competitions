@@ -268,7 +268,7 @@ def storage_get_total_use(storage):
         for key in bucket:
             total_bytes += key.size
     else:
-        found_files = set(storage_recursive_find(storage, ''))
+        found_files = set(storage_recursive_find(storage))
         for file_path in found_files:
             total_bytes += storage.size(file_path) or 0
     return float(total_bytes)
