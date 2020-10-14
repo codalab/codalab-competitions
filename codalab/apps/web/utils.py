@@ -167,7 +167,7 @@ def get_competition_size_data(competition):
             if dataset:
                 data['datasets'] += dataset.size
     # bundle
-    if competition.bundle:
+    if hasattr(competition, 'bundle'):
         data['bundle'] = competition.bundle.size
     # dumps
     if competition.dumps.exists():
@@ -214,7 +214,18 @@ def get_filefield_size(obj, attr, aws_attr=None, s3direct=False):
     else:
         attr_obj = getattr(obj, attr)
         if attr_obj.name and attr_obj.name != '':
-            size = attr_obj.size
+            try:
+                size = attr_obj.size
+            except AttributeError as e:
+                logger.error(
+                    "An error occurred trying to get a file's size. File: {0}; Object: {1}(ID:{2}); Attr: {3}".format(
+                        attr_obj.name, obj, obj.id, attr))
+                logger.error(e)
+                # If we hit an exception this way, and we're using S3, try the other method.
+                if settings.USE_AWS:
+                    key_obj = attr_obj.storage.bucket.lookup(attr_obj.name)
+                    if key_obj:
+                        size = key_obj.size
     # Always make sure we return at least 0
     return size or 0
 
