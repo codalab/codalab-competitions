@@ -59,7 +59,7 @@ class GetUserStorageAnalytics(views.APIView):
             raise PermissionDenied(detail="Admin only")
 
         user_list = []
-        qs = ClUser.objects.all().order_by('?').exclude(id=-1)
+        qs = ClUser.objects.order_by('?').exclude(id=-1)
         for user in qs:
             user_list.append(user.get_storage_use_data())
 
