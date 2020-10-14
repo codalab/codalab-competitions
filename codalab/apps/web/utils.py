@@ -207,15 +207,18 @@ def get_filefield_size(obj, attr, aws_attr=None, s3direct=False):
         attr_obj = getattr(obj, aws_attr)
         bucket = BundleStorage.bucket
         # S3DirectFields are stored as text fields with the full url to the key.
-        key = s3_key_from_url(attr_obj)
-        key_obj = bucket.lookup(key)
-        if key_obj:
-            size = key_obj.size
+        if attr_obj and attr_obj != '':
+            key = s3_key_from_url(attr_obj)
+            key_obj = bucket.lookup(key)
+            if key_obj:
+                size = key_obj.size
     else:
         attr_obj = getattr(obj, attr)
         if attr_obj.name and attr_obj.name != '':
             try:
                 size = attr_obj.size
+            # This error seems to occur specifically with private_output_file due to 2 different path styles used
+            # and the files not actually existing in storage.
             except AttributeError as e:
                 logger.error(
                     "An error occurred trying to get a file's size. File: {0}; Object: {1}(ID:{2}); Attr: {3}".format(
@@ -235,9 +238,11 @@ def delete_key_from_storage(obj, attr, aws_attr=None, s3direct=False, use_boto_m
         if not aws_attr:
             aws_attr = attr
         attr_obj = getattr(obj, aws_attr)
+        key = None
         if s3direct:
             storage = BundleStorage
-            key = s3_key_from_url(attr_obj)
+            if attr_obj and attr_obj != '':
+                key = s3_key_from_url(attr_obj)
         else:
             storage = attr_obj.storage
             key = attr_obj.name
