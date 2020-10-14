@@ -243,9 +243,9 @@ def delete_key_from_storage(obj, attr, aws_attr=None, s3direct=False, use_boto_m
             logger.info("Attempting to delete storage file: {}".format(attr_obj.name))
             storage.delete(attr_obj.name)
 
-def storage_recursive_find(storage, dir, depth=0):
+def storage_recursive_find(storage, dir='', depth=0):
     found_files = []
-    if not depth == 99:
+    if not depth >= 99:
         dirs, files = storage.listdir(dir)
         for file in files:
             found_files.append("{0}/{1}".format(dir, file))
