@@ -247,15 +247,13 @@ def delete_key_from_storage(obj, attr, aws_attr=None, s3direct=False, use_boto_m
 
 def storage_recursive_find(storage, dir='', depth=0):
     found_files = []
-    if not depth >= 99:
+    if not depth >= 25:
         dirs, files = storage.listdir(dir)
         for file in files:
             found_files.append("{0}/{1}".format(dir, file))
         for new_dir in dirs:
-            if dir != '':
-                new_files = storage_recursive_find(storage, "{}/{}".format(dir, new_dir), depth+1)
-            else:
-                new_files = storage_recursive_find(storage, "{}".format(new_dir), depth+1)
+            next_dir = "{}/{}".format(dir, new_dir) if dir != '' else "{}".format(new_dir)
+            new_files = storage_recursive_find(storage, next_dir, depth+1)
             found_files += new_files
     else:
         logger.error("Max recursion reached in recursive storage find!")
