@@ -34,7 +34,7 @@ from apps.web.models import (add_submission_to_leaderboard,
                              SubmissionScoreDefGroup, OrganizerDataSet, CompetitionParticipant, ParticipantStatus)
 # import cProfile
 from apps.web.utils import inheritors, push_submission_to_leaderboard_if_best, s3_key_from_url, \
-    get_competition_size_data, storage_get_total_use
+    get_competition_size_data, storage_get_total_use, delete_submissions_except_best_and_or_last
 from celery import task
 from celery.app import app_or_default
 from celery.exceptions import SoftTimeLimitExceeded
@@ -591,6 +591,9 @@ def update_submission(job_id, args, secret):
                 logger.info("Done processing scores... (submission_id=%s)", submission.id)
                 _set_submission_status(submission.id, CompetitionSubmissionStatus.FINISHED)
 
+                if submission.phase.delete_submissions_except_best_and_last:
+                    delete_submissions_except_best_and_or_last(submission)
+
                 # Automatically submit to the leaderboard?
                 if submission.phase.is_blind and not submission.phase.force_best_submission_to_leaderboard:
                     logger.info("Adding to leaderboard... (submission_id=%s)", submission.id)
@@ -602,8 +605,7 @@ def update_submission(job_id, args, secret):
                     logger.info("Force submission added submission to leaderboard (submission_id=%s)", submission.id)
 
                 if submission.phase.force_best_submission_to_leaderboard:
-                    keep_only_best = submission.phase.keep_only_best_submissions
-                    push_submission_to_leaderboard_if_best(submission, keep_only_best=keep_only_best)
+                    push_submission_to_leaderboard_if_best(submission)
                 result = Job.FINISHED
 
                 if submission.participant.user.email_on_submission_finished_successfully:
