@@ -8,15 +8,23 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding field 'CompetitionPhase.keep_only_best_submissions'
-        db.add_column(u'web_competitionphase', 'keep_only_best_submissions',
+        # Deleting field 'CompetitionPhase.keep_only_best_submissions'
+        # db.delete_column(u'web_competitionphase', 'keep_only_best_submissions')
+
+        # Adding field 'CompetitionPhase.delete_submissions_except_best_and_last'
+        db.add_column(u'web_competitionphase', 'delete_submissions_except_best_and_last',
                       self.gf('django.db.models.fields.BooleanField')(default=False),
                       keep_default=False)
 
 
     def backwards(self, orm):
-        # Deleting field 'CompetitionPhase.keep_only_best_submissions'
-        db.delete_column(u'web_competitionphase', 'keep_only_best_submissions')
+        # Adding field 'CompetitionPhase.keep_only_best_submissions'
+        # db.add_column(u'web_competitionphase', 'keep_only_best_submissions',
+        #               self.gf('django.db.models.fields.BooleanField')(default=False),
+        #               keep_default=False)
+
+        # Deleting field 'CompetitionPhase.delete_submissions_except_best_and_last'
+        db.delete_column(u'web_competitionphase', 'delete_submissions_except_best_and_last')
 
 
     models = {
@@ -208,6 +216,7 @@ class Migration(SchemaMigration):
             'competition': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'phases'", 'to': u"orm['web.Competition']"}),
             'datasets': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "'phase'", 'blank': 'True', 'to': u"orm['web.Dataset']"}),
             'default_docker_image': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '128', 'blank': 'True'}),
+            'delete_submissions_except_best_and_last': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'description': ('django.db.models.fields.CharField', [], {'max_length': '1000', 'null': 'True', 'blank': 'True'}),
             'disable_custom_docker_image': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'execution_time_limit': ('django.db.models.fields.PositiveIntegerField', [], {'default': '300'}),
@@ -220,7 +229,6 @@ class Migration(SchemaMigration):
             'input_data_organizer_dataset': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'input_data_organizer_dataset'", 'null': 'True', 'on_delete': 'models.SET_NULL', 'to': u"orm['web.OrganizerDataSet']"}),
             'is_migrated': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'is_scoring_only': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'keep_only_best_submissions': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'label': ('django.db.models.fields.CharField', [], {'max_length': '50', 'blank': 'True'}),
             'leaderboard_management_mode': ('django.db.models.fields.CharField', [], {'default': "'default'", 'max_length': '50'}),
             'max_submission_size': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0'}),
@@ -289,7 +297,7 @@ class Migration(SchemaMigration):
             'status_details': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'stderr_file': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'stdout_file': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
-            'sub_size': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
+            'sub_size': ('django.db.models.fields.BigIntegerField', [], {'default': '0'}),
             'submission_number': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0'}),
             'submitted_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'team': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'team'", 'null': 'True', 'to': u"orm['teams.Team']"}),

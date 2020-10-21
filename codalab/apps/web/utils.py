@@ -72,7 +72,7 @@ def _put_blob(url, file_path):
     )
 
 
-def push_submission_to_leaderboard_if_best(submission, keep_only_best=False):
+def push_submission_to_leaderboard_if_best(submission):
     from apps.web.models import PhaseLeaderBoard, PhaseLeaderBoardEntry, add_submission_to_leaderboard
     # In this phase get the submission score from the column with the lowest ordering
     score_def = submission.get_default_score_def()
@@ -89,19 +89,19 @@ def push_submission_to_leaderboard_if_best(submission, keep_only_best=False):
         if score_def.sorting == 'asc':
             # The last value in ascending is the top score, 1 beats 3
             if score_value <= top_score:
-                add_submission_to_leaderboard(submission, keep_only_best)
+                add_submission_to_leaderboard(submission)
                 logger.info("Force best submission added submission to leaderboard in ascending order "
                             "(submission_id=%s, top_score=%s, score=%s)", submission.id, top_score,
                             score_value)
         elif score_def.sorting == 'desc':
             # The first value in descending is the top score, 3 beats 1
             if score_value >= top_score:
-                add_submission_to_leaderboard(submission, keep_only_best)
+                add_submission_to_leaderboard(submission)
                 logger.info(
                     "Force best submission added submission to leaderboard in descending order "
                     "(submission_id=%s, top_score=%s, score=%s)", submission.id, top_score, score_value)
     else:
-        add_submission_to_leaderboard(submission, keep_only_best)
+        add_submission_to_leaderboard(submission)
         logger.info(
             "Force best submission added submission: {0} with score: {1} to leaderboard: {2}"
             " because no submission was present".format(
@@ -248,7 +248,6 @@ def delete_key_from_storage(obj, attr, aws_attr=None, s3direct=False, use_boto_m
             storage = attr_obj.storage
             key = attr_obj.name
         if key == '' or not key:
-            logger.error("Attempt to delete empty key: {}".format(key))
             return
         key_obj = storage.bucket.lookup(key)
         if key_obj:
@@ -287,3 +286,69 @@ def storage_get_total_use(storage):
         for file_path in found_files:
             total_bytes += storage.size(file_path) or 0
     return float(total_bytes)
+
+def sort_submissions_by_score(submissions):
+    # Submissions should always be from the same phase.
+    if not len(submissions) >= 1:
+        return
+    # Grab the first sub's score def. If they're all from the same phase they should be the same
+    score_def = submissions[0].get_default_score_def()
+    # Make a list of tuples that consist of the submission and it's score for the default field
+    submissions_and_scores = [(submission, submission.get_default_score()) for submission in submissions]
+    reverse_val = True if score_def.sorting == 'desc' else False
+    # Sort the list of tuples based on score
+    sorted_list = sorted(submissions_and_scores, key=lambda x: x[1], reverse=reverse_val)
+    if sorted_list:
+        return sorted_list
+    else:
+        return
+
+def delete_submissions_except_best_and_or_last(submission):
+    from apps.web.models import PhaseLeaderBoardEntry
+    subs_to_keep = []
+    # Exclude this submission early on so we don't forget
+    part_subs = submission.participant.submissions.filter(phase=submission.phase)\
+        .exclude(id=submission.id)\
+        .exclude(is_public=True) # We do not want to delete a user's public submissions
+    # Grab a LeaderBoardEntry from this participant from this phase.
+    part_lbe = PhaseLeaderBoardEntry.objects.filter(result__phase=submission.phase,
+                                                    result__participant=submission.participant)
+    if not part_lbe.exists():
+        # We do not have a LBE. Grab the best scored submission
+        best_scored_subs = sort_submissions_by_score(part_subs.filter(status__codename='finished'))
+        if best_scored_subs:
+            top_sub, top_score = best_scored_subs[0]
+            subs_to_keep.append(top_sub.id)
+        # Add as many of the latest successful submissions as we can
+        subs_to_search = part_subs.exclude(id__in=subs_to_keep).filter(status__codename='finished').order_by(
+            '-submitted_at'
+        )[:2 - len(subs_to_keep)]
+        for sub in subs_to_search:
+            subs_to_keep.append(sub.id)
+        # We do not have enough finished subs to keep at least 2; Regardless of status, grab as many as we need of the latest
+        if len(subs_to_keep) < 2:
+            for sub in part_subs.exclude(id__in=subs_to_keep).order_by('-submitted_at')[:2 - len(subs_to_keep)]:
+                subs_to_keep.append(sub.id)
+    else:
+        # We do have a LBE. Add it and grab the best submission. If it is not the LBE, keep it (just in-case)
+        part_lbe = part_lbe.first()
+        subs_to_keep.append(part_lbe.result.id)
+        best_scored_subs = sort_submissions_by_score(part_subs.filter(status__codename='finished'))
+        top_sub, top_score = best_scored_subs[0]
+        # If the best scored submission is not the LBE, keep it
+        if top_sub.id != part_lbe.result.id:
+            subs_to_keep.append(top_sub.id)
+        # Grab the last finished submission
+        finished_sub_sorted = part_subs.exclude(id=part_lbe.result.id).filter(status__codename='finsished').order_by(
+            '-submitted_at'
+        ).first()
+        # If we have at least 1 sub
+        if finished_sub_sorted:
+            subs_to_keep.append(finished_sub_sorted.id)
+        else:
+            # Try tp add at least 1 more submission (ordered by latest)
+            for sub in part_subs.exclude(id__in=subs_to_keep).order_by('-submitted_at')[:1]:
+                subs_to_keep.append(sub.id)
+    logger.debug("Subs to keep: #{0} {1}".format(part_subs.filter(id__in=subs_to_keep).count(), part_subs.filter(id__in=subs_to_keep)))
+    logger.debug("Subs to delete: {}".format(part_subs.exclude(id__in=subs_to_keep)))
+    part_subs.exclude(id__in=subs_to_keep).delete()

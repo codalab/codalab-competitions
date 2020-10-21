@@ -860,7 +860,7 @@ class CompetitionPhase(models.Model):
         ],
         verbose_name="Max megabyte usage for each participant. (0 for disabled)"
     )
-    keep_only_best_submissions = models.BooleanField(default=False, verbose_name="Keep only the latest, best submission.")
+    delete_submissions_except_best_and_last = models.BooleanField(default=False, verbose_name="Delete all submissions except latest and or best. (Use with caution)")
 
     input_data_organizer_dataset = models.ForeignKey('OrganizerDataSet', null=True, blank=True, related_name="input_data_organizer_dataset", verbose_name="Input Data", on_delete=models.SET_NULL)
     reference_data_organizer_dataset = models.ForeignKey('OrganizerDataSet', null=True, blank=True, related_name="reference_data_organizer_dataset", verbose_name="Reference Data", on_delete=models.SET_NULL)
@@ -1386,18 +1386,19 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
 
     @property
     def size(self):
-        if self.sub_size == 0:
+        if self.sub_size == 0 and not (self.status.codename == 'submitting' or self.status.codename == 'submitted'):
             logger.info("Calculating sub size for submission: {}".format(self.pk))
             size = get_submission_size(self) or 0
             if size == 0:
                 # Could not get a valid result. Do not retry.
                 self.sub_size = -1
-                self.save()
+                CompetitionSubmission.objects.filter(pk=self.pk).update(sub_size=-1)
             else:
                 self.sub_size = size
                 # Only save in a final state so that all files have been written to.
                 if self.status.codename == 'finished' or self.status.codename == 'failed':
-                    self.save()
+                    # Don't trigger .save()
+                    CompetitionSubmission.objects.filter(pk=self.pk).update(sub_size=size)
         return self.sub_size
 
     @property
@@ -2527,7 +2528,7 @@ class CompetitionSubmissionMetadata(models.Model):
         }
 
 
-def add_submission_to_leaderboard(submission, keep_only_best=False):
+def add_submission_to_leaderboard(submission):
     """
     Adds the given submission to its leaderboard. It is the caller responsiblity to make
     sure the submission is ready to be added (e.g. it's in the finished state).
@@ -2548,11 +2549,6 @@ def add_submission_to_leaderboard(submission, keep_only_best=False):
     for entry in entries:
         entry.delete()
     lbe, created = PhaseLeaderBoardEntry.objects.get_or_create(board=lb, result=submission)
-
-    if keep_only_best:
-        # All submissions to this current phase by this participant that exclude the current
-        subs_to_delete = submission.participant.submissions.filter(phase__id=submission.phase.id).exclude(pk=submission.pk)
-        subs_to_delete.delete()
 
     return lbe, created
 

@@ -94,7 +94,7 @@ class CompetitionPhaseForm(forms.ModelForm):
             'scoring_program_organizer_dataset',
             'phase_never_ends',
             'force_best_submission_to_leaderboard',
-            'keep_only_best_submissions',
+            'delete_submissions_except_best_and_last',
             'ingestion_program_organizer_dataset',
             # 'default_docker_image`,
             # 'disable_custom_docker_image',
