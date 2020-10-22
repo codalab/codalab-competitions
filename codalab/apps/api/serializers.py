@@ -61,6 +61,7 @@ class CompetitionParticipantSerial(serializers.ModelSerializer):
 class CompetitionSubmissionSerial(serializers.ModelSerializer):
     status = serializers.SlugField(source="status.codename", read_only=True)
     filename = serializers.ReadOnlyField(source="get_filename")
+
     class Meta:
         model = webmodels.CompetitionSubmission
         fields = ('id', 'status', 'status_details', 'submitted_at', 'submission_number', 'file', 'exception_details',
@@ -71,12 +72,88 @@ class CompetitionSubmissionSerial(serializers.ModelSerializer):
             'filename'
         )
 
+
+class CompetitionSubmissionListSerializer(serializers.ModelSerializer):
+    status = serializers.SlugField(source="status.codename", read_only=True)
+    filename = serializers.SerializerMethodField()
+    username = serializers.CharField(source='participant.user.username')
+    leaderboard = serializers.SerializerMethodField()
+    can_be_migrated = serializers.SerializerMethodField()
+    participant_submission_number = serializers.CharField(read_only=True)
+    phase_number = serializers.IntegerField(source='phase.phasenumber')
+    size = serializers.SerializerMethodField()
+
+    class Meta:
+        model = webmodels.CompetitionSubmission
+        fields = (
+            'id',
+            'status',
+            'submission_number',
+            'participant_submission_number',
+            'phase',
+            'phase_number',
+            'submitted_at',
+            'leaderboard',
+            # 'results',
+            'filename',
+            'username',
+            'is_migrated',
+            'size',
+
+            # Is it possible to migrate this to the next phase?
+            'can_be_migrated',
+        )
+
+    def get_leaderboard(self, instance):
+        return instance.id in self.context['leaderboard_submissions']
+
+    def get_can_be_migrated(self, instance):
+        return instance.id in self.context['migratable_submissions']
+
+    def get_filename(self, instance):
+        return instance.get_filename()
+
+    def get_size(self, instance):
+        return instance.size
+
+
 class PhaseSerial(serializers.ModelSerializer):
-    start_date = serializers.DateField(format='%Y-%m-%d')
+    start_date = serializers.DateTimeField(format='%Y-%m-%d')
 
     class Meta:
         model = webmodels.CompetitionPhase
+        fields = [
+            'competition',
+            'description',
+            'phasenumber',
+            'label',
+            'start_date',
+            'max_submissions',
+            'max_submissions_per_day',
+            'is_scoring_only',
+            'datasets',
+            'leaderboard_management_mode',
+            'force_best_submission_to_leaderboard',
+            'auto_migration',
+            'is_migrated',
+            'execution_time_limit',
+            'color',
+            'max_submission_size',
+            'participant_max_storage_use',
+            'delete_submissions_except_best_and_last',
+            'input_data_organizer_dataset',
+            'reference_data_organizer_dataset',
+            'scoring_program_organizer_dataset',
+            'phase_never_ends',
+            'scoring_program_docker_image',
+            'default_docker_image',
+            'disable_custom_docker_image',
+            'starting_kit_organizer_dataset',
+            'public_data_organizer_dataset',
+            'ingestion_program_organizer_dataset',
+        ]
         read_only_fields = ['datasets']
+
 
 class CompetitionPhaseSerial(serializers.ModelSerializer):
     end_date = serializers.DateField(format='%Y-%m-%d')

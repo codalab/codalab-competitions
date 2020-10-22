@@ -14,6 +14,7 @@ from apps.authenz.models import ClUser
 from apps.chahub.models import ChaHubSaveMixin
 from apps.chahub.utils import send_to_chahub
 from apps.coopetitions.models import DownloadRecord
+from apps.health.models import StorageDataPoint
 from apps.jobs.models import (Job,
                               run_job_task,
                               JobTaskResult,
@@ -30,7 +31,8 @@ from apps.web.models import (add_submission_to_leaderboard,
                              SubmissionScoreDef,
                              CompetitionSubmissionMetadata, BundleStorage, SubmissionResultGroup,
                              SubmissionScoreDefGroup, OrganizerDataSet, CompetitionParticipant, ParticipantStatus)
-from apps.web.utils import inheritors, push_submission_to_leaderboard_if_best
+from apps.web.utils import inheritors, push_submission_to_leaderboard_if_best, s3_key_from_url, \
+    get_competition_size_data, storage_get_total_use, delete_submissions_except_best_and_or_last
 from botocore.exceptions import ClientError
 from celery import task
 from celery.app import app_or_default
@@ -103,7 +105,10 @@ def create_competition(job_id, comp_def_id):
     except Exception as e:
         result = JobTaskResult(status=Job.FAILED, info={'error': str(e)})
         update_job_status_task(job_id, result.get_dict())
-        logging.exception("Failed unpacking competition")
+        logging.exception("Failed unpacking competition. Deleting uploaded bundle.")
+        if competition_def.competition:
+            competition_def.competition.delete()
+        competition_def.delete()
 
 
 # CompetitionSubmission states which are final.
@@ -291,25 +296,19 @@ def _make_url_sassy(path, permission='r', duration=60 * 60 * 24):
             # Default to get if we don't know
             method = 'GET'
 
-        # Remove the beginning of the URL (before bucket name) so we just have the path to the file
-        path = path.split("{}/".format(settings.AWS_STORAGE_PRIVATE_BUCKET_NAME))[-1]
+        key = s3_key_from_url(path)
 
-        # Path could also be in a format <bucket>.<url> so check that as well
-        path = path.split("{}.{}".format(settings.AWS_STORAGE_PRIVATE_BUCKET_NAME, settings.AWS_S3_HOST))[-1]
-
-        url = ''
-
-        logger.info("Path is: {}".format(path))
+        logger.info("Path is: {}".format(key))
         # This was necessary because otherwise the url generated would have double slashes
-        if path[0] == '/':
-            path = path[1:]
+        if key[0] == '/':
+            key = key[1:]
 
         try:
             url =  BundleStorage.bucket.meta.client.generate_presigned_url(
                 ClientMethod='put_object' if permission == 'w' else 'get_object',
                 Params={
                     'Bucket': settings.AWS_STORAGE_PRIVATE_BUCKET_NAME,
-                    'Key': path
+                    'Key': key
                 },
                 ExpiresIn=duration,
                 HttpMethod=method
@@ -317,7 +316,6 @@ def _make_url_sassy(path, permission='r', duration=60 * 60 * 24):
         except ClientError as e:
             logger.error(e)
             return ''
-
         # Replace the default URL with the proper AWS_S3_HOST if we have one
         if settings.AWS_S3_HOST:
             return url.replace("s3.amazonaws.com", settings.AWS_S3_HOST)
@@ -606,6 +604,9 @@ def update_submission(job_id, args, secret):
                 logger.info("Done processing scores... (submission_id=%s)", submission.id)
                 _set_submission_status(submission.id, CompetitionSubmissionStatus.FINISHED)
 
+                if submission.phase.delete_submissions_except_best_and_last:
+                    delete_submissions_except_best_and_or_last(submission)
+
                 # Automatically submit to the leaderboard?
                 if submission.phase.is_blind and not submission.phase.force_best_submission_to_leaderboard:
                     logger.info("Adding to leaderboard... (submission_id=%s)", submission.id)
@@ -867,6 +868,30 @@ def send_chahub_updates():
         # saving generates new participant_count -- will be sent if it is different from
         # what was sent last time.
         comp.save()
+
+
+@task(queue='site-worker')
+def create_storage_statistic_datapoint():
+        total_bytes = storage_get_total_use(BundleStorage)
+        data = {
+            'total_use': total_bytes,
+            'bucket_name': BundleStorage.bucket.name
+        }
+        competition_use = 0
+        for comp in Competition.objects.all():
+            comp_data = get_competition_size_data(comp)
+            competition_use += comp_data.get('total', 0)
+        data['competition_use'] = competition_use
+        submission_use = 0
+        for sub in CompetitionSubmission.objects.all():
+            submission_use += sub.size
+        data['submission_use'] = submission_use
+        dataset_use = sum([dataset.size for dataset in OrganizerDataSet.objects.all()])
+        data['dataset_use'] = dataset_use
+        bundle_use = sum([bundle.size for bundle in CompetitionDefBundle.objects.all()])
+        data['bundle_use'] = bundle_use
+        StorageDataPoint.objects.create(**data)
+        logger.info("Created storage statistic datapoint.")
 
 
 @task(queue='site-worker')
