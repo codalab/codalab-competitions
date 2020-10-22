@@ -100,8 +100,7 @@ class GetCompetitionStorageAnalyticsOverTime(views.APIView):
                 bucket = BundleStorage.bucket
                 for obj in bucket.objects.all():
                     # Returned time is in this format: 2020-10-13T20:15:50.000Z
-                    last_modified_date = parse_datetime(obj.last_modified)
-                    if last_modified_date.replace(tzinfo=None) <= var_date:
+                    if obj.last_modified.replace(tzinfo=None) <= var_date:
                         total += obj.size
             else:
                 found_files = set(storage_recursive_find(BundleStorage))
