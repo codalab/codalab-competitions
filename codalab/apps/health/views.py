@@ -116,7 +116,7 @@ def simple_health(request):
     qs = qs.filter(submitted_at__gte=datetime.now() - timedelta(days=2))
     qs = qs.order_by('-submitted_at')
     qs = qs.select_related('phase__competition')
-    qs = qs.select_related('participant__user__username')
+    qs = qs.select_related('participant__user')
     qs = qs.prefetch_related('phase', 'status')
     return render(request, "health/simple_health.html", {
         "submissions": qs[:250],
