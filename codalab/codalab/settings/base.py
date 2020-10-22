@@ -284,6 +284,7 @@ class Base(Configuration):
     REST_FRAMEWORK = {
         'DEFAULT_RENDERER_CLASSES': [
             'rest_framework.renderers.JSONRenderer',
+            'rest_framework.renderers.BrowsableAPIRenderer',
         ],
     }
 
@@ -469,6 +470,10 @@ class Base(Configuration):
         'retry_mailing_list': {
             'task': 'apps.newsletter.tasks.retry_mailing_list',
             'schedule': timedelta(seconds=(60 * 60))
+        },
+        'create_storage_statistic_datapoint': {
+            'task': 'apps.web.tasks.create_storage_statistic_datapoint',
+            'schedule': timedelta(seconds=60 * 60 * 24)
         }
     }
     CELERY_TIMEZONE = 'UTC'
