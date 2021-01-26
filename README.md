@@ -18,6 +18,9 @@ The CodaLab community forum is hosted on Google Groups.
 
 ## Quick installation (for Linux!)
 
+_To participate in competitions you don't need to install anything, you just need to sign in an instance of the platform (e.g. [this one](https://competitions.codalab.org/)). 
+If you wish to configure your own instance of Codalab competitions, here are the instructions:_
+
 Install docker and add your user to the docker group, if you haven't already
 
 ```
@@ -30,7 +33,7 @@ $ sudo usermod -aG docker $USER
 
 Clone this repo and get the default environment setup
 ```
-$ git clone git@github.com:codalab/codalab-competitions.git
+$ git clone https://github.com/codalab/codalab-competitions
 $ cd codalab-competitions
 $ cp .env_sample .env
 $ pip install docker-compose
@@ -38,3 +41,7 @@ $ docker-compose up -d
 ```
 
 Now you should be able to access http://localhost/
+
+**More details on how to configure your own instance:**
+- [Configure Codalab from scratch](https://github.com/codalab/codalab-competitions/wiki/Setup-Local-Competitions#user-content-get-the-source-code)
+- [Set up data storage](https://github.com/codalab/codalab-competitions/wiki/Storage)
