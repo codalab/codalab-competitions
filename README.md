@@ -1,4 +1,6 @@
-# CodaLab [![Circle CI](https://circleci.com/gh/codalab/codalab-competitions.svg?style=shield)](https://circleci.com/gh/codalab/codalab-competitions)
+![CodaLab logo](codalab/apps/web/static/img/codalab-logo-fullcolor-positive.png) [![Circle CI](https://circleci.com/gh/codalab/codalab-competitions.svg?style=shield)](https://circleci.com/gh/codalab/codalab-competitions)
+
+
 
 ## What is CodaLab?
 
@@ -19,7 +21,7 @@ The CodaLab community forum is hosted on Google Groups.
 ## Quick installation (for Linux!)
 
 _To participate in competitions you don't need to install anything, you just need to sign in an instance of the platform (e.g. [this one](https://competitions.codalab.org/)). 
-If you wish to configure your own instance of Codalab competitions, here are the instructions:_
+If you wish to configure your own instance of CodaLab competitions, here are the instructions:_
 
 Install docker and add your user to the docker group, if you haven't already
 
