@@ -8,28 +8,25 @@ CodaLab is an open-source web-based platform that enables researchers, developer
 
 To see Codalab Competition's in action, visit [competitions.codalab.org](https://competitions.codalab.org/).
 
-## Competition's Documentation
+## Documentation
 
 - [CodaLab Wiki](https://github.com/codalab/codalab/wiki)
 
 ## Community
 
 The CodaLab community forum is hosted on Google Groups.
-- [CodaLabDev Google Groups Forum](https://groups.google.com/forum/#!forum/codalabdev)
+- [CodaLab Competitions Google Groups Forum](https://groups.google.com/forum/#!forum/codalab-competitions)
 
 
 ## Quick installation (for Linux!)
 
-_To participate in competitions you don't need to install anything, you just need to sign in an instance of the platform (e.g. [this one](https://competitions.codalab.org/)). 
+_To participate in competitions, or even organize your own competition, **you don't need to install anything**, you just need to sign in an instance of the platform (e.g. [this one](https://competitions.codalab.org/)). 
 If you wish to configure your own instance of CodaLab competitions, here are the instructions:_
 
 Install docker and add your user to the docker group, if you haven't already
 
 ```
 $ wget -qO- https://get.docker.com/ | sh
-
-...
-
 $ sudo usermod -aG docker $USER
 ```
 
