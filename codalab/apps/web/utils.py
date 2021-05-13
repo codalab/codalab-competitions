@@ -9,13 +9,15 @@ from django.core.files.storage import get_storage_class
 
 logger = logging.getLogger(__name__)
 
-s3 = boto3.resource('s3')
+s3 = boto3.resource('s3', endpoint_url=settings.AWS_S3_ENDPOINT_URL)
 
 StorageClass = get_storage_class(settings.DEFAULT_FILE_STORAGE)
 
 if hasattr(settings, 'USE_AWS') and settings.USE_AWS:
     BundleStorage = StorageClass(bucket=settings.AWS_STORAGE_PRIVATE_BUCKET_NAME)
     PublicStorage = StorageClass(bucket=settings.AWS_STORAGE_BUCKET_NAME)
+    PublicStorage.connection.auth_region_name = settings.S3DIRECT_REGION
+    BundleStorage.connection.auth_region_name = settings.S3DIRECT_REGION
 elif hasattr(settings, 'BUNDLE_AZURE_ACCOUNT_NAME') and settings.BUNDLE_AZURE_ACCOUNT_NAME:
     BundleStorage = StorageClass(account_name=settings.BUNDLE_AZURE_ACCOUNT_NAME,
                                  account_key=settings.BUNDLE_AZURE_ACCOUNT_KEY,
@@ -258,7 +260,6 @@ def delete_key_from_storage(obj, attr, aws_attr=None, s3direct=False, use_boto_m
             key = attr_obj.name
         if key == '' or not key:
             return
-        s3 = boto3.resource('s3')
         obj_summary = s3.ObjectSummary(storage.bucket.name, key)
         if obj_summary:
                 logger.info("Attempting to delete key: {}".format(key))

@@ -191,7 +191,8 @@ class Team(models.Model):
         return "[%s] %s - %s" % (self.status.codename, self.competition.title, self.name)
 
     name = models.CharField(max_length=100, null=False, blank=False)
-    competition = models.ForeignKey('web.Competition', on_delete=models.CASCADE)
+    # Null/Blank True so that we don't have to set one value for all existing Teams if the attr was added
+    competition = models.ForeignKey('web.Competition', on_delete=models.CASCADE, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     image = models.FileField(upload_to='team_logo', storage=PublicStorage, null=True, blank=True, verbose_name="Logo")
     image_url_base = models.CharField(max_length=255)

@@ -10,7 +10,8 @@ class Forum(models.Model):
     """
     Base Forum model.
     """
-    competition = models.OneToOneField('web.Competition', unique=True, related_name="forum", on_delete=models.CASCADE)
+    # Null/Blank True so that we don't have to set one value for all existing Forums if the attr was added
+    competition = models.OneToOneField('web.Competition', unique=True, related_name="forum", on_delete=models.CASCADE, null=True, blank=True)
 
     def get_absolute_url(self):
         return reverse('forum_detail', kwargs={'forum_pk': self.pk})
