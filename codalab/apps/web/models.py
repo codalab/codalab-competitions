@@ -1475,7 +1475,7 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
         if self.started_at and self.completed_at:
             return self.completed_at - self.started_at
         elif self.started_at:
-            return now() - self.started_at
+            return timezone.now() - self.started_at
         else:
             return None
 

@@ -838,7 +838,8 @@ def do_chahub_retries(limit=None):
 def send_chahub_general_stats():
     if settings.DATABASES.get('default').get('ENGINE') == 'django.db.backends.postgresql_psycopg2':
         # Only Postgres supports 'distinct', so if we can use the database, if not use some Python Set magic
-        organizer_count = Competition.objects.all().distinct('creator').count()
+        # Order by creator because "SELECT DISTINCT ON expressions must match initial ORDER BY expressions"
+        organizer_count = Competition.objects.order_by('creator').distinct('creator').count()
     else:
         users_with_competitions = list(ClUser.objects.filter(competitioninfo_creator__isnull=False))
         user_set = set(users_with_competitions)
