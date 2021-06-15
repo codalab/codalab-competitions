@@ -1319,6 +1319,11 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
             raise Http404()
 
         context['selected_phase'] = selected_phase
+
+        # Get user status to give right to rerun all phases or not 
+        if (self.request.user.is_superuser or self.request.user.is_staff):
+            context['is_superuser_or_staff'] = True
+
         return context
 
 
