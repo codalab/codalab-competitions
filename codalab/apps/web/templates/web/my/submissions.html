@@ -181,7 +181,7 @@
                                     Select a phase to view details & run actions against it<br>
                                 </span>
 
-                                <v-btn
+                                <v-btn v-if="is_superuser_or_staff"
                                         :disabled="!phase"
                                         @click="re_run_all_submissions"
                                 >
@@ -434,6 +434,7 @@
     <script>
         $(document).ready(function () {
             var COMPETITION_ID = {{ competition.id }}
+            var IS_SUPERUSER_OR_STAFF = {{is_superuser_or_staff|yesno:"true,false" }}
                 {#var PHASE_ID = {{ selected_phase.id }}#}
                 new Vue({
                     el: '#app',
@@ -463,7 +464,8 @@
                             submissions: [],
                             phase: null,
                             phases: [],
-                            loading: true
+                            loading: true,
+                            is_superuser_or_staff: IS_SUPERUSER_OR_STAFF
                         }
                     },
                     computed: {
