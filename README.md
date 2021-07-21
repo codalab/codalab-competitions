@@ -44,3 +44,13 @@ Now you should be able to access http://localhost/
 **More details on how to configure your own instance:**
 - [Configure Codalab from scratch](https://github.com/codalab/codalab-competitions/wiki/Setup-Local-Competitions#user-content-get-the-source-code)
 - [Set up data storage](https://github.com/codalab/codalab-competitions/wiki/Storage)
+
+
+## License
+
+Copyright (c) 2013-2015, The Outercurve Foundation.
+Copyright (c) 2016-2021, Université Paris-Saclay.
+This software is released under the Apache License 2.0 (the "License"); you may not use the software except in compliance with the License.
+
+The text of the Apache License 2.0 can be found online at:
+http://www.opensource.org/licenses/apache2.0.php
