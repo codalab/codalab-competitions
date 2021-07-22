@@ -472,7 +472,7 @@
                         filtered_submissions() {
                             return this.submissions.filter(s => {
                                 if (this.phase) {
-                                    return this.phase.id !== s.phase.id
+                                    return this.phase.phasenumber == s.phase_number
                                 } else {
                                     return true
                                 }
