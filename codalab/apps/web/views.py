@@ -1233,8 +1233,11 @@ class MyCompetitionSubmissionOutput(View):
             return HttpResponse(status=500)
         if settings.USE_AWS:
             if file_name:
+                args = {'path': file_name}
+                if filetype == "detailed_results.html":
+                    args['content_type'] = 'text/html'
                 return HttpResponseRedirect(
-                    _make_url_sassy(file_name)
+                    _make_url_sassy(**args)
                 )
             else:
                 raise Http404()
