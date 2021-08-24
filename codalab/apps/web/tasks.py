@@ -280,7 +280,7 @@ def compute_worker_run(data, priority=None, **kwargs):
     app.send_task('compute_worker_run', args=(data["id"], task_args), queue='compute-worker', **kwargs)
 
 
-def _make_url_sassy(path, permission='r', duration=60 * 60 * 24):
+def _make_url_sassy(path, permission='r', duration=60 * 60 * 24, content_type=None):
     if not path:
         logger.info("Make URL sassy received an empty path!")
         return ''
@@ -304,12 +304,16 @@ def _make_url_sassy(path, permission='r', duration=60 * 60 * 24):
             key = key[1:]
 
         try:
+            params = {
+                'Bucket': settings.AWS_STORAGE_PRIVATE_BUCKET_NAME,
+                'Key': key,
+            }
+            if content_type and permission != 'w':
+                params['ResponseContentType'] = content_type
+            # Look into if there's a host param so we don't need to replace it ourselves...
             url =  BundleStorage.bucket.meta.client.generate_presigned_url(
                 ClientMethod='put_object' if permission == 'w' else 'get_object',
-                Params={
-                    'Bucket': settings.AWS_STORAGE_PRIVATE_BUCKET_NAME,
-                    'Key': key
-                },
+                Params=params,
                 ExpiresIn=duration,
                 HttpMethod=method
             )
@@ -1051,7 +1055,7 @@ def make_modified_bundle(competition_pk, exclude_datasets_flag):
                             else:
                                 if exclude_datasets_flag:
                                     data_field = getattr(phase, data_type + '_organizer_dataset')
-                                    phase_dict[data_type] = data_field.key
+                                    phase_dict[data_type] = str(data_field.key)
                                 else:
                                     file_name = file_cache[str(data_field.name)]['name']
                                     phase_dict[data_type] = file_name
