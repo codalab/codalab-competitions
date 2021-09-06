@@ -238,20 +238,21 @@ def sort_data_table(request, context, list):
 class PhasesInline(InlineFormSet):
     model = models.CompetitionPhase
     form_class = forms.CompetitionPhaseForm
-    extra = 0
-
+    # extra = 0
+    factory_kwargs = {'extra': 0}
 
 class PagesInline(InlineFormSet):
     model = models.Page
     form_class = forms.PageForm
-    extra = 0
+    # extra = 0
+    factory_kwargs = {'extra': 0}
 
 
 class LeaderboardInline(InlineFormSet):
     model = models.SubmissionScoreDef
     form_class = forms.LeaderboardForm
-    extra = 0
-
+    # extra = 0
+    factory_kwargs = {'extra': 0}
 
 class CompetitionCreationMixin(object):
 
