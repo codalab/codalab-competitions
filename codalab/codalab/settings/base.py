@@ -201,6 +201,7 @@ class Base(Configuration):
         # Analytics app that works with many services - IRJ 2013.7.29
         'analytical',
         'rest_framework',
+        'django_filters',
 
         # This is used to manage the HTML page hierarchy for the competition
         'mptt',

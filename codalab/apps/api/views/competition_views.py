@@ -30,12 +30,28 @@ from rest_framework import (permissions, status, viewsets, views, filters)
 from rest_framework.decorators import action, permission_classes
 from rest_framework.exceptions import PermissionDenied, ParseError
 from rest_framework.exceptions import ValidationError
+from rest_framework.permissions import BasePermission, SAFE_METHODS
 from rest_framework.response import Response
 from rest_framework import mixins
 from uuid import uuid4
 
 logger = logging.getLogger(__name__)
 
+
+class CompetitionCreatorAdminPermission(BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if request.user.id is obj.creator.id or request.user.id in obj.admins.all().values_list('id', flat=True):
+            return True
+        if request.user.id in obj.participants.all().values_list('id', flat=True) and reqest.method in SAFE_METHODS:
+            return True
+
+
+class PhaseCreatorAdminPermission(BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if request.user.id is obj.competition.creator.id or request.user in obj.competition.admins.all().values_list('id', flat=True):
+            return True
+        if request.user.id in obj.participants.all().values_list('id', flat=True) and request.method in SAFE_METHODS:
+            return True
 
 
 def _generate_blob_sas_url(prefix, extension):
@@ -136,6 +152,7 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend, filters.SearchFilter,)
     filter_fields = ('creator')
     search_fields = ("title", "description", "=creator__username")
+    permission_classes = [CompetitionCreatorAdminPermission]
 
     @method_decorator(login_required)
     def destroy(self, request, pk, *args, **kwargs):
@@ -441,6 +458,7 @@ class CompetitionParticipantAPIViewSet(viewsets.ModelViewSet):
 class CompetitionPhaseAPIViewset(viewsets.ModelViewSet):
     serializer_class = serializers.CompetitionPhaseSerial
     queryset = webmodels.Competition.objects.all()
+    permission_classes = [CompetitionCreatorAdminPermission,]
 
     def get_queryset(self):
         competition_id = self.kwargs.get('pk', None)

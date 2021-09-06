@@ -141,16 +141,16 @@ class PhaseSerial(serializers.ModelSerializer):
             'max_submission_size',
             'participant_max_storage_use',
             'delete_submissions_except_best_and_last',
-            'input_data_organizer_dataset',
-            'reference_data_organizer_dataset',
-            'scoring_program_organizer_dataset',
+            # 'input_data_organizer_dataset',
+            # 'reference_data_organizer_dataset',
+            # 'scoring_program_organizer_dataset',
             'phase_never_ends',
             'scoring_program_docker_image',
             'default_docker_image',
             'disable_custom_docker_image',
-            'starting_kit_organizer_dataset',
-            'public_data_organizer_dataset',
-            'ingestion_program_organizer_dataset',
+            # 'starting_kit_organizer_dataset',
+            # 'public_data_organizer_dataset',
+            # 'ingestion_program_organizer_dataset',
         ]
         read_only_fields = ['datasets']
 
@@ -193,20 +193,55 @@ class PhaseRel(serializers.ModelSerializer):
             'color',
             'phase_never_ends',
             'scoring_program_docker_image',
-            'default_docker_image',
+            # 'default_docker_image',
             'disable_custom_docker_image',
-            'ingestion_program_docker_image',
+            # 'ingestion_program_docker_image',
         ]
 
 class CompetitionSerial(serializers.ModelSerializer):
     phases = PhaseRel(many=True, read_only=True)
-    image_url = serializers.CharField(read_only=True)
+    # image_url = serializers.CharField(read_only=True)
     pages = PageSerial(many=True, read_only=True)
 
     class Meta:
         model = webmodels.Competition
         read_only_fields = ['image_url_base']
-        fields = '__all__'
+        # fields = '__all__'
+        fields = [
+            'title',
+            'description',
+            'url_redirect',
+            'image',
+            # 'image_url_base',
+            'has_registration',
+            'start_date',
+            'end_date',
+            'creator',
+            'modified_by',
+            'last_modified',
+            'last_phase_migration',
+            'is_migrating',
+            'force_submission_to_leaderboard',
+            'disallow_leaderboard_modifying',
+            'enable_medical_image_viewer',
+            'enable_detailed_results',
+            'reward',
+            'is_migrating_delayed',
+            'allow_teams',
+            'enable_per_submission_metadata',
+            'allow_public_submissions',
+            'enable_forum',
+            'anonymous_leaderboard',
+            'enable_teams',
+            'require_team_approval',
+            'hide_top_three',
+            'hide_chart',
+            'allow_organizer_teams',
+            'deleted',
+            'phases',
+            'pages',
+            'id'
+        ]
 
 class CompetitionFilter(django_filters.FilterSet):
     creator = django_filters.CharFilter(name="creator__username")
