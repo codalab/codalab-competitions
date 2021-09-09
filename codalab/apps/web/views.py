@@ -799,6 +799,13 @@ class CompetitionResultsPage(TemplateView):
         try:
             context['block_leaderboard_view'] = True
             competition = models.Competition.objects.get(pk=self.kwargs['id'])
+            any_bool = any([
+                bool(self.request.user.id is competition.creator.id),
+                bool(self.request.user.id in competition.admins.all().values_list('id', flat=True)),
+                bool(self.request.user.id in competition.participants.all().values_list('id', flat=True))]
+            )
+            if not any_bool:
+                return HttpResponseForbidden()
             phase = competition.phases.get(pk=self.kwargs['phase'])
             is_owner = self.request.user.id == competition.creator_id
             context['competition_admins'] = competition.admins.all()
@@ -893,6 +900,13 @@ class CompetitionResultsDownload(View):
 
     def get(self, request, *args, **kwargs):
         competition = models.Competition.objects.get(pk=self.kwargs['id'])
+        any_bool = any([
+            bool(request.user.id is competition.creator.id),
+            bool(request.user.id in competition.admins.all().values_list('id', flat=True)),
+            bool(request.user.id in competition.participants.all().values_list('id', flat=True))]
+        )
+        if not any_bool:
+            return HttpResponseForbidden()
         phase = competition.phases.get(pk=self.kwargs['phase'])
         response = HttpResponse(competition.get_results_csv(phase.pk, request=request), status=200, content_type="text/csv")
         my_response = ("attachment; filename=%s results.csv" % phase.competition.title).encode('ascii', 'ignore').strip()
@@ -905,6 +919,13 @@ class CompetitionCompleteResultsDownload(View):
 
     def get(self, request, *args, **kwargs):
         competition = models.Competition.objects.get(pk=self.kwargs['id'])
+        any_bool = any([
+            bool(request.user.id is competition.creator.id),
+            bool(request.user.id in competition.admins.all().values_list('id', flat=True)),
+            bool(request.user.id in competition.participants.all().values_list('id', flat=True))]
+        )
+        if not any_bool:
+            return HttpResponseForbidden()
         phase = competition.phases.get(pk=self.kwargs['phase'])
 
         groups = phase.scores(include_scores_not_on_leaderboard=True)
