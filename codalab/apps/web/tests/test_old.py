@@ -70,8 +70,12 @@ class Competitions(TestCase):
         Create a competition programmatically.
         TODO: Does not authenticate (YET)
         """
-        client = Client()
-        res = client.post('/api/competition/', {'title': 'Test Title',
+        self.user.set_password("password123!")
+        self.user.save()
+        result = self.client.login(username=self.user.username, password="password123!")
+        assert result
+
+        res = self.client.post('/api/competition/', {'title': 'Test Title',
                                                 'description': 'Description',
                                                 'creator': self.user.pk,
                                                 'modified_by': self.user.pk,
@@ -79,7 +83,7 @@ class Competitions(TestCase):
         data = json.loads(res.content)
 
         # get competition id
-        res = client.get('/api/competition/' + str(data['id']) + '/')
+        res = self.client.get('/api/competition/' + str(data['id']) + '/')
         data = json.loads(res.content)
         self.assertEqual(data['title'], 'Test Title')
         self.assertEqual(data['description'], 'Description')
