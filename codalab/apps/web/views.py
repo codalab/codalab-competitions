@@ -799,13 +799,6 @@ class CompetitionResultsPage(TemplateView):
         try:
             context['block_leaderboard_view'] = True
             competition = models.Competition.objects.get(pk=self.kwargs['id'])
-            any_bool = any([
-                bool(self.request.user.id is competition.creator.id),
-                bool(self.request.user.id in competition.admins.all().values_list('id', flat=True)),
-                bool(self.request.user.id in competition.participants.all().values_list('id', flat=True))]
-            )
-            if not any_bool:
-                return HttpResponseForbidden()
             phase = competition.phases.get(pk=self.kwargs['phase'])
             is_owner = self.request.user.id == competition.creator_id
             context['competition_admins'] = competition.admins.all()
