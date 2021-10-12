@@ -27,44 +27,11 @@ class ConfigurationFormView(UpdateView):
         obj, created = Configuration.objects.get_or_create(pk=1)
         return obj
 
-    def get_form(self, form_class):
-        # Setup the form to be pre-filled with our admin user's competitions
-        form = super(ConfigurationFormView, self).get_form(form_class)
-
-        # Filter only your competitions
-        # form.fields["only_competition"].queryset = Competition.objects.filter(
-        #     creator=self.request.user,
-        # )
-        return form
-
     def get_success_url(self):
         return reverse("home")
 
     def form_valid(self, form):
-        self.object = form.save()
-
         # We saved the new configuration but the settings may need to change
-        settings.SINGLE_COMPETITION_VIEW_PK = self.object.only_competition.pk if self.object.only_competition else None
-        settings.CUSTOM_HEADER_LOGO = self.object.header_logo.url if self.object.header_logo else None
-
+        settings.SINGLE_COMPETITION_VIEW_PK = form.instance.only_competition.pk if form.instance.only_competition else None
+        settings.CUSTOM_HEADER_LOGO = form.instance.header_logo.url if form.instance.header_logo else None
         return super(ConfigurationFormView, self).form_valid(form)
-
-    # Added due to our get_form method expecting the form class (Probably could've removed that arg anyway)
-    def get_context_data(self, **kwargs):
-        """
-        Insert the form into the context dict.
-        """
-        if 'form' not in kwargs:
-            kwargs['form'] = self.get_form(self.form_class)
-        return super(ConfigurationFormView, self).get_context_data(**kwargs)
-
-    def post(self, request, *args, **kwargs):
-        """
-        Handles POST requests, instantiating a form instance with the passed
-        POST variables and then checked for validity.
-        """
-        form = self.get_form(self.form_class)
-        if form.is_valid():
-            return self.form_valid(form)
-        else:
-            return self.form_invalid(form)
