@@ -7,6 +7,10 @@ from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.http import HttpResponse
 from django.shortcuts import render
+from django.urls import reverse
+from django.utils import timezone
+
+import csv
 
 from .models import HealthSettings
 
@@ -116,11 +120,70 @@ def simple_health(request):
     qs = qs.filter(submitted_at__gte=datetime.now() - timedelta(days=2))
     qs = qs.order_by('-submitted_at')
     qs = qs.select_related('phase__competition')
-    qs = qs.select_related('participant__user')
-    qs = qs.prefetch_related('phase', 'status')
+    qs = qs.prefetch_related('phase', 'status', 'metadatas')
+
+    submissions = qs[:250]
+
     return render(request, "health/simple_health.html", {
-        "submissions": qs[:250],
+        "submissions": submissions,
     })
+
+
+@login_required
+def simple_health_csv(request):
+    if not request.user.is_staff:
+        return HttpResponse(status=404)
+    qs = CompetitionSubmission.objects.all()
+    qs = qs.filter(submitted_at__gte=datetime.now() - timedelta(days=2))
+    qs = qs.order_by('-submitted_at')
+    qs = qs.select_related('phase__competition')
+    qs = qs.prefetch_related('phase', 'status', 'metadatas')
+
+    submissions = qs[:250]
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="health_simple_status.csv"'
+
+    csvwriter = csv.writer(response)
+
+    # Write our headers
+    csvwriter.writerow([
+        'Competition',
+        'Competition End-Date',
+        'Organizer',
+        'Participant',
+        'Submitted',
+        'Size',
+        'Status',
+        'Hostnames',
+        'Queue',
+        'Run-Time',
+    ])
+
+    for sub in submissions:
+        if sub.phase.competition.published:
+            competition_info_string = '{0} - ({1})'
+        else:
+            competition_info_string = '{0} - ({1}?secret_key={2})'
+        competition_info = competition_info_string.format(
+            sub.phase.competition.title,
+            reverse('competitions:view', kwargs={'pk': sub.phase.competition.pk}),
+            sub.phase.competition.secret_key
+        )
+        csvwriter.writerow([
+            competition_info,
+            sub.phase.competition.end_date.isoformat() if sub.phase.competition.end_date else '',
+            '{0} ({1})'.format(sub.phase.competition.creator.username, sub.phase.competition.creator.email),
+            '{0} ({1})'.format(sub.participant.user.username, sub.participant.user.email),
+            timezone.now() - sub.submitted_at,
+            sub.size,
+            sub.status.codename,
+            [metadata.hostname for metadata in sub.metadatas.all() if metadata.hostname] or 'No data!',
+            sub.phase.competition.queue if sub.phase.competition.queue and sub.phase.competition.queue != '' else '*',
+            sub.run_time if sub.run_time else '',
+        ])
+    return response
+
 
 
 @login_required
