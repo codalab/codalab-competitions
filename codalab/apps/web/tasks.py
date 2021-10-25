@@ -303,7 +303,11 @@ def compute_worker_run(data, priority=None, **kwargs):
     app.send_task('compute_worker_run', args=(data["id"], task_args), queue='compute-worker', **kwargs)
 
 
-def _make_url_sassy(path, permission='r', duration=60 * 60 * 24):
+def _make_url_sassy(path, permission='r', duration=60 * 60 * 24, content_type=None):
+    if not path:
+        logger.info("Make URL sassy received an empty path!")
+        return ''
+
     if settings.USE_AWS:
         if permission == 'r':
             # GET instead of r (read) for AWS
@@ -321,14 +325,20 @@ def _make_url_sassy(path, permission='r', duration=60 * 60 * 24):
         # Path could also be in a format <bucket>.<url> so check that as well
         path = path.split("{}.{}".format(settings.AWS_STORAGE_PRIVATE_BUCKET_NAME, settings.AWS_S3_HOST))[-1]
 
-        url = BundleStorage.connection.generate_url(
+        params = {}
+        if content_type and permission != 'w':
+            params['response-content-type'] = content_type
+        # Look into if there's a host param so we don't need to replace it ourselves...
+        url =  BundleStorage.connection.generate_url(
             expires_in=duration,
             method=method,
             bucket=settings.AWS_STORAGE_PRIVATE_BUCKET_NAME,
             key=path,
+            response_headers=params,
             query_auth=True,
-            force_http=not settings.AWS_S3_SECURE_URLS,
+            force_http=not settings.AWS_S3_SECURE_URLS
         )
+
         # Replace the default URL with the proper AWS_S3_HOST if we have one
         if settings.AWS_S3_HOST:
             return url.replace("s3.amazonaws.com", settings.AWS_S3_HOST)
@@ -1033,7 +1043,7 @@ def make_modified_bundle(competition_pk, exclude_datasets_flag):
                             else:
                                 if exclude_datasets_flag:
                                     data_field = getattr(phase, data_type + '_organizer_dataset')
-                                    phase_dict[data_type] = data_field.key
+                                    phase_dict[data_type] = str(data_field.key)
                                 else:
                                     file_name = file_cache[str(data_field.name)]['name']
                                     phase_dict[data_type] = file_name
