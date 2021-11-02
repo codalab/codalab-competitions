@@ -388,7 +388,7 @@ var Competition;
                         return s;
                     };
                     var dt = new Date(response.submitted_at);
-                    var d = ('0' + (dt.getMonth() + 1).toString()).slice(-2) + '/' + dt.getDate().toString() + '/' + dt.getFullYear();
+                    var d = ('0' + (dt.getMonth() + 1).toString()).slice(-2) + '/' + dt.getDate().toString().padStart(2, "0") + '/' + dt.getFullYear();
                     var h = ('0' + dt.getHours().toString()).slice(-2);
                     var m = fmt(dt.getMinutes());
                     var s = fmt(dt.getSeconds());
