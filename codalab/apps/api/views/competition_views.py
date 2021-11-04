@@ -4,14 +4,16 @@ Defines Django views for 'apps.api' app for competitions
 import json
 import logging
 import re
-
-from uuid import uuid4
-
-from rest_framework import permissions, status, viewsets, views, filters
-from rest_framework.decorators import action, permission_classes
-from rest_framework.exceptions import PermissionDenied, ParseError
-from rest_framework.response import Response
-
+from apps.api import serializers
+from apps.authenz.models import ClUser
+from apps.jobs.models import Job
+from apps.teams import models as teammodels
+from apps.web import models as webmodels
+from apps.web.models import CompetitionSubmission, Competition, CompetitionParticipant, ParticipantStatus, \
+    PhaseLeaderBoardEntry, get_first_previous_active_and_next_phases
+from apps.web.tasks import (create_competition, _make_url_sassy)
+from apps.web.tasks import evaluate_submission
+from codalab.azure_storage import make_blob_sas_url, PREFERRED_STORAGE_X_MS_VERSION
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
@@ -19,24 +21,37 @@ from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import PermissionDenied as DjangoPermissionDenied
 from django.core.mail import EmailMultiAlternatives
+from django.db.models import Q
 from django.http import Http404
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
-
-from apps.api import serializers
-from apps.authenz.models import ClUser
-from apps.jobs.models import Job
-from apps.web import models as webmodels
-from apps.teams import models as teammodels
-from apps.web.models import CompetitionSubmission, Competition, CompetitionParticipant, ParticipantStatus
-from apps.web.tasks import (create_competition, evaluate_submission, _make_url_sassy)
-
-from codalab.azure_storage import make_blob_sas_url, PREFERRED_STORAGE_X_MS_VERSION
-
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import (permissions, status, viewsets, views, filters)
+from rest_framework.decorators import action, permission_classes
+from rest_framework.exceptions import PermissionDenied, ParseError
+from rest_framework.exceptions import ValidationError
+from rest_framework.permissions import BasePermission, SAFE_METHODS
+from rest_framework.response import Response
+from rest_framework import mixins
+from uuid import uuid4
 
 logger = logging.getLogger(__name__)
 
+
+class CompetitionCreatorAdminPermission(BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if request.user.id is obj.creator.id or request.user.id in obj.admins.all().values_list('id', flat=True):
+            return True
+        if request.user.id in obj.participants.all().values_list('id', flat=True) and reqest.method in SAFE_METHODS:
+            return True
+
+
+class PhaseCreatorAdminPermission(BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if request.user.id is obj.competition.creator.id or request.user in obj.competition.admins.all().values_list('id', flat=True):
+            return True
+        if request.user.id in obj.participants.all().values_list('id', flat=True) and request.method in SAFE_METHODS:
+            return True
 
 
 def _generate_blob_sas_url(prefix, extension):
@@ -137,6 +152,7 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend, filters.SearchFilter,)
     filter_fields = ('creator')
     search_fields = ("title", "description", "=creator__username")
+    permission_classes = [CompetitionCreatorAdminPermission]
 
     @method_decorator(login_required)
     def destroy(self, request, pk, *args, **kwargs):
@@ -438,9 +454,11 @@ class CompetitionParticipantAPIViewSet(viewsets.ModelViewSet):
         competition_id = self.kwargs.get('competition_id', None)
         return self.queryset.filter(competition__pk=competition_id)
 
+
 class CompetitionPhaseAPIViewset(viewsets.ModelViewSet):
     serializer_class = serializers.CompetitionPhaseSerial
     queryset = webmodels.Competition.objects.all()
+    permission_classes = [CompetitionCreatorAdminPermission,]
 
     def get_queryset(self):
         competition_id = self.kwargs.get('pk', None)
@@ -451,6 +469,7 @@ class CompetitionPhaseAPIViewset(viewsets.ModelViewSet):
         if phasenumber:
             kw['phases__phasenumber'] = phasenumber
         return self.queryset.filter(**kw)
+
 
 competitionphase_list = CompetitionPhaseAPIViewset.as_view({'get':'list', 'post':'create'})
 competitionphase_retrieve = CompetitionPhaseAPIViewset.as_view({'get':'retrieve',
@@ -670,10 +689,73 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
         response['status'] = (201 if cr else 200)
         return Response(response, status=response['status'], content_type="application/json")
 
+    def check_submission_participant(self, obj):
+        try:
+            obj.participant = webmodels.CompetitionParticipant.objects.filter(
+                                competition=self.kwargs['competition_id'], user=self.request.user).get()
+        except ObjectDoesNotExist:
+            raise PermissionDenied()
+        if not obj.participant.is_approved:
+            raise PermissionDenied()
+
+
 competition_submission_retrieve = CompetitionSubmissionViewSet.as_view({'get':'retrieve'})
 competition_submission_create = CompetitionSubmissionViewSet.as_view({'post':'create'})
 competition_submission_leaderboard = CompetitionSubmissionViewSet.as_view(
                                         {'post':'addToLeaderboard', 'delete':'removeFromLeaderboard'})
+
+
+class CompetitionSubmissionListViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    queryset = CompetitionSubmission.objects.all()
+    serializer_class = serializers.CompetitionSubmissionListSerializer
+
+    def get_queryset(self, *args, **kwargs):
+        qs = super(CompetitionSubmissionListViewSet, self).get_queryset(*args, **kwargs)
+
+        # Only get submissions for this competition, and only if you're an admin
+        competition_id = self.kwargs['competition_id']
+        qs = qs.filter(phase__competition_id=competition_id).order_by('-pk')
+        qs = qs.filter(Q(phase__competition__creator=self.request.user) | Q(phase__competition__admins__in=[self.request.user]))
+
+        qs = qs.extra(
+            select={
+                'participant_submission_number':
+                    'DENSE_RANK() OVER(PARTITION BY "web_competitionsubmission"."participant_id" ORDER BY "web_competitionsubmission"."id" ASC) '
+            }
+        )
+
+        qs = qs.select_related(
+            'status',
+            'participant',
+            'participant__user',
+            'phase',
+            'phase__competition',
+        )
+        return qs
+
+    def get_serializer_context(self, *args, **kwargs):
+        context = super(CompetitionSubmissionListViewSet, self).get_serializer_context(*args, **kwargs)
+
+        # To reduce queries, let's collect a bit of data to make processing submissions easier
+        competition_id = self.kwargs['competition_id']
+        context['leaderboard_submissions'] = PhaseLeaderBoardEntry.objects.filter(
+            board__phase__competition_id=competition_id
+        ).values_list('result__id', flat=True)
+
+        first_phase, previous_phase, active_phase, next_phase = get_first_previous_active_and_next_phases(
+            Competition.objects.get(pk=competition_id)
+        )
+
+        # Get all submissions that can be migrated into another phase (must be on leaderboard already and
+        # the next phase must have auto_migration = True)
+        if next_phase and next_phase.auto_migration:
+            active_phase_submissions = active_phase.submissions.all().values_list('id', flat=True)
+            context['migratable_submissions'] = filter(lambda x: x in context["leaderboard_submissions"], active_phase_submissions)
+        else:
+            context['migratable_submissions'] = []
+
+        return context
+
 
 class LeaderBoardViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.LeaderBoardSerial

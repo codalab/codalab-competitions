@@ -1,4 +1,5 @@
 import csv
+import csv
 import io
 import json
 import logging
@@ -44,7 +45,7 @@ from django.db import connection
 from django.db.models import Q, Max, Min, Count
 from django.http import Http404, HttpResponseForbidden
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render_to_response, render
+from django.shortcuts import render_to_response, render, get_object_or_404
 from django.template import RequestContext
 from django.utils import timezone
 from django.utils.html import strip_tags
@@ -237,20 +238,21 @@ def sort_data_table(request, context, list):
 class PhasesInline(InlineFormSet):
     model = models.CompetitionPhase
     form_class = forms.CompetitionPhaseForm
-    extra = 0
-
+    # extra = 0
+    factory_kwargs = {'extra': 0}
 
 class PagesInline(InlineFormSet):
     model = models.Page
     form_class = forms.PageForm
-    extra = 0
+    # extra = 0
+    factory_kwargs = {'extra': 0}
 
 
 class LeaderboardInline(InlineFormSet):
     model = models.SubmissionScoreDef
     form_class = forms.LeaderboardForm
-    extra = 0
-
+    # extra = 0
+    factory_kwargs = {'extra': 0}
 
 class CompetitionCreationMixin(object):
 
@@ -508,7 +510,7 @@ class CompetitionDetailView(DetailView):
             # user may not be logged in, so grab PK if we can, to check if they are a participant
             user_pk = request.user.pk or -1
             if not competition.participants.filter(user=user_pk).exists():
-                if not competition.published and competition.secret_key != secret_key:
+                if not competition.published and str(competition.secret_key) != secret_key:
                     return HttpResponse(status=404)
         # FIXME: handles legacy problem with missing post_save signal for forums, creates forum if it
         # does not exist for this competition. should be removed eventually.
@@ -714,10 +716,17 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                         'organization_or_affiliation': submission.organization_or_affiliation,
                         'is_public': submission.is_public,
                         'score': default_score,
+                        'size': submission.size,
                     }
                     submission_info_list.append(submission_info)
                 context['submission_info_list'] = submission_info_list
                 context['phase'] = phase
+                # Convert from bytes to megabytes
+                part_used_storage = float(participant.get_storage_use()) / 1000 / 1000
+                part_storage_left = float(phase.participant_max_storage_use) - part_used_storage
+                context['participant_use'] = '{:.2f}'.format(part_used_storage)
+                context['participant_use_left'] = '{:.2f}'.format(part_storage_left)
+                context['max_part_storage_use'] = phase.participant_max_storage_use
 
         try:
             last_submission = models.CompetitionSubmission.objects.filter(
@@ -884,6 +893,13 @@ class CompetitionResultsDownload(View):
 
     def get(self, request, *args, **kwargs):
         competition = models.Competition.objects.get(pk=self.kwargs['id'])
+        any_bool = any([
+            bool(request.user.id is competition.creator.id),
+            bool(request.user.id in competition.admins.all().values_list('id', flat=True)),
+            bool(request.user.id in competition.participants.all().values_list('id', flat=True))]
+        )
+        if not any_bool:
+            return HttpResponseForbidden()
         phase = competition.phases.get(pk=self.kwargs['phase'])
         response = HttpResponse(competition.get_results_csv(phase.pk, request=request), status=200, content_type="text/csv")
         my_response = ("attachment; filename=%s results.csv" % phase.competition.title).encode('ascii', 'ignore').strip()
@@ -896,6 +912,13 @@ class CompetitionCompleteResultsDownload(View):
 
     def get(self, request, *args, **kwargs):
         competition = models.Competition.objects.get(pk=self.kwargs['id'])
+        any_bool = any([
+            bool(request.user.id is competition.creator.id),
+            bool(request.user.id in competition.admins.all().values_list('id', flat=True)),
+            bool(request.user.id in competition.participants.all().values_list('id', flat=True))]
+        )
+        if not any_bool:
+            return HttpResponseForbidden()
         phase = competition.phases.get(pk=self.kwargs['phase'])
 
         groups = phase.scores(include_scores_not_on_leaderboard=True)
@@ -1225,8 +1248,11 @@ class MyCompetitionSubmissionOutput(View):
             return HttpResponse(status=500)
         if settings.USE_AWS:
             if file_name:
+                args = {'path': file_name}
+                if filetype == "detailed_results.html":
+                    args['content_type'] = 'text/html'
                 return HttpResponseRedirect(
-                    _make_url_sassy(file_name)
+                    _make_url_sassy(**args)
                 )
             else:
                 raise Http404()
@@ -1277,37 +1303,36 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
     .. note::
 
         Requires an authenticated user who is an administrator of the competition."""
-    queryset = models.Competition.objects.all()
-    model = models.Competition
     template_name = 'web/my/submissions.html'
 
-    def get_context_data(self, **kwargs):
-        phase_id = self.request.GET.get('phase')
-        context = super(MyCompetitionSubmissionsPage, self).get_context_data(**kwargs)
+    def get(self, request, *args, **kwargs):
         competition = models.Competition.objects.get(pk=self.kwargs['competition_id'])
-        context['competition'] = competition
 
         if self.request.user.id != competition.creator_id and self.request.user not in competition.admins.all():
             raise Http404()
+        
+        return super(MyCompetitionSubmissionsPage, self).get(request, *args, **kwargs)
 
-        # find the active phase
+    def get_context_data(self, **kwargs):
+        context = super(MyCompetitionSubmissionsPage, self).get_context_data(**kwargs)
+        competition = get_object_or_404(models.Competition, pk=self.kwargs['competition_id'])
+        context['competition'] = competition
+        phase_id = self.request.GET.get('phase')
+
+        # Get the phase by id OR active phase
+        # TODO: Double check selected phase here....
+        selected_phase = None
         if phase_id:
-            context['selected_phase_id'] = int(phase_id)
-            try:
-                active_phase = competition.phases.get(id=phase_id)
-            except ObjectDoesNotExist:
-                raise Http404()
+            selected_phase = get_object_or_404(models.CompetitionPhase, pk=phase_id)
         else:
             phases = list(competition.phases.all())
-            active_phase = phases[0]
+            # Get latest active phase..
+            selected_phase = phases[0]
             for phase in phases:
                 if phase.is_active:
-                    context['selected_phase_id'] = phase.id
-                    active_phase = phase
+                    selected_phase = phase
 
-        context['selected_phase'] = active_phase
-
-        submissions = models.CompetitionSubmission.objects.filter(phase=active_phase).select_related('participant', 'participant__user', 'status')
+        submissions = models.CompetitionSubmission.objects.filter(phase=selected_phase).select_related('participant', 'participant__user', 'status')
         # find which submissions are in the leaderboard, if any and only if phase allows seeing results.
         leaderboard_entries = list(models.PhaseLeaderBoardEntry.objects.filter(board__phase__competition=competition))
         id_of_submissions_in_leaderboard = [e.result.id for e in leaderboard_entries if e.result in submissions]
@@ -1341,7 +1366,7 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
 
         # This line is causing problems...
         # Active phase should be fine
-        scores = active_phase.scores(include_scores_not_on_leaderboard=True)
+        scores = selected_phase.scores(include_scores_not_on_leaderboard=True)
         bad_score_count, bad_scores = check_bad_scores(scores)
         try:
             if bad_score_count > 0:
@@ -1408,14 +1433,20 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
 
         # We need a way to check if next phase.auto_migration = True
         try:
-            next_phase = competition.phases.get(phasenumber=active_phase.phasenumber+1)
+            next_phase = competition.phases.get(phasenumber=selected_phase.phasenumber+1)
             context['next_phase'] = next_phase.auto_migration
         except Exception:
             traceback.print_exc()
-        context['phase'] = active_phase
+        context['phase'] = selected_phase
 
         if competition.creator == self.request.user or self.request.user in competition.admins.all():
             context['is_admin_or_owner'] = True
+
+        context['selected_phase'] = selected_phase
+
+        # Get user status to give right to rerun all phases or not 
+        if (self.request.user.is_superuser or self.request.user.is_staff):
+            context['is_superuser_or_staff'] = True
 
         return context
 

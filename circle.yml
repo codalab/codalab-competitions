@@ -20,7 +20,7 @@ jobs:
           command: sudo chown -R $(whoami) /usr/local/
       - run:
           name: Install Memcached reqs
-          command: sudo apt-get update && sudo apt-get install libmemcached-dev --fix-missing
+          command: sudo apt-get update --allow-releaseinfo-change && sudo apt-get install libmemcached-dev --fix-missing
       - run:
           name: PIP Install Requirements
           command: pip install -r codalab/requirements/common.txt
