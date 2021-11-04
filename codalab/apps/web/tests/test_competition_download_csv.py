@@ -30,7 +30,9 @@ class CompetitionDownloadCSVTests(TestCase):
     def setUp(self):
         super(CompetitionDownloadCSVTests, self).setUp()
 
-        self.user = User.objects.create(email='test@user.com', username='testuser\u2020')
+        self.user = User.objects.create(email='test@user.com', username='testuser\u2020', password='pass')
+        self.user.set_password('pass')
+        self.user.save()
         self.other_user = User.objects.create(email='other@user.com', username='other')
         self.competition = Competition.objects.create(creator=self.user, modified_by=self.user)
         self.participant_1 = CompetitionParticipant.objects.create(
@@ -92,5 +94,7 @@ class CompetitionDownloadCSVTests(TestCase):
 
     def test_download_competition_csv_returns_200_with_unicode_labels(self):
         '''Unicode set in setUp method'''
+        result = self.client.login(username="{}".format(self.user.username), password="pass")
+        assert result
         resp = self.client.get(self.url)
         self.assertEqual(resp.status_code, 200)
