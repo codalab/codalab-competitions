@@ -156,7 +156,7 @@ class PhaseSerial(serializers.ModelSerializer):
 
 
 class CompetitionPhaseSerial(serializers.ModelSerializer):
-    end_date = serializers.DateField(format='%Y-%m-%d')
+    end_date = serializers.DateTimeField(format='%Y-%m-%d')
     phases = PhaseSerial(many=True)
 
     class Meta:
