@@ -15,18 +15,30 @@ class DefaultContentSerial(serializers.ModelSerializer):
     class Meta:
         model = webmodels.DefaultContentItem
 
-class PageSerial(serializers.ModelSerializer):
-    container = serializers.RelatedField(required=False)
 
+class PageContainerSerial(serializers.ModelSerializer):
+    class Meta:
+        model = webmodels.PageContainer
+        fields = [
+            'name',
+            'object_id',
+            'id',
+        ]
+
+
+class PageSerial(serializers.ModelSerializer):
+    container = PageContainerSerial(read_only=True)
     class Meta:
         model = webmodels.Page
+        fields = [
+            'container',
+            'codename',
+            'title',
+            'label',
+            'markup',
+            'html',
+        ]
 
-    def validate_container(self,attr,source):
-        ## The container, if not supplied will be supplied by the view
-        ## based on url kwargs.
-        if 'container' in self.context:
-            attr['container'] = self.context['container']
-        return attr
 
 class CompetitionDatasetSerial(serializers.ModelSerializer):
     dataset_id = serializers.IntegerField()
@@ -48,22 +60,28 @@ class CompetitionParticipantSerial(serializers.ModelSerializer):
 
 class CompetitionSubmissionSerial(serializers.ModelSerializer):
     status = serializers.SlugField(source="status.codename", read_only=True)
-    filename = serializers.Field(source="get_filename")
+    filename = serializers.ReadOnlyField(source="get_filename")
 
     class Meta:
         model = webmodels.CompetitionSubmission
-        fields = ('id','status','status_details','submitted_at','submission_number', 'file', 'filename', 'exception_details', 'description', 'method_name', 'method_description', 'project_url', 'publication_url', 'bibtex', 'organization_or_affiliation')
-        read_only_fields = ('participant', 'phase', 'id','status_details','submitted_at','submission_number', 'exception_details')
+        fields = ('id', 'status', 'status_details', 'submitted_at', 'submission_number', 'file', 'exception_details',
+                  'description', 'method_name', 'method_description', 'project_url', 'publication_url', 'bibtex',
+                  'organization_or_affiliation', 'filename')
+        read_only_fields = (
+            'participant', 'phase', 'id', 'status_details', 'submitted_at', 'submission_number', 'exception_details',
+            'filename'
+        )
 
 
 class CompetitionSubmissionListSerializer(serializers.ModelSerializer):
     status = serializers.SlugField(source="status.codename", read_only=True)
-    filename = serializers.Field(source="get_filename")
+    filename = serializers.SerializerMethodField()
     username = serializers.CharField(source='participant.user.username')
-    leaderboard = serializers.SerializerMethodField('get_leaderboard')
-    can_be_migrated = serializers.SerializerMethodField('get_can_be_migrated')
+    leaderboard = serializers.SerializerMethodField()
+    can_be_migrated = serializers.SerializerMethodField()
     participant_submission_number = serializers.CharField(read_only=True)
     phase_number = serializers.IntegerField(source='phase.phasenumber')
+    size = serializers.SerializerMethodField()
 
     class Meta:
         model = webmodels.CompetitionSubmission
@@ -80,6 +98,7 @@ class CompetitionSubmissionListSerializer(serializers.ModelSerializer):
             'filename',
             'username',
             'is_migrated',
+            'size',
 
             # Is it possible to migrate this to the next phase?
             'can_be_migrated',
@@ -91,12 +110,48 @@ class CompetitionSubmissionListSerializer(serializers.ModelSerializer):
     def get_can_be_migrated(self, instance):
         return instance.id in self.context['migratable_submissions']
 
+    def get_filename(self, instance):
+        return instance.get_filename()
+
+    def get_size(self, instance):
+        return instance.size
+
 
 class PhaseSerial(serializers.ModelSerializer):
-    start_date = serializers.DateField(format='%Y-%m-%d')
+    start_date = serializers.DateTimeField(format='%Y-%m-%d')
 
     class Meta:
         model = webmodels.CompetitionPhase
+        fields = [
+            'competition',
+            'description',
+            'phasenumber',
+            'label',
+            'start_date',
+            'max_submissions',
+            'max_submissions_per_day',
+            'is_scoring_only',
+            'datasets',
+            'leaderboard_management_mode',
+            'force_best_submission_to_leaderboard',
+            'auto_migration',
+            'is_migrated',
+            'execution_time_limit',
+            'color',
+            'max_submission_size',
+            'participant_max_storage_use',
+            'delete_submissions_except_best_and_last',
+            # 'input_data_organizer_dataset',
+            # 'reference_data_organizer_dataset',
+            # 'scoring_program_organizer_dataset',
+            'phase_never_ends',
+            'scoring_program_docker_image',
+            'default_docker_image',
+            'disable_custom_docker_image',
+            # 'starting_kit_organizer_dataset',
+            # 'public_data_organizer_dataset',
+            # 'ingestion_program_organizer_dataset',
+        ]
         read_only_fields = ['datasets']
 
 
@@ -115,41 +170,78 @@ class LeaderBoardSerial(serializers.ModelSerializer):
 
 class CompetitionDataSerial(serializers.ModelSerializer):
     image_url = serializers.URLField(source='image.url', read_only=True)
-    phases = serializers.RelatedField(many=True)
+    phases = serializers.RelatedField(many=True, read_only=True)
     class Meta:
         model = webmodels.Competition
 
-class PhaseRel(serializers.RelatedField):
 
-    # TODO: Some cleanup and validation to do
-    def to_native(self,value):
-        o = PhaseSerial(instance=value)
-        return o.data
-
-    def from_native(self,data=None,files=None):
-        kw = {'data': data,'partial':self.partial}
-        args = []
-        print data
-        print type(data)
-        if 'id' in data:
-            instance = webmodels.CompetitionPhase.objects.filter(pk=data['id']).get()
-            args.append(instance)
-            print instance
-        o = PhaseSerial(*args,**kw)
-
-        if o.is_valid():
-            return o.object
-        else:
-            raise Exception(o.errors)
+class PhaseRel(serializers.ModelSerializer):
+    class Meta:
+        model = webmodels.CompetitionPhase
+        fields = [
+            'description',
+            'phasenumber',
+            'label',
+            'start_date',
+            'max_submissions',
+            'max_submissions_per_day',
+            'is_scoring_only',
+            'leaderboard_management_mode',
+            'force_best_submission_to_leaderboard',
+            'auto_migration',
+            'execution_time_limit',
+            'color',
+            'phase_never_ends',
+            'scoring_program_docker_image',
+            # 'default_docker_image',
+            'disable_custom_docker_image',
+            # 'ingestion_program_docker_image',
+        ]
 
 class CompetitionSerial(serializers.ModelSerializer):
-    phases = PhaseRel(many=True,read_only=False)
-    image_url = serializers.CharField(source='image_url',read_only=True)
-    pages = PageSerial(source='pagecontent.pages', read_only=True)
+    phases = PhaseRel(many=True, read_only=True)
+    # image_url = serializers.CharField(read_only=True)
+    pages = PageSerial(many=True, read_only=True)
 
     class Meta:
         model = webmodels.Competition
         read_only_fields = ['image_url_base']
+        # fields = '__all__'
+        fields = [
+            'title',
+            'description',
+            'url_redirect',
+            'image',
+            # 'image_url_base',
+            'has_registration',
+            'start_date',
+            'end_date',
+            'creator',
+            'modified_by',
+            'last_modified',
+            'last_phase_migration',
+            'is_migrating',
+            'force_submission_to_leaderboard',
+            'disallow_leaderboard_modifying',
+            'enable_medical_image_viewer',
+            'enable_detailed_results',
+            'reward',
+            'is_migrating_delayed',
+            'allow_teams',
+            'enable_per_submission_metadata',
+            'allow_public_submissions',
+            'enable_forum',
+            'anonymous_leaderboard',
+            'enable_teams',
+            'require_team_approval',
+            'hide_top_three',
+            'hide_chart',
+            'allow_organizer_teams',
+            'deleted',
+            'phases',
+            'pages',
+            'id'
+        ]
 
 class CompetitionFilter(django_filters.FilterSet):
     creator = django_filters.CharFilter(name="creator__username")

@@ -10,7 +10,7 @@ jobs:
       DJANGO_SETTINGS_MODULE: codalab.settings
       DJANGO_CONFIGURATION: Dev
     docker:
-      - image: circleci/python:2.7.15
+      - image: circleci/python:3.8.3
     steps:
       - checkout
       - restore_cache:
@@ -20,7 +20,7 @@ jobs:
           command: sudo chown -R $(whoami) /usr/local/
       - run:
           name: Install Memcached reqs
-          command: sudo apt-get update && sudo apt-get install libmemcached-dev --fix-missing
+          command: sudo apt-get update --allow-releaseinfo-change && sudo apt-get install libmemcached-dev --fix-missing
       - run:
           name: PIP Install Requirements
           command: pip install -r codalab/requirements/common.txt
@@ -34,8 +34,8 @@ jobs:
       - run:
           name: Run PyTest
           environment:
-            DJANGO_SETTINGS_MODULE: "codalab.settings"
-            DJANGO_CONFIGURATION: "Dev"
+            DJANGO_SETTINGS_MODULE: "codalab.settings.local"
+            DJANGO_CONFIGURATION: "Test"
             CHAHUB_API_URL: "http://localhost/test/"
             CHAHUB_API_KEY: "some-secret-key"
           command: cd codalab && py.test

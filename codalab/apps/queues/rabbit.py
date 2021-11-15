@@ -1,9 +1,10 @@
+import logging
 import uuid
-
-from pyrabbit.api import Client
-
 from django.conf import settings
+from pyrabbit.api import Client
 from pyrabbit.http import HTTPError
+
+logger = logging.getLogger(__name__)
 
 
 def _get_rabbit_connection():
@@ -20,6 +21,8 @@ def check_user_needs_initialization(user):
     rabbit = _get_rabbit_connection()
 
     try:
+        if not user.rabbitmq_username or user.rabbitmq_username == '':
+            return True
         rabbit.get_user_permissions(user.rabbitmq_username)
         # We found the user, no need to initialize
         return False
@@ -30,7 +33,7 @@ def check_user_needs_initialization(user):
 
 def initialize_user(user):
     """Check whether user has a rabbitmq account already, creates it if not."""
-    print("Making new rabbitmq user for {}".format(user))
+    logger.info("Making new rabbitmq user for {}".format(user))
     user.rabbitmq_username = uuid.uuid4()
     user.rabbitmq_password = uuid.uuid4()
 

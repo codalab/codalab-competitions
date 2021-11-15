@@ -2,7 +2,6 @@
 {% load staticfiles %}
 {% load codalab_tags %}
 {% load tz %}
-{% load url from future %}
 
 {% block page_title %}Submissions{% endblock page_title %}
 {% block head_title %}Submissions{% endblock %}
@@ -453,6 +452,7 @@
                                 {text: 'Phase', value: 'phase_number'},
                                 {text: 'Submission ID', value: 'id'},
                                 {text: 'Filename', value: 'filename'},
+                                {text: 'Size (bytes)', value: 'size'},
                                 {text: 'Status', value: 'status'},
                                 {text: 'Leaderboard', value: 'leaderboard'},
                                 {text: 'Results', value: 'results'},
