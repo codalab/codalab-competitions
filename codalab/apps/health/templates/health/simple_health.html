@@ -10,22 +10,66 @@
     <thead>
     <tr>
         <th>Competition</th>
+        <th>End Date</th>
+        <th>Organizer</th>
         <th>Participant</th>
         <th>Submitted</th>
+        <th>Size</th>
         <th>Status</th>
+        <th>Hostnames</th>
+        <th>Queue</th>
         <th>Run time</th>
     </tr>
     </thead>
     <tbody>
     {% for sub in submissions %}
-    <tr>
-        <td>{{ sub.phase.competition }}</td>
-        <td>{{ sub.participant.user.username }}</td>
-        <td>{{ sub.submitted_at|timesince }} ago</td>
-        <td>{{ sub.status }}</td>
-        <td>{{ sub.run_time|default_if_none:'' }}</td>
-    </tr>
+        <tr>
+            <td>
+                {% if sub.phase.competition.published %}
+                    <a href="{% url 'competitions:view' pk=sub.phase.competition.pk %}">{{ sub.phase.competition }}</a>
+                {% else %}
+                    <a href="{% url 'competitions:view' pk=sub.phase.competition.pk %}?secret_key={{ sub.phase.competition.secret_key }}">{{ sub.phase.competition }}</a>
+                {% endif %}
+            </td>
+            <td>
+                {% if sub.phase.competition.end_date %}
+                    <button type="button" class="btn btn-warning btn-xs" data-toggle="tooltip" data-placement="bottom" title="{{ sub.phase.competition.end_date.date.isoformat }}">
+                        End-Date
+                    </button>
+                {% else %}
+                    N/A
+                {% endif %}
+            </td>
+            <td><a href="mailto:{{ sub.phase.competition.creator.email }}">{{ sub.phase.competition.creator.username }}</a></td>
+            <td>{{ sub.participant.user.username }}</td>
+            <td>{{ sub.submitted_at|timesince }} ago</td>
+            <td>{{ sub.size }} bytes</td>
+            <td>{{ sub.status }}</td>
+            <td>
+                {% for metadata in sub.metadatas.all %}
+                    {% if metadata.hostname and metadata.hostname != '' %}
+                        {{ metadata.hostname }}<br/>
+                    {% endif %}
+                {% empty %}
+                    <p>No data!</p>
+                {% endfor %}
+            </td>
+            <td>
+                {% if sub.phase.competition.queue and sub.phase.competition.queue != '' %}
+                    {{ sub.phase.competition.queue }}
+                {% else %}
+                    <p>*</p>
+                {% endif %}
+            </td>
+            <td>{{ sub.run_time|default_if_none:'' }}</td>
+        </tr>
     {% endfor %}
     </tbody>
     </table>
+{% endblock %}
+
+{% block js %}
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+    })
 {% endblock %}

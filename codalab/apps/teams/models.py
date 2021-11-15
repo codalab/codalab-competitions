@@ -1,13 +1,15 @@
+import apps.web as web
 import logging
 import os
+from apps.web.utils import PublicStorage, get_object_base_url, delete_key_from_storage
+from datetime import datetime, timedelta
+from django import template
 from django.conf import settings
 from django.db import models
-from django.utils.timezone import now
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 from django.utils.functional import cached_property
-from django import template
-import apps.web as web
-from apps.web.utils import PublicStorage, BundleStorage
-from datetime import datetime, timedelta
+from django.utils.timezone import now
 
 register = template.Library()
 User = settings.AUTH_USER_MODEL
@@ -189,12 +191,13 @@ class Team(models.Model):
         return "[%s] %s - %s" % (self.status.codename, self.competition.title, self.name)
 
     name = models.CharField(max_length=100, null=False, blank=False)
-    competition = models.ForeignKey('web.Competition')
+    # Null/Blank True so that we don't have to set one value for all existing Teams if the attr was added
+    competition = models.ForeignKey('web.Competition', on_delete=models.CASCADE, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     image = models.FileField(upload_to='team_logo', storage=PublicStorage, null=True, blank=True, verbose_name="Logo")
     image_url_base = models.CharField(max_length=255)
     allow_requests = models.BooleanField(default=True, verbose_name="Allow requests")
-    creator = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='team_creator')
+    creator = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='team_creator', on_delete=models.CASCADE)
     members = models.ManyToManyField(settings.AUTH_USER_MODEL, through='TeamMembership', blank=True, null=True, related_name='teams')
     created_at = models.DateTimeField(null=True, auto_now_add=True)
     last_modified = models.DateTimeField(auto_now_add=True)
@@ -203,7 +206,9 @@ class Team(models.Model):
 
     def save(self, *args, **kwargs):
         # Make sure the image_url_base is set from the actual storage implementation
-        self.image_url_base = self.image.storage.url('')
+        # get_object_base_url was due to differences in boto vs boto3. A utility function seemed the best route to
+        # handle different storage implementations
+        self.image_url_base = get_object_base_url(self, 'image')
         self.last_modified=now()
 
         if self.status is None:
@@ -262,6 +267,12 @@ class Team(models.Model):
         return members
 
 
+@receiver(post_delete, sender=Team)
+def team_post_delete_handler(sender, **kwargs):
+    team = kwargs['instance']
+    delete_key_from_storage(team, 'image')
+
+
 class TeamMembershipStatus(models.Model):
     UNKNOWN = 'unknown'
     REJECTED = 'rejected'
@@ -277,8 +288,8 @@ class TeamMembershipStatus(models.Model):
 
 
 class TeamMembership(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='team_memberships')
-    team = models.ForeignKey(Team)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='team_memberships', on_delete=models.CASCADE)
+    team = models.ForeignKey(Team, on_delete=models.CASCADE)
     is_invitation = models.BooleanField(default=False)
     is_request = models.BooleanField(default=False)
     start_date = models.DateTimeField(null=True, blank=True, verbose_name="Start Date (UTC)")
@@ -293,7 +304,7 @@ class TeamMembership(models.Model):
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         other_memberships = TeamMembership.objects.filter(user=self.user, team__competition=self.team.competition).exclude(pk=self.pk)
         if len(other_memberships) != 0:
-            print("Removing user: {0} from other memberships in competition: {1}".format(self.user, self.team.competition))
+            logger.info("Removing user: {0} from other memberships in competition: {1}".format(self.user, self.team.competition))
             other_memberships.delete()
         super(TeamMembership, self).save(
             force_insert=force_insert,

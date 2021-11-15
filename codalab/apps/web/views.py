@@ -1,71 +1,61 @@
 import csv
-import urllib
-from datetime import datetime, timedelta
+import csv
+import io
 import json
-import math
+import logging
 import os
-import StringIO
 import sys
 import traceback
+import urllib.error
+import urllib.parse
+import urllib.request
+import uuid
 import yaml
 import zipfile
-
-from decimal import Decimal
-
-from django.utils.safestring import mark_safe
-from django.views.generic.base import ContextMixin
-from yaml.representer import SafeRepresenter
-
-from django.db import connection
+from apps.authenz.models import ClUser
+from apps.common.competition_utils import get_most_popular_competitions, get_featured_competitions
+from apps.coopetitions.models import Like, Dislike
+from apps.customizer.models import Configuration
+from apps.forums.models import Forum
+from apps.health.models import HealthSettings
+from apps.jobs.models import Job
+from apps.teams.forms import OrganizerTeamsCSVForm
+from apps.teams.models import Team, get_user_team, get_competition_pending_teams, get_last_team_submissions, \
+    get_user_requests, get_team_pending_membership
+from apps.web import forms
+from apps.web import models
+from apps.web import tasks
+from apps.web.exceptions import ScoringException
+from apps.web.forms import CompetitionS3UploadForm
+from apps.web.models import SubmissionScore, SubmissionScoreDef, get_current_phase, \
+    get_first_previous_active_and_next_phases, Competition, CompetitionSubmission
+from datetime import datetime, timedelta
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.sites.models import Site
 from django.core.cache import cache
 from django.core.exceptions import ImproperlyConfigured
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.core.servers.basehttp import FileWrapper
-from django.core.urlresolvers import reverse, reverse_lazy
+from django.core.urlresolvers import reverse
+from django.db import connection
 from django.db.models import Q, Max, Min, Count
 from django.http import Http404, HttpResponseForbidden
 from django.http import HttpResponse, HttpResponseRedirect
-from django.http import StreamingHttpResponse
-from django.shortcuts import render_to_response, render, redirect, get_object_or_404
-from django.template import RequestContext, loader
-from django.utils.decorators import method_decorator
+from django.shortcuts import render_to_response, render, get_object_or_404
+from django.template import RequestContext
+from django.utils import timezone
 from django.utils.html import strip_tags
+from django.utils.safestring import mark_safe
 from django.views.generic import FormView
 from django.views.generic import View, TemplateView, DetailView, ListView, UpdateView, CreateView, DeleteView
-from django.utils.html import strip_tags
-from django.utils import timezone
-
-
-from mimetypes import MimeTypes
-
-from apps.teams.forms import OrganizerTeamsCSVForm
-from apps.jobs.models import Job
-from apps.health.models import HealthSettings
-from apps.web import forms
-from apps.web import models
-from apps.web import tasks
-from apps.coopetitions.models import Like, Dislike
-from apps.forums.models import Forum
-from apps.common.competition_utils import get_most_popular_competitions, get_featured_competitions
-from apps.web.exceptions import ScoringException
-from apps.web.forms import CompetitionS3UploadForm, SubmissionS3UploadForm
-from apps.web.models import SubmissionScore, SubmissionScoreDef, get_current_phase, \
-    get_first_previous_active_and_next_phases, Competition, CompetitionSubmission
-
-from apps.authenz.models import ClUser
-from apps.customizer.models import Configuration
-from tasks import evaluate_submission, re_run_all_submissions_in_phase, create_competition, _make_url_sassy, \
-    make_modified_bundle
-from apps.teams.models import Team, TeamMembership, get_user_team, get_competition_teams, get_competition_pending_teams, get_competition_deleted_teams, get_last_team_submissions, get_user_requests, get_team_pending_membership
-
 from extra_views import UpdateWithInlinesView, InlineFormSet, NamedFormsetsMixin
 
+from .tasks import evaluate_submission, re_run_all_submissions_in_phase, create_competition, _make_url_sassy, \
+    make_modified_bundle
 from .utils import check_bad_scores
 
 try:
@@ -77,6 +67,8 @@ except ImportError:
         "See https://github.com/WindowsAzure/azure-sdk-for-python")
 
 User = get_user_model()
+
+logger = logging.getLogger(__name__)
 
 ############################################################
 # General: template views
@@ -146,10 +138,7 @@ class HomePageView(TemplateView):
         return context
 
 
-class LoginRequiredMixin(object):
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super(LoginRequiredMixin, self).dispatch(*args, **kwargs)
+# Replaced with Django Default LoginRequiredMixin
 
 
 class UserSettingsView(LoginRequiredMixin, UpdateView):
@@ -209,7 +198,6 @@ def my_index(request):
 
         - User needs to be authenticated.
     """
-    template = loader.get_template("web/my/index.html")
     try:
         denied = models.ParticipantStatus.objects.get(codename=models.ParticipantStatus.DENIED)
     except:
@@ -221,14 +209,16 @@ def my_index(request):
         admins__in=[request.user]).order_by('-pk').select_related('creator').annotate(num_participants=Count('participants'))
     my_competitions = list(competitions_im_creator_of) + list(competitions_im_admin_of)
 
-    published_competitions = models.Competition.objects.filter(published=True).select_related('creator', 'participants').annotate(num_participants=Count('participants'))
+    # Invalid select related previously
+    published_competitions = models.Competition.objects.filter(published=True).select_related('creator').annotate(num_participants=Count('participants'))
     published_competitions = reversed(sorted(published_competitions, key=lambda c: c.get_start_date))
     context_dict = {
         'my_competitions': my_competitions,
-        'competitions_im_in': list(request.user.participation.all().exclude(status=denied).select_related('creator')),
+        # Invalid select related previously
+        'competitions_im_in': list(request.user.participation.all().exclude(status=denied)),
         'published_competitions': published_competitions,
     }
-    return HttpResponse(template.render(RequestContext(request, context_dict)))
+    return render(request, "web/my/index.html", context_dict)
 
 
 def sort_data_table(request, context, list):
@@ -248,20 +238,21 @@ def sort_data_table(request, context, list):
 class PhasesInline(InlineFormSet):
     model = models.CompetitionPhase
     form_class = forms.CompetitionPhaseForm
-    extra = 0
-
+    # extra = 0
+    factory_kwargs = {'extra': 0}
 
 class PagesInline(InlineFormSet):
     model = models.Page
     form_class = forms.PageForm
-    extra = 0
+    # extra = 0
+    factory_kwargs = {'extra': 0}
 
 
 class LeaderboardInline(InlineFormSet):
     model = models.SubmissionScoreDef
     form_class = forms.LeaderboardForm
-    extra = 0
-
+    # extra = 0
+    factory_kwargs = {'extra': 0}
 
 class CompetitionCreationMixin(object):
 
@@ -275,6 +266,7 @@ class CompetitionCreationMixin(object):
 class CompetitionUpload(LoginRequiredMixin, CompetitionCreationMixin, CreateView):
     model = models.CompetitionDefBundle
     template_name = 'web/competitions/upload_competition.html'
+    fields = []
 
 
 class CompetitionS3Upload(LoginRequiredMixin, CompetitionCreationMixin, FormView):
@@ -518,7 +510,7 @@ class CompetitionDetailView(DetailView):
             # user may not be logged in, so grab PK if we can, to check if they are a participant
             user_pk = request.user.pk or -1
             if not competition.participants.filter(user=user_pk).exists():
-                if not competition.published and competition.secret_key != secret_key:
+                if not competition.published and str(competition.secret_key) != secret_key:
                     return HttpResponse(status=404)
         # FIXME: handles legacy problem with missing post_save signal for forums, creates forum if it
         # does not exist for this competition. should be removed eventually.
@@ -594,7 +586,7 @@ class CompetitionDetailView(DetailView):
         except ObjectDoesNotExist:
             context['top_three_leaders'] = None
             context['graph'] = None
-            print("Could not find a score def!")
+            logger.info("Could not find a score def!")
 
         if settings.USE_AWS:
             context['submission_upload_form'] = forms.SubmissionS3UploadForm
@@ -724,10 +716,17 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                         'organization_or_affiliation': submission.organization_or_affiliation,
                         'is_public': submission.is_public,
                         'score': default_score,
+                        'size': submission.size,
                     }
                     submission_info_list.append(submission_info)
                 context['submission_info_list'] = submission_info_list
                 context['phase'] = phase
+                # Convert from bytes to megabytes
+                part_used_storage = float(participant.get_storage_use()) / 1000 / 1000
+                part_storage_left = float(phase.participant_max_storage_use) - part_used_storage
+                context['participant_use'] = '{:.2f}'.format(part_used_storage)
+                context['participant_use_left'] = '{:.2f}'.format(part_storage_left)
+                context['max_part_storage_use'] = phase.participant_max_storage_use
 
         try:
             last_submission = models.CompetitionSubmission.objects.filter(
@@ -894,6 +893,13 @@ class CompetitionResultsDownload(View):
 
     def get(self, request, *args, **kwargs):
         competition = models.Competition.objects.get(pk=self.kwargs['id'])
+        any_bool = any([
+            bool(request.user.id is competition.creator.id),
+            bool(request.user.id in competition.admins.all().values_list('id', flat=True)),
+            bool(request.user.id in competition.participants.all().values_list('id', flat=True))]
+        )
+        if not any_bool:
+            return HttpResponseForbidden()
         phase = competition.phases.get(pk=self.kwargs['phase'])
         response = HttpResponse(competition.get_results_csv(phase.pk, request=request), status=200, content_type="text/csv")
         my_response = ("attachment; filename=%s results.csv" % phase.competition.title).encode('ascii', 'ignore').strip()
@@ -906,12 +912,19 @@ class CompetitionCompleteResultsDownload(View):
 
     def get(self, request, *args, **kwargs):
         competition = models.Competition.objects.get(pk=self.kwargs['id'])
+        any_bool = any([
+            bool(request.user.id is competition.creator.id),
+            bool(request.user.id in competition.admins.all().values_list('id', flat=True)),
+            bool(request.user.id in competition.participants.all().values_list('id', flat=True))]
+        )
+        if not any_bool:
+            return HttpResponseForbidden()
         phase = competition.phases.get(pk=self.kwargs['phase'])
 
         groups = phase.scores(include_scores_not_on_leaderboard=True)
         leader_board = models.PhaseLeaderBoard.objects.get(phase=phase)
 
-        csvfile = StringIO.StringIO()
+        csvfile = io.StringIO()
         csvwriter = csv.writer(csvfile)
 
         for group in groups:
@@ -956,7 +969,7 @@ class CompetitionCompleteResultsDownload(View):
                     is_on_leaderboard = submission.pk in leader_board_entries
                     row.append(is_on_leaderboard)
 
-                    row = [unicode(r).encode("utf-8") for r in row]
+                    row = [str(r).encode("utf-8") for r in row]
                     csvwriter.writerow(row)
 
             csvwriter.writerow([])
@@ -1235,8 +1248,11 @@ class MyCompetitionSubmissionOutput(View):
             return HttpResponse(status=500)
         if settings.USE_AWS:
             if file_name:
+                args = {'path': file_name}
+                if filetype == "detailed_results.html":
+                    args['content_type'] = 'text/html'
                 return HttpResponseRedirect(
-                    _make_url_sassy(file_name)
+                    _make_url_sassy(**args)
                 )
             else:
                 raise Http404()
@@ -1304,6 +1320,7 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
         phase_id = self.request.GET.get('phase')
 
         # Get the phase by id OR active phase
+        # TODO: Double check selected phase here....
         selected_phase = None
         if phase_id:
             selected_phase = get_object_or_404(models.CompetitionPhase, pk=phase_id)
@@ -1315,8 +1332,115 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                 if phase.is_active:
                     selected_phase = phase
 
-        if not selected_phase:
-            raise Http404()
+        submissions = models.CompetitionSubmission.objects.filter(phase=selected_phase).select_related('participant', 'participant__user', 'status')
+        # find which submissions are in the leaderboard, if any and only if phase allows seeing results.
+        leaderboard_entries = list(models.PhaseLeaderBoardEntry.objects.filter(board__phase__competition=competition))
+        id_of_submissions_in_leaderboard = [e.result.id for e in leaderboard_entries if e.result in submissions]
+        # create column definition
+        columns = [
+            {
+                'label': 'SUBMITTED',
+                'name': 'submitted_at'
+            },
+            {
+                'label': 'SUBMITTED BY',
+                'name': 'submitted_by'
+            },
+            {
+                'label': 'SUBMISSION ID',
+                'name': 'submission_pk'
+            },
+            {
+                'label': 'FILENAME',
+                'name': 'filename'
+            },
+            {
+                'label': 'STATUS',
+                'name': 'status_name'
+            },
+            {
+                'label': 'LEADERBOARD',
+                'name': 'is_in_leaderboard'
+            },
+        ]
+
+        # This line is causing problems...
+        # Active phase should be fine
+        scores = selected_phase.scores(include_scores_not_on_leaderboard=True)
+        bad_score_count, bad_scores = check_bad_scores(scores)
+        try:
+            if bad_score_count > 0:
+                raise ScoringException("Improperly configured leaderboard or scoring program!")
+        except ScoringException:
+            context['scoring_exception'] = "ERROR: Improperly configured leaderboard or scoring program. Some " \
+                                           "scores have NaN! Please check your leaderboard configuration and" \
+                                           " scoring program for the competition!"
+            context['bad_scores'] = bad_scores
+            context['bad_score_count'] = bad_score_count
+
+        for score_group_index, score_group in enumerate(scores):
+            column = {
+                'label': score_group['label'],
+                'name': 'score_' + str(score_group_index),
+            }
+            columns.append(column)
+        # map submissions to view data
+        submission_info_list = []
+        for submission in submissions:
+            submission_info = {
+                'id': submission.id,
+                'submitted_by': submission.participant.user.username,
+                'user_pk': submission.participant.user.pk,
+                'number': submission.submission_number,
+                'filename': submission.get_filename(),
+                'submitted_at': submission.submitted_at,
+                'status_name': submission.status.name,
+                'is_in_leaderboard': submission.id in id_of_submissions_in_leaderboard,
+                'exception_details': submission.exception_details,
+                'description': submission.description,
+                'is_public': submission.is_public,
+                'submission_pk': submission.id,
+                'is_migrated': submission.is_migrated
+            }
+            # Removed if to show scores on submissions view.
+
+            #if (submission_info['is_in_leaderboard'] == True):
+            # add score groups into data columns
+            for score_group_index, score_group in enumerate(scores):
+                # Need to figure out a way to check if submission is garbage.
+                try:
+                    user_score = [user_score for user_score in score_group['scores'] if user_score[1]['id'] == submission.id][0] # This line return error.
+                    main_score = [main_score for main_score in user_score[1]['values'] if main_score['name'] == score_group['headers'][0]['key']][0]
+                    submission_info['score_' + str(score_group_index)] = main_score['val']
+                # If submission is garbage put in garbage data.
+                except:
+                    user_score = "---"
+                    main_score = "---"
+                    submission_info['score_' + str(score_group_index)] = "---"
+            submission_info_list.append(submission_info)
+        # order results
+        sort_data_table(self.request, context, submission_info_list)
+        # complete context
+        context['columns'] = columns
+
+        paginator = Paginator(submission_info_list, 25)
+        page = self.request.GET.get('page')
+        if page is None:
+            # If we don't get page back in the request dict, default to 1st page.
+            page = 1
+
+        context['submission_info_list'] = paginator.page(page)
+
+        # We need a way to check if next phase.auto_migration = True
+        try:
+            next_phase = competition.phases.get(phasenumber=selected_phase.phasenumber+1)
+            context['next_phase'] = next_phase.auto_migration
+        except Exception:
+            traceback.print_exc()
+        context['phase'] = selected_phase
+
+        if competition.creator == self.request.user or self.request.user in competition.admins.all():
+            context['is_admin_or_owner'] = True
 
         context['selected_phase'] = selected_phase
 
@@ -1383,6 +1507,25 @@ class OrganizerDataSetCreate(OrganizerDataSetFormMixin, CreateView):
     def get_success_url(self):
         return reverse("my_datasets")
 
+    def get_context_data(self, **kwargs):
+        """
+        Insert the form into the context dict.
+        """
+        if 'form' not in kwargs:
+            kwargs['form'] = self.get_form(self.form_class)
+        return super(OrganizerDataSetCreate, self).get_context_data(**kwargs)
+
+    def post(self, request, *args, **kwargs):
+        """
+        Handles POST requests, instantiating a form instance with the passed
+        POST variables and then checked for validity.
+        """
+        form = self.get_form(self.form_class)
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
 
 class OrganizerDataSetCheckOwnershipMixin(LoginRequiredMixin):
     def get_object(self, queryset=None):
@@ -1395,8 +1538,14 @@ class OrganizerDataSetCheckOwnershipMixin(LoginRequiredMixin):
 
 
 class OrganizerDataSetUpdate(OrganizerDataSetCheckOwnershipMixin, OrganizerDataSetFormMixin, UpdateView):
-    pass
 
+    def get_context_data(self, **kwargs):
+        """
+        Insert the form into the context dict.
+        """
+        if 'form' not in kwargs:
+            kwargs['form'] = self.get_form(self.form_class)
+        return super(OrganizerDataSetUpdate, self).get_context_data(**kwargs)
 
 class OrganizerDataSetDelete(OrganizerDataSetCheckOwnershipMixin, DeleteView):
     model = models.OrganizerDataSet
@@ -1454,7 +1603,7 @@ def download_dataset(request, dataset_key):
     try:
         if dataset.sub_data_files.count() > 0:
             # TODO: Could refactor this to only zip this stuff up one time, maybe after dataset creation?
-            zip_buffer = StringIO.StringIO()
+            zip_buffer = io.ByteIO()
 
             zip_file = zipfile.ZipFile(zip_buffer, "w")
             file_name = ""
@@ -1465,21 +1614,21 @@ def download_dataset(request, dataset_key):
 
             zip_file.close()
 
-            resp = HttpResponse(zip_buffer.getvalue(), mimetype = "application/x-zip-compressed")
+            resp = HttpResponse(zip_buffer.getvalue(), content_type="application/x-zip-compressed")
             resp['Content-Disposition'] = 'attachment; filename=%s.zip' % dataset.name
             return resp
         else:
             return HttpResponseRedirect(_make_url_sassy(dataset.data_file.file.name))
     except:
         exc_type, exc_value, exc_traceback = sys.exc_info()
-        print "*** print_tb:"
+        logger.error("*** print_tb:")
         traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
-        print "*** print_exception:"
+        logger.error("*** print_exception:")
         traceback.print_exception(exc_type, exc_value, exc_traceback,
                                   limit=2, file=sys.stdout)
-        print "*** print_exc:"
+        logger.error("*** print_exc:")
         traceback.print_exc()
-        print "*** format_exc, first and last line:"
+        logger.error("*** format_exc, first and last line:")
         formatted_lines = traceback.format_exc().splitlines()
         msg = "There was an error retrieving the file. Please try again later or report the issue."
         return HttpResponse(msg, status=400, content_type='text/plain')
@@ -1547,9 +1696,9 @@ def download_competition_bundle(request, competition_pk):
         raise Http404()
 
     try:
-        zip_buffer = StringIO.StringIO()
+        zip_buffer = io.BytesIO()
         zip_file = zipfile.ZipFile(zip_buffer, "w")
-        yaml_data = yaml.load(competition.original_yaml_file)
+        yaml_data = yaml.full_load(competition.original_yaml_file)
 
         # Grab logo
         zip_file.writestr(yaml_data["image"], competition.image.file.read())
@@ -1590,19 +1739,23 @@ def download_competition_bundle(request, competition_pk):
 
         zip_file.close()
 
-        resp = HttpResponse(zip_buffer.getvalue(), mimetype = "application/x-zip-compressed")
-        resp['Content-Disposition'] = 'attachment; filename=%s-%s.zip' % (competition.title, competition.pk)
+        # There seems to be some disagreement between boto3 and s3direct on how to format names between upload/unpack when the file contains spaces
+        # Formatting it before download so users can expect to be able to take the output and re-upload it without issue.
+        formatted_title = "{}-{}".format(competition.title.replace(" ", "_"), str(uuid.uuid4())[:6])
+
+        resp = HttpResponse(zip_buffer.getvalue(), content_type="application/x-zip-compressed")
+        resp['Content-Disposition'] = 'attachment; filename=%s-%s.zip' % (formatted_title, competition.pk)
         return resp
     except:
         exc_type, exc_value, exc_traceback = sys.exc_info()
-        print "*** print_tb:"
+        logger.error("*** print_tb:")
         traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
-        print "*** print_exception:"
+        logger.error("*** print_exception:")
         traceback.print_exception(exc_type, exc_value, exc_traceback,
                                   limit=2, file=sys.stdout)
-        print "*** print_exc:"
+        logger.error("*** print_exc:")
         traceback.print_exc()
-        print "*** format_exc, first and last line:"
+        logger.error("*** format_exc, first and last line:")
         formatted_lines = traceback.format_exc().splitlines()
         msg = "There was an error retrieving the file. Please try again later or report the issue."
         return HttpResponse(msg, status=400, content_type='text/plain')
@@ -1627,7 +1780,7 @@ def download_leaderboard_results(request, competition_pk, phase_pk):
         raise Http404()
 
     try:
-        zip_buffer = StringIO.StringIO()
+        zip_buffer = io.BytesIO()
         zip_file = zipfile.ZipFile(zip_buffer, "w")
 
         # Add teach team name in an easy to read way
@@ -1652,7 +1805,7 @@ def download_leaderboard_results(request, competition_pk, phase_pk):
 
             if settings.USE_AWS:
                 url = _make_url_sassy(submission.s3_file)
-                zip_file.writestr(file_name, urllib.urlopen(url).read())
+                zip_file.writestr(file_name, urllib.request.urlopen(url).read())
             else:
                 zip_file.writestr(file_name, submission.file.read())
 
@@ -1684,19 +1837,19 @@ def download_leaderboard_results(request, competition_pk, phase_pk):
 
         zip_file.close()
 
-        resp = HttpResponse(zip_buffer.getvalue(), mimetype = "application/x-zip-compressed")
+        resp = HttpResponse(zip_buffer.getvalue(), content_type="application/x-zip-compressed")
         resp['Content-Disposition'] = 'attachment; filename=%s-%s-results.zip' % (competition.title, competition.pk)
         return resp
     except:
         exc_type, exc_value, exc_traceback = sys.exc_info()
-        print "*** print_tb:"
+        logger.error("*** print_tb:")
         traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
-        print "*** print_exception:"
+        logger.error("*** print_exception:")
         traceback.print_exception(exc_type, exc_value, exc_traceback,
                                   limit=2, file=sys.stdout)
-        print "*** print_exc:"
+        logger.error("*** print_exc:")
         traceback.print_exc()
-        print "*** format_exc, first and last line:"
+        logger.error("*** format_exc, first and last line:")
         formatted_lines = traceback.format_exc().splitlines()
         msg = "There was an error retrieving the file. Please try again later or report the issue."
         return HttpResponse(msg, status=400, content_type='text/plain')
@@ -1902,7 +2055,7 @@ def start_make_bundle_task(request, competition_pk):
             exclude_datasets_flag = False
         else:
             exclude_datasets_flag = True
-        print("Datasets flag is {}".format(exclude_datasets_flag))
+        logger.info("Datasets flag is {}".format(exclude_datasets_flag))
         make_modified_bundle.apply_async((competition.pk, exclude_datasets_flag,))
     return HttpResponse()
 

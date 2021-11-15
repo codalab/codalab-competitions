@@ -70,8 +70,12 @@ class Competitions(TestCase):
         Create a competition programmatically.
         TODO: Does not authenticate (YET)
         """
-        client = Client()
-        res = client.post('/api/competition/', {'title': 'Test Title',
+        self.user.set_password("password123!")
+        self.user.save()
+        result = self.client.login(username=self.user.username, password="password123!")
+        assert result
+
+        res = self.client.post('/api/competition/', {'title': 'Test Title',
                                                 'description': 'Description',
                                                 'creator': self.user.pk,
                                                 'modified_by': self.user.pk,
@@ -79,7 +83,7 @@ class Competitions(TestCase):
         data = json.loads(res.content)
 
         # get competition id
-        res = client.get('/api/competition/' + str(data['id']) + '/')
+        res = self.client.get('/api/competition/' + str(data['id']) + '/')
         data = json.loads(res.content)
         self.assertEqual(data['title'], 'Test Title')
         self.assertEqual(data['description'], 'Description')
@@ -262,22 +266,23 @@ class CompetitionDefinitionTests(TestCase):
 
         dt_str: String value representing the date & time in the YAML file.
         """
-        data = yaml.load("key: {0}".format(dt_str))
+        data = yaml.full_load("key: {0}".format(dt_str))
         return CompetitionDefBundle.localize_datetime(data['key'])
 
+    # 2to3 converted to octal format, changed to kwargs to make more clear
     def test_import_date_1(self):
         dta = CompetitionDefinitionTests.read_date('2014-03-01')
-        dte = utc.localize(datetime.datetime(2014,03,01))
+        dte = utc.localize(datetime.datetime(year=2014, month=3, day=1))
         self.assertEqual(dte, dta)
 
     def test_import_date_2(self):
         dta = CompetitionDefinitionTests.read_date('2014-03-01 10:00:01')
-        dte = utc.localize(datetime.datetime(2014,03,01,10,00,01))
+        dte = utc.localize(datetime.datetime(year=2014, month=3, day=1, hour=10, minute=0, second=1))
         self.assertEqual(dte, dta)
 
     def test_import_date_3(self):
         dta = CompetitionDefinitionTests.read_date('2014-03-01 18:15')
-        dte = utc.localize(datetime.datetime(2014,03,01,18,15))
+        dte = utc.localize(datetime.datetime(year=2014, month=3, day=1, hour=18, minute=15))
         self.assertEqual(dte, dta)
 
     def test_import_date_4(self):
