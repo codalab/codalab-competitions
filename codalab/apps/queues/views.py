@@ -21,15 +21,17 @@ class QueueFormMixin(object):
         return kwargs
 
 
-class QueueListView(LoginRequiredMixin, ListView):
-    model = Queue
-    template_name = 'queues/list.html'
-
+class QueueFilterMixin(object):
     def get_queryset(self):
         return Queue.objects.filter(owner=self.request.user)
 
 
-class QueueCreateView(LoginRequiredMixin, QueueFormMixin, CreateView):
+class QueueListView(LoginRequiredMixin, QueueFilterMixin, ListView):
+    model = Queue
+    template_name = 'queues/list.html'
+
+
+class QueueCreateView(LoginRequiredMixin, QueueFilterMixin, QueueFormMixin, CreateView):
     model = Queue
     template_name = 'queues/form.html'
     form_class = QueueForm
@@ -52,13 +54,13 @@ class QueueCreateView(LoginRequiredMixin, QueueFormMixin, CreateView):
             return self.form_invalid(form)
 
 
-class QueueUpdateView(LoginRequiredMixin, QueueFormMixin, UpdateView):
+class QueueUpdateView(LoginRequiredMixin, QueueFilterMixin, QueueFormMixin, UpdateView):
     model = Queue
     template_name = 'queues/form.html'
     form_class = QueueForm
 
 
-class QueueDeleteView(LoginRequiredMixin, QueueFormMixin, DeleteView):
+class QueueDeleteView(LoginRequiredMixin, QueueFilterMixin, QueueFormMixin, DeleteView):
     model = Queue
     template_name = 'queues/delete.html'
 

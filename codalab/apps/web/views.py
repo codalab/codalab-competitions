@@ -1287,7 +1287,10 @@ class MyCompetitionSubmissionDetailedResults(TemplateView):
     template_name = 'web/my/detailed_results.html'
 
     def get(self, request, *args, **kwargs):
-        submission = models.CompetitionSubmission.objects.get(pk=kwargs.get('submission_id'))
+        try:
+            submission = models.CompetitionSubmission.objects.get(pk=kwargs.get('submission_id'))
+        except models.CompetitionSubmission.DoesNotExist:
+            raise Http404()
 
         context_dict = {
             'id': kwargs.get('submission_id'),
@@ -1429,7 +1432,10 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
             # If we don't get page back in the request dict, default to 1st page.
             page = 1
 
-        context['submission_info_list'] = paginator.page(page)
+        try:
+            context['submission_info_list'] = paginator.page(page)
+        except EmptyPage:
+            raise Http404()
 
         # We need a way to check if next phase.auto_migration = True
         try:
