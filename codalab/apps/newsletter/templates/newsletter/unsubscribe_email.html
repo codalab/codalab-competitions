@@ -1,0 +1,9 @@
+{% extends 'newsletter/base_email.html' %}
+
+{% block content %}
+    <h2>Sorry to see you go</h2>
+    <p>You have been removed from the Codalab newsletter. If something on our end caused you to unsubscribe, please let
+        us know so we can fix it!</p>
+    <p>If you would like to subscribe again at any time, please visit this link: <a
+            href="{% url 'newsletter:newsletter_signup' %}">Subscribe</a></p>
+{% endblock %}

@@ -1,4 +1,7 @@
 {% extends 'base.html' %}
+
+{% load static %}
+
 {% block head_title %}Home{% endblock %}
 {% block nosubheader %} {% endblock nosubheader %}
 {% block title %}{% endblock title %}
@@ -8,7 +11,7 @@
         <div class="container">
             <div class="row">
                 <div class="col-sm-12 col-md-8 col-md-offset-2">
-                    <img src="{{STATIC_URL}}img/codalab-logo-onecolor-reverse.png" alt="CodaLab" class="img-responsive">
+                    <img src="{% static "img/codalab-logo-onecolor-reverse.png" %}" alt="CodaLab" class="img-responsive">
                 </div>
             </div>
         </div>
@@ -16,31 +19,18 @@
 {% endblock hero_subheader %}
 
 {% block content %}
-
     <div class="container">
-
-        <div class="row justify-content-md-center">
-            <div class="col-md-1"></div>
-            <div class="col-md-10">
-                <div style="margin-top: 15px;" class="well">
-                    <p>Dear Codalab users,</p>
-                    <p style='color:green'><b>
-                        We are currently upgrading the platform. The upgraded version can be found at <a href="https://codalab.lisn.fr">codalab.lisn.fr</a> and will soon be the main instance to use.
-                    </b></p>
-                    <p style='color:blue'><b>
-                        To help build our community we created this
-                        <a href="https://groups.google.com/forum/#!forum/codalab-competitions">Google group</a>, please join!</br>
-                        You can use it to advertise your own competitions or read news from Codalab's users.
-                    </b></p>
-                    <p><b>
-                        To report bugs and problems you face, please open <a href='https://github.com/codalab/codalab-competitions/issues'>Github issues</a>.
-                    </b></p>
-                    <p>Best regards,</p>
-                    <p>&mdash; The Codalab team</p>
+        {% if front_page_message and front_page_message != 'None' %}
+            <div class="row justify-content-md-center">
+                <div class="col-md-1"></div>
+                <div class="col-md-10">
+                    <div style="margin-top: 15px;" class="well">
+                        {{ front_page_message }}
+                    </div>
                 </div>
+                <div class="col-md-1"></div>
             </div>
-            <div class="col-md-1"></div>
-        </div>
+        {% endif %}
 
         <div class="row">
           <div class="col-sm-6 competition-latest-list">

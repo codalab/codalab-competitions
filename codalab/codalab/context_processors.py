@@ -1,6 +1,5 @@
 from django.conf import settings
 
-from apps.customizer.models import Configuration
 from codalab import settings as codalab_settings
 
 
@@ -22,4 +21,5 @@ def common_settings(request):
         'is_dev': codalab_settings.IS_DEV,
         'USE_AWS': codalab_settings.USE_AWS,
         'CODALAB_SITE_DOMAIN': codalab_settings.CODALAB_SITE_DOMAIN,
+        'USE_MAILCHIMP': bool(settings.MAILCHIMP_API_KEY),
     }

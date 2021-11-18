@@ -5,77 +5,50 @@ import csv
 import io
 import json
 import logging
-import StringIO
-import os
-import traceback
-
 import requests
+import time
+import traceback
 import yaml
 import zipfile
-
-from urllib import pathname2url
-
-from django.core.exceptions import ObjectDoesNotExist
-from django.utils import timezone
-from yaml.representer import SafeRepresenter
-from zipfile import ZipFile
-from collections import OrderedDict
-
-import sys
-
-from datetime import datetime, timedelta
-from boto.s3.connection import S3Connection
-from celery import task
-from celery.app import app_or_default
-from celery.exceptions import SoftTimeLimitExceeded
-from django.conf import settings
-from django.core.files.base import ContentFile
-from django.core.mail import get_connection, EmailMultiAlternatives, send_mail
-from django.db import transaction
-from django.db.models import Count
-from django.template import Context
-from django.template.loader import render_to_string
-from django.contrib.sites.models import Site
-
 from apps.authenz.models import ClUser
 from apps.chahub.models import ChaHubSaveMixin
 from apps.chahub.utils import send_to_chahub
+from apps.coopetitions.models import DownloadRecord
+from apps.health.models import StorageDataPoint
 from apps.jobs.models import (Job,
                               run_job_task,
                               JobTaskResult,
-                              getQueue, update_job_status_task)
+                              update_job_status_task)
+from apps.web import models
+from apps.web.models import CompetitionDump
 from apps.web.models import (add_submission_to_leaderboard,
                              Competition,
                              CompetitionSubmission,
                              CompetitionDefBundle,
                              CompetitionSubmissionStatus,
                              CompetitionPhase,
-                             submission_prediction_output_filename,
-                             submission_output_filename,
-                             submission_detailed_results_filename,
-                             submission_private_output_filename,
-                             submission_stdout_filename,
-                             submission_stderr_filename,
-                             submission_history_file_name,
-                             submission_scores_file_name,
-                             submission_coopetition_file_name,
-                             predict_submission_stdout_filename,
-                             predict_submission_stderr_filename,
                              SubmissionScore,
                              SubmissionScoreDef,
                              CompetitionSubmissionMetadata, BundleStorage, SubmissionResultGroup,
-                             SubmissionScoreDefGroup, OrganizerDataSet, CompetitionParticipant, ParticipantStatus,
-                             PhaseLeaderBoardEntry, PhaseLeaderBoard)
-from apps.coopetitions.models import DownloadRecord
-
-import time
-# import cProfile
-from apps.web.utils import inheritors, push_submission_to_leaderboard_if_best
+                             SubmissionScoreDefGroup, OrganizerDataSet, CompetitionParticipant, ParticipantStatus)
+from apps.web.utils import inheritors, push_submission_to_leaderboard_if_best, s3_key_from_url, \
+    get_competition_size_data, storage_get_total_use, delete_submissions_except_best_and_or_last
+from botocore.exceptions import ClientError
+from celery import task
+from celery.app import app_or_default
+from celery.exceptions import SoftTimeLimitExceeded
 from codalab.azure_storage import make_blob_sas_url
-
-from apps.web import models
-
-from apps.web.models import CompetitionDump
+from collections import OrderedDict
+from datetime import timedelta
+from django.conf import settings
+from django.contrib.sites.models import Site
+from django.core.files.base import ContentFile
+from django.core.mail import EmailMultiAlternatives, send_mail
+from django.db import transaction
+from django.db.models import Count
+from django.template.loader import render_to_string
+from django.utils import timezone
+from zipfile import ZipFile
 
 logger = logging.getLogger(__name__)
 
@@ -132,6 +105,10 @@ def create_competition(job_id, comp_def_id):
     except Exception as e:
         result = JobTaskResult(status=Job.FAILED, info={'error': str(e)})
         update_job_status_task(job_id, result.get_dict())
+        logging.exception("Failed unpacking competition. Deleting uploaded bundle.")
+        if competition_def.competition:
+            competition_def.competition.delete()
+        competition_def.delete()
 
 
 # CompetitionSubmission states which are final.
@@ -149,7 +126,7 @@ def _set_submission_status(submission_id, status_codename):
     status_codename: New status codename.
     """
     status = CompetitionSubmissionStatus.objects.get(codename=status_codename)
-    with transaction.commit_on_success():
+    with transaction.atomic():
         submission = CompetitionSubmission.objects.select_for_update().get(pk=submission_id)
         old_status_codename = submission.status.codename
         if old_status_codename not in _FINAL_STATES:
@@ -183,8 +160,8 @@ def predict(submission, job_id):
 
     if submission.phase.ingestion_program:
         # Keep stdout/stder for ingestion
-        submission.ingestion_program_stdout_file.save('ingestion_program_stdout_file.txt', ContentFile(''))
-        submission.ingestion_program_stderr_file.save('ingestion_program_stderr_file.txt', ContentFile(''))
+        submission.ingestion_program_stdout_file.save('ingestion_program_stdout_file.txt', ContentFile(''.encode('utf-8')))
+        submission.ingestion_program_stderr_file.save('ingestion_program_stderr_file.txt', ContentFile(''.encode('utf-8')))
 
         # For the ingestion program we have to include the actual ingestion program...
         lines.append("ingestion_program: %s" % _make_url_sassy(submission.phase.ingestion_program.name))
@@ -197,13 +174,13 @@ def predict(submission, job_id):
     # Create stdout.txt & stderr.txt, set the file names
     username = submission.participant.user.username
     stdout_filler = ["Standard output for submission #{0} by {1}.".format(submission.submission_number, username), ""]
-    submission.stdout_file.save('stdout.txt', ContentFile('\n'.join(stdout_filler)))
-    submission.prediction_stdout_file.save('prediction_stdout_file.txt', ContentFile('\n'.join(stdout_filler)))
+    submission.stdout_file.save('stdout.txt', ContentFile('\n'.join(stdout_filler).encode('utf-8')))
+    submission.prediction_stdout_file.save('prediction_stdout_file.txt', ContentFile('\n'.join(stdout_filler).encode('utf-8')))
     stderr_filler = ["Standard error for submission #{0} by {1}.".format(submission.submission_number, username), ""]
-    submission.stderr_file.save('stderr.txt', ContentFile('\n'.join(stderr_filler)))
-    submission.prediction_stderr_file.save('prediction_stderr_file.txt', ContentFile('\n'.join(stderr_filler)))
+    submission.stderr_file.save('stderr.txt', ContentFile('\n'.join(stderr_filler).encode('utf-8')))
+    submission.prediction_stderr_file.save('prediction_stderr_file.txt', ContentFile('\n'.join(stderr_filler).encode('utf-8')))
 
-    submission.prediction_output_file.save('output.zip', ContentFile(''))
+    submission.prediction_output_file.save('output.zip', ContentFile(''.encode('utf-8')))
 
     input_value = submission.phase.input_data.name
 
@@ -213,7 +190,7 @@ def predict(submission, job_id):
         lines.append("input: %s" % _make_url_sassy(input_value))
     lines.append("stdout: %s" % _make_url_sassy(submission.prediction_stdout_file.name, permission='w'))
     lines.append("stderr: %s" % _make_url_sassy(submission.prediction_stderr_file.name, permission='w'))
-    submission.prediction_runfile.save('run.txt', ContentFile('\n'.join(lines)))
+    submission.prediction_runfile.save('run.txt', ContentFile('\n'.join(lines).encode('utf-8')))
 
     # Store workflow state
     submission.execution_key = json.dumps({'predict': job_id})
@@ -303,7 +280,11 @@ def compute_worker_run(data, priority=None, **kwargs):
     app.send_task('compute_worker_run', args=(data["id"], task_args), queue='compute-worker', **kwargs)
 
 
-def _make_url_sassy(path, permission='r', duration=60 * 60 * 24):
+def _make_url_sassy(path, permission='r', duration=60 * 60 * 24, content_type=None):
+    if not path:
+        logger.info("Make URL sassy received an empty path!")
+        return ''
+
     if settings.USE_AWS:
         if permission == 'r':
             # GET instead of r (read) for AWS
@@ -315,20 +296,30 @@ def _make_url_sassy(path, permission='r', duration=60 * 60 * 24):
             # Default to get if we don't know
             method = 'GET'
 
-        # Remove the beginning of the URL (before bucket name) so we just have the path to the file
-        path = path.split("{}/".format(settings.AWS_STORAGE_PRIVATE_BUCKET_NAME))[-1]
+        key = s3_key_from_url(path)
 
-        # Path could also be in a format <bucket>.<url> so check that as well
-        path = path.split("{}.{}".format(settings.AWS_STORAGE_PRIVATE_BUCKET_NAME, settings.AWS_S3_HOST))[-1]
+        logger.info("Path is: {}".format(key))
+        # This was necessary because otherwise the url generated would have double slashes
+        if key[0] == '/':
+            key = key[1:]
 
-        url = BundleStorage.connection.generate_url(
-            expires_in=duration,
-            method=method,
-            bucket=settings.AWS_STORAGE_PRIVATE_BUCKET_NAME,
-            key=path,
-            query_auth=True,
-            force_http=not settings.AWS_S3_SECURE_URLS,
-        )
+        try:
+            params = {
+                'Bucket': settings.AWS_STORAGE_PRIVATE_BUCKET_NAME,
+                'Key': key,
+            }
+            if content_type and permission != 'w':
+                params['ResponseContentType'] = content_type
+            # Look into if there's a host param so we don't need to replace it ourselves...
+            url =  BundleStorage.bucket.meta.client.generate_presigned_url(
+                ClientMethod='put_object' if permission == 'w' else 'get_object',
+                Params=params,
+                ExpiresIn=duration,
+                HttpMethod=method
+            )
+        except ClientError as e:
+            logger.error(e)
+            return ''
         # Replace the default URL with the proper AWS_S3_HOST if we have one
         if settings.AWS_S3_HOST:
             return url.replace("s3.amazonaws.com", settings.AWS_S3_HOST)
@@ -391,13 +382,13 @@ def score(submission, job_id):
     #             )
 
 
-    submission.history_file.save('history.txt', ContentFile('\n'.join(lines)))
+    submission.history_file.save('history.txt', ContentFile('\n'.join(lines).encode('utf-8')))
 
     score_csv = submission.phase.competition.get_results_csv(submission.phase.pk)
-    submission.scores_file.save('scores.txt', ContentFile(score_csv))
+    submission.scores_file.save('scores.txt', ContentFile(score_csv.encode('utf-8')))
 
     # Extra submission info
-    coopetition_zip_buffer = StringIO.StringIO()
+    coopetition_zip_buffer = io.BytesIO()
     coopetition_zip_file = zipfile.ZipFile(coopetition_zip_buffer, "w")
 
     phases_list = submission.phase.competition.phases.all()
@@ -420,7 +411,7 @@ def score(submission, job_id):
         # Add this after fetching annotated count from db
         coopetition_field_names += ("like_count", "dislike_count")
 
-        coopetition_csv = StringIO.StringIO()
+        coopetition_csv = io.StringIO()
         writer = csv.DictWriter(coopetition_csv, coopetition_field_names)
         writer.writeheader()
         for row in annotated_submissions:
@@ -436,7 +427,7 @@ def score(submission, job_id):
         )
 
     # Download metadata
-    coopetition_downloads_csv = StringIO.StringIO()
+    coopetition_downloads_csv = io.StringIO()
     writer = csv.writer(coopetition_downloads_csv)
     writer.writerow((
         "submission_pk",
@@ -495,7 +486,7 @@ def score(submission, job_id):
         is_automatic_submission = submissions_this_phase == 1
 
     lines.append("automatic-submission: %s" % is_automatic_submission)
-    submission.inputfile.save('input.txt', ContentFile('\n'.join(lines)))
+    submission.inputfile.save('input.txt', ContentFile('\n'.join(lines).encode('utf-8')))
 
 
     # Generate metadata-only bundle describing the computation.
@@ -510,23 +501,23 @@ def score(submission, job_id):
     lines.append("stderr: %s" % _make_url_sassy(submission.stderr_file.name, permission='w'))
     lines.append("private_output: %s" % _make_url_sassy(submission.private_output_file.name, permission='w'))
     lines.append("output: %s" % _make_url_sassy(submission.output_file.name, permission='w'))
-    submission.runfile.save('run.txt', ContentFile('\n'.join(lines)))
+    submission.runfile.save('run.txt', ContentFile('\n'.join(lines).encode('utf-8')))
 
     # Create stdout.txt & stderr.txt
     if has_generated_predictions == False:
         username = submission.participant.user.username
         lines = ["Standard output for submission #{0} by {1}.".format(submission.submission_number, username), ""]
-        submission.stdout_file.save('stdout.txt', ContentFile('\n'.join(lines)))
+        submission.stdout_file.save('stdout.txt', ContentFile('\n'.join(lines).encode('utf-8')))
         lines = ["Standard error for submission #{0} by {1}.".format(submission.submission_number, username), ""]
-        submission.stderr_file.save('stderr.txt', ContentFile('\n'.join(lines)))
+        submission.stderr_file.save('stderr.txt', ContentFile('\n'.join(lines).encode('utf-8')))
     # Update workflow state
     state['score'] = job_id
     submission.execution_key = json.dumps(state)
 
     # Pre-save files so we can overwrite their names later
-    submission.output_file.save('output_file.zip', ContentFile(''))
-    submission.private_output_file.save('private_output_file.zip', ContentFile(''))
-    submission.detailed_results_file.save('detailed_results_file.html', ContentFile(''))
+    submission.output_file.save('output_file.zip', ContentFile(''.encode('utf-8')))
+    submission.private_output_file.save('private_output_file.zip', ContentFile(''.encode('utf-8')))
+    submission.detailed_results_file.save('detailed_results_file.html', ContentFile(''.encode('utf-8')))
     submission.save()
     # Submit the request to the computation service
     _prepare_compute_worker_run(job_id, submission, is_prediction=False)
@@ -592,7 +583,9 @@ def update_submission(job_id, args, secret):
                 logger.info("update_submission_task loading final scores (pk=%s)", submission.pk)
                 logger.info("Retrieving output.zip and 'scores.txt' file (submission_id=%s)", submission.id)
                 logger.info("Output.zip location=%s" % submission.output_file.file.name)
+
                 ozip = ZipFile(io.BytesIO(submission.output_file.read()))
+
                 scores = None
                 try:
                     scores = open(ozip.extract('scores.txt'), 'r').read()
@@ -614,6 +607,9 @@ def update_submission(job_id, args, secret):
                             logger.info("Score %s does not exist (submission_id=%s)", label, submission.id)
                 logger.info("Done processing scores... (submission_id=%s)", submission.id)
                 _set_submission_status(submission.id, CompetitionSubmissionStatus.FINISHED)
+
+                if submission.phase.delete_submissions_except_best_and_last:
+                    delete_submissions_except_best_and_or_last(submission)
 
                 # Automatically submit to the leaderboard?
                 if submission.phase.is_blind and not submission.phase.force_best_submission_to_leaderboard:
@@ -801,7 +797,7 @@ def send_mass_email(competition_pk, body=None, subject=None, from_email=None, to
 
     site = Site.objects.get_current()
 
-    context = Context({"competition": competition, "body": body, "site": site, "mass_email": True})
+    context = {"competition": competition, "body": body, "site": site, "mass_email": True}
     text = render_to_string("emails/notifications/participation_organizer_direct_email.txt", context)
     html = render_to_string("emails/notifications/participation_organizer_direct_email.html", context)
 
@@ -830,8 +826,8 @@ def do_chahub_retries(limit=None):
     chahub_models = inheritors(ChaHubSaveMixin)
     for model in chahub_models:
         # Special case for competition model manager, with deleted competitions
-        if hasattr(model.objects, 'get_all_competitions'):
-            needs_retry = model.objects.get_all_competitions().filter(chahub_needs_retry=True)
+        if hasattr(model.objects, 'get_all_objects'):
+            needs_retry = model.objects.get_all_objects().filter(chahub_needs_retry=True)
         else:
             needs_retry = model.objects.filter(chahub_needs_retry=True)
 
@@ -846,7 +842,8 @@ def do_chahub_retries(limit=None):
 def send_chahub_general_stats():
     if settings.DATABASES.get('default').get('ENGINE') == 'django.db.backends.postgresql_psycopg2':
         # Only Postgres supports 'distinct', so if we can use the database, if not use some Python Set magic
-        organizer_count = Competition.objects.all().distinct('creator').count()
+        # Order by creator because "SELECT DISTINCT ON expressions must match initial ORDER BY expressions"
+        organizer_count = Competition.objects.order_by('creator').distinct('creator').count()
     else:
         users_with_competitions = list(ClUser.objects.filter(competitioninfo_creator__isnull=False))
         user_set = set(users_with_competitions)
@@ -879,6 +876,30 @@ def send_chahub_updates():
 
 
 @task(queue='site-worker')
+def create_storage_statistic_datapoint():
+        total_bytes = storage_get_total_use(BundleStorage)
+        data = {
+            'total_use': total_bytes,
+            'bucket_name': BundleStorage.bucket.name
+        }
+        competition_use = 0
+        for comp in Competition.objects.all():
+            comp_data = get_competition_size_data(comp)
+            competition_use += comp_data.get('total', 0)
+        data['competition_use'] = competition_use
+        submission_use = 0
+        for sub in CompetitionSubmission.objects.all():
+            submission_use += sub.size
+        data['submission_use'] = submission_use
+        dataset_use = sum([dataset.size for dataset in OrganizerDataSet.objects.all()])
+        data['dataset_use'] = dataset_use
+        bundle_use = sum([bundle.size for bundle in CompetitionDefBundle.objects.all()])
+        data['bundle_use'] = bundle_use
+        StorageDataPoint.objects.create(**data)
+        logger.info("Created storage statistic datapoint.")
+
+
+@task(queue='site-worker')
 def do_phase_migrations():
     competitions = Competition.objects.filter(is_migrating=False)
     logger.info("Checking {} competitions for phase migrations.".format(len(competitions)))
@@ -904,7 +925,7 @@ def make_modified_bundle(competition_pk, exclude_datasets_flag):
     _mapping_tag = yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG
 
     def dict_representer(dumper, data):
-        return dumper.represent_dict(data.iteritems())
+        return dumper.represent_dict(iter(data.items()))
 
     def dict_constructor(loader, node):
         return OrderedDict(loader.construct_pairs(node))
@@ -919,7 +940,7 @@ def make_modified_bundle(competition_pk, exclude_datasets_flag):
             dump.represented_objects[dump.alias_key] = node
         best_style = True
         if hasattr(mapping, 'items'):
-            mapping = mapping.items()
+            mapping = list(mapping.items())
         for item_key, item_value in mapping:
             node_key = dump.represent_data(item_key)
             node_value = dump.represent_data(item_value)
@@ -935,11 +956,12 @@ def make_modified_bundle(competition_pk, exclude_datasets_flag):
                 node.flow_style = best_style
         return node
     yaml.SafeDumper.add_representer(OrderedDict,
-                                    lambda dumper, value: represent_odict(dumper, u'tag:yaml.org,2002:map', value))
+                                    lambda dumper, value: represent_odict(dumper, 'tag:yaml.org,2002:map', value))
     # Following line supresses the broadexception warning. We catch and do a traceback for now from logs.
     # noinspection PyBroadException
     try:
-        yaml.add_representer(unicode, SafeRepresenter.represent_unicode)
+        # SafeRepresenter does not have represent_unicode anymore. Competition dumps still seem to be working.
+        # yaml.add_representer(str, SafeRepresenter.represent_unicode)
         yaml.add_representer(OrderedDict, dict_representer)
         yaml.add_constructor(_mapping_tag, dict_constructor)
 
@@ -968,14 +990,14 @@ def make_modified_bundle(competition_pk, exclude_datasets_flag):
         yaml_data['admin_names'] = ','.join(list(competition.admins.all().values_list('username', flat=True))) if competition.admins.all() else None
         yaml_data['html'] = dict()
         yaml_data['phases'] = {}
-        zip_buffer = StringIO.StringIO()
+        zip_buffer = io.BytesIO()
         zip_name = "{0}.zip".format(competition.title)
         zip_file = zipfile.ZipFile(zip_buffer, "w")
         for p in competition.pagecontent.pages.all():
             temp_comp_dump.status = "Adding {}.html".format(p.codename)
             temp_comp_dump.save()
             logger.info("Adding HTML")
-            if p.codename in yaml_data["html"].keys() or p.codename == 'terms_and_conditions' or p.codename == 'get_data' or p.codename == 'submit_results':
+            if p.codename in list(yaml_data["html"].keys()) or p.codename == 'terms_and_conditions' or p.codename == 'get_data' or p.codename == 'submit_results':
                 if p.codename == 'terms_and_conditions':
                     # overwrite this for consistency
                     p.codename = 'terms'
@@ -1015,10 +1037,10 @@ def make_modified_bundle(competition_pk, exclude_datasets_flag):
                     if hasattr(phase, data_type):
                         data_field = getattr(phase, data_type)
                         if data_field:
-                            if data_field.file.name not in file_cache.keys():
+                            if data_field.file.name not in list(file_cache.keys()):
                                 if exclude_datasets_flag:
                                     data_field = getattr(phase, data_type + '_organizer_dataset')
-                                    phase_dict[data_type] = data_field.key
+                                    phase_dict[data_type] = str(data_field.key)
                                     file_name = "{}_{}.zip".format(data_type, phase.phasenumber)
                                     file_cache[data_field.name] = {
                                         'name': file_name
@@ -1033,7 +1055,7 @@ def make_modified_bundle(competition_pk, exclude_datasets_flag):
                             else:
                                 if exclude_datasets_flag:
                                     data_field = getattr(phase, data_type + '_organizer_dataset')
-                                    phase_dict[data_type] = data_field.key
+                                    phase_dict[data_type] = str(data_field.key)
                                 else:
                                     file_name = file_cache[str(data_field.name)]['name']
                                     phase_dict[data_type] = file_name

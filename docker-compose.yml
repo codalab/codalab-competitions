@@ -140,7 +140,7 @@ services:
       options:
         max-size: "200k"
     container_name: django
-
+    
 
   # --------------------------------------------------------------------------
   # Celery Workers
@@ -157,7 +157,7 @@ services:
     environment:
       # Stop memory leaks
       - DEBUG=False
-      - REQUESTS_CA_BUNDLE=/usr/local/lib/python2.7/site-packages/certifi/cacert.pem
+      - REQUESTS_CA_BUNDLE=/usr/local/lib/python3.8/site-packages/certifi/cacert.pem
     env_file: .env
     links:
       - postgres

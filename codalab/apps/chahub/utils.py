@@ -1,9 +1,7 @@
 from django.conf import settings
 
 import logging
-import os
 import requests
-import json
 
 logger = logging.getLogger(__name__)
 
@@ -20,20 +18,16 @@ def send_to_chahub(endpoint, data, update=False):
 
     url = "{}{}".format(settings.CHAHUB_API_URL, endpoint)
 
-    data = json.dumps(data)
-
     logger.info("ChaHub :: Sending to ChaHub ({}) the following data: \n{}".format(url, data))
     try:
         kwargs = {
             'url': url,
+            'data': data,
             'headers': {
                 'Content-type': 'application/json',
                 'X-CHAHUB-API-KEY': settings.CHAHUB_API_KEY,
             }
         }
-        if update:
-            return requests.patch(data=data, **kwargs)
-        else:
-            return requests.put(data=data, **kwargs)
+        return requests.post(**kwargs)
     except requests.ConnectionError:
         return None

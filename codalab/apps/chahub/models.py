@@ -1,9 +1,7 @@
 import hashlib
 import json
 import logging
-
 import os
-import requests
 
 from django.conf import settings
 from django.db import models, IntegrityError
@@ -57,14 +55,13 @@ class ChaHubSaveMixin(models.Model):
         raise NotImplementedError()
 
     def get_chahub_is_valid(self):
-        """Override this to validate the specifc model before it's sent
+        """Override this to validate the specific model before it's sent
 
         Example:
             return comp.is_published
         """
         # By default, always push
         return True
-
 
     # -------------------------------------------------------------------------
     # Regular methods
@@ -90,7 +87,8 @@ class ChaHubSaveMixin(models.Model):
             if is_valid and self.chahub_needs_retry and not force_to_chahub:
                 logger.info("ChaHub :: This has already been tried, waiting for do_retries to force resending")
             elif is_valid:
-                data = json.dumps(self.get_chahub_data())
+                # Encoded to utf-8 so we can hash it. (Py3)
+                data = json.dumps(self.get_chahub_data()).encode('utf-8')
                 data_hash = hashlib.md5(data).hexdigest()
 
                 # Send to chahub if we haven't yet, we have new data
