@@ -63,7 +63,7 @@
   margin-bottom: 24px;
   padding: 12px 16px;
   border: 1px #CCC solid;
-  border-left: 10px #1371FB solid;
+  border-left: 10px #739CB9 solid;
   background: #FFF;
   -webkit-box-shadow: 0 0 5px rgba(0, 0, 0, 0.15);
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.15);
@@ -88,7 +88,7 @@
 
 .team-tile .right-panel {
   color: #efefef;
-  background-color: #739CB9;
+  background-color: #1371FB;
   height: 100%;
   min-height: 100%;
   position: absolute;
