@@ -24,18 +24,18 @@
     </div>
     <div class="row">
         <div class="col-md-5" style="background-color: rgba(0, 0, 0, 0.05); padding: 20px;">
-            <a href="//{{ domain }}/health/simple_status/" target="_blank">
+            <a href="{% url 'health_status_simple' %}" target="_blank">
                 <img class="img-responsive" src="{% static "img/monitoring_tool_healthsimplestatus.png" %}" style="max-height: 266px; margin: 0 auto;">
                 <h3>Jobs status</h3>
             </a>
-            <p>This page shows all recent submissions made. You can track their status, the queues and workers in which they are running, the competitions and the users who made them.</p>
+            <p>This page shows all recently made submissions. You can track their status, the queues and workers in which they are running, the competitions and the users who made them.</p>
         </div>
         <div class="col-md-6 col-md-offset-1" style="background-color: rgba(0, 0, 0, 0.05); padding: 20px;">
-            <a href="//{{ domain }}/health/status/" target="_blank">
+            <a href="{% url 'health_status' %}" target="_blank">
                 <img class="img-responsive" src="{% static "img/monitoring_tool_healthstatus.png" %}" style="max-height: 266px; margin: 0 auto;">
                 <h3>Health status</h3>
             </a>
-            <p>Another, more general, view on recent submissions made.</p>
+            <p>Another, more general, view on recently made submissions.</p>
         </div>
     </div>
     <div class="row">
@@ -47,11 +47,11 @@
             <p>Access to many configurations and settings linked to Django.</p>
         </div>
         <div class="col-md-6 col-md-offset-1" style="background-color: rgba(0, 0, 0, 0.05); padding: 20px;">
-            <a href="//{{ domain }}/health/storage/" target="_blank">
+            <a href="{% url 'health_storage_analytics' %}" target="_blank">
                 <img class="img-responsive" src="{% static "img/monitoring_tool_storage.png" %}" style="max-height: 266px; margin: 0 auto;">
                 <h3>Storage analytics</h3>
             </a>
-            <p>Manage and gain insights about the storage of the platform.</p>
+            <p>Manage and gain insights about the platform's storage consumption.</p>
         </div>
     </div>
 {% endblock %}
