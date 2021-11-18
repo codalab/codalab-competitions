@@ -85,9 +85,10 @@
 .team-tile:after {
   clear: both;
 }
+
 .team-tile .right-panel {
   color: #efefef;
-  background-color: #1371FB;
+  background-color: #739CB9;
   height: 100%;
   min-height: 100%;
   position: absolute;
