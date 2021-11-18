@@ -1528,6 +1528,8 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
 
         # only at save on object creation should it be submitted
         if not self.pk:
+            if self.participant.user.username == 'chagrade_bot':
+                ignore_submission_limits = True
             if not ignore_submission_limits:
                 logger.info("This is a new submission, getting the submission number.")
                 subnum = CompetitionSubmission.objects.filter(phase=self.phase, participant=self.participant).aggregate(Max('submission_number'))['submission_number__max']

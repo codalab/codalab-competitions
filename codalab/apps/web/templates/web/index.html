@@ -21,15 +21,15 @@
 {% block content %}
     <div class="container">
         {% if front_page_message and front_page_message != 'None' %}
-        <div class="row justify-content-md-center">
-            <div class="col-md-1"></div>
-            <div class="col-md-10">
-                <div style="margin-top: 15px;" class="well">
-                    {{ front_page_message }}
+            <div class="row justify-content-md-center">
+                <div class="col-md-1"></div>
+                <div class="col-md-10">
+                    <div style="margin-top: 15px;" class="well">
+                        {{ front_page_message }}
+                    </div>
                 </div>
+                <div class="col-md-1"></div>
             </div>
-            <div class="col-md-1"></div>
-        </div>
         {% endif %}
 
         <div class="row">
