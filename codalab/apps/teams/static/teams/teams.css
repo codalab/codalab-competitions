@@ -85,6 +85,7 @@
 .team-tile:after {
   clear: both;
 }
+
 .team-tile .right-panel {
   color: #efefef;
   background-color: #1371FB;
