@@ -255,7 +255,7 @@ def get_size_from_summary(bucket_name, key):
             logger.error("File was not found in storage. File: {0}; Storage: {1}".format(bucket_name, key))
         else:
             # Something else has gone wrong.
-            raise
+            logger.error(traceback.format_exc())
     except Exception as e:
         logger.error(traceback.format_exc())
     return size
