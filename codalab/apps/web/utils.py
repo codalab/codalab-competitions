@@ -1,8 +1,10 @@
 import logging
+import traceback
 import os
 import re
 import requests
 import boto3
+from botocore.exceptions import ClientError
 
 from django.conf import settings
 from django.core.files.storage import get_storage_class
@@ -215,15 +217,13 @@ def get_submission_size(submission):
 
 def get_filefield_size(obj, attr, aws_attr=None, s3direct=False):
     size = None
+    attr_obj = getattr(obj, aws_attr) if aws_attr and s3direct else getattr(obj, attr)
     if settings.USE_AWS and s3direct and aws_attr:
         attr_obj = getattr(obj, aws_attr)
-        bucket = BundleStorage.bucket
         # S3DirectFields are stored as text fields with the full url to the key.
         if attr_obj and attr_obj != '':
             key = s3_key_from_url(attr_obj)
-            obj_summary = s3.ObjectSummary(bucket.name, key)
-            if obj_summary:
-                size = obj_summary.size
+            get_size_from_summary(BundleStorage.bucket.name, key)
     else:
         attr_obj = getattr(obj, attr)
         if attr_obj.name and attr_obj.name != '':
@@ -238,11 +238,27 @@ def get_filefield_size(obj, attr, aws_attr=None, s3direct=False):
                 logger.error(e)
                 # If we hit an exception this way, and we're using S3, try the other method.
                 if settings.USE_AWS:
-                    obj_summary = s3.ObjectSummary(attr_obj.storage.bucket.name, attr_obj.name)
-                    if obj_summary:
-                        size = obj_summary.size
+                    size = get_size_from_summary(attr_obj.storage.bucket.name, attr_obj.name)
     # Always make sure we return at least 0
     return size or 0
+
+def get_size_from_summary(bucket_name, key):
+    size = None
+    # Test if file exists, since it's an observed bug that the object exists but no file is present in the storage
+    try:
+        obj_summary = s3.ObjectSummary(bucket_name, key)
+        if obj_summary:
+            size = obj_summary.size
+    except ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            # The object does not exist.
+            logger.error("File was not found in storage. File: {0}; Storage: {1}".format(bucket_name, key))
+        else:
+            # Something else has gone wrong.
+            logger.error(traceback.format_exc())
+    except Exception as e:
+        logger.error(traceback.format_exc())
+    return size
 
 def delete_key_from_storage(obj, attr, aws_attr=None, s3direct=False, use_boto_method=True):
     """Helper function to do checks and delete a key from storage. Key is FileField.name"""
