@@ -1,4 +1,5 @@
 import logging
+import traceback
 import os
 import re
 import requests
@@ -255,6 +256,8 @@ def get_size_from_summary(bucket_name, key):
         else:
             # Something else has gone wrong.
             raise
+    except Exception as e:
+        logger.error(traceback.format_exc())
     return size
 
 def delete_key_from_storage(obj, attr, aws_attr=None, s3direct=False, use_boto_method=True):
