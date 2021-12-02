@@ -20,7 +20,7 @@ The CodaLab community forum is hosted on Google Groups.
 
 ## Quick installation (for Linux!)
 
-_To participate in competitions, or even organize your own competition, **you don't need to install anything**, you just need to sign in an instance of the platform (e.g. [this one](https://competitions.codalab.org/)). 
+_To participate in competitions, or even organize your own competition, **you don't need to install anything**, you just need to sign in an instance of the platform (e.g. [this one](https://codalab.lisn.fr/)). 
 If you wish to configure your own instance of CodaLab competitions, here are the instructions:_
 
 Install docker and add your user to the docker group, if you haven't already
