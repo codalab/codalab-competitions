@@ -891,7 +891,7 @@ class CompetitionPhase(models.Model):
     color = models.CharField(max_length=24, choices=COLOR_CHOICES, blank=True, null=True)
 
     max_submission_size = models.PositiveIntegerField(
-        default=0,
+        default=300,
         validators=[
             MaxValueValidator(10000),
             MinValueValidator(0)
