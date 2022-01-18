@@ -22,14 +22,14 @@ python manage.py collectstatic --noinput
 python manage.py migrate
 
 # Use node to edit site domain from .env
-node > out_${jsonFile} <<EOF
+node << EOF
 //Read data
 var data = require('./apps/web/fixtures/initial_data.json')  
 
 //Manipulate data
 data.forEach((v,i,a) =>{
   if (v.model === "sites.site"){
-    console.log(`Changing domain: ${v.fields.domain} to ${process.env.CODALAB_SITE_DOMAIN}`)
+    console.log('Changing domain: ' + v.fields.domain + ' to ' + process.env.CODALAB_SITE_DOMAIN)
     v.fields.domain = process.env.CODALAB_SITE_DOMAIN
     v.fields.name = 'CODALAB_SITE_DOMAIN'
   }
