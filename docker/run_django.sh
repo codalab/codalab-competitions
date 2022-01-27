@@ -21,38 +21,13 @@ python manage.py collectstatic --noinput
 
 python manage.py migrate
 
-# Use node to edit site domain from .env
-node << EOF
-//Read data
-var data = require('./apps/web/fixtures/initial_data.json')  
-
-//Manipulate data
-data.forEach((v,i,a) =>{
-  if (v.model === "sites.site"){
-    console.log('Changing domain: ' + v.fields.domain + ' to ' + process.env.CODALAB_SITE_DOMAIN)
-    v.fields.domain = process.env.CODALAB_SITE_DOMAIN
-    v.fields.name = 'CODALAB_SITE_DOMAIN'
-  }
-})
-
-
-//Output data
-const fs = require('fs')
-content = JSON.stringify(data)
-fs.writeFile('./apps/web/fixtures/initial_data.json', content, err => {
-  if (err) {
-    console.error(err)
-    return
-  }
-  //file written successfully
-})
-
-EOF
+# Initialize site table domain name
+python scripts/initialize_from_fixture.py
 
 # For Django 1.7 we cannot run this here. Now using fixtures with loaddata, keeping this here for history
 # Insert initial data into the database
 
-python manage.py loaddata initial_data.json initial_team_data.json
+python manage.py loaddata initial_data.json initialize_site.json initial_team_data.json
 
 # start development server on public ip interface, on port 8000
 PYTHONUNBUFFERED=TRUE gunicorn codalab.wsgi \
