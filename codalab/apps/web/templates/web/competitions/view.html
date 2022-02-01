@@ -28,7 +28,7 @@
     <a href="{% url "competitions:download" competition_pk=competition.pk %}" class="btn btn-primary">DOWNLOAD COMPETITION BUNDLE!</a>
 {% endif %}
 {% if is_admin_or_owner %}
-    <h3>Admin features</h3>
+    <h3>Organizer features</h3>
     <a href="{% url "competitions:edit" pk=competition.pk %}" class="btn btn-primary">Edit</a>
     <a href="{% url 'my_competition_participants' competition_id=competition.pk %}" class="btn btn-primary">
         Participants
