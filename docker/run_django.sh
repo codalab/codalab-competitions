@@ -21,11 +21,11 @@ python manage.py collectstatic --noinput
 
 python manage.py migrate
 
-# Initialize site table domain name
+# Inject user data from .env (site domain) into initialize_site.json
 python scripts/initialize_from_fixture.py
 
 # For Django 1.7 we cannot run this here. Now using fixtures with loaddata, keeping this here for history
-# Insert initial data into the database
+# Insert initial data into the database (user data and database defaults)
 
 python manage.py loaddata initial_data.json initialize_site.json initial_team_data.json
 
