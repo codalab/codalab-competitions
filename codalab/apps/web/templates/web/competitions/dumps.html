@@ -86,10 +86,10 @@
             $("#make_dump").click(function() {
                 var url = "{% url 'competitions:make_bundle' competition_pk=competition.pk %}"
                 $.post(url, {'exclude_datasets_flag': $('#exclude_datasets_flag').is(':checked')})
-                .success(function() {
+                .done(function() {
                     location.reload(true)
                 })
-                .error(function() {
+                .fail(function() {
                     alert("There was a problem generating the dump. Please make sure you're connected to the Internet, if the problem persists please contact an admin.")
                 })
             })
