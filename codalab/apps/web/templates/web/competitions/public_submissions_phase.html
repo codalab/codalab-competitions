@@ -144,7 +144,7 @@ $(function(){
 
             url = url.replace(0, element.attr('submission-pk'));
             $.get(url)
-                    .error(function() {
+                    .fail(function() {
                         alert("Could not like submission, is your Internet connection working?");
                     });
         });
@@ -176,7 +176,7 @@ $(function(){
             }
             url = url.replace(0, element.attr('submission-pk'));
             $.get(url)
-                    .error(function() {
+                    .fail(function() {
                         alert("Could not dislike submission, is your Internet connection working?");
                     });
         });
