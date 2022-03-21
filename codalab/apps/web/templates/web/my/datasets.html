@@ -95,10 +95,10 @@
             });
 
             $.post("{% url "datasets_delete_multiple" %}", {"ids_to_delete": ids_to_delete})
-                .success(function() {
+                .done(function() {
                     window.location.reload();
                 })
-                .error(function() {
+                .fail(function() {
                     alert("Couldn't delete datasets, something went wrong (is your Internet connected?)");
                 });
         }

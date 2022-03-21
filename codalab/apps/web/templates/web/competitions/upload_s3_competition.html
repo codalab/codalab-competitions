@@ -53,7 +53,7 @@
             $.post(
                 '{% url 'competitions:s3_create_competition' %}',
                 $("#s3_upload_form").serialize()
-            ).success(function(data) {
+            ).done(function(data) {
                 var token = data.token
                 var wait_for_competition = function() {
                     $.ajax({

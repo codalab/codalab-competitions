@@ -434,7 +434,7 @@ var Competition;
         var linkElement = $(this);
 
         $.get('/my/competition/submission/' + submissionId + '/toggle_make_public')
-            .success(function(data) {
+            .done(function(data) {
                 var isPublic = data == 'True' ? 'private' : 'public';
                 linkElement.html('Make your submission ' + isPublic);
             })
@@ -459,7 +459,7 @@ var Competition;
         new_description = new_description.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
         $.post('/competitions/update_description/' + submission_id, {'updated_description': new_description})
-            .success(function() {
+            .done(function() {
                 $(element).parent().find('.submission_description').html('<b>Description:</b> <br><pre>' + new_description + '</pre>');
                 $(element).parent().find('textarea[name="updated_description"]').val('').hide();
                 $(element).parent().find('.update_description_btn').removeClass('hide').show();
