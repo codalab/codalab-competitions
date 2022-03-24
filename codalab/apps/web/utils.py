@@ -4,12 +4,17 @@ import re
 import requests
 import boto3
 
+from botocore.exceptions import ClientError
+
 from django.conf import settings
 from django.core.files.storage import get_storage_class
 
 logger = logging.getLogger(__name__)
 
-s3 = boto3.resource('s3')
+boto3.set_stream_logger('')
+
+# s3 = boto3.resource('s3')
+s3 = boto3.resource('s3', endpoint_url=settings.AWS_S3_ENDPOINT_URL)
 
 StorageClass = get_storage_class(settings.DEFAULT_FILE_STORAGE)
 
@@ -222,6 +227,10 @@ def get_filefield_size(obj, attr, aws_attr=None, s3direct=False):
             obj_summary = s3.ObjectSummary(bucket.name, key)
             if obj_summary:
                 size = obj_summary.size
+                # try:
+                #    size = obj_summary.size
+                # except ClientError:
+                #    size = 0
     else:
         attr_obj = getattr(obj, attr)
         if attr_obj.name and attr_obj.name != '':
@@ -258,7 +267,7 @@ def delete_key_from_storage(obj, attr, aws_attr=None, s3direct=False, use_boto_m
             key = attr_obj.name
         if key == '' or not key:
             return
-        s3 = boto3.resource('s3')
+        # s3 = boto3.resource('s3')
         obj_summary = s3.ObjectSummary(storage.bucket.name, key)
         if obj_summary:
                 logger.info("Attempting to delete key: {}".format(key))

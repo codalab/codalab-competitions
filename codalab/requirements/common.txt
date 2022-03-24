@@ -42,7 +42,8 @@ newrelic==2.54.0.41
 pylibmc==1.5.2
 
 celery==4.4.6
-boto3==1.14.22
+# boto3==1.14.22
+boto3==1.17.67
 # We need a modified s3direct 0.4.1 which can use AWS_S3_HOST instead of forcing aws
 git+https://github.com/codalab/django-s3direct.git@feature/allow-different-endpoint
 
@@ -68,6 +69,7 @@ git+https://github.com/FlavioAlexander/azure-sdk-for-python.git@legacy
 
 # Required when PostgreSQL is used
 psycopg2==2.8.3
+# psycopg2-binary==2.7.7
 
 # Lock unwanted people out on staging servers
 django-pin-passcode==0.1.9

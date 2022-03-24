@@ -268,7 +268,8 @@ class Base(Configuration):
     ACCOUNT_AUTHENTICATION_METHOD='username_email'
     ACCOUNT_EMAIL_REQUIRED = True
     ACCOUNT_USERNAME_REQUIRED = True
-    ACCOUNT_EMAIL_VERIFICATION = os.environ.get('ACCOUNT_EMAIL_VERIFICATION', 'mandatory')
+    # ACCOUNT_EMAIL_VERIFICATION = os.environ.get('ACCOUNT_EMAIL_VERIFICATION', 'mandatory')
+    ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
     ACCOUNT_SIGNUP_FORM_CLASS = 'apps.authenz.forms.CodalabSignupForm'
     ACCOUNT_LOGOUT_ON_GET = True
 
@@ -364,6 +365,11 @@ class Base(Configuration):
     AWS_STORAGE_PRIVATE_BUCKET_NAME = os.environ.get('AWS_STORAGE_PRIVATE_BUCKET_NAME')
     AWS_S3_CALLING_FORMAT = os.environ.get('AWS_S3_CALLING_FORMAT', 'boto.s3.connection.OrdinaryCallingFormat')
     AWS_S3_HOST = os.environ.get('AWS_S3_HOST', 's3-us-west-2.amazonaws.com')
+
+    AWS_S3_ENDPOINT_URL = 'https://s3.codalab.sunai.uoc.edu'
+    AWS_S3_REGION_NAME = 'us-east-1'
+    AWS_S3_SIGNATURE_VERSION = 's3v4'
+
     AWS_S3_SECURE_URLS = strtobool(os.environ.get('AWS_S3_SECURE_URLS', "True"))
     AWS_QUERYSTRING_AUTH = os.environ.get(
         # This stops signature/auths from appearing in saved URLs

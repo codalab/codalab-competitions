@@ -1035,7 +1035,7 @@ def make_modified_bundle(competition_pk, exclude_datasets_flag):
                             if data_field.file.name not in list(file_cache.keys()):
                                 if exclude_datasets_flag:
                                     data_field = getattr(phase, data_type + '_organizer_dataset')
-                                    phase_dict[data_type] = data_field.key
+                                    phase_dict[data_type] = str(data_field.key)
                                     file_name = "{}_{}.zip".format(data_type, phase.phasenumber)
                                     file_cache[data_field.name] = {
                                         'name': file_name

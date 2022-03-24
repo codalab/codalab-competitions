@@ -36,16 +36,17 @@
 
     <script>
         $("#submit-button").click(function() {
-          $("input[type='file']").click()
-                var test_if_done = function() {
-                    var progress = $('a.file-link').attr('href') !== ""
-                    if( progress ) {
-                        $("#s3_upload_form").submit()
-                    } else {
-                        setTimeout(test_if_done, 100)
-                    }
-                }
-            test_if_done()
+          //$("input[type='file']").click()
+          //      var test_if_done = function() {
+          //          var progress = $('a.file-link').attr('href') !== ""
+          //          if( progress ) {
+          //              $("#s3_upload_form").submit()
+          //          } else {
+          //              setTimeout(test_if_done, 100)
+          //          }
+          //      }
+          //  test_if_done()
+	  alert("Competition upload is disabled")
         })
 
         $("#s3_upload_form").submit(function(event) {

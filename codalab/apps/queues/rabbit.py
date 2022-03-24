@@ -21,6 +21,12 @@ def check_user_needs_initialization(user):
     rabbit = _get_rabbit_connection()
 
     try:
+        print("********************")
+        print(user.rabbitmq_username)
+        print("********************")
+        if not user.rabbitmq_username:
+            print("User for Rabbit was NONE! Setting up fresh rabbitmq user")
+            return True
         rabbit.get_user_permissions(user.rabbitmq_username)
         # We found the user, no need to initialize
         return False
