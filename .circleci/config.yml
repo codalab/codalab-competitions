@@ -30,7 +30,7 @@ jobs:
             - "~/.cache/pip"
       - run:
           name: Copy settings
-          command: cp circlec_dev_setup.py codalab/codalab/settings/local.py
+          command: cp .circleci/circlec_dev_setup.py codalab/codalab/settings/local.py
       - run:
           name: Run PyTest
           environment:

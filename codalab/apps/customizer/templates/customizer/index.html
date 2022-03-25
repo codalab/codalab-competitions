@@ -1,8 +1,12 @@
 {% extends "base.html" %}
-
+{% load staticfiles %}
 
 {% block head_title %}Customize Codalab{% endblock %}
 {% block page_title %}Customize Codalab{% endblock page_title %}
+
+{% block extra_scripts %}
+    <link rel="stylesheet" href="{% static 'customizer/customizer.css' %}">
+{% endblock extra_scripts %}
 
 {% block content %}
     <div class="panel-body">

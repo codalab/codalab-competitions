@@ -319,7 +319,7 @@ var Competition;
             $('#fileUploadButton').removeClass('disabled');
             //$('#fileUploadButton').text("Submit Results...");
             $('#user_results #' + response.id + ' .glyphicon-plus').click();
-        }).error(function(jqXHR) {
+        }).fail(function(jqXHR) {
             var msg = 'An unexpected error occurred.';
             if (jqXHR.status == 403) {
                 msg = jqXHR.responseJSON.detail;
@@ -434,11 +434,11 @@ var Competition;
         var linkElement = $(this);
 
         $.get('/my/competition/submission/' + submissionId + '/toggle_make_public')
-            .success(function(data) {
+            .done(function(data) {
                 var isPublic = data == 'True' ? 'private' : 'public';
                 linkElement.html('Make your submission ' + isPublic);
             })
-            .error(function() {
+            .fail(function() {
                 alert('Error making submission public, is your Internet connection working?');
             });
 
@@ -459,13 +459,13 @@ var Competition;
         new_description = new_description.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
         $.post('/competitions/update_description/' + submission_id, {'updated_description': new_description})
-            .success(function() {
+            .done(function() {
                 $(element).parent().find('.submission_description').html('<b>Description:</b> <br><pre>' + new_description + '</pre>');
                 $(element).parent().find('textarea[name="updated_description"]').val('').hide();
                 $(element).parent().find('.update_description_btn').removeClass('hide').show();
                 $(element).hide();
             })
-            .error(function() {
+            .fail(function() {
                 alert('Error updating description, is your Internet connection working?');
             });
     };
@@ -698,7 +698,7 @@ var Competition;
                         $(competition_actions).children('#competition-delete-button').hide();
                         $(competition_actions).children('#competition-unpublish-button').show();
                     },
-                    error: function(jsXHR, textStatus, errorThrown) {
+                    fail: function(jsXHR, textStatus, errorThrown) {
                         var data = $.parseJSON(jsXHR.responseJSON);
                         if (data.error) {
                             alert(data.error);

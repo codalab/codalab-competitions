@@ -175,12 +175,12 @@
                     "congestion_threshold": $("#congestion_threshold").val(),
                     "emails": $("#email_settings_textarea").val()
                 })
-                    .success(function () {
-                        $("#email_settings_submit_status").html("<p style='color: #258033;'>Settings saved successfully!</p>");
-                    })
-                    .error(function () {
-                        alert("Couldn't save settings, something went wrong");
-                    });
+                .done(function () {
+                    $("#email_settings_submit_status").html("<p style='color: #258033;'>Settings saved successfully!</p>");
+                })
+                .fail(function () {
+                    alert("Couldn't save settings, something went wrong");
+                });
             });
 
             $('.meter').each(function () {

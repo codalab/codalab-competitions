@@ -1,7 +1,22 @@
-<h1>404</h1>
-Could not find the page you requested.
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block head_title %}Oops!{% endblock head_title %}
+{% block page_title %}Oops!{% endblock page_title %}
+
+{% block content %}
+
+<img class="img-responsive" src="{% static 'img/error_404.png' %}" style="max-height: 266px; margin: 0 auto;">
+
+<p>Could not find the page you requested.</p>
 
 <p>If you are the challenge organizer and this URL previously pointed to a valid competition and it is now missing please contact us at <a href="mailto:info@codalab.org">info@codalab.org</a> for more information.</p>
 
-If this is in error, please file a <a href="https://github.com/codalab/codalab/issues/new">bug report</a>.
-For more information about CodaLab, check out the <a href="https://github.com/codalab/codalab/wiki">wiki</a>.
+<p>If this is an error, please file a <a href="https://github.com/codalab/codalab/issues/new">bug report</a>.
+For more information about CodaLab, check out the <a href="https://github.com/codalab/codalab/wiki">wiki</a>.</p>
+
+<p><a href="/">Click here to return home</a>.</p>
+
+{% endblock content %}
+
