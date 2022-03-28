@@ -10,7 +10,6 @@ env:
   DJANGO_CONFIGURATION: "Test"
   CHAHUB_API_URL: "http://localhost/test/"
   CHAHUB_API_KEY: "some-secret-key"
-  DJANGO_CONFIGURATION: "Dev"
 jobs:
   run-tests:
     services:
