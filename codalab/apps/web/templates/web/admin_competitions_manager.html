@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% load codalab_tags %}
+
+{% block page_title %}Admin Competitions Manager{% endblock page_title %}
+{% block head_title %}Admin Competitions Manager{% endblock %}
+
+{% block content %}
+<div class="row pad-top">
+    <div class="col-md-12 competition-list">
+        <form method="post">
+            {% if formset %}
+            <table class="table table-bordered">
+                <tr>
+                    <th><input type="checkbox" id="select-all-checkbox" name="select_all" value="select_all"
+                            onclick="selectAllClicked(this)"></th>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Organizer</th>
+                    <th>Start date</th>
+                    <th>End date</th>
+                    <th>Upper bound of the max submission size (in MB)</th>
+                </tr>
+                {{ formset.management_form }}
+                {% for form in formset %}
+                {% csrf_token %}
+                {% for hidden in form.hidden_fields %}
+                {{ hidden }}
+                {% endfor %}
+                <tr id="tr-{{ form.id.value }}">
+                    <td>
+                        <input type="checkbox" class="competition-checkbox" name="selected_competitions"
+                            value="{{ form.id.value }}" onclick="selectOneClicked(this)">
+                    </td>
+                    <td>{{ form.id.value }}</td>
+                    <td>{{ form.title }}</td>
+                    <td>{{ form.creator }}</td>
+                    <td>{{ form.instance.start_date|date:"M d, Y" }}</td>
+                    <td>
+                        {% if form.instance.end_date %}
+                        {{ form.instance.end_date|date:"M d, Y" }}{% else %} No end date
+                        {% endif %}
+                    </td>
+                    <td>{{ form.upper_bound_max_submission_size }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+            <input type="submit" value="Save" class="btn btn-primary" style="float: right;">
+            {% else %}
+            <p><em>There are no competitions.</em></p>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<script type="text/javascript">
+    let selectAllCheckbox;
+    let competitionCheckboxes;
+    let competitionUpperBoundMaxSubmissionSizeInputs;
+    let selectedCompetitions = new Set();
+
+    function selectOneClicked(cb) {
+        // Select one competition or unselect it
+        const competitionId = parseInt(cb.value);
+        selectCompetition(competitionId, cb.checked);
+        updateSelectAllCheckbox();
+    }
+
+    function selectAllClicked(cb) {
+        // Select all competitions or unselect all of them
+        for (let i = 0; i < competitionCheckboxes.length; i++) {
+            selectCompetition(parseInt(competitionCheckboxes[i].value), cb.checked);
+            competitionCheckboxes[i].indeterminate = false;
+            competitionCheckboxes[i].checked = cb.checked;
+        }
+    }
+
+    function selectCompetition(competitionId, selected) {
+        // Update the visual aspect of the selected competition row
+        const rowId = "tr-" + competitionId;
+        const competitionRow = document.querySelector('tr[id="' + rowId + '"]');
+        if (selected) {
+            competitionRow.classList.add("selected");
+            selectedCompetitions.add(competitionId);
+        } else {
+            competitionRow.classList.remove("selected");
+            selectedCompetitions.delete(competitionId);
+        }
+    }
+
+    function updateSelectAllCheckbox() {
+        // Update the visual aspect of the 'select all' checkbox
+        let checkedCount = 0;
+        for (let i = 0; i < competitionCheckboxes.length; i++) {
+            if (competitionCheckboxes[i].checked) {
+                checkedCount++;
+            }
+        }
+        if (checkedCount == 0) {
+            selectAllCheckbox.checked = false;
+            selectAllCheckbox.indeterminate = false;
+        } else if (checkedCount === competitionCheckboxes.length) {
+            selectAllCheckbox.checked = true;
+            selectAllCheckbox.indeterminate = false;
+        } else {
+            selectAllCheckbox.checked = false;
+            selectAllCheckbox.indeterminate = true;
+        }
+    }
+
+    function maxSubmissionSizeChanged(cb) {
+        // Update all selected competition max submission size
+        for (let competionId of selectedCompetitions) {
+            const row = document.querySelector('tr[id="tr-' + competionId + '"]');
+            const upperBoundmaxSumbissionSizeInput = row.querySelector('input[id$="upper_bound_max_submission_size"]');
+            upperBoundmaxSumbissionSizeInput.value = cb.value;
+        }
+    }
+
+    window.addEventListener('load', function () {
+        selectAllCheckbox = document.querySelector('input[id="select-all-checkbox"]');
+        competitionCheckboxes = document.querySelectorAll('td input[type="checkbox"]');
+        competitionUpperBoundMaxSubmissionSizeInputs = document.querySelectorAll('td input[id$="upper_bound_max_submission_size"]');
+
+        // Init the array of selected competitions
+        for (let i = 0; i < competitionCheckboxes.length; i++) {
+            if (competitionCheckboxes[i].checked) {
+                selectOneClicked(competitionCheckboxes[i]);
+            }
+        }
+
+        // Add onChange event listener to inputs
+        for (let input of competitionUpperBoundMaxSubmissionSizeInputs) {
+            input.addEventListener('change', () => {
+                maxSubmissionSizeChanged(input);
+            });
+        }
+    });
+</script>
+
+<style>
+    tr:nth-of-type(odd) {
+        background-color: #f7f7f7;
+    }
+
+    tr:nth-of-type(even) {
+        background-color: #ffffff;
+    }
+
+    tr.selected {
+        background-color: #ddeedd;
+    }
+</style>
+{% endblock %}

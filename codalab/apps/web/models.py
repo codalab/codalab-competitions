@@ -287,6 +287,13 @@ class Competition(ChaHubSaveMixin, models.Model):
     hide_top_three = models.BooleanField(default=False, verbose_name="Hide Top Three Leaderboard")
     hide_chart = models.BooleanField(default=False, verbose_name="Hide Chart")
     allow_organizer_teams = models.BooleanField(default=False, verbose_name="Allow Organizer Teams")
+    upper_bound_max_submission_size = models.PositiveIntegerField(
+        default=300,
+        validators=[
+            MinValueValidator(0)
+        ],
+        verbose_name="Upper bound max submission size in megabytes"
+    )
 
     competition_docker_image = models.CharField(max_length=128, default='', blank=True)
 
@@ -894,8 +901,7 @@ class CompetitionPhase(models.Model):
     max_submission_size = models.PositiveIntegerField(
         default=300,
         validators=[
-            MaxValueValidator(10000),
-            MinValueValidator(0)
+            MinValueValidator(0),
         ],
         verbose_name="Max submission size in megabytes. (0 for disabled)"
     )
