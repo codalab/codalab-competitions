@@ -1,5 +1,6 @@
 import os,sys
 from django import template
+from django.contrib.contenttypes.models import ContentType
 from django.forms import CheckboxInput
 
 # Long way to point to the CodaLab directory where azure_storage.py resides
@@ -9,8 +10,8 @@ from apps.web.tasks import _make_url_sassy
 root_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))), "codalab")
 sys.path.append(root_dir)
 
-from codalab.azure_storage import make_blob_sas_url, PREFERRED_STORAGE_X_MS_VERSION
-from django.conf import settings
+# from codalab.azure_storage import make_blob_sas_url, PREFERRED_STORAGE_X_MS_VERSION
+# from django.conf import settings
 
 register = template.Library()
 
