@@ -654,6 +654,7 @@ class Base(Configuration):
         'all_applications': True,
         'group_models': True,
     }
+    DISABLE_SUBMISSIONS = False
 
     @classmethod
     def pre_setup(cls):

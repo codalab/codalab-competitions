@@ -5,7 +5,7 @@ from .models import Configuration
 class ConfigurationForm(ModelForm):
     class Meta:
         model = Configuration
-        fields = ('header_logo', 'only_competition', 'front_page_message')
+        fields = ('header_logo', 'only_competition', 'front_page_message', 'disable_all_submissions')
 
     def __init__(self, *args, **kwargs):
         super(ConfigurationForm, self).__init__(*args, **kwargs)

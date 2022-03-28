@@ -10,6 +10,8 @@ class Configuration(models.Model):
     # The competition to point the front page to, the only one the users should see
     only_competition = models.ForeignKey('web.Competition', null=True, blank=True)
 
+    disable_all_submissions = models.BooleanField(default=False, verbose_name="Disable all sumbissions")
+
     def save(self, *args, **kwargs):
         if self.front_page_message:
             self.front_page_message = clean_html(self.front_page_message)
