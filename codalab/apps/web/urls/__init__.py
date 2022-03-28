@@ -36,7 +36,7 @@ urlpatterns = [
     url(r'^(?i)Caption/?', RedirectView.as_view(url='https://www.codalab.org/competitions/3221')),
 
     # Static pages
-    url(r'^(?i)highlights/?', TemplateView.as_view(template_name='web/highlights.html'), name="highlights"),
+    url(r'^(?i)highlights/?', views.Highlights.as_view(), name="highlights"),
 
     # Helper that closes window upon visiting
     url(r'^close/$', TemplateView.as_view(template_name='close.html')),

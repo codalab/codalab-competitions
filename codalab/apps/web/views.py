@@ -42,7 +42,7 @@ from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.urlresolvers import reverse
 from django.db import connection
-from django.db.models import Q, Max, Min, Count
+from django.db.models import Q, Max, Min, Count, Case, When
 from django.http import Http404, HttpResponseForbidden
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response, render, get_object_or_404
@@ -135,6 +135,36 @@ class HomePageView(TemplateView):
 
         config, _ = Configuration.objects.get_or_create(pk=1)
         context["front_page_message"] = mark_safe(config.front_page_message)
+        return context
+
+class Highlights(TemplateView):
+    template_name = 'web/highlights.html'
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        
+        data = Competition.objects.aggregate(
+            count=Count('*'),
+            published_comps=Count(Case(When(published=True, then=1))),
+            unpublished_comps=Count(Case(When(published=False, then=1)))
+        )
+                    
+        total_competitions = data['count']
+        public_competitions = data['published_comps']
+        private_competitions = data['unpublished_comps']
+        users = User.objects.all().count() # from authenz_cluser
+        competition_participants = models.CompetitionParticipant.objects.all().count()
+        submissions = models.CompetitionSubmission.objects.all().count()
+
+        context['general_stats'] = [
+            {'label': "Total Competitions", 'count': total_competitions},
+            {'label': "Public Competitions", 'count': public_competitions},
+            {'label': "Private Competitions", 'count': private_competitions},
+            {'label': "Users", 'count': users},
+            {'label': "Competition Participants", 'count': competition_participants},
+            {'label': "Submissions", 'count': submissions},
+        ]
+        
         return context
 
 
