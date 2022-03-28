@@ -44,7 +44,7 @@ jobs:
           # This path is specific to Ubuntu
           path: ~/.cache/pip
           # Look to see if there is a cache hit for the corresponding requirements file
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('common.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
             ${{ runner.os }}-
@@ -53,7 +53,7 @@ jobs:
           sudo apt-get update --allow-releaseinfo-change && sudo apt-get install libmemcached-dev --fix-missing
           python -m pip install --upgrade pip
           pip install flake8 pytest
-          pip install -r ./app/requirements.txt
+          pip install -r ./codalab/requirements/common.txt
       - name: Lint with flake8
         run: |
           # stop the build if there are Python syntax errors or undefined names
