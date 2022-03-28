@@ -42,7 +42,7 @@ class CompetitionCreatorAdminPermission(BasePermission):
     def has_object_permission(self, request, view, obj):
         if request.user.id is obj.creator.id or request.user.id in obj.admins.all().values_list('id', flat=True):
             return True
-        if request.user.id in obj.participants.all().values_list('id', flat=True) and reqest.method in SAFE_METHODS:
+        if request.user.id in obj.participants.all().values_list('id', flat=True) and request.method in SAFE_METHODS:
             return True
 
 
