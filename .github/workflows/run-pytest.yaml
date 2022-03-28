@@ -50,6 +50,7 @@ jobs:
             ${{ runner.os }}-
       - name: Install dependencies
         run: |
+          sudo apt-get install libxml2-dev libxslt-dev python-dev
           sudo apt-get update --allow-releaseinfo-change && sudo apt-get install libmemcached-dev --fix-missing
           python -m pip install --upgrade pip
           pip install flake8 pytest
