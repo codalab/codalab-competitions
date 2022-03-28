@@ -2,16 +2,15 @@ name: Run Pytests
 on: [pull_request]
 env:
   DJANGO_SETTINGS_MODULE: "codalab.settings.local"
-  DB_HOST: postgres
-  DB_PORT: 5432
-  DB_NAME: codalab_website
-  DB_USER: root
-  DB_PASSWORD: password
+  DB_HOST: "postgres"
+  DB_PORT: "5432"
+  DB_NAME: "codalab_website"
+  DB_USER: "root"
+  DB_PASSWORD: "password"
   DJANGO_CONFIGURATION: "Test"
   CHAHUB_API_URL: "http://localhost/test/"
   CHAHUB_API_KEY: "some-secret-key"
-  DJANGO_SETTINGS_MODULE: codalab.settings
-  DJANGO_CONFIGURATION: Dev
+  DJANGO_CONFIGURATION: "Dev"
 jobs:
   run-tests:
     services:
