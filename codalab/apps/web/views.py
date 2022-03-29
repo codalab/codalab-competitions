@@ -160,7 +160,7 @@ class Highlights(TemplateView):
             {'label': "Total Competitions", 'count': total_competitions},
             {'label': "Public Competitions", 'count': public_competitions},
             {'label': "Private Competitions", 'count': private_competitions},
-            {'label': "Users", 'count': users},
+            {'label': "CodaLab Website Users", 'count': users},
             {'label': "Competition Participants", 'count': competition_participants},
             {'label': "Submissions", 'count': submissions},
         ]
