@@ -13,6 +13,9 @@
             href="https://cdn.jsdelivr.net/semantic-ui/2.2.10/semantic.min.css">
         <script src="https://cdn.jsdelivr.net/semantic-ui/2.2.10/semantic.min.js"></script>
         <style>
+            #general-stats {
+              margin: 3em 0 0 0;
+            }
             p {
             text-align: justify !important;
             word-wrap: break-word !important;
@@ -222,8 +225,25 @@
                                 target="_blank">Github</a>
                         </div>
                     </div>
+
                 </div>
             </div>
+
+            <div class="ui six column grid container" id="general-stats">
+                {% for stat in general_stats %}
+                    <div class="column">
+                        <div class="ui statistic">
+                            <div class="value">
+                                {{ stat.count }}
+                            </div>
+                            <div class="label">
+                                {{ stat.label }}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
             <div class="ui vertical stripe segment">
                 <div class="ui middle center aligned stackable grid container">
                     <div class="eight wide left aligned column">
