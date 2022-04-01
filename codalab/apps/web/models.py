@@ -1500,6 +1500,10 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
         if self.participant.competition != self.phase.competition:
             raise Exception("Competition for phase and participant must be the same")
 
+        if settings.DISABLE_SUBMISSIONS:
+            logger.info("Submissions have been disabled by admins. Aborting.")
+            raise PermissionDenied("Submissions have been disabled by admins")
+
         if self.is_public and not self.when_made_public:
             self.when_made_public = datetime.datetime.utcnow()
         if not self.is_public and self.when_made_public:
