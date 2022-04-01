@@ -105,6 +105,10 @@ class CompetitionPhaseForm(forms.ModelForm):
             # 'phasenumber': forms.HiddenInput
         }
 
+    def __init__(self, *args, **kwargs):
+        super(CompetitionPhaseForm, self).__init__(*args, **kwargs)
+        self.fields['max_submission_size'].widget.attrs['readonly'] = True
+
     def clean_reference_data_organizer_dataset(self):
         # If no reference_data
         if not self.instance.reference_data and not self.cleaned_data["reference_data_organizer_dataset"]:

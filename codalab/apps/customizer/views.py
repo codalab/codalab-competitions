@@ -34,4 +34,5 @@ class ConfigurationFormView(UpdateView):
         # We saved the new configuration but the settings may need to change
         settings.SINGLE_COMPETITION_VIEW_PK = form.instance.only_competition.pk if form.instance.only_competition else None
         settings.CUSTOM_HEADER_LOGO = form.instance.header_logo.url if form.instance.header_logo else None
+        settings.DISABLE_SUBMISSIONS = form.instance.disable_all_submissions if form.instance.disable_all_submissions else False
         return super(ConfigurationFormView, self).form_valid(form)
