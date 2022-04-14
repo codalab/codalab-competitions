@@ -21,10 +21,13 @@ python manage.py collectstatic --noinput
 
 python manage.py migrate
 
-# For Django 1.7 we cannot run this here. Now using fixtures with loaddata, keeping this here for history
-# Insert initial data into the database
+# Inject user data from .env (site domain) into initialize_site.json
+python scripts/initialize_from_fixture.py
 
-python manage.py loaddata initial_data.json initial_team_data.json
+# For Django 1.7 we cannot run this here. Now using fixtures with loaddata, keeping this here for history
+# Insert initial data into the database (user data and database defaults)
+
+python manage.py loaddata initial_data.json initialize_site.json initial_team_data.json
 
 # start development server on public ip interface, on port 8000
 PYTHONUNBUFFERED=TRUE gunicorn codalab.wsgi \
