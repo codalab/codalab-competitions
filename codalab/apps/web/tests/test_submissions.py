@@ -6,6 +6,7 @@ from django.test import TestCase
 from django.test.client import Client
 from django.contrib.auth import get_user_model
 
+from apps.customizer.models import Configuration
 from apps.web.models import (Competition,
                              CompetitionParticipant,
                              CompetitionPhase,
@@ -20,6 +21,7 @@ User = get_user_model()
 
 class CompetitionSubmissionAdminPageTests(TestCase):
     def setUp(self):
+        self.customizer_configuration = Configuration.objects.create(disable_all_submissions=False)
         self.organizer = User.objects.create_user(username="organizer", password="pass")
         self.other_admin = User.objects.create_user(username="other_admin", password="pass")
         self.other_user = User.objects.create_user(username="other", password="pass")
@@ -58,6 +60,7 @@ class CompetitionSubmissionAdminPageTests(TestCase):
 
 class CompetitionSubmissionDeleteTests(TestCase):
     def setUp(self):
+        self.customizer_configuration = Configuration.objects.create(disable_all_submissions=False)
         self.organizer = User.objects.create_user(username="organizer", password="pass")
         self.participant_user = User.objects.create_user(username="participant", password="pass")
         self.other_user = User.objects.create_user(username="other", password="pass")
