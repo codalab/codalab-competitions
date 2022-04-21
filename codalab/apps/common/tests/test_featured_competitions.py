@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 from django.utils.timezone import now
 
 from ..competition_utils import get_featured_competitions
+from apps.customizer.models import Configuration
 from apps.web.models import (Competition,
                              CompetitionParticipant,
                              ParticipantStatus, CompetitionPhase, CompetitionSubmission, CompetitionSubmissionStatus)
@@ -23,6 +24,7 @@ class FeaturedCompetitionsTests(TestCase):
         4. Return competitions with more participants
         '''
 
+        self.customizer_configuration = Configuration.objects.create(disable_all_submissions=False)
         self.user = User.objects.create(email="user1@tes.com", username="user1", password="pass")
 
         self.competition1 = Competition.objects.create(title="competition1", creator=self.user, modified_by=self.user, published=True)

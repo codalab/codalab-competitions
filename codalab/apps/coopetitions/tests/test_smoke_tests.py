@@ -4,6 +4,7 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 
+from apps.customizer.models import Configuration
 from apps.web.models import Competition, CompetitionSubmission, ParticipantStatus, CompetitionParticipant, \
     CompetitionPhase
 
@@ -14,6 +15,7 @@ User = get_user_model()
 class CoopetitionsSmokeTests(TestCase):
 
     def setUp(self):
+        self.customizer_configuration = Configuration.objects.create(disable_all_submissions=False)
         self.user = User.objects.create_user(username="user", password="pass")
         self.competition = Competition.objects.create(creator=self.user, modified_by=self.user)
 

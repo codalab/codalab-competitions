@@ -1,5 +1,6 @@
 import datetime
 # from apps.jobs.models import Job
+from apps.customizer.models import Configuration
 from apps.web.models import (Competition,
                              CompetitionParticipant,
                              CompetitionPhase,
@@ -24,6 +25,7 @@ User = get_user_model()
 
 class SubmissionLeaderboardTests(TestCase):
     def setUp(self):
+        self.customizer_configuration = Configuration.objects.create(disable_all_submissions=False)
         self.organizer = User.objects.create_user(username="organizer", password="pass")
         self.participant_user = User.objects.create_user(username="participant", password="pass")
         self.other_user = User.objects.create_user(username="other", password="pass")
