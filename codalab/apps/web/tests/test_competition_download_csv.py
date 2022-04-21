@@ -7,6 +7,7 @@ from django.test import TestCase
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.auth import get_user_model
 
+from apps.customizer.models import Configuration
 from apps.web.models import (Competition,
                              CompetitionParticipant,
                              CompetitionPhase,
@@ -30,6 +31,7 @@ class CompetitionDownloadCSVTests(TestCase):
     def setUp(self):
         super(CompetitionDownloadCSVTests, self).setUp()
 
+        self.customizer_configuration = Configuration.objects.create(disable_all_submissions=False)
         self.user = User.objects.create(email='test@user.com', username='testuser\u2020', password='pass')
         self.user.set_password('pass')
         self.user.save()

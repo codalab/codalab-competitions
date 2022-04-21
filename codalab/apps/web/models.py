@@ -20,6 +20,7 @@ from apps.forums.models import Forum
 from apps.teams.models import Team, get_user_team, TeamMembership
 from apps.web.utils import PublicStorage, BundleStorage, clean_html_script, get_object_base_url, get_submission_size, \
     delete_key_from_storage, get_filefield_size
+from apps.customizer.models import Configuration
 from decimal import Decimal
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
@@ -1500,7 +1501,8 @@ class CompetitionSubmission(ChaHubSaveMixin, models.Model):
         if self.participant.competition != self.phase.competition:
             raise Exception("Competition for phase and participant must be the same")
 
-        if settings.DISABLE_SUBMISSIONS:
+        config = Configuration.objects.first()
+        if config.disable_all_submissions:
             logger.info("Submissions have been disabled by admins. Aborting.")
             raise PermissionDenied("Submissions have been disabled by admins")
 

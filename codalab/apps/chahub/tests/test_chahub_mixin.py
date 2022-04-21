@@ -1,6 +1,7 @@
 import datetime
 import mock
 from apps.authenz.models import ClUser
+from apps.customizer.models import Configuration
 from apps.web.models import CompetitionSubmission, Competition, CompetitionPhase, CompetitionParticipant, \
     ParticipantStatus
 from django.conf import settings
@@ -13,6 +14,7 @@ class ChahubMixinTests(TestCase):
     def setUp(self):
         settings.PYTEST_FORCE_CHAHUB = True
 
+        self.customizer_configuration = Configuration.objects.create(disable_all_submissions=False)
         self.user = ClUser.objects.create_user(username="user", password="pass")
         self.competition = Competition.objects.create(
             title="Test Competition",
