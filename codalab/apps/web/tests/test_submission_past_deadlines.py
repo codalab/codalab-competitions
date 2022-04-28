@@ -5,6 +5,7 @@ from django.core.exceptions import PermissionDenied
 from django.test import TestCase, Client
 from django.contrib.auth import get_user_model
 
+from apps.customizer.models import Configuration
 from apps.web.models import (Competition,
                              CompetitionParticipant,
                              ParticipantStatus,
@@ -18,6 +19,7 @@ User = get_user_model()
 class CompetitionTestDeadlines(TestCase):
 
     def setUp(self):
+        self.customizer_configuration = Configuration.objects.create(disable_all_submissions=False)
         self.organizer_user = User.objects.create_user(username="organizer", password="pass")
         self.participant_user = User.objects.create_user(username="participant", password="pass")
         self.competition = Competition.objects.create(

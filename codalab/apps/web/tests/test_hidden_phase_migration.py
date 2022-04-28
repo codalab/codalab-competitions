@@ -5,6 +5,7 @@ from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.test.client import Client
 
+from apps.customizer.models import Configuration
 from apps.web.models import (Competition,
                              CompetitionParticipant,
                              CompetitionPhase,
@@ -34,6 +35,7 @@ class CompetitionHiddenPhaseMigration(TestCase):
         1.
         '''
 
+        self.customizer_configuration = Configuration.objects.create(disable_all_submissions=False)
         self.user = User.objects.create(email='test@user.com', username='testuser')
         self.other_user = User.objects.create(email='other@user.com', username='other')
         self.third_user = User.objects.create(email='third@user.com', username="third")

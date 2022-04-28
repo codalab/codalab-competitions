@@ -8,6 +8,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.auth import get_user_model
 from django.conf import settings
 
+from apps.customizer.models import Configuration
 from apps.web.models import (Competition,
                              CompetitionParticipant,
                              CompetitionPhase,
@@ -23,6 +24,7 @@ User = get_user_model()
 
 class CompetitionSubmissionDownloadTests(TestCase):
     def setUp(self):
+        self.customizer_configuration = Configuration.objects.create(disable_all_submissions=False)
         self.organizer = User.objects.create_user(username="organizer", password="pass")
         self.participant_user = User.objects.create_user(username="participant", password="pass")
         self.other_participant_user = User.objects.create_user(username="other_participant", password="pass")
