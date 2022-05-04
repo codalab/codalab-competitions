@@ -210,9 +210,16 @@ def get_submission_size(submission):
             'ingestion_program_stdout_file',
             'ingestion_program_stderr_file',
         ]
-        total += get_filefield_size(submission, 'file', aws_attr='s3_file', s3direct=True)
+        filefield_size = get_filefield_size(submission, 'file', aws_attr='s3_file', s3direct=True)
+        if type(filefield_size) == str:
+            filefield_size = int(filefield_size)
+        total += filefield_size
         for file_attr in file_attrs:
-            total += get_filefield_size(submission, file_attr)
+            filefield_size = get_filefield_size(submission, file_attr)
+            print(f"file_attr: {filefield_size} type: {type(filefield_size)}")
+            if type(filefield_size) == str:
+                filefield_size = int(filefield_size)
+            total += filefield_size
     return total
 
 def get_filefield_size(obj, attr, aws_attr=None, s3direct=False):
