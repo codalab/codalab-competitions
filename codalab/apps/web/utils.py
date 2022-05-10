@@ -240,6 +240,8 @@ def get_filefield_size(obj, attr, aws_attr=None, s3direct=False):
                 if settings.USE_AWS:
                     size = get_size_from_summary(attr_obj.storage.bucket.name, attr_obj.name)
     # Always make sure we return at least 0
+    if type(size) == str:
+        size = int(size)
     return size or 0
 
 def get_size_from_summary(bucket_name, key):
