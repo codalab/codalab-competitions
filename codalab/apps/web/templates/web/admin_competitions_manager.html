@@ -62,19 +62,19 @@
     let competitionUpperBoundMaxSubmissionSizeInputs;
     let selectedCompetitions = new Set();
 
-    function selectOneClicked(cb) {
+    function selectOneClicked(checkbox) {
         // Select one competition or unselect it
-        const competitionId = parseInt(cb.value);
-        selectCompetition(competitionId, cb.checked);
+        const competitionId = parseInt(checkbox.value);
+        selectCompetition(competitionId, checkbox.checked);
         updateSelectAllCheckbox();
     }
 
-    function selectAllClicked(cb) {
+    function selectAllClicked(checkbox) {
         // Select all competitions or unselect all of them
         for (let i = 0; i < competitionCheckboxes.length; i++) {
-            selectCompetition(parseInt(competitionCheckboxes[i].value), cb.checked);
+            selectCompetition(parseInt(competitionCheckboxes[i].value), checkbox.checked);
             competitionCheckboxes[i].indeterminate = false;
-            competitionCheckboxes[i].checked = cb.checked;
+            competitionCheckboxes[i].checked = checkbox.checked;
         }
     }
 
@@ -111,12 +111,12 @@
         }
     }
 
-    function maxSubmissionSizeChanged(cb) {
+    function maxSubmissionSizeChanged(checkbox) {
         // Update all selected competition max submission size
         for (let competionId of selectedCompetitions) {
             const row = document.querySelector('tr[id="tr-' + competionId + '"]');
             const upperBoundmaxSumbissionSizeInput = row.querySelector('input[id$="upper_bound_max_submission_size"]');
-            upperBoundmaxSumbissionSizeInput.value = cb.value;
+            upperBoundmaxSumbissionSizeInput.value = checkbox.value;
         }
     }
 
