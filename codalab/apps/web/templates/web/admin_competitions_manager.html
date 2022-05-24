@@ -39,7 +39,9 @@
                     <td>{{ form.instance.start_date|date:"M d, Y" }}</td>
                     <td>
                         {% if form.instance.end_date %}
-                        {{ form.instance.end_date|date:"M d, Y" }}{% else %} No end date
+                            {{ form.instance.end_date|date:"M d, Y" }}
+                        {% else %}
+                            No end date
                         {% endif %}
                     </td>
                     <td>{{ form.upper_bound_max_submission_size }}</td>
