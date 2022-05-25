@@ -206,9 +206,7 @@ class AdminCompetitionsManager(ModelFormSetView):
 
     def get_context_data(self, **kwargs):
         context = super(AdminCompetitionsManager, self).get_context_data(**kwargs)
-        competitions = models.Competition.objects.order_by('-pk')
-        competitions = list(reversed(sorted(competitions, key=lambda c: c.get_start_date)))
-        context["object_list"] = competitions
+        context["object_list"] = list(models.Competition.objects.order_by('-start_date'))
         return context
 
 
