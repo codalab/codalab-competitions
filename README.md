@@ -54,3 +54,22 @@ This software is released under the Apache License 2.0 (the "License"); you may 
 
 The text of the Apache License 2.0 can be found online at:
 http://www.opensource.org/licenses/apache2.0.php
+
+## Cite CodaLab Competitions in your research
+
+```
+@article{codalab_competitions,
+    author = {Adrien Pavao and
+              Isabelle Guyon and 
+              Anne-Catherine Letournel and
+              Xavier Baró and
+              Hugo Escalante and
+              Sergio Escalera and
+              Tyler Thomas and
+              Zhen Xu},
+    title = {CodaLab Competitions: An open source platform to organize scientific challenges},
+    url = {https://hal.inria.fr/hal-03629462v1},
+    year = {2022},
+    journal = {Technical report}
+}
+```
