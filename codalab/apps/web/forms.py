@@ -127,6 +127,17 @@ class CompetitionPhaseForm(forms.ModelForm):
 
         return self.cleaned_data["scoring_program_organizer_dataset"]
 
+    def clean_max_submission_size(self):
+        cleaned_data = super(CompetitionPhaseForm, self).clean()
+        max_submission_size = cleaned_data.get('max_submission_size')
+        if max_submission_size > self.instance.competition.upper_bound_max_submission_size:
+            raise forms.ValidationError(
+                'Phase max submission size should be between 0MB and %(max)dMB',
+                code='invalid',
+                params={'max': self.instance.competition.upper_bound_max_submission_size},
+            )
+        return max_submission_size
+
 
 class PageForm(forms.ModelForm):
     class Meta:

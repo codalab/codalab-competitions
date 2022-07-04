@@ -155,7 +155,7 @@ class CompetitionTest(TestCase):
         self.participant = CompetitionParticipant.objects.create(
             user=self.participant_user,
             competition=self.competition,
-            status=ParticipantStatus.objects.get_or_create(name='approved', codename=ParticipantStatus.PENDING)[0]
+            status=ParticipantStatus.objects.get_or_create(name='approved', codename=ParticipantStatus.APPROVED)[0]
         )
 
 
@@ -282,7 +282,7 @@ class CompetitionEditPermissionsTests(CompetitionTest):
         with mock.patch('apps.web.views.CompetitionEdit.construct_inlines') as construct_inlines_mock:
             resp = self.client.post(
                 reverse("competitions:edit", kwargs={"pk": self.competition.pk}),
-                data={}
+                data={'title': 'Test Competition'}
             )
 
         self.assertTrue(construct_inlines_mock.called)
