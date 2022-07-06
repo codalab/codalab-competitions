@@ -1,7 +1,8 @@
-from apps.web.views import MyAdminView
+from apps.web.views import MyAdminView, AdminCompetitionsManager
 from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
+from apps.web import views
 
 admin.autodiscover()
 
@@ -12,6 +13,7 @@ urlpatterns = [
     url(r'^api/', include('apps.api.routers')),
     url(r'^search/', include('haystack.urls')),
     url(r'^admin_monitoring_links/$', MyAdminView.as_view(), name='admin_monitoring_links'),
+    url(r'^admin_competitions_manager/$', AdminCompetitionsManager.as_view(), name='admin_competitions_manager'),
     url(r'^teams/', include('apps.teams.urls')),
     url(r'^newsletter/', include('apps.newsletter.urls', app_name='newsletter', namespace='newsletter')),
 

@@ -5,11 +5,18 @@ import re
 import requests
 import boto3
 from botocore.exceptions import ClientError
-
+from storages.backends.s3boto3 import S3Boto3Storage
 from django.conf import settings
 from django.core.files.storage import get_storage_class
 
 logger = logging.getLogger(__name__)
+
+
+class CodalabS3BotoStorage(S3Boto3Storage):
+    def deconstruct(self):
+        path, args, kwargs = super().deconstruct()
+        return path, [], {}
+
 
 s3 = boto3.resource('s3', endpoint_url=settings.AWS_S3_ENDPOINT_URL)
 
