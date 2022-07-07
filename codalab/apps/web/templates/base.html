@@ -239,8 +239,8 @@
         CODAUSER = {
             username: "{{ request.user.username }}",
             user_id: {{ request.user.pk|default:0 }},
-            email: "{{ user.email }}",
-            is_authenticated: {{ user.is_authenticated|yesno:"true,false" }},
+            email: "{{ request.user.email }}",
+            is_authenticated: {{ request.user.is_authenticated|yesno:"true,false" }},
         }
 
         /*
