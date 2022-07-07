@@ -451,6 +451,7 @@ class Base(Configuration):
     CELERY_ACKS_LATE = True
     CELERYD_PREFETCH_MULTIPLIER = 1
     CELERYD_TASK_SOFT_TIME_LIMIT = 180  # 3 minutes
+    # CELERYD_TASK_SOFT_TIME_LIMIT = 60 * 60 * 24  # 24 hours
     FLOWER_PORT = os.environ.get('FLOWER_PORT', '15672')
     # Run as *not* root
     CELERYD_USER = "workeruser"
@@ -479,7 +480,11 @@ class Base(Configuration):
         },
         'create_storage_statistic_datapoint': {
             'task': 'apps.web.tasks.create_storage_statistic_datapoint',
-            'schedule': timedelta(seconds=60 * 60 * 24)
+            'schedule': timedelta(seconds=60 * 2)
+        },
+        'create_storage_competition_statistic_datapoint': {
+            'task': 'apps.web.tasks.create_storage_competition_statistic_datapoint',
+            'schedule': timedelta(seconds=60 * 2)
         }
     }
     CELERY_TIMEZONE = 'UTC'

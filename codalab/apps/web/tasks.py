@@ -14,7 +14,8 @@ from apps.authenz.models import ClUser
 from apps.chahub.models import ChaHubSaveMixin
 from apps.chahub.utils import send_to_chahub
 from apps.coopetitions.models import DownloadRecord
-from apps.health.models import StorageDataPoint
+from apps.health.models import (StorageDataPoint,
+                                CompetitionStorageDataPoint)
 from apps.jobs.models import (Job,
                               run_job_task,
                               JobTaskResult,
@@ -877,6 +878,9 @@ def send_chahub_updates():
 
 @task(queue='site-worker')
 def create_storage_statistic_datapoint():
+        logger.info("##### TASK STORAGE STATISTIC --- start")
+        t = time.process_time()
+
         total_bytes = storage_get_total_use(BundleStorage)
         data = {
             'total_use': total_bytes,
@@ -897,6 +901,39 @@ def create_storage_statistic_datapoint():
         data['bundle_use'] = bundle_use
         StorageDataPoint.objects.create(**data)
         logger.info("Created storage statistic datapoint.")
+
+        elapsed_time = time.process_time() - t
+        logger.info("##### TASK STORAGE STATISTIC --- stop --- duration = {:.3f} seconds".format(elapsed_time))
+
+
+@task(queue='site-worker')
+def create_storage_competition_statistic_datapoint():
+        logger.info("##### TASK STORAGE COMPETITION STATISTIC --- start")
+        t = time.process_time()
+
+        qs = Competition.objects.all().reverse()
+        for comp in qs:
+            comp_data = get_competition_size_data(comp)
+            print(comp_data)
+            comp_data['competition_id'] = comp_data['id']
+            comp_data.pop('id')
+            # CompetitionStorageDataPoint.objects.create(**comp_data)
+            default = {
+                'title': comp_data['title'],
+                'creator': comp_data['creator'],
+                'is_active': comp_data['is_active'],
+                'submissions': comp_data['submissions'],
+                'datasets': comp_data['datasets'],
+                'dumps': comp_data['dumps'],
+                'bundle': comp_data['bundle'],
+                'total': comp_data['total']
+            }
+            CompetitionStorageDataPoint.objects.update_or_create(competition_id=comp_data['competition_id'], defaults=default)
+
+        logger.info("Created storage competition statistic datapoint.")
+
+        elapsed_time = time.process_time() - t
+        logger.info("##### TASK STORAGE COMPETITION STATISTIC --- stop --- duration = {:.3f} seconds".format(elapsed_time))
 
 
 @task(queue='site-worker')

@@ -14,29 +14,26 @@
 
 {% block content %}
     {% verbatim %}
-        <h4>Total Storage Usage</h4>
         <div id="storage-total-app">
-            <table class="table table-responsive">
-                <tbody>
-                <tr>
-                    <td>Total in bytes:</td>
-                    <td>{{ storage_analytics_data.total_bytes }}</td>
-                <tr>
-                <tr>
-                    <td>Total in kilobytes:</td>
-                    <td>{{ storage_analytics_data.total_kilobytes }}</td>
-                <tr>
-                <tr>
-                    <td>Total in megabytes:</td>
-                    <td>{{ storage_analytics_data.total_megabytes }}</td>
-                <tr>
-                <tr>
-                    <td>Total in gigabytes:</td>
-                    <td>{{ storage_analytics_data.total_gigabytes }}</td>
-                <tr>
-                </tbody>
-            </table>
+            <div style="display: flex; flex-direction: row">
+                <h4>Total Storage Usage</h4>
+                <h4 style="margin-left: auto">updated {{ storage_analytics_data_date | prettyDate }}</h4>
+            </div>
+            <v-data-table
+                :headers="headers"
+                :items="storage_analytics_data"
+                hide-default-header
+                hide-default-footer
+                class="elevation-1"
+                :loading="loading"
+                loading-text="Loading... Please wait"
+            >
+                <template v-slot:item.size="{ item }">
+                    <span>{{ item.size | prettyBytes }}</span>
+                </template>
+            </v-data-table>
         </div>
+        <!--
         <div id="storage-timeline-app">
             <v-app id="inspire">
                 <v-card
@@ -125,6 +122,7 @@
                 </template>
             </v-app>
         </div>
+        -->
         <h4>Competition Storage Analytics</h4>
         <div id="storage-competitions-app">
             <v-data-table
@@ -141,6 +139,7 @@
         <i>Note: User competition usage will include all above analytics for competitions. (Including user's own
             submissions). Dataset usage represents those not tied to a competition, and Submission usage represent those
             not in the user's own competition.</i>
+        <!--
         <div id="storage-users-app">
             <v-data-table
                     :headers="headers"
@@ -152,12 +151,14 @@
             >
             </v-data-table>
         </div>
+        -->
     {% endverbatim %}
 {% endblock %}
 
 {% block extra_scripts %}
     <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vuetify/2.3.0-beta.6/vuetify.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.3/moment.js"></script>
     <script>
         $(document).ready(function () {
             new Vue({
@@ -165,11 +166,15 @@
                 vuetify: new Vuetify(),
                 data: function () {
                     return {
-                        storage_analytics_data: {
-                            total_bytes: 'Loading!',
-                            total_megabytes: 'Loading!',
-                            total_kilobytes: 'Loading!',
-                            total_gigabytes: 'Loading!'
+                        loading: true,
+                        storage_analytics_data: [],
+                        storage_analytics_data_date: "",
+                        headers: [
+                            {text: 'Stat', value: 'stat'},
+                            {text: 'Size (bytes)', value: 'size'},
+                        ],
+                        footer_properties: {
+                            'items-per-page-options': [25, 50, 100, -1],
                         }
                     }
                 },
@@ -178,18 +183,68 @@
                     this.get_storage_analytics()
                 },
                 methods: {
-                    async get_storage_analytics()
-            {
-                try {
-                    this.storage_analytics_data = await $.get(`/api/storage/get_total_analytics`)
-                } catch (e) {
-                    console.log(e)
-                    console.log(e.response)
+                    get_storage_analytics() {
+                        fetch("/api/storage/get_total_analytics")
+                        .then(response => {
+                            return response.json()
+                        })
+                        .then(json => {
+                            this.storage_analytics_data = [
+                                {
+                                    'stat': "Total usage",
+                                    'size': json.total_use
+                                },
+                                {
+                                    'stat': "Competition usage",
+                                    'size': json.competition_use
+                                },
+                                {
+                                    'stat': "Submission usage",
+                                    'size': json.submission_use
+                                },
+                                {
+                                    'stat': "Dataset usage",
+                                    'size': json.dataset_use
+                                },
+                                {
+                                    'stat': "Bundle usage",
+                                    'size': json.bundle_use
+                                },
+                                {
+                                    'stat': "Dumps usage",
+                                    'size': json.dumps_use
+                                }
+                            ];
+                            this.storage_analytics_data_date = json.created_at;
+                        })
+                        .catch(error => {
+                            console.log("error in get_storage_analytics", error);
+                        })
+                        .finally(() => {
+                            this.loading = false;
+                        });
+                    }                    
+                },
+                filters: {
+                    prettyBytes: function(bytes, decimals, kib, maxunit) {
+                        kib = kib || false
+                        if (bytes === 0) return '0 Bytes'
+                        if (isNaN(parseFloat(bytes)) && !isFinite(bytes)) return ''
+                        const k = kib ? 1024 : 1000
+                        const dm = decimals != null && !isNaN(decimals) && decimals >= 0 ? decimals : 2
+                        const sizes = kib ? ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB', 'BiB'] : ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB', 'BB']
+                        var i = Math.floor(Math.log(bytes) / Math.log(k))
+                        if (maxunit != undefined) {
+                            const index = sizes.indexOf(maxunit)
+                            if (index != -1) i = index
+                        }
+                        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
+                    },
+                    prettyDate: function(date) {
+                        return moment(date).calendar();
+                    }
                 }
-            }
-        ,
-        }
-        })
+            })
             new Vue({
                 el: '#storage-competitions-app',
                 vuetify: new Vuetify(),
@@ -215,23 +270,28 @@
                 },
                 computed: {},
                 mounted: function () {
-                    this.get_comp_storage_analytics()
+                    this.get_comp_storage_analytics();
                 },
                 methods: {
-                    async get_comp_storage_analytics()
-            {
-                try {
-                    this.comp_list = await $.get(`/api/storage/get_competition_analytics`)
-                    this.loading = false
-                } catch (e) {
-                    console.log(e)
-                    console.log(e.response)
-                    this.loading = false
+                    get_comp_storage_analytics() {
+                        fetch("/api/storage/get_competition_analytics")
+                        .then(response => {
+                            return response.json();
+                        })
+                        .then(json => {
+                            console.log(json);
+                            this.comp_list = json;
+                        })
+                        .catch(error => {
+                            console.log("error in get_comp_storage_analytics", error);
+                        })
+                        .finally(() => {
+                            this.loading = false;
+                        });
+                    }
                 }
-            }
-        ,
-        }
-        })
+            })
+            /*
             new Vue({
                 el: '#storage-users-app',
                 vuetify: new Vuetify(),
@@ -258,21 +318,25 @@
                     this.get_user_storage_analytics()
                 },
                 methods: {
-                    async get_user_storage_analytics()
-            {
-                try {
-                    this.user_list = await
-                    $.get(`/api/storage/get_user_analytics`)
-                    this.loading = false
-                } catch (e) {
-                    console.log(e)
-                    console.log(e.response)
-                    this.loading = false
+                    get_user_storage_analytics() {
+                        fetch("/api/storage/get_user_analytics")
+                        .then(response => {
+                            return response.json()
+                        })
+                        .then(json => {
+                            this.user_list = json;
+                        })
+                        .catch(error => {
+                            console.log("error in get_user_storage_analytics", error);
+                        })
+                        .finally(() => {
+                            this.loading = false;
+                        });
+                    }
                 }
-            }
-        ,
-        }
-        })
+            })
+            */
+            /*
             new Vue({
                 el: '#storage-timeline-app',
                 vuetify: new Vuetify(),
@@ -309,11 +373,16 @@
                     this.get_storage_timeline_analytics()
                 },
                 methods: {
-                    async get_storage_timeline_analytics() {
-                        try {
-                            this.data_list = await $.get(`/api/storage/get_analytics_overtime?unit=${this.unit}&sample_points=${this.sample_points}`)
-                            var storage_totals = []
-                            var storage_labels = []
+                    get_storage_timeline_analytics() {
+                        this.loading = true;
+                        fetch(`/api/storage/get_analytics_overtime?unit=${this.unit}&sample_points=${this.sample_points}`)
+                        .then(response => {
+                            return response.json()
+                        })
+                        .then(json => {
+                            this.data_list = json;
+                            var storage_totals = [];
+                            var storage_labels = [];
                             $.each(this.data_list, function (index, data_point) {
                                 // Should have a dict/obj here
                                 $.each(data_point, function (date, total) {
@@ -321,27 +390,27 @@
                                     storage_labels.push(date)
                                 });
                             });
-                            this.storage_totals = storage_totals
-                            this.storage_labels = storage_labels
-                            this.loading = false
-                        } catch (e) {
-                            console.log(e)
-                            console.log(e.response)
-                            this.loading = false
-                        }
+                            this.storage_totals = storage_totals;
+                            this.storage_labels = storage_labels;
+                        })
+                        .catch(error => {
+                            console.log("error in get_storage_timeline_analytics", error);
+                        })
+                        .finally(() => {
+                            this.loading = false;
+                        });
                     },
                     set_date_range(value) {
-                        this.loading = true
-                        this.sample_points = value
-                        this.get_storage_timeline_analytics()
+                        this.sample_points = value;
+                        this.get_storage_timeline_analytics();
                     },
                     set_unit(value) {
-                        this.loading = true
-                        this.unit = value
-                        this.get_storage_timeline_analytics()
+                        this.unit = value;
+                        this.get_storage_timeline_analytics();
                     },
                 }
             })
+            */
         })
     </script>
 {% endblock %}
