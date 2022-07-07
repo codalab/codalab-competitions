@@ -38,8 +38,10 @@ urlpatterns += (
     url(r'^submission/(?P<submission_id>\d+)/get_score', views.SubmissionScoreView.as_view(), name='submission_score'),
     url(r'^competition/(?P<competition_id>\d+)/enable_chagrade', views.AddChagradeBotView.as_view(), name='enable_chagrade'),
     # Storage Analytics
-    url(r'^storage/get_total_analytics', storage_views.GetStorageAnalyticTotalsView.as_view(), name="storage_analytics_total"),
-    url(r'^storage/get_competition_analytics', storage_views.GetCompetitionStorageAnalytics.as_view(), name="storage_analytics_competitions"),
+    # url(r'^storage/get_total_analytics', storage_views.GetStorageAnalyticTotalsView.as_view(), name="storage_analytics_total"),
+    url(r'^storage/get_total_analytics', storage_views.GetExistingStorageAnalyticTotalsView.as_view(), name="storage_analytics_total"),
+    # url(r'^storage/get_competition_analytics', storage_views.GetCompetitionStorageAnalytics.as_view(), name="storage_analytics_competitions"),
+    url(r'^storage/get_competition_analytics', storage_views.GetExistingCompetitionStorageAnalytics.as_view(), name="storage_analytics_competitions"),
     url(r'^storage/get_user_analytics', storage_views.GetUserStorageAnalytics.as_view(), name="storage_analytics_users"),
     url(r'^storage/get_analytics_overtime', storage_views.GetCompetitionStorageAnalyticsOverTime.as_view(), name="storage_analytics_overtime")
 )

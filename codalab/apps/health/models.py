@@ -23,3 +23,15 @@ class StorageDataPoint(models.Model):
     bundle_use = models.BigIntegerField(default=0)
     # Use exclusively from dumps
     dumps_use = models.BigIntegerField(default=0)
+
+
+class CompetitionStorageDataPoint(models.Model):
+    competition_id = models.PositiveIntegerField(primary_key=True)
+    title = models.CharField(max_length=255)
+    creator = models.CharField(max_length=255)
+    is_active = models.BooleanField(default=False)
+    submissions = models.BigIntegerField(default=0)
+    datasets = models.BigIntegerField(default=0)
+    dumps = models.BigIntegerField(default=0)
+    bundle = models.BigIntegerField(default=0)
+    total = models.BigIntegerField(default=0)
