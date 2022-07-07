@@ -46,7 +46,7 @@
                         <div class="field-container">
                             <select multiple id="id_admins" name="admins">
                                 {% for admin in competition.admins.all %}
-                                    <option value="{{ admin.pk }}" selected>{{ admin }}</option>
+                                    <option value="{{ admin.pk }}" selected>{{ admin.username }}</option>
                                 {% endfor %}
                             </select>
                             {{ field.errors }}
