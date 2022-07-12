@@ -116,6 +116,8 @@
                                     {% if user.is_superuser %}
                                         <li><a href="{% url 'admin_monitoring_links' %}">Admin Monitoring Links</a></li>
                                         <li class="divider"></li>
+                                        <li><a href="{% url 'admin_competitions_manager' %}">Admin Competitions Manager</a></li>
+                                        <li class="divider"></li>
                                         <li><a href="{% url 'customize_codalab' %}">Customize Codalab</a></li>
                                         <li class="divider"></li>
                                         <li><a href="{% url 'su-login' %}">Switch User</a></li>
@@ -237,8 +239,8 @@
         CODAUSER = {
             username: "{{ request.user.username }}",
             user_id: {{ request.user.pk|default:0 }},
-            email: "{{ user.email }}",
-            is_authenticated: {{ user.is_authenticated|yesno:"true,false" }},
+            email: "{{ request.user.email }}",
+            is_authenticated: {{ request.user.is_authenticated|yesno:"true,false" }},
         }
 
         /*
