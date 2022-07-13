@@ -289,6 +289,7 @@ class Competition(ChaHubSaveMixin, models.Model):
     allow_organizer_teams = models.BooleanField(default=False, verbose_name="Allow Organizer Teams")
     upper_bound_max_submission_size = models.PositiveIntegerField(
         default=300,
+        null=True,
         validators=[
             MinValueValidator(0)
         ],
