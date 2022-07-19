@@ -715,7 +715,7 @@ class CompetitionSubmissionListViewSet(mixins.ListModelMixin, viewsets.GenericVi
         # Only get submissions for this competition, and only if you're an admin
         competition_id = self.kwargs['competition_id']
         qs = qs.filter(phase__competition_id=competition_id).order_by('-pk')
-        qs = qs.filter(Q(phase__competition__creator=self.request.user) | Q(phase__competition__admins__in=[self.request.user]))
+        qs = qs.filter(Q(phase__competition__creator=self.request.user) | Q(phase__competition__admins__in=[self.request.user])).distinct()
 
         qs = qs.extra(
             select={
