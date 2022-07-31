@@ -1,7 +1,6 @@
 import uuid
 
 from datetime import timedelta
-from distutils.util import strtobool
 
 from configurations import importer
 import importlib
@@ -20,6 +19,24 @@ def _uuidpathext(filename, prefix):
     return filepath
 
 
+# One always get a string from env and need to convert to bool.
+def _bool_from_env(key, default):
+    try:
+        val = os.environ[key]
+    except KeyError:
+        return default
+    else:
+        if val.lower() in ("y", "yes", "t", "true", "on", "1"):
+            return True
+        elif val.lower() in ("n", "no", "f", "false", "off", "0"):
+            return False
+        else:
+            raise ValueError(
+                "'%s' value of '%s' failed to convert to bool"
+                % (key, val)
+            )
+
+
 class Base(Configuration):
     SETTINGS_DIR = os.path.dirname(os.path.abspath(__file__))
     PROJECT_APP_DIR = os.path.dirname(SETTINGS_DIR)
@@ -28,11 +45,11 @@ class Base(Configuration):
     PORT = '8000'
     DOMAIN_NAME = 'localhost'
     SERVER_NAME = 'localhost'
-    DEBUG = os.environ.get('DEBUG', False)
+    DEBUG = _bool_from_env('DEBUG', False)
     COMPILE_LESS = True  # is the less -> css already done or would you like less.js to compile it on render
     LOCAL_MATHJAX = False  # see prep_for_offline
     LOCAL_ACE_EDITOR = False  # see prep_for_offline
-    IS_DEV = os.environ.get('IS_DEV', False)
+    IS_DEV = _bool_from_env('IS_DEV', False)
 
     if 'CONFIG_SERVER_NAME' in os.environ:
         SERVER_NAME = os.environ.get('CONFIG_SERVER_NAME')
@@ -338,7 +355,7 @@ class Base(Configuration):
     EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
     EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
     EMAIL_PORT = os.environ.get('EMAIL_PORT', 587)
-    EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', True)
+    EMAIL_USE_TLS = _bool_from_env('EMAIL_USE_TLS', True)
     DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'CodaLab <noreply@codalab.org>')
     SERVER_EMAIL = os.environ.get('SERVER_EMAIL', 'noreply@codalab.org')
 
@@ -370,14 +387,12 @@ class Base(Configuration):
     AWS_S3_REGION_NAME = os.environ.get('AWS_S3_REGION_NAME', 'us-east-1')
     AWS_S3_SIGNATURE_VERSION = os.environ.get('AWS_S3_SIGNATURE_VERSION', 's3v4')
 
-    AWS_S3_SECURE_URLS = strtobool(os.environ.get('AWS_S3_SECURE_URLS', "True"))
-    AWS_QUERYSTRING_AUTH = os.environ.get(
+    AWS_S3_SECURE_URLS = _bool_from_env('AWS_S3_SECURE_URLS', True)
+    AWS_QUERYSTRING_AUTH = _bool_from_env(
         # This stops signature/auths from appearing in saved URLs
         'AWS_QUERYSTRING_AUTH',
         False
     )
-    if isinstance(AWS_QUERYSTRING_AUTH, str) and 'false' in AWS_QUERYSTRING_AUTH.lower():
-        AWS_QUERYSTRING_AUTH = False  # Was set to string, convert to bool
 
     # Defaults to virtual because AWS recently deprecated 'path' style addressing. Boto3 required for virtual to have an effect.
     AWS_S3_ADDRESSING_STYLE = os.environ.get('AWS_S3_ADDRESSING_STYLE', 'virtual')
@@ -442,7 +457,7 @@ class Base(Configuration):
         # BROKER_URL might be set but empty, make sure it's set!
         BROKER_URL = 'pyamqp://{}:{}@{}:{}//'.format(RABBITMQ_DEFAULT_USER, RABBITMQ_DEFAULT_PASS, RABBITMQ_HOST, RABBITMQ_PORT)
     BROKER_POOL_LIMIT = None  # Stops connection timeout
-    BROKER_USE_SSL = SSL_CERTIFICATE or os.environ.get('BROKER_USE_SSL', False)
+    BROKER_USE_SSL = SSL_CERTIFICATE or _bool_from_env('BROKER_USE_SSL', False)
     # Don't use pickle -- dangerous
     CELERY_ACCEPT_CONTENT = ['json']
     CELERY_TASK_SERIALIZER = 'json'
@@ -678,7 +693,7 @@ class Base(Configuration):
 
 class DevBase(Base):
 
-    if os.environ.get('DEBUG', False):
+    if _bool_from_env('DEBUG', False):
         OPTIONAL_APPS = [
             'debug_toolbar',
         ]
@@ -693,7 +708,7 @@ class DevBase(Base):
             'SHOW_TOOLBAR_CALLBACK': lambda x: True,
         }
 
-        if os.environ.get('PIN_PASSCODE_ENABLED', False):
+        if _bool_from_env('PIN_PASSCODE_ENABLED', False):
             EXTRA_MIDDLEWARE_CLASSES += ['pin_passcode.middleware.PinPasscodeMiddleware',]
             PIN_PASSCODE_PIN = os.environ.get('PIN_PASSCODE_PIN', 1234)
             PIN_PASSCODE_IP_WHITELIST = ['127.0.0.1', 'localhost',]
