@@ -35,3 +35,16 @@ class CompetitionStorageDataPoint(models.Model):
     dumps = models.BigIntegerField(default=0)
     bundle = models.BigIntegerField(default=0)
     total = models.BigIntegerField(default=0)
+
+
+class StorageSnapshot(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    bucket_name = models.CharField(max_length=255)
+    total_use = models.BigIntegerField(default=0)
+
+
+class StorageUsageHistory(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    bucket_name = models.CharField(max_length=255)
+    at_date = models.DateTimeField()
+    usage = models.BigIntegerField(default=0)

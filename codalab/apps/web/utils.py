@@ -239,13 +239,18 @@ def get_filefield_size(obj, attr, aws_attr=None, s3direct=False):
             # This error seems to occur specifically with private_output_file due to 2 different path styles used
             # and the files not actually existing in storage.
             except AttributeError as e:
-                logger.error(
-                    "An error occurred trying to get a file's size. File: {0}; Object: {1}(ID:{2}); Attr: {3}".format(
-                        attr_obj.name, obj, obj.id, attr))
-                logger.error(e)
+                # logger.error(
+                #     "An error occurred trying to get a file's size. File: {0}; Object: {1}(ID:{2}); Attr: {3}".format(
+                #         attr_obj.name, obj, obj.id, attr))
+                # logger.error(e)
                 # If we hit an exception this way, and we're using S3, try the other method.
                 if settings.USE_AWS:
                     size = get_size_from_summary(attr_obj.storage.bucket.name, attr_obj.name)
+            except ClientError as e:
+                pass
+                # logger.error(
+                #     "An error occurred trying to get a file's size. File: {0}; Object: {1}(ID:{2}); Attr: {3}".format(
+                #         attr_obj.name, obj, obj.id, attr))
     # Always make sure we return at least 0
     if type(size) == str:
         size = int(size)
