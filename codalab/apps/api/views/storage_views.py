@@ -12,9 +12,81 @@ from rest_framework.exceptions import PermissionDenied, ParseError
 from rest_framework.response import Response
 
 from apps.authenz.models import ClUser
-from apps.health.models import StorageDataPoint, CompetitionStorageDataPoint
+from apps.health.models import StorageDataPoint, CompetitionStorageDataPoint, StorageSnapshot, StorageUsageHistory
 from apps.web.models import Competition
 from apps.web.utils import get_competition_size_data, BundleStorage, storage_recursive_find, storage_get_total_use
+
+
+@permission_classes((permissions.IsAuthenticated,))
+class GetExistingStorageAnalytics(views.APIView):
+    """
+    Gets the last record of the storage analytics
+    """
+    def get(self, request, *args, **kwargs):
+        if not self.request.user.is_staff:
+            raise PermissionDenied(detail="Admin only")
+
+        # Snapshot info
+        data = {
+            'created_at': None,
+            'bucket': None,
+            'total_usage': 0,
+            'submissions_usage': 0,
+            'datasets_usage': 0,
+            'dumps_usage': 0,
+            'bundle_usage': 0,
+            'competitions_details': []
+        }
+        last_storage_snapshot = StorageSnapshot.objects.order_by('id').last()
+        if last_storage_snapshot:
+            # Basic info
+            data['created_at'] = last_storage_snapshot.created_at
+            data['bucket'] = last_storage_snapshot.bucket_name
+            data['total_usage'] = last_storage_snapshot.total_use
+
+            # Competition details
+            competitions_details = []
+            for competition_detail in list(CompetitionStorageDataPoint.objects.all()):
+                data_point = {
+                    'id': competition_detail.competition_id,
+                    'title': competition_detail.title,
+                    'creator': competition_detail.creator,
+                    'is_active': competition_detail.is_active,
+                    'submissions': competition_detail.submissions,
+                    'datasets': competition_detail.datasets,
+                    'dumps': competition_detail.dumps,
+                    'bundle': competition_detail.bundle,
+                    'total': competition_detail.total
+                }
+                competitions_details.append(data_point)
+                data['submissions_usage'] += competition_detail.submissions
+                data['datasets_usage'] += competition_detail.datasets
+                data['dumps_usage'] += competition_detail.dumps
+                data['bundle_usage'] += competition_detail.bundle
+            data['competitions_details'] = competitions_details
+
+        return Response(data, status=status.HTTP_200_OK)
+
+
+@permission_classes((permissions.IsAuthenticated,))
+class GetStorageUsageHistory(views.APIView):
+    """
+    Gets the storage usage timeline between the 2 provided dates
+    """
+    def get(self, request, *args, **kwargs):
+        if not self.request.user.is_staff:
+            raise PermissionDenied(detail="Admin only")
+
+        storage_usage_history = {}
+        last_storage_snapshot = StorageSnapshot.objects.order_by('id').last()
+        if last_storage_snapshot:
+            date_from = self.request.query_params.get('from', (datetime.datetime.today() - datetime.timedelta(weeks=4)).strftime('%Y-%m-%d'))
+            date_to = self.request.query_params.get('to', datetime.datetime.today().strftime('%Y-%m-%d'))
+            query = StorageUsageHistory.objects.filter(bucket_name=last_storage_snapshot.bucket_name, at_date__gte=date_from, at_date__lt=date_to).order_by('-at_date')
+            for su in query.order_by('-at_date'):
+                storage_usage_history[su.at_date.isoformat()] = su.usage
+
+        return Response(storage_usage_history, status=status.HTTP_200_OK)
 
 
 @permission_classes((permissions.IsAuthenticated,))
@@ -47,7 +119,7 @@ class GetExistingStorageAnalyticTotalsView(views.APIView):
     Retrieve the last storage analytics total view results
     """
     def get(self, request, *args, **kwargs):
-        print("##### STORAGE ANALYTICS --- new get_total_analytics --- start")
+        print("##### STORAGE ANALYTICS --- GetExistingStorageAnalyticTotalsView --- start")
         t = process_time()
         if not self.request.user.is_staff:
             raise PermissionDenied(detail="Admin only")
@@ -66,7 +138,7 @@ class GetExistingStorageAnalyticTotalsView(views.APIView):
         resp_status = status.HTTP_200_OK
 
         elapsed_time = process_time() - t
-        print("##### STORAGE ANALYTICS --- new get_total_analytics --- stop --- duration = {:.6f} seconds".format(elapsed_time))
+        print("##### STORAGE ANALYTICS --- GetExistingStorageAnalyticTotalsView --- stop --- duration = {:.6f} seconds".format(elapsed_time))
 
         return Response(data, status=resp_status)
 
@@ -99,14 +171,14 @@ class GetExistingCompetitionStorageAnalytics(views.APIView):
     Retrieve the last storage analytics for competitions
     """
     def get(self, request, *args, **kwargs):
-        print("##### STORAGE ANALYTICS --- new get_competition_analytics --- start")
+        print("##### STORAGE ANALYTICS --- GetExistingCompetitionStorageAnalytics --- start")
         t = process_time()
         if not self.request.user.is_staff:
             raise PermissionDenied(detail="Admin only")
 
         data_points = []
         for c in list(CompetitionStorageDataPoint.objects.all()):
-            di = {
+            dp = {
                 'id': c.competition_id,
                 'title': c.title,
                 'creator': c.creator,
@@ -117,11 +189,11 @@ class GetExistingCompetitionStorageAnalytics(views.APIView):
                 'bundle': c.bundle,
                 'total': c.total
             }
-            data_points.append(di)
+            data_points.append(dp)
 
         print(data_points)
         elapsed_time = process_time() - t
-        print("##### STORAGE ANALYTICS --- get_competition_analytics --- stop --- duration = {:.3f} seconds".format(elapsed_time))
+        print("##### STORAGE ANALYTICS --- GetExistingCompetitionStorageAnalytics --- stop --- duration = {:.3f} seconds".format(elapsed_time))
 
         return Response(data_points, status=status.HTTP_200_OK)
 

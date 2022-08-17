@@ -450,8 +450,8 @@ class Base(Configuration):
     # Keep celery from becoming unresponsive
     CELERY_ACKS_LATE = True
     CELERYD_PREFETCH_MULTIPLIER = 1
-    CELERYD_TASK_SOFT_TIME_LIMIT = 180  # 3 minutes
-    # CELERYD_TASK_SOFT_TIME_LIMIT = 60 * 60 * 24  # 24 hours
+    # CELERYD_TASK_SOFT_TIME_LIMIT = 180  # 3 minutes
+    CELERYD_TASK_SOFT_TIME_LIMIT = 60 * 60 * 2  # 2 hours
     FLOWER_PORT = os.environ.get('FLOWER_PORT', '15672')
     # Run as *not* root
     CELERYD_USER = "workeruser"
@@ -478,14 +478,10 @@ class Base(Configuration):
             'task': 'apps.newsletter.tasks.retry_mailing_list',
             'schedule': timedelta(seconds=(60 * 60))
         },
-        'create_storage_statistic_datapoint': {
-            'task': 'apps.web.tasks.create_storage_statistic_datapoint',
-            'schedule': timedelta(seconds=60 * 2)
+        'create_storage_analytics_snapshot': {
+            'task': 'apps.web.tasks.create_storage_analytics_snapshot',
+            'schedule': timedelta(seconds=60 * 30)
         },
-        'create_storage_competition_statistic_datapoint': {
-            'task': 'apps.web.tasks.create_storage_competition_statistic_datapoint',
-            'schedule': timedelta(seconds=60 * 2)
-        }
     }
     CELERY_TIMEZONE = 'UTC'
 

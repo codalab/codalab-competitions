@@ -10,12 +10,15 @@ import time
 import traceback
 import yaml
 import zipfile
+import datetime
 from apps.authenz.models import ClUser
 from apps.chahub.models import ChaHubSaveMixin
 from apps.chahub.utils import send_to_chahub
 from apps.coopetitions.models import DownloadRecord
 from apps.health.models import (StorageDataPoint,
-                                CompetitionStorageDataPoint)
+                                CompetitionStorageDataPoint,
+                                StorageSnapshot,
+                                StorageUsageHistory)
 from apps.jobs.models import (Job,
                               run_job_task,
                               JobTaskResult,
@@ -33,7 +36,7 @@ from apps.web.models import (add_submission_to_leaderboard,
                              CompetitionSubmissionMetadata, BundleStorage, SubmissionResultGroup,
                              SubmissionScoreDefGroup, OrganizerDataSet, CompetitionParticipant, ParticipantStatus)
 from apps.web.utils import inheritors, push_submission_to_leaderboard_if_best, s3_key_from_url, \
-    get_competition_size_data, storage_get_total_use, delete_submissions_except_best_and_or_last
+    get_competition_size_data, storage_get_total_use, delete_submissions_except_best_and_or_last, storage_recursive_find
 from botocore.exceptions import ClientError
 from celery import task
 from celery.app import app_or_default
@@ -877,8 +880,77 @@ def send_chahub_updates():
 
 
 @task(queue='site-worker')
+def create_storage_analytics_snapshot():
+    logger.info("##### TASK create_storage_analytics_snapshot --- start")
+    t = time.process_time()
+
+    # Retrieve the last storage usage history point
+    bucket = BundleStorage.bucket
+    last_storage_usage_history_point = StorageUsageHistory.objects.filter(bucket_name=bucket.name).order_by('-at_date').first()
+
+    current_datetime = datetime.datetime.now(datetime.timezone.utc)
+    last_storage_usage_history_date = last_storage_usage_history_point.at_date if last_storage_usage_history_point else current_datetime - datetime.timedelta(days=1000)
+
+    # Prepare the storage usage history points and total usage
+    days = range(1, int((current_datetime - last_storage_usage_history_date).days) + 1)
+    usage_at_date = {last_storage_usage_history_date + datetime.timedelta(day): 0 for day in days}
+    total_usage = 0
+
+    if settings.USE_AWS:
+        for obj in bucket.objects.all():
+            size = obj.size
+            total_usage += size
+            for date in usage_at_date:
+                if obj.last_modified <= date:
+                    usage_at_date[date] += size
+    else:
+        found_files = set(storage_recursive_find(BundleStorage))
+        for file_path in found_files:
+            total_usage += BundleStorage.size(file_path) or 0
+            if BundleStorage.modified_time(file_path) <= date:
+                usage_at_date[date] += BundleStorage.size(file_path) or 0
+    
+    # Competitions details
+    competitions = Competition.objects.all().reverse()
+    for competition in competitions:
+        competition_size_data = get_competition_size_data(competition)
+        competition_size_data['competition_id'] = competition_size_data['id']
+        competition_size_data.pop('id')
+        default = {
+            'title': competition_size_data['title'],
+            'creator': competition_size_data['creator'],
+            'is_active': competition_size_data['is_active'],
+            'submissions': competition_size_data['submissions'],
+            'datasets': competition_size_data['datasets'],
+            'dumps': competition_size_data['dumps'],
+            'bundle': competition_size_data['bundle'],
+            'total': competition_size_data['total']
+        }
+        CompetitionStorageDataPoint.objects.update_or_create(competition_id=competition_size_data['competition_id'], defaults=default)
+
+    # Save the storage usage history points
+    for date, usage in usage_at_date.items():
+        storage_usage_history_point = {
+            'bucket_name': bucket.name,
+            'at_date': date,
+            'usage': usage
+        }
+        StorageUsageHistory.objects.create(**storage_usage_history_point)
+
+    # Save the storage snapshot
+    storage_snapshot = {
+            'bucket_name': bucket.name,
+            'total_use': total_usage
+        }
+    StorageSnapshot.objects.create(**storage_snapshot)
+
+    elapsed_time = time.process_time() - t
+    logger.info("##### TASK create_storage_analytics_snapshot --- stop --- duration = {:.3f} seconds".format(elapsed_time))
+
+
+@task(queue='site-worker')
 def create_storage_statistic_datapoint():
-        logger.info("##### TASK STORAGE STATISTIC --- start")
+        logger.info("##### TASK create_storage_statistic_datapoint --- start")
         t = time.process_time()
 
         total_bytes = storage_get_total_use(BundleStorage)
@@ -887,53 +959,55 @@ def create_storage_statistic_datapoint():
             'bucket_name': BundleStorage.bucket.name
         }
         competition_use = 0
-        for comp in Competition.objects.all():
-            comp_data = get_competition_size_data(comp)
-            competition_use += comp_data.get('total', 0)
+        # for comp in Competition.objects.all():
+        #     comp_data = get_competition_size_data(comp)
+        #     competition_use += comp_data.get('total', 0)
         data['competition_use'] = competition_use
         submission_use = 0
-        for sub in CompetitionSubmission.objects.all():
-            submission_use += sub.size
+        # for sub in CompetitionSubmission.objects.all():
+        #     submission_use += sub.size
         data['submission_use'] = submission_use
-        dataset_use = sum([dataset.size for dataset in OrganizerDataSet.objects.all()])
+        # dataset_use = sum([dataset.size for dataset in OrganizerDataSet.objects.all()])
+        dataset_use = 0
         data['dataset_use'] = dataset_use
-        bundle_use = sum([bundle.size for bundle in CompetitionDefBundle.objects.all()])
+        # bundle_use = sum([bundle.size for bundle in CompetitionDefBundle.objects.all()])
+        bundle_use = 0
         data['bundle_use'] = bundle_use
         StorageDataPoint.objects.create(**data)
         logger.info("Created storage statistic datapoint.")
 
         elapsed_time = time.process_time() - t
-        logger.info("##### TASK STORAGE STATISTIC --- stop --- duration = {:.3f} seconds".format(elapsed_time))
+        logger.info("##### TASK create_storage_statistic_datapoint --- stop --- duration = {:.3f} seconds".format(elapsed_time))
 
 
 @task(queue='site-worker')
 def create_storage_competition_statistic_datapoint():
-        logger.info("##### TASK STORAGE COMPETITION STATISTIC --- start")
+        logger.info("##### TASK create_storage_competition_statistic_datapoint --- start")
         t = time.process_time()
 
-        qs = Competition.objects.all().reverse()
-        for comp in qs:
-            comp_data = get_competition_size_data(comp)
-            print(comp_data)
-            comp_data['competition_id'] = comp_data['id']
-            comp_data.pop('id')
-            # CompetitionStorageDataPoint.objects.create(**comp_data)
-            default = {
-                'title': comp_data['title'],
-                'creator': comp_data['creator'],
-                'is_active': comp_data['is_active'],
-                'submissions': comp_data['submissions'],
-                'datasets': comp_data['datasets'],
-                'dumps': comp_data['dumps'],
-                'bundle': comp_data['bundle'],
-                'total': comp_data['total']
-            }
-            CompetitionStorageDataPoint.objects.update_or_create(competition_id=comp_data['competition_id'], defaults=default)
+        # qs = Competition.objects.all().reverse()
+        # for comp in qs:
+        #     comp_data = get_competition_size_data(comp)
+        #     print(comp_data)
+        #     comp_data['competition_id'] = comp_data['id']
+        #     comp_data.pop('id')
+        #     # CompetitionStorageDataPoint.objects.create(**comp_data)
+        #     default = {
+        #         'title': comp_data['title'],
+        #         'creator': comp_data['creator'],
+        #         'is_active': comp_data['is_active'],
+        #         'submissions': comp_data['submissions'],
+        #         'datasets': comp_data['datasets'],
+        #         'dumps': comp_data['dumps'],
+        #         'bundle': comp_data['bundle'],
+        #         'total': comp_data['total']
+        #     }
+        #     CompetitionStorageDataPoint.objects.update_or_create(competition_id=comp_data['competition_id'], defaults=default)
 
         logger.info("Created storage competition statistic datapoint.")
 
         elapsed_time = time.process_time() - t
-        logger.info("##### TASK STORAGE COMPETITION STATISTIC --- stop --- duration = {:.3f} seconds".format(elapsed_time))
+        logger.info("##### TASK create_storage_competition_statistic_datapoint --- stop --- duration = {:.3f} seconds".format(elapsed_time))
 
 
 @task(queue='site-worker')
