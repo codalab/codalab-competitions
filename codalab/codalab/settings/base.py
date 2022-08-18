@@ -1,17 +1,17 @@
 import uuid
 
+from celery.schedules import crontab
 from datetime import timedelta
 from distutils.util import strtobool
 
 from configurations import importer
-import importlib
 
 if not importer.installed:
     importer.install()
 
 from configurations import Configuration
 import os, sys
-from os.path import abspath, basename, dirname, join, normpath
+from os.path import abspath, basename, dirname, join
 
 
 def _uuidpathext(filename, prefix):
@@ -450,8 +450,7 @@ class Base(Configuration):
     # Keep celery from becoming unresponsive
     CELERY_ACKS_LATE = True
     CELERYD_PREFETCH_MULTIPLIER = 1
-    # CELERYD_TASK_SOFT_TIME_LIMIT = 180  # 3 minutes
-    CELERYD_TASK_SOFT_TIME_LIMIT = 60 * 60 * 2  # 2 hours
+    CELERYD_TASK_SOFT_TIME_LIMIT = 60 * 60 * 12  # 12 hours (create_storage_analytics_snapshot can take a lot of time the first time it runs)
     FLOWER_PORT = os.environ.get('FLOWER_PORT', '15672')
     # Run as *not* root
     CELERYD_USER = "workeruser"
@@ -480,7 +479,7 @@ class Base(Configuration):
         },
         'create_storage_analytics_snapshot': {
             'task': 'apps.web.tasks.create_storage_analytics_snapshot',
-            'schedule': timedelta(seconds=60 * 30)
+            'schedule': crontab(hour=2, minute=0, day_of_week='sun') # Every Sunday at 02:00
         },
     }
     CELERY_TIMEZONE = 'UTC'

@@ -28,8 +28,6 @@ services:
   # --------------------------------------------------------------------------
   postgres:
     image: postgres:9.6.3
-    ports:
-      - ${DB_PORT}:${DB_PORT}
     environment:
       - POSTGRES_DB=${DB_NAME}
       - POSTGRES_USER=${DB_USER}
