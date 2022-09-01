@@ -189,30 +189,32 @@
     //**                 S3 Filestorage functions                 **//
     //**************************************************************//
     $("#s3-file-upload").click(function(e) {
+        alert("Submission upload has been disabled. See the new instance at: https://codalab.lisn.upsaclay.fr/")
         // reset form
-        $(".s3direct .file-input").val('')
-        $('.s3direct a.file-link').attr('href', '')
+        // $(".s3direct .file-input").val('')
+        // $('.s3direct a.file-link').attr('href', '')
 
-        $(".s3direct .file-input").click()
+        // $(".s3direct .file-input").click()
     })
 
     $(".s3direct .file-input").change(function(){
-        $("#s3-file-upload").addClass('disabled')
-        if($(".s3direct .file-input").val() == '') {
-            $("#s3-file-upload").removeClass('disabled')
-            return
-        }
+        alert("Submission upload has been disabled. See the new instance at: https://codalab.lisn.upsaclay.fr/")
+        // $("#s3-file-upload").addClass('disabled')
+        // if($(".s3direct .file-input").val() == '') {
+        //     $("#s3-file-upload").removeClass('disabled')
+        //     return
+        // }
 
-        var test_if_done = function () {
-            var uploaded_url = $('.s3direct a.file-link').attr('href')
+        // var test_if_done = function () {
+        //     var uploaded_url = $('.s3direct a.file-link').attr('href')
 
-            if (uploaded_url && uploaded_url != '' && uploaded_url.length > 0) {
-                $("#s3-file-upload").removeClass('disabled')
-                Competition.submitUploadedSubmissionDetails(undefined, uploaded_url)
-            } else {
-                setTimeout(test_if_done, 100)
-            }
-        }
-        test_if_done()
+        //     if (uploaded_url && uploaded_url != '' && uploaded_url.length > 0) {
+        //         $("#s3-file-upload").removeClass('disabled')
+        //         Competition.submitUploadedSubmissionDetails(undefined, uploaded_url)
+        //     } else {
+        //         setTimeout(test_if_done, 100)
+        //     }
+        // }
+        // test_if_done()
     })
 </script>
