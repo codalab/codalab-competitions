@@ -234,15 +234,7 @@
 
     {% block js %}
         Competition.initialize();
-
     {% endblock js %}
-        CODAUSER = {
-            username: "{{ request.user.username }}",
-            user_id: {{ request.user.pk|default:0 }},
-            email: "{{ request.user.email }}",
-            is_authenticated: {{ request.user.is_authenticated|yesno:"true,false" }},
-        }
-
         /*
          * If we want to do huge maintenance again, can use this warning!
          *
