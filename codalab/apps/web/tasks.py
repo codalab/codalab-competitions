@@ -879,10 +879,10 @@ def send_chahub_updates():
         comp.save()
 
 
-@task(queue='site-worker')
+@task(queue='site-worker', soft_time_limit=60*60*12) # 12 hours
 def create_storage_analytics_snapshot():
     logger.info("Task create_storage_analytics_snapshot started")
-    t = time.process_time()
+    starting_time = time.process_time()
 
     # Retrieve the last storage usage history point
     bucket = BundleStorage.bucket
@@ -892,7 +892,8 @@ def create_storage_analytics_snapshot():
     last_storage_usage_history_date = last_storage_usage_history_point.at_date if last_storage_usage_history_point else current_datetime - datetime.timedelta(days=1000)
 
     # Prepare the storage usage history points and total usage
-    days = range(1, int((current_datetime - last_storage_usage_history_date).days) + 1)
+    days_count = int((current_datetime - last_storage_usage_history_date).days)
+    days = range(1, days_count + 1)
     usage_at_date = {last_storage_usage_history_date + datetime.timedelta(day): 0 for day in days}
     total_usage = 0
 
@@ -960,7 +961,7 @@ def create_storage_analytics_snapshot():
         }
     StorageSnapshot.objects.create(**storage_snapshot)
 
-    elapsed_time = time.process_time() - t
+    elapsed_time = time.process_time() - starting_time
     logger.info("Task create_storage_analytics_snapshot stoped. Duration = {:.3f} seconds".format(elapsed_time))
 
 

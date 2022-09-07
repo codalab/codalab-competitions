@@ -450,7 +450,7 @@ class Base(Configuration):
     # Keep celery from becoming unresponsive
     CELERY_ACKS_LATE = True
     CELERYD_PREFETCH_MULTIPLIER = 1
-    CELERYD_TASK_SOFT_TIME_LIMIT = 60 * 60 * 12  # 12 hours (create_storage_analytics_snapshot can take a lot of time the first time it runs)
+    CELERYD_TASK_SOFT_TIME_LIMIT = 180  # 3 minutes
     FLOWER_PORT = os.environ.get('FLOWER_PORT', '15672')
     # Run as *not* root
     CELERYD_USER = "workeruser"
