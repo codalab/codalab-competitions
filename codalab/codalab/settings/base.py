@@ -32,7 +32,6 @@ class Base(Configuration):
     COMPILE_LESS = True  # is the less -> css already done or would you like less.js to compile it on render
     LOCAL_MATHJAX = False  # see prep_for_offline
     LOCAL_ACE_EDITOR = False  # see prep_for_offline
-    IS_DEV = os.environ.get('IS_DEV', False)
 
     if 'CONFIG_SERVER_NAME' in os.environ:
         SERVER_NAME = os.environ.get('CONFIG_SERVER_NAME')
