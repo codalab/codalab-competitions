@@ -3,154 +3,161 @@
 {% load humanize %}
 {% load codalab_tags %}
 
+{% load static %}
+
 {% block head_title %}Storage Analytics{% endblock head_title %}
 {% block page_title %}Storage Analytics{% endblock page_title %}
-
 
 {% block extra_headers %}
     <link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static "health/storage.css" %}">
 {% endblock %}
 
 {% block content %}
     {% verbatim %}
-        <h4>Total Storage Usage</h4>
-        <div id="storage-total-app">
-            <table class="table table-responsive">
-                <tbody>
-                <tr>
-                    <td>Total in bytes:</td>
-                    <td>{{ storage_analytics_data.total_bytes }}</td>
-                <tr>
-                <tr>
-                    <td>Total in kilobytes:</td>
-                    <td>{{ storage_analytics_data.total_kilobytes }}</td>
-                <tr>
-                <tr>
-                    <td>Total in megabytes:</td>
-                    <td>{{ storage_analytics_data.total_megabytes }}</td>
-                <tr>
-                <tr>
-                    <td>Total in gigabytes:</td>
-                    <td>{{ storage_analytics_data.total_gigabytes }}</td>
-                <tr>
-                </tbody>
-            </table>
-        </div>
-        <div id="storage-timeline-app">
-            <v-app id="inspire">
-                <v-card
-                        class="mx-auto text-xs-center"
-                        color="blue"
-                        dark
-                        max-width="1400"
-                        :loading="loading"
-                >
-                    <template slot="progress">
-                        <v-progress-linear
-                                color="deep-purple"
-                                height="20"
-                                indeterminate
-                        ></v-progress-linear>
-                    </template>
-                    <v-card-text>
-                        <div class="display-1 font-weight-thin">Storage use over time</div>
-                    </v-card-text>
-                    <v-card-text>
-                        <v-sheet color="rgba(0, 0, 0, .12)" height="400" width="1100">
-                            <v-sparkline
-                                    label-size="14"
-                                    :labels="storage_labels"
-                                    :value="storage_totals"
-                                    color="rgba(255, 255, 255, .7)"
-                                    height="300"
-                                    width="1000"
-                                    padding="96"
-                                    stroke-linecap="round"
-                                    smooth
-                            >
-                                <template
-                                        slot="label"
-                                        slot-scope="item"
+        <div id="storage-app">
+            <v-app style="background-color: #f7f7f7">
+                <div id="snapshot-date">
+                    <h4 v-if="loading" style="margin-left: auto">updated at -</h4>
+                    <div v-else>
+                        <h4 v-if="snapshotDate" style="margin-left: auto">updated <b>{{ snapshotDate | prettyDate }}</b></h4>
+                        <h4 v-else style="margin-left: auto">No snapshot available yet</b></h4>
+                    </div>
+                </div>
+                <div id="general-info" class="storage-block-info">
+                    <h3>Overview</h3>
+                    <div class="section-data">
+                        <div>
+                            <h4 v-if="snapshotDate">Bucket: <b>{{ storageBucketName }}</b></h4>
+                            <h4 v-else>Bucket: -</h4>
+                            <h4 v-if="snapshotDate">Usage: <b>{{ storageTotalUsage | prettyByte }}</b></h4>
+                            <h4 v-else>Usage: -</h4>
+                        </div>
+                        <div>
+                            <div>
+                                <canvas id="storage-overview-line-chart" style="max-height: 500px"></canvas>
+                            </div>
+                            <div style="width: 220px">
+                                <v-menu
+                                    v-model="storageUsageHistoryMenu"
+                                    nudge-top="180"
+                                    nudge-left="80"
+                                    offset-y
+                                    transition="scale-transition"
+                                    :close-on-content-click="false"
+                                    color="primary"
                                 >
-                                    {{ item.value }}: {{ storage_totals[item.index] }}
-                                </template>
-                            </v-sparkline>
-                        </v-sheet>
-                    </v-card-text>
-                </v-card>
-                <template>
-                    <v-container fluid>
-                        <v-row align="center">
-                            <v-col cols="3">
-                                <v-subheader>
-                                    Units
-                                </v-subheader>
-                            </v-col>
-
-                            <v-col cols="3">
-                                <v-select
-                                        v-model="select"
-                                        :hint="`${select.value}`"
-                                        :items="unit_selections"
-                                        :loading="loading"
-                                        item-text="unit"
-                                        item-value="value"
-                                        label="Select"
-                                        @change="set_unit(select.value)"
-                                        persistent-hint
-                                        return-object
-                                        single-line
-                                ></v-select>
-                            </v-col>
-                            <v-col cols="3">
-                                <v-subheader>
-                                    Date Range (Sample points)
-                                </v-subheader>
-                            </v-col>
-
-                            <v-col cols="3">
-                                <v-slider
-                                        v-model="date_range.val"
-                                        max="45"
-                                        min="2"
-                                        :loading="loading"
-                                        :color="date_range.color"
-                                        :label="`${date_range.val}`"
-                                        @end="set_date_range(date_range.val)"
-                                ></v-slider>
-                            </v-col>
-                        </v-row>
-                    </v-container>
-                </template>
+                                    <template v-slot:activator="{ on, attrs }">
+                                        <v-text-field
+                                            :value="storageUsageHistoryDateRangeText"
+                                            label="Select date range"
+                                            prepend-icon="mdi-calendar"
+                                            v-bind="attrs"
+                                            v-on="on"
+                                        ></v-text-field>
+                                    </template>
+                                    <v-date-picker
+                                        v-model="storageUsageHistoryDateRange"
+                                        no-title
+                                        scrollable
+                                        range
+                                        @change="onChangeStorageUsageHistoryDateRange"
+                                    >
+                                    </v-date-picker>
+                                </v-menu>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="competitions-info" class="storage-block-info">
+                    <h3>Competitions info</h3>
+                    <div class="section-data">
+                        <v-data-table
+                            :headers="storageCompetitionTableHeaders"
+                            :items="storageCompetitionTableData"
+                            :items-per-page="10"
+                            :loading="loading"
+                            :sort-by.sync="storageCompetitionTableSortBy"
+                            :sort-desc.sync="storageCompetitionTableSortDesc"
+                            loading-text="Loading..."
+                            class="elevation-1"
+                        >
+                            <template v-slot:item.bundle="{ item }">
+                                {{ item.bundle | prettyByte }}
+                            </template>
+                            <template v-slot:item.datasets="{ item }">
+                                {{ item.datasets | prettyByte }}
+                            </template>
+                            <template v-slot:item.submissions="{ item }">
+                                {{ item.submissions | prettyByte }}
+                            </template>
+                            <template v-slot:item.dumps="{ item }">
+                                {{ item.dumps | prettyByte }}
+                            </template>
+                            <template v-slot:item.total="{ item }">
+                                {{ item.total | prettyByte }}
+                            </template>
+                        </v-data-table>
+                    </div>
+                </div>
+                <div id="competition-distribution" class="storage-block-info">
+                    <h3>Competition distribution</h3>
+                    <div class="section-data">
+                        <v-skeleton-loader v-if="loading" type="card"></v-skeleton-loader>
+                        <div v-show="!loading" style="display: flex; flex-direction: row; margin-top: 50px">
+                            <div style="display: flex; width: 70%">
+                                <canvas id="storage-competition-pie-chart" style="max-height: 350px"></canvas>
+                            </div>
+                            <div style="display: flex; width: 30%; padding-left: 30px">
+                                <canvas id="storage-competition-detail-pie-chart" style="max-height: 350px"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="users-info" class="storage-block-info">
+                    <h3>Users info</h3>
+                    <div class="section-data">
+                        <v-data-table
+                            :headers="storageUserTableHeaders"
+                            :items="storageUserTableData"
+                            :items-per-page="10"
+                            :loading="loading"
+                            :sort-by.sync="storageUserTableSortBy"
+                            :sort-desc.sync="storageUserTableSortDesc"
+                            loading-text="Loading..."
+                            class="elevation-1"
+                        >
+                            <template v-slot:item.competitions="{ item }">
+                                {{ item.competitions | prettyByte }}
+                            </template>
+                            <template v-slot:item.datasets="{ item }">
+                                {{ item.datasets | prettyByte }}
+                            </template>
+                            <template v-slot:item.submissions="{ item }">
+                                {{ item.submissions | prettyByte }}
+                            </template>
+                            <template v-slot:item.total="{ item }">
+                                {{ item.total | prettyByte }}
+                            </template>
+                        </v-data-table>
+                    </div>
+                </div>
+                <div id="user-distribution" class="storage-block-info">
+                    <h3>User distribution</h3>
+                    <div class="section-data">
+                        <v-skeleton-loader v-if="loading" type="card"></v-skeleton-loader>
+                        <div v-show="!loading" style="display: flex; flex-direction: row; margin-top: 50px">
+                            <div style="display: flex; width: 70%">
+                                <canvas id="storage-user-pie-chart" style="max-height: 350px"></canvas>
+                            </div>
+                            <div style="display: flex; width: 30%; padding-left: 30px">
+                                <canvas id="storage-user-detail-pie-chart" style="max-height: 350px"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </v-app>
-        </div>
-        <h4>Competition Storage Analytics</h4>
-        <div id="storage-competitions-app">
-            <v-data-table
-                    :headers="headers"
-                    :items="comp_list"
-                    :items-per-page="50"
-                    :footer-props="footer_properties"
-                    :loading="loading"
-                    multi-sort
-            >
-            </v-data-table>
-        </div>
-        <h4>User Storage Analytics</h4>
-        <i>Note: User competition usage will include all above analytics for competitions. (Including user's own
-            submissions). Dataset usage represents those not tied to a competition, and Submission usage represent those
-            not in the user's own competition.</i>
-        <div id="storage-users-app">
-            <v-data-table
-                    :headers="headers"
-                    :items="user_list"
-                    :items-per-page="25"
-                    :footer-props="footer_properties"
-                    :loading="loading"
-                    multi-sort
-            >
-            </v-data-table>
         </div>
     {% endverbatim %}
 {% endblock %}
@@ -158,190 +165,669 @@
 {% block extra_scripts %}
     <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vuetify/2.3.0-beta.6/vuetify.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.3/moment.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@^3"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@^1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pretty-bytes@^1"></script>
+    
     <script>
         $(document).ready(function () {
             new Vue({
-                el: '#storage-total-app',
-                vuetify: new Vuetify(),
-                data: function () {
-                    return {
-                        storage_analytics_data: {
-                            total_bytes: 'Loading!',
-                            total_megabytes: 'Loading!',
-                            total_kilobytes: 'Loading!',
-                            total_gigabytes: 'Loading!'
-                        }
-                    }
-                },
-                computed: {},
-                mounted: function () {
-                    this.get_storage_analytics()
-                },
-                methods: {
-                    async get_storage_analytics()
-            {
-                try {
-                    this.storage_analytics_data = await $.get(`/api/storage/get_total_analytics`)
-                } catch (e) {
-                    console.log(e)
-                    console.log(e.response)
-                }
-            }
-        ,
-        }
-        })
-            new Vue({
-                el: '#storage-competitions-app',
-                vuetify: new Vuetify(),
-                data: function () {
-                    return {
-                        loading: true,
-                        comp_list: [],
-                        headers: [
-                            {text: 'ID', value: 'id'},
-                            {text: 'Title', value: 'title'},
-                            {text: 'Creator', value: 'creator'},
-                            {text: 'Is Active', value: 'is_active'},
-                            {text: 'Dataset Usage (bytes)', value: 'datasets'},
-                            {text: 'Submission Usage (bytes)', value: 'submissions'},
-                            {text: 'Bundle Usage (bytes)', value: 'bundle'},
-                            {text: 'Dumps Usage (bytes)', value: 'dumps'},
-                            {text: 'Total Usage (bytes)', value: 'total'},
-                        ],
-                        footer_properties: {
-                            'items-per-page-options': [25, 50, 100, -1],
+                el: '#storage-app',
+                vuetify: new Vuetify({
+                    theme: {
+                      themes: {
+                        light: {
+                          primary: '#4b7695',
+                          secondary: '#b0bec5',
+                          accent: '#8c9eff',
+                          error: '#b71c1c',
                         },
-                    }
-                },
-                computed: {},
-                mounted: function () {
-                    this.get_comp_storage_analytics()
-                },
-                methods: {
-                    async get_comp_storage_analytics()
-            {
-                try {
-                    this.comp_list = await $.get(`/api/storage/get_competition_analytics`)
-                    this.loading = false
-                } catch (e) {
-                    console.log(e)
-                    console.log(e.response)
-                    this.loading = false
-                }
-            }
-        ,
-        }
-        })
-            new Vue({
-                el: '#storage-users-app',
-                vuetify: new Vuetify(),
+                      },
+                    },
+                  }),
                 data: function () {
                     return {
                         loading: true,
-                        user_list: [],
-                        headers: [
-                            {text: 'ID', value: 'id'},
-                            {text: 'Username', value: 'username'},
-                            {text: 'Email', value: 'email'},
-                            {text: 'Competitions Usage (bytes)', value: 'competitions_total'},
-                            {text: 'Dataset Usage (bytes)', value: 'datasets_total'},
-                            {text: 'Submission Usage (bytes)', value: 'submissions_total'},
-                            {text: 'Total Usage (bytes)', value: 'total'},
-                        ],
-                        footer_properties: {
-                            'items-per-page-options': [25, 50, 100, -1],
+                        snapshotDate: null,
+                        storageBucketName: "",
+                        storageTotalUsage: 0,
+                        overviewLineChart: null,
+                        defaultOverviewLineChartConfig: {
+                            type: 'line',
+                            data: {
+                                datasets: [
+                                    {
+                                        label: 'Storage usage history',
+                                        backgroundColor: 'rgb(255, 99, 132)',
+                                        radius: 0,
+                                        borderColor: 'rgb(255, 99, 132)',
+                                        borderWidth: 1,
+                                        data: [],
+                                    }
+                                ]
+                            },
+                            options: {
+                                responsive: true,
+                                interaction: {
+                                    mode: 'nearest',
+                                    axis: 'x',
+                                    intersect: false
+                                },
+                                scales: {
+                                    x: {
+                                        type: 'time',
+                                        ticks: {
+                                            source: 'auto',
+                                        }
+                                    }
+                                }
+                            }
                         },
-                    }
-                },
-                computed: {},
-                mounted: function () {
-                    this.get_user_storage_analytics()
-                },
-                methods: {
-                    async get_user_storage_analytics()
-            {
-                try {
-                    this.user_list = await
-                    $.get(`/api/storage/get_user_analytics`)
-                    this.loading = false
-                } catch (e) {
-                    console.log(e)
-                    console.log(e.response)
-                    this.loading = false
-                }
-            }
-        ,
-        }
-        })
-            new Vue({
-                el: '#storage-timeline-app',
-                vuetify: new Vuetify(),
-                data: function () {
-                    return {
-                        loading: true,
-                        unit: 'years',
-                        sample_points: 5,
-                        data_list: [],
-                        storage_totals: [],
-                        storage_labels: [],
-                        // Sparkline
-                        width: 2,
-                        radius: 10,
-                        padding: 8,
-                        lineCap: 'round',
-                        fill: false,
-                        type: 'trend',
-                        autoLineWidth: false,
-                        // Inputs
-                        select: {unit: 'Years', value: 'years'},
-                        unit_selections: [
-                            {unit: 'Hours', value: 'hours'},
-                            {unit: 'Days', value: 'days'},
-                            {unit: 'Weeks', value: 'weeks'},
-                            {unit: 'Months', value: 'months'},
-                            {unit: 'Years', value: 'years'},
+                        storageUsageHistoryDateRange: [moment().subtract(1, 'months').format("YYYY-MM-DD"), moment().format("YYYY-MM-DD")],
+                        storageUsageHistoryMenu: false,
+                        storageCompetitionTableHeaders: [
+                            {text: 'id', value: 'id'},
+                            {text: 'title', value: 'title'},
+                            {text: 'creator', value: 'creator'},
+                            {text: 'is active', value: 'is_active'},
+                            {text: 'bundle', value: 'bundle'},
+                            {text: 'datasets', value: 'datasets'},
+                            {text: 'submissions', value: 'submissions'},
+                            {text: 'dumps', value: 'dumps'},
+                            {text: 'total', value: 'total'}
                         ],
-                        date_range: { label: 'Date Range', val: 5, color: 'orange darken-3' },
+                        storageCompetitionTableData: [],
+                        storageCompetitionTableSortBy: 'total',
+                        storageCompetitionTableSortDesc: true,
+                        competitionPieChart: null,
+                        defaultCompetitionPieChartConfig: {
+                            type: 'pie',
+                            data: {
+                                labels: [],
+                                datasets: [
+                                    {
+                                        label: 'Competition distribution',
+                                        backgroundColor: [],
+                                        hoverOffset: 4,
+                                        data: []
+                                    }
+                                ]
+                            },
+                            options: {
+                                responsive: true,
+                                plugins: {
+                                    legend: {
+                                        position: 'left',
+                                    },
+                                    title: {
+                                        display: true,
+                                        text: 'Competition distribution'
+                                    }
+                                }
+                            }
+                        },
+                        competitionDetailPieChart: null,
+                        defaultCompetitionDetailPieChartConfig: {
+                            type: 'pie',
+                            data: {
+                                labels: [],
+                                datasets: [
+                                    {
+                                        label: 'Competition details',
+                                        backgroundColor: [],
+                                        hoverOffset: 4,
+                                        data: []
+                                    }
+                                ]
+                            },
+                            options: {
+                                responsive: true,
+                                plugins: {
+                                    legend: {
+                                        position: 'top',
+                                    },
+                                    title: {
+                                        display: true,
+                                        text: 'Competition details'
+                                    }
+                                }
+                            }
+                        },
+                        selectedCompetitionId: null,
+                        storageUserTableHeaders: [
+                            {text: 'id', value: 'id'},
+                            {text: 'email', value: 'email'},
+                            {text: 'username', value: 'username'},
+                            {text: 'competitions', value: 'competitions'},
+                            {text: 'datasets', value: 'datasets'},
+                            {text: 'submissions', value: 'submissions'},
+                            {text: 'total', value: 'total'}
+                        ],
+                        storageUserTableData: [],
+                        storageUserTableSortBy: 'total',
+                        storageUserTableSortDesc: true,
+                        userPieChart: null,
+                        defaultUserPieChartConfig: {
+                            type: 'pie',
+                            data: {
+                                labels: [],
+                                datasets: [
+                                    {
+                                        label: 'User distribution',
+                                        backgroundColor: [],
+                                        hoverOffset: 4,
+                                        data: []
+                                    }
+                                ]
+                            },
+                            options: {
+                                responsive: true,
+                                plugins: {
+                                    legend: {
+                                        position: 'left',
+                                    },
+                                    title: {
+                                        display: true,
+                                        text: 'User distribution'
+                                    }
+                                }
+                            }
+                        },
+                        userDetailPieChart: null,
+                        defaultUserDetailPieChartConfig: {
+                            type: 'pie',
+                            data: {
+                                labels: [],
+                                datasets: [
+                                    {
+                                        label: 'User details',
+                                        backgroundColor: [],
+                                        hoverOffset: 4,
+                                        data: []
+                                    }
+                                ]
+                            },
+                            options: {
+                                responsive: true,
+                                plugins: {
+                                    legend: {
+                                        position: 'top',
+                                    },
+                                    title: {
+                                        display: true,
+                                        text: 'User details'
+                                    }
+                                }
+                            }
+                        },
+                        selectedUserId: null,
                     }
                 },
-                computed: {},
                 mounted: function () {
-                    this.get_storage_timeline_analytics()
+                    this.createOverviewLineChart();
+                    this.createCompetitionPieChart();
+                    this.createCompetitionDetailPieChart();
+                    this.createUserPieChart();
+                    this.createUserDetailPieChart();
+                    this.getStorageAnalytics();
+                    this.getStorageUsageHistory();
                 },
                 methods: {
-                    async get_storage_timeline_analytics() {
-                        try {
-                            this.data_list = await $.get(`/api/storage/get_analytics_overtime?unit=${this.unit}&sample_points=${this.sample_points}`)
-                            var storage_totals = []
-                            var storage_labels = []
-                            $.each(this.data_list, function (index, data_point) {
-                                // Should have a dict/obj here
-                                $.each(data_point, function (date, total) {
-                                    storage_totals.push(total)
-                                    storage_labels.push(date)
-                                });
-                            });
-                            this.storage_totals = storage_totals
-                            this.storage_labels = storage_labels
-                            this.loading = false
-                        } catch (e) {
-                            console.log(e)
-                            console.log(e.response)
-                            this.loading = false
+                    getStorageAnalytics() {
+                        fetch("/api/storage/analytics")
+                        .then(response => {
+                            if(response.ok) {
+                                return response.json();
+                            }
+                            throw new Error('Something went wrong');
+                        })
+                        .then(json => {
+                            this.snapshotDate = json.created_at;
+                            this.storageBucketName = json.bucket;
+                            this.storageTotalUsage = json.total_usage;
+                            this.updateCompetitionTableData(json.competitions_details);
+                            this.updateUserTableData(json.users_details);
+                            this.updateCompetitionPieChartData(json.competitions_details);
+                            if (json.competitions_details.length > 0) {
+                                const heaviestCompetition = json.competitions_details.reduce((prev, cur) => (prev.total > cur.total) ? prev : cur);
+                                this.updateCompetitionDetailPieChartData(heaviestCompetition);
+                            }
+                            this.updateUserPieChartData(json.users_details);
+                            if (json.users_details.length > 0) {
+                                const heaviestUser = json.users_details.reduce((prev, cur) => (prev.total > cur.total) ? prev : cur);
+                                this.updateUserDetailPieChartData(heaviestUser);
+                            }
+                        })
+                        .catch(error => {
+                            console.log("error while fetching /api/storage/analytics", error);
+                        })
+                        .finally(() => {
+                            this.loading = false;
+                        });
+                    },
+                    getStorageUsageHistory() {
+                        fetch("/api/storage/usage-history?" + new URLSearchParams({
+                            from: this.storageUsageHistoryDateRange[0],
+                            to: this.storageUsageHistoryDateRange[1],
+                        }))
+                        .then(response => {
+                            if(response.ok) {
+                                return response.json();
+                            }
+                            throw new Error('Something went wrong');
+                        })
+                        .then(json => {
+                            this.updateOverviewLineChartData(json);
+                        })
+                        .catch(error => {
+                            console.log("error while fetching /api/storage/usage-history", error);
+                        });
+                    },
+                    createOverviewLineChart() {
+                        this.overviewLineChart = new Chart(
+                            document.getElementById('storage-overview-line-chart').getContext('2d'),
+                            this.defaultOverviewLineChartConfig
+                        );
+                        this.overviewLineChart.options.scales.y.ticks.callback = (value, index, ticks) => {
+                            return prettyBytes(value);
+                        };
+                        this.overviewLineChart.options. plugins = {
+                            tooltip: {
+                                callbacks: {
+                                    label: (ctx) => {
+                                        return prettyBytes(ctx.parsed.y);
+                                    }
+                                }
+                            }
+                        }
+                        this.overviewLineChart.update();
+                    },
+                    createCompetitionPieChart() {
+                        this.competitionPieChart = new Chart(
+                            document.getElementById('storage-competition-pie-chart').getContext('2d'),
+                            this.defaultCompetitionPieChartConfig
+                        );
+                        this.competitionPieChart.options.plugins = {
+                            tooltip: {
+                                callbacks: {
+                                    label: (ctx) => {
+                                        const label = ctx.dataset.labels[ctx.dataIndex];
+                                        const value = prettyBytes(ctx.parsed);
+                                        return " " + label + ": " + value;
+                                    }
+                                }
+                            },
+                            legend: {
+                                labels: {
+                                    generateLabels: (info) => {
+                                        var legend = [];
+                                        for (dataset of this.competitionPieChart.data.datasets) {
+                                            if (dataset.labels) {
+                                                for (var i=0; i<dataset.labels.length; ++i) {
+                                                    legend.push(
+                                                    {
+                                                        text: dataset.labels[i],
+                                                        fillStyle: dataset.backgroundColor[i],
+                                                        strokeStyle: '#fff',
+                                                    });
+                                                }
+                                            }
+                                        }
+                                        return legend;
+                                    }
+                                },
+                                position: 'left',
+                                align: 'start'
+                            }
+                        }
+                        this.competitionPieChart.options.onClick = this.onCompetitionPieChartClick;
+                        this.competitionPieChart.options.onHover = this.onCompetitionPieChartHover;
+                        this.competitionPieChart.update();
+                    },
+                    createCompetitionDetailPieChart() {
+                        this.competitionDetailPieChart = new Chart(
+                            document.getElementById('storage-competition-detail-pie-chart').getContext('2d'),
+                            this.defaultCompetitionDetailPieChartConfig
+                        );
+                        this.competitionDetailPieChart.options.plugins = {
+                            tooltip: {
+                                callbacks: {
+                                    label: (ctx) => {
+                                        const label = ctx.dataset.labels[ctx.dataIndex];
+                                        const value = prettyBytes(ctx.parsed);
+                                        return " " + label + ": " + value;
+                                    }
+                                }
+                            },
+                            legend: {
+                                labels: {
+                                    generateLabels: (info) => {
+                                        var legend = [];
+                                        for (dataset of this.competitionDetailPieChart.data.datasets) {
+                                            if (dataset.labels) {
+                                                for (var i=0; i<dataset.labels.length; ++i) {
+                                                    legend.push(
+                                                    {
+                                                        text: dataset.labels[i],
+                                                        fillStyle: dataset.backgroundColor[i],
+                                                        strokeStyle: '#fff',
+                                                    });
+                                                }
+                                            }
+                                        }
+                                        return legend;
+                                    }
+                                },
+                                position: 'top',
+                                align: 'center'
+                            }
+                        }
+                        this.competitionDetailPieChart.update();
+                    },
+                    createUserPieChart() {
+                        this.userPieChart = new Chart(
+                            document.getElementById('storage-user-pie-chart').getContext('2d'),
+                            this.defaultUserPieChartConfig
+                        );
+                        this.userPieChart.options.plugins = {
+                            tooltip: {
+                                callbacks: {
+                                    label: (ctx) => {
+                                        const label = ctx.dataset.labels[ctx.dataIndex];
+                                        const value = prettyBytes(ctx.parsed);
+                                        return " " + label + ": " + value;
+                                    }
+                                }
+                            },
+                            legend: {
+                                labels: {
+                                    generateLabels: (info) => {
+                                        var legend = [];
+                                        for (dataset of this.userPieChart.data.datasets) {
+                                            if (dataset.labels) {
+                                                for (var i=0; i<dataset.labels.length; ++i) {
+                                                    legend.push(
+                                                    {
+                                                        text: dataset.labels[i],
+                                                        fillStyle: dataset.backgroundColor[i],
+                                                        strokeStyle: '#fff',
+                                                    });
+                                                }
+                                            }
+                                        }
+                                        return legend;
+                                    }
+                                },
+                                position: 'left',
+                                align: 'start'
+                            }
+                        }
+                        this.userPieChart.options.onClick = this.onUserPieChartClick;
+                        this.userPieChart.options.onHover = this.onUserPieChartHover;
+                        this.userPieChart.update();
+                    },
+                    createUserDetailPieChart() {
+                        this.userDetailPieChart = new Chart(
+                            document.getElementById('storage-user-detail-pie-chart').getContext('2d'),
+                            this.defaultUserDetailPieChartConfig
+                        );
+                        this.userDetailPieChart.options.plugins = {
+                            tooltip: {
+                                callbacks: {
+                                    label: (ctx) => {
+                                        const label = ctx.dataset.labels[ctx.dataIndex];
+                                        const value = prettyBytes(ctx.parsed);
+                                        return " " + label + ": " + value;
+                                    }
+                                }
+                            },
+                            legend: {
+                                labels: {
+                                    generateLabels: (info) => {
+                                        var legend = [];
+                                        for (dataset of this.userDetailPieChart.data.datasets) {
+                                            if (dataset.labels) {
+                                                for (var i=0; i<dataset.labels.length; ++i) {
+                                                    legend.push(
+                                                    {
+                                                        text: dataset.labels[i],
+                                                        fillStyle: dataset.backgroundColor[i],
+                                                        strokeStyle: '#fff',
+                                                    });
+                                                }
+                                            }
+                                        }
+                                        return legend;
+                                    }
+                                },
+                                position: 'top',
+                                align: 'center'
+                            }
+                        }
+                        this.userDetailPieChart.update();
+                    },
+                    updateOverviewLineChartData(newData) {
+                        var newDataAsArray = [];
+                        for (let [date, usage] of Object.entries(newData)) {
+                            newDataAsArray.push({'x': date, 'y': usage});
+                        }
+                        newDataAsArray.sort((a, b) => moment(a.x).isAfter(b.x));
+                        this.overviewLineChart.data.datasets[0].data = newDataAsArray;
+                        this.overviewLineChart.update();
+                    },
+                    updateCompetitionTableData(newData) {
+                        this.storageCompetitionTableData = newData;
+                    },
+                    updateUserTableData(newData) {
+                        this.storageUserTableData = newData;
+                    },
+                    updateCompetitionPieChartData(newData) {
+                        const {labels, data} = this.formatDataForPieChart(newData);
+                        this.competitionPieChart.data.datasets[0].data = data;
+                        this.competitionPieChart.data.labels = labels;
+                        this.competitionPieChart.data.datasets[0].labels = labels;
+                        this.competitionPieChart.data.datasets[0].backgroundColor = this.listOfColors(data.length);
+                        this.competitionPieChart.update();
+                    },
+                    updateCompetitionDetailPieChartData(competition_data) {
+                        const data = [
+                            competition_data.bundle,
+                            competition_data.datasets,
+                            competition_data.dumps,
+                            competition_data.submissions,
+                        ];
+                        const labels = [
+                            "bundle",
+                            "dataset",
+                            "dumps",
+                            "submission"
+                        ];
+                        this.competitionDetailPieChart.data.datasets[0].data = data;
+                        this.competitionDetailPieChart.data.datasets[0].labels = labels;
+                        this.competitionDetailPieChart.data.datasets[0].backgroundColor = ["#F4BB44", "#662D91", "#7B5231", "#EE73C4"];
+                        this.competitionDetailPieChart.options.plugins.title = {display: true, text: competition_data.title};
+                        this.selectedCompetitionId = competition_data.id;
+                        this.competitionDetailPieChart.update();
+                    },
+                    formatDataForPieChart(data) {
+                        var labels = [];
+                        var formattedData = [];
+
+                        // Sort the array by size
+                        data.sort((a, b) => a.total < b.total);
+
+                        // Only display the 10 biggest competitions
+                        for (const competition of data.slice(0, 10)) {
+                            labels.push(competition.title);
+                            formattedData.push(competition.total);
+                        }
+
+                        // And display one last element for all remaining competitions
+                        const otherCompetitionsTotalSize = data.slice(10).reduce((acc, cur) => acc + cur.total, 0);
+                        if (otherCompetitionsTotalSize) {
+                            labels.push("others");
+                            formattedData.push(otherCompetitionsTotalSize);
+                        }
+
+                        return {labels: labels, data: formattedData};
+                    },
+                    onCompetitionPieChartClick(event, activeElements) {
+                        // No details on the 'others'
+                        if (activeElements.length > 0 && activeElements[0].index < 10) {
+                            const competition_data = this.storageCompetitionTableData[activeElements[0].index];
+                            if (this.selectedCompetitionId != competition_data.id) {
+                                const data = [
+                                    competition_data.bundle,
+                                    competition_data.datasets,
+                                    competition_data.dumps,
+                                    competition_data.submissions,
+                                ];
+                                const labels = [
+                                    "bundle",
+                                    "dataset",
+                                    "dumps",
+                                    "submission"
+                                ];
+                                this.competitionDetailPieChart.data.datasets[0].data = data;
+                                this.competitionDetailPieChart.data.datasets[0].labels = labels;
+                                this.competitionDetailPieChart.data.datasets[0].backgroundColor = ["#F4BB44", "#662D91", "#7B5231", "#EE73C4"];
+                                this.competitionDetailPieChart.options.plugins.title = {display: true, text: competition_data.title};
+                                this.selectedCompetitionId = competition_data.id;
+                                this.competitionDetailPieChart.update();
+                            }
                         }
                     },
-                    set_date_range(value) {
-                        this.loading = true
-                        this.sample_points = value
-                        this.get_storage_timeline_analytics()
+                    onCompetitionPieChartHover(event, activeElements) {
+                        const target = event.native ? event.native.target : event.target;
+                        if (activeElements.length > 0 && activeElements[0].datasetIndex == 0) {
+                            target.style.cursor = 'pointer';
+                        } else {
+                            target.style.cursor = 'default';
+                        }
                     },
-                    set_unit(value) {
-                        this.loading = true
-                        this.unit = value
-                        this.get_storage_timeline_analytics()
+                    formatDataForUserPieChart(data) {
+                        var labels = [];
+                        var formattedData = [];
+
+                        // Sort the array by size
+                        data.sort((a, b) => a.total < b.total);
+
+                        // Only display the 10 biggest users
+                        for (const user of data.slice(0, 10)) {
+                            labels.push(user.username);
+                            formattedData.push(user.total);
+                        }
+
+                        // And display one last element for all remaining users
+                        const otherUsersTotalSize = data.slice(10).reduce((acc, cur) => acc + cur.total, 0);
+                        if (otherUsersTotalSize) {
+                            labels.push("others");
+                            formattedData.push(otherUsersTotalSize);
+                        }
+
+                        return {labels: labels, data: formattedData};
                     },
+                    updateUserPieChartData(newData) {
+                        const {labels, data} = this.formatDataForUserPieChart(newData);
+                        this.userPieChart.data.datasets[0].data = data;
+                        this.userPieChart.data.labels = labels;
+                        this.userPieChart.data.datasets[0].labels = labels;
+                        this.userPieChart.data.datasets[0].backgroundColor = this.listOfColors(data.length);
+                        this.userPieChart.update();
+                    },
+                    updateUserDetailPieChartData(user_data) {
+                        const data = [
+                            user_data.competitions,
+                            user_data.datasets,
+                            user_data.submissions,
+                        ];
+                        const labels = [
+                            "competitions",
+                            "dataset",
+                            "submission"
+                        ];
+                        this.userDetailPieChart.data.datasets[0].data = data;
+                        this.userDetailPieChart.data.datasets[0].labels = labels;
+                        this.userDetailPieChart.data.datasets[0].backgroundColor = ["#F4BB44", "#662D91", "#EE73C4"];
+                        this.userDetailPieChart.options.plugins.title = {display: true, text: user_data.username};
+                        this.selectedUserId = user_data.id;
+                        this.userDetailPieChart.update();
+                    },
+                    onUserPieChartClick(event, activeElements) {
+                        // No details on the 'others'
+                        if (activeElements.length > 0 && activeElements[0].index < 10) {
+                            const user_data = this.storageUserTableData[activeElements[0].index];
+                            if (this.selectedUserId != user_data.id) {
+                                const data = [
+                                    user_data.competitions,
+                                    user_data.datasets,
+                                    user_data.submissions,
+                                ];
+                                const labels = [
+                                    "competitions",
+                                    "dataset",
+                                    "submission"
+                                ];
+                                this.userDetailPieChart.data.datasets[0].data = data;
+                                this.userDetailPieChart.data.datasets[0].labels = labels;
+                                this.userDetailPieChart.data.datasets[0].backgroundColor = ["#F4BB44", "#662D91", "#EE73C4"];
+                                this.userDetailPieChart.options.plugins.title = {display: true, text: user_data.username};
+                                this.selectedUserId = user_data.id;
+                                this.userDetailPieChart.update();
+                            }
+                        }
+                    },
+                    onUserPieChartHover(event, activeElements) {
+                        const target = event.native ? event.native.target : event.target;
+                        if (activeElements.length > 0 && activeElements[0].datasetIndex == 0) {
+                            target.style.cursor = 'pointer';
+                        } else {
+                            target.style.cursor = 'default';
+                        }
+                    },
+                    listOfColors(arrayLength) {
+                        const COLORS = [
+                            '#BF1E2E',
+                            '#EF4136',
+                            '#F15A2B',
+                            '#2A3890',
+                            '#28AAE1',
+                            '#77B3E1',
+                            '#B5D4EF',
+                            '#8DC73F',
+                            '#D7E022',
+                            '#F9ED32',
+                            '#E2B37D'
+                        ];
+                        return Array.apply(null, Array(arrayLength)).map(function (x, i) { return COLORS[i%COLORS.length]; })
+                    },
+                    onChangeStorageUsageHistoryDateRange(newDateRange) {
+                        this.getStorageUsageHistory();
+                        this.storageUsageHistoryMenu = false;
+                    }
+                },
+                computed: {
+                    storageUsageHistoryDateRangeText() {
+                        return this.storageUsageHistoryDateRange.join(' ~ ');
+                    }
+                },
+                filters: {
+                    prettyDate: function(date) {
+                        return moment(date).calendar(null, {
+                            sameDay: '[Today at] h:mm a',
+                            nextDay: '[Tomorrow at] h:mm a',
+                            nextWeek: 'dddd [at] h:mm a',
+                            lastDay: '[Yesterday at] h:mm a',
+                            lastWeek: '[Last] dddd [at] h:mm a',
+                            sameElse: 'dddd, MMMM Do YYYY [at] h:mm a'
+                        });
+                    },
+                    prettyByte: function(bytes) {
+                        return prettyBytes(bytes);
+                    }
                 }
-            })
+            });
         })
     </script>
 {% endblock %}

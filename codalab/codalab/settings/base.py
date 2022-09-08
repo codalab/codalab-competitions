@@ -1,17 +1,17 @@
 import uuid
 
+from celery.schedules import crontab
 from datetime import timedelta
 from distutils.util import strtobool
 
 from configurations import importer
-import importlib
 
 if not importer.installed:
     importer.install()
 
 from configurations import Configuration
 import os, sys
-from os.path import abspath, basename, dirname, join, normpath
+from os.path import abspath, basename, dirname, join
 
 
 def _uuidpathext(filename, prefix):
@@ -477,10 +477,10 @@ class Base(Configuration):
             'task': 'apps.newsletter.tasks.retry_mailing_list',
             'schedule': timedelta(seconds=(60 * 60))
         },
-        'create_storage_statistic_datapoint': {
-            'task': 'apps.web.tasks.create_storage_statistic_datapoint',
-            'schedule': timedelta(seconds=60 * 60 * 24)
-        }
+        'create_storage_analytics_snapshot': {
+            'task': 'apps.web.tasks.create_storage_analytics_snapshot',
+            'schedule': crontab(hour=2, minute=0, day_of_week='sun') # Every Sunday at 02:00
+        },
     }
     CELERY_TIMEZONE = 'UTC'
 
