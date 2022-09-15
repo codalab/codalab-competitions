@@ -8,18 +8,36 @@ class HealthSettings(models.Model):
     congestion_threshold = models.PositiveIntegerField(default=100, null=True, blank=True)
 
 
-class StorageDataPoint(models.Model):
-    created = models.DateTimeField(auto_now_add=True)
+class CompetitionStorageDataPoint(models.Model):
+    competition_id = models.PositiveIntegerField(primary_key=True)
+    title = models.CharField(max_length=255)
+    creator = models.CharField(max_length=255)
+    is_active = models.BooleanField(default=False)
+    submissions = models.BigIntegerField(default=0)
+    datasets = models.BigIntegerField(default=0)
+    dumps = models.BigIntegerField(default=0)
+    bundle = models.BigIntegerField(default=0)
+    total = models.BigIntegerField(default=0)
+
+
+class StorageSnapshot(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
     bucket_name = models.CharField(max_length=255)
-    # As reported by the actual bucket contents
     total_use = models.BigIntegerField(default=0)
-    # Submissions, datsets, dumps, bundles etc being used by the competition
-    competition_use = models.BigIntegerField(default=0)
-    # Use exclusively from submissions (All files, not just the uploaded zip)
-    submission_use = models.BigIntegerField(default=0)
-    # Use exclusively from datasets
-    dataset_use = models.BigIntegerField(default=0)
-    # Use exclusively from Bundles
-    bundle_use = models.BigIntegerField(default=0)
-    # Use exclusively from dumps
-    dumps_use = models.BigIntegerField(default=0)
+
+
+class StorageUsageHistory(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    bucket_name = models.CharField(max_length=255)
+    at_date = models.DateTimeField()
+    usage = models.BigIntegerField(default=0)
+
+
+class UserStorageDataPoint(models.Model):
+    user_id = models.PositiveIntegerField(primary_key=True)
+    email = models.CharField(max_length=255)
+    username = models.CharField(max_length=255)
+    competitions_total = models.BigIntegerField(default=0)
+    datasets_total = models.BigIntegerField(default=0)
+    submissions_total = models.BigIntegerField(default=0)
+    total = models.BigIntegerField(default=0)

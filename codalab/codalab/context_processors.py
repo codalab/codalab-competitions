@@ -18,8 +18,8 @@ def common_settings(request):
         'compile_less': codalab_settings.COMPILE_LESS,
         'local_mathjax': codalab_settings.LOCAL_MATHJAX,
         'local_ace_editor': codalab_settings.LOCAL_ACE_EDITOR,
-        'is_dev': codalab_settings.IS_DEV,
         'USE_AWS': codalab_settings.USE_AWS,
         'CODALAB_SITE_DOMAIN': codalab_settings.CODALAB_SITE_DOMAIN,
         'USE_MAILCHIMP': bool(settings.MAILCHIMP_API_KEY),
+        'GOOGLE_ANALYTICS': codalab_settings.GOOGLE_ANALYTICS,
     }

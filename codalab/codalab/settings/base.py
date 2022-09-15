@@ -1,17 +1,17 @@
 import uuid
 
+from celery.schedules import crontab
 from datetime import timedelta
 from distutils.util import strtobool
 
 from configurations import importer
-import importlib
 
 if not importer.installed:
     importer.install()
 
 from configurations import Configuration
 import os, sys
-from os.path import abspath, basename, dirname, join, normpath
+from os.path import abspath, basename, dirname, join
 
 
 def _uuidpathext(filename, prefix):
@@ -32,7 +32,6 @@ class Base(Configuration):
     COMPILE_LESS = True  # is the less -> css already done or would you like less.js to compile it on render
     LOCAL_MATHJAX = False  # see prep_for_offline
     LOCAL_ACE_EDITOR = False  # see prep_for_offline
-    IS_DEV = os.environ.get('IS_DEV', False)
 
     if 'CONFIG_SERVER_NAME' in os.environ:
         SERVER_NAME = os.environ.get('CONFIG_SERVER_NAME')
@@ -273,8 +272,8 @@ class Base(Configuration):
     ACCOUNT_SIGNUP_FORM_CLASS = 'apps.authenz.forms.CodalabSignupForm'
     ACCOUNT_LOGOUT_ON_GET = True
 
-    # Django Analytical configuration
-    # GOOGLE_ANALYTICS_PROPERTY_ID = 'UA-42847758-2'
+    # Privacy (leave empty to not track visitors with Google)
+    GOOGLE_ANALYTICS = os.environ.get('GOOGLE_ANALYTICS', '')
 
     # Compress Configuration
     COMPRESS_PRECOMPILERS = [
@@ -477,10 +476,10 @@ class Base(Configuration):
             'task': 'apps.newsletter.tasks.retry_mailing_list',
             'schedule': timedelta(seconds=(60 * 60))
         },
-        'create_storage_statistic_datapoint': {
-            'task': 'apps.web.tasks.create_storage_statistic_datapoint',
-            'schedule': timedelta(seconds=60 * 60 * 24)
-        }
+        'create_storage_analytics_snapshot': {
+            'task': 'apps.web.tasks.create_storage_analytics_snapshot',
+            'schedule': crontab(hour=2, minute=0, day_of_week='sun') # Every Sunday at 02:00
+        },
     }
     CELERY_TIMEZONE = 'UTC'
 
