@@ -14,7 +14,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: codalab-{{ .Branch }}-{{ checksum "codalab/requirements/common.txt" }}
+          key: codalab-{{ .Branch }}-{{ checksum "codalab/requirements/requirements.txt" }}
       - run:
           name: CHOWN Python Library Dirs
           command: sudo chown -R $(whoami) /usr/local/
@@ -23,9 +23,9 @@ jobs:
           command: sudo apt-get update --allow-releaseinfo-change && sudo apt-get install libmemcached-dev --fix-missing
       - run:
           name: PIP Install Requirements
-          command: pip install -r codalab/requirements/common.txt
+          command: pip install -r codalab/requirements/requirements.txt
       - save_cache:
-          key: codalab-{{ .Branch }}-{{ checksum "codalab/requirements/common.txt" }}
+          key: codalab-{{ .Branch }}-{{ checksum "codalab/requirements/requirements.txt" }}
           paths:
             - "~/.cache/pip"
       - run:
