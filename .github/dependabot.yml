@@ -4,6 +4,6 @@
 version: 2
 updates:
   - package-ecosystem: "pip"
-    directory: "/"
+    directory: "/codalab/requirements"
     schedule:
       interval: "daily"
