@@ -14,7 +14,7 @@ django-debug-panel==0.8.1
 django-extensions==1.7.6
 # django-extra-views==0.6.3
 django-extra-views==0.11.0
-django-filter==1.1.0
+django-filter==22.1
 # django-guardian==1.4.9
 django-guardian==1.5.0
 django-haystack==2.8.1
