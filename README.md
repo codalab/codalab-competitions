@@ -59,14 +59,8 @@ http://www.opensource.org/licenses/apache2.0.php
 
 ```
 @article{codalab_competitions,
-    author = {Adrien Pavao and
-              Isabelle Guyon and 
-              Anne-Catherine Letournel and
-              Xavier Baró and
-              Hugo Escalante and
-              Sergio Escalera and
-              Tyler Thomas and
-              Zhen Xu},
+    author = {Adrien Pavao and Isabelle Guyon and Anne-Catherine Letournel and Xavier Baró and 
+              Hugo Escalante and Sergio Escalera and Tyler Thomas and Zhen Xu},
     title = {CodaLab Competitions: An open source platform to organize scientific challenges},
     url = {https://hal.inria.fr/hal-03629462v1},
     year = {2022},
