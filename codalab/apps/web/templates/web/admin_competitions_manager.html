@@ -46,6 +46,9 @@
                                 >
                                 </v-text-field>
                             </template>
+                            <template v-slot:item.title="{ item }">
+                                <a :href="`/competitions/${item.id}`"> {{ item.title }} </a>
+                            </template>
                             <template v-slot:item.start_date="{ item }">
                                 {{ item.start_date | prettyDate }}
                             </template>
