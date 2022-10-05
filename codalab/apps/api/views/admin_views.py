@@ -6,6 +6,7 @@ from rest_framework.response import Response
 import logging
 
 from django.db import transaction
+from django.conf import settings
 
 from apps.web.models import Competition, CompetitionPhase
 
@@ -121,3 +122,17 @@ class ApplyUpperBoundLimit(views.APIView):
             'max_submission_sizes': [phase.max_submission_size for phase in competition_updated_in_db.phases.all().order_by('start_date')]
         }
         return Response(competition_updated, status=status.HTTP_200_OK)
+
+
+@permission_classes((permissions.IsAuthenticated,))
+class GetDefaultUpperBoundLimit(views.APIView):
+    """
+    Gets the default upper bound max submission size
+    """
+    def get(self, request, *args, **kwargs):
+        if not self.request.user.is_staff:
+            raise PermissionDenied(detail="Admin only")
+
+        default_upper_bound_max_submission_size = settings.DEFAULT_UPPER_BOUND_MAX_SUBMISSION_SIZE_MB
+
+        return Response(default_upper_bound_max_submission_size, status=status.HTTP_200_OK)
