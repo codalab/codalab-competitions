@@ -19,6 +19,11 @@
             <v-app>
                 <v-main>
                     <div class="admin-competitions-manager-app-container">
+                        <div style="display: flex; flex-direction: row; justify-content: flex-end;">
+                            <v-btn icon href="https://github.com/codalab/codalab-competitions/wiki/Dev_Administrator-Procedures#edit-the-upper-bound-limit-of-the-max-submission-size-for-competitions">
+                                <v-icon @click="openWiki"> mdi-help-circle-outline </v-icon>
+                            </v-btn>
+                        </div>
                         <div style="display: flex; flex-direction: row; align-items: baseline">
                             <h3>Competitions</h3>
                             <v-spacer></v-spacer>
@@ -302,6 +307,9 @@
                         .finally(() => {
                             this.defaultUpperBoundLimitLoading = false;
                         });
+                    },
+                    openWiki() {
+                        console.log('ici');
                     }
                 },
                 filters: {
