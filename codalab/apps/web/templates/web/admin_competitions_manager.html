@@ -19,7 +19,20 @@
             <v-app>
                 <v-main>
                     <div class="admin-competitions-manager-app-container">
-                        <h3>Competitions</h3>
+                        <div style="display: flex; flex-direction: row; align-items: baseline">
+                            <h3>Competitions</h3>
+                            <v-spacer></v-spacer>
+                            <span v-if="defaultUpperBoundLimitLoading"
+                                style="color: rgba(0, 0, 0, 0.6); font-size: 12px; font-weight: bold;"
+                            >
+                                Default upper bound limit: -
+                            </span>
+                            <span v-else
+                                style="color: rgba(0, 0, 0, 0.6); font-size: 12px; font-weight: bold;"
+                            >
+                                Default upper bound limit: {{ defaultUpperBoundLimit * 1000 * 1000 | prettyByte }}
+                            </span>
+                        </div>
                         <v-data-table
                             v-model="competitionsTableSelected"
                             item-key="id"
@@ -132,6 +145,8 @@
                 }),
                 data: function () {
                     return {
+                        defaultUpperBoundLimit: 300,
+                        defaultUpperBoundLimitLoading: false,
                         competitionsTableSelected: [],
                         competitionsTableHeaders: [
                             {text: 'ID', value: 'id'},
@@ -155,6 +170,7 @@
                 },
                 mounted: function () {
                     this.getCompetitions();
+                    this.getDefaultUpperBoundLimit();
                 },
                 methods: {
                     getCompetitions() {
@@ -189,8 +205,6 @@
 
                         // Add them to already existing marked competitions
                         this.competitionsIdToUpdate = [...new Set([...this.competitionsIdToUpdate, ...newCompIdToUpdate])];
-
-                        console.log('this.competitionsIdToUpdate', this.competitionsIdToUpdate);
                     },
                     saveAll() {
                         var competitionsUpdated = [];
@@ -241,7 +255,6 @@
                         }
                     },
                     synchronize(competition) {
-                        console.log('synchronize', competition);
                         this.synchronizing = true;
                         fetch("/api/admin/competition/" + competition.id + "/apply_upper_bound_limit", {
                             method: 'PATCH',
@@ -265,10 +278,29 @@
                             }
                         })
                         .catch(error => {
-                            console.log("error while fetching /api/admin/competitions", error);
+                            console.log("error while fetching /api/admin/competition/" + competition.id + "/apply_upper_bound_limit", error);
                         })
                         .finally(() => {
                             this.synchronizing = false;
+                        });
+                    },
+                    getDefaultUpperBoundLimit() {
+                        this.defaultUpperBoundLimitLoading = true;
+                        fetch("/api/admin/competitions/default_upper_bound_limit")
+                        .then(response => {
+                            if(response.ok) {
+                                return response.json();
+                            }
+                            throw new Error('Something went wrong');
+                        })
+                        .then(json => {
+                            this.defaultUpperBoundLimit = json;
+                        })
+                        .catch(error => {
+                            console.log("error while fetching /api/admin/competitions/default_upper_bound_limit", error);
+                        })
+                        .finally(() => {
+                            this.defaultUpperBoundLimitLoading = false;
                         });
                     }
                 },

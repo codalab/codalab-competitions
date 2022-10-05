@@ -44,5 +44,6 @@ urlpatterns += (
     # Admin
     url(r'^admin/competitions/list', admin_views.GetCompetitions.as_view(), name="competitions"),
     url(r'^admin/competitions/update', admin_views.UpdateCompetitions.as_view(), name="update_competitions"),
-    url(r'^admin/competition/(?P<competition_id>\d+)/apply_upper_bound_limit', admin_views.ApplyUpperBoundLimit.as_view(), name="apply_upper_bound_limit")
+    url(r'^admin/competition/(?P<competition_id>\d+)/apply_upper_bound_limit', admin_views.ApplyUpperBoundLimit.as_view(), name="apply_upper_bound_limit"),
+    url(r'^admin/competitions/default_upper_bound_limit', admin_views.GetDefaultUpperBoundLimit.as_view(), name="get_default_upper_bound_limit")
 )
