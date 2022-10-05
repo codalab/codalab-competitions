@@ -26,7 +26,7 @@ class GetCompetitions(views.APIView):
             competitions.append({
                 'id': competition.id,
                 'title': competition.title,
-                'creator': competition.creator.username,
+                'creator': competition.creator.username + " (" + competition.creator.email + ")",
                 'start_date': competition.start_date,
                 'end_date': competition.end_date,
                 'upper_bound_max_submission_size': competition.upper_bound_max_submission_size
