@@ -654,6 +654,7 @@ class Base(Configuration):
         'group_models': True,
     }
     DISABLE_SUBMISSIONS = False
+    DEFAULT_UPPER_BOUND_MAX_SUBMISSION_SIZE_MB = 300
 
     @classmethod
     def pre_setup(cls):
