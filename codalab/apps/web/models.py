@@ -288,7 +288,7 @@ class Competition(ChaHubSaveMixin, models.Model):
     hide_chart = models.BooleanField(default=False, verbose_name="Hide Chart")
     allow_organizer_teams = models.BooleanField(default=False, verbose_name="Allow Organizer Teams")
     upper_bound_max_submission_size = models.PositiveIntegerField(
-        default=300,
+        default=settings.DEFAULT_UPPER_BOUND_MAX_SUBMISSION_SIZE_MB,
         validators=[
             MinValueValidator(0)
         ],
@@ -899,7 +899,7 @@ class CompetitionPhase(models.Model):
     color = models.CharField(max_length=24, choices=COLOR_CHOICES, blank=True, null=True)
 
     max_submission_size = models.PositiveIntegerField(
-        default=300,
+        default=settings.DEFAULT_UPPER_BOUND_MAX_SUBMISSION_SIZE_MB,
         validators=[
             MinValueValidator(0),
         ],
