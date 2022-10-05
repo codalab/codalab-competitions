@@ -65,7 +65,7 @@
                                     :return-value.sync="item.upper_bound_max_submission_size"
                                     @save="save({'id': item.id, 'upper_bound_max_submission_size': item.upper_bound_max_submission_size})"
                                 >
-                                    {{ item.upper_bound_max_submission_size*1000*1000 | prettyByte }}
+                                    {{ item.upper_bound_max_submission_size * 1000 * 1000 | prettyByte }}
                                     <template v-slot:input>
                                         <v-text-field
                                             v-model="item.upper_bound_max_submission_size"
@@ -74,6 +74,19 @@
                                         ></v-text-field>
                                     </template>
                                 </v-edit-dialog>
+                            </template>
+                            <template v-slot:item.max_submission_sizes="{ item }">
+                                {{ item.max_submission_sizes.map(size => size * 1000 * 1000) | prettyByteArray | joinCustom(' | ') }}
+                            </template>
+                            <template v-slot:item.sync_button="{ item }">
+                                <v-btn 
+                                    :loading="synchronizing"
+                                    :disabled="synchronizing"
+                                    color="primary"
+                                    @click="synchronize(item)"
+                                >
+                                    Sync
+                                </v-btn>
                             </template>
                         </v-data-table>
                         <div class="admin-competitions-manager-footer-row">
@@ -126,7 +139,9 @@
                             {text: 'Organizer', value: 'creator'},
                             {text: 'Start date', value: 'start_date'},
                             {text: 'End date', value: 'end_date'},
-                            {text: 'Upper bound of the max sumbission size', value: 'upper_bound_max_submission_size'}
+                            {text: 'Upper bound of the max sumbission size', value: 'upper_bound_max_submission_size'},
+                            {text: 'Current max sumbission size per phase', value: 'max_submission_sizes'},
+                            {text: 'Apply the upper bound limit to all phases', value: 'sync_button', sortable: false}
                         ],
                         competitionsTableItems: [],
                         competitionsTableLoading: false,
@@ -134,6 +149,7 @@
                         competitionsTableSortDesc: true,
                         competitionsTableSearch: '',
                         saving: false,
+                        synchronizing: false,
                         competitionsIdToUpdate: []
                     };
                 },
@@ -223,6 +239,37 @@
                                 this.saving = false;
                             });
                         }
+                    },
+                    synchronize(competition) {
+                        console.log('synchronize', competition);
+                        this.synchronizing = true;
+                        fetch("/api/admin/competition/" + competition.id + "/apply_upper_bound_limit", {
+                            method: 'PATCH',
+                            headers: {
+                                'X-CSRFToken': csrftoken,
+                            }
+                        })
+                        .then(response => {
+                            if(response.ok) {
+                                return response.json();
+                            }
+                            throw new Error('Something went wrong');
+                        })
+                        .then(competition => {
+                            const index = this.competitionsTableItems.findIndex(comp => comp.id == competition.id);
+                            if (index >= 0) {
+                                // Using method splice for Vue reactivity (updating an element is not supported otherwise)
+                                this.competitionsTableItems.splice(index, 1, competition);
+                            } else {
+                                console.log("error: No matching competition to update");
+                            }
+                        })
+                        .catch(error => {
+                            console.log("error while fetching /api/admin/competitions", error);
+                        })
+                        .finally(() => {
+                            this.synchronizing = false;
+                        });
                     }
                 },
                 filters: {
@@ -238,6 +285,12 @@
                     },
                     prettyByte: function(bytes) {
                         return prettyBytes(bytes);
+                    },
+                    prettyByteArray: function(array) {
+                        return array.map(bytes => prettyBytes(bytes));
+                    },
+                    joinCustom: function(array, separator) {
+                        return array.join(separator);
                     }
                 }
             });
