@@ -63,7 +63,7 @@
             <button class="btn btn-primary margin-top" type="submit">{% trans "Sign In" %}</button>
         </form>
         <p>
-        <p><a href="../signup">Don't have an account? Sign up!</a></p>
+        <p><a href="{% url 'account_signup' %}">Don't have an account? Sign up!</a></p>
         <p><a href="../password/reset/">Forgot your password?</a></p>
         <a href="" onclick="alert('Please wait 5 minutes and attempt logging in again to resend confirmation email.'); return false;">Resend confirmation email</a>
     </div>

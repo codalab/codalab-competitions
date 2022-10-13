@@ -246,6 +246,10 @@ def get_filefield_size(obj, attr, aws_attr=None, s3direct=False):
                 # If we hit an exception this way, and we're using S3, try the other method.
                 if settings.USE_AWS:
                     size = get_size_from_summary(attr_obj.storage.bucket.name, attr_obj.name)
+            except ClientError as e:
+                logger.error(
+                    "An error occurred trying to get a file's size. File: {0}; Object: {1}(ID:{2}); Attr: {3}".format(
+                        attr_obj.name, obj, obj.id, attr))
     # Always make sure we return at least 0
     if type(size) == str:
         size = int(size)
