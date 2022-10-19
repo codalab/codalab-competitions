@@ -1,0 +1,28 @@
+#storage-app {
+    display: flex;
+    flex-direction: column;
+}
+
+#snapshot-date {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.storage-block-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.storage-block-info-header {
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+}
+
+.section-data {
+    display: flex;
+    flex-direction: column;
+    padding: 0 50px;
+}
