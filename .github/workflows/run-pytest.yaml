@@ -28,8 +28,7 @@ jobs:
       memcached:
         image: memcached        
         ports: 
-          - 11211:11211
-        options: --hostname memcached
+          - 11211:11211        
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -49,6 +48,9 @@ jobs:
             ${{ runner.os }}-
       #- name: Copy test DJango Configuration
       #  run: cp .circleci/circlec_dev_setup.py codalab/codalab/settings/local.py
+      - name: Add required host mappings
+        run: |
+          echo "127.0.0.1 memcached" | sudo tee --append /etc/hosts
       - name: Install dependencies
         run: |
           sudo apt-get install libxml2-dev libxslt-dev python-dev
