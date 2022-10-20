@@ -1,5 +1,9 @@
 name: Run Pytests
-on: [pull_request]
+#on: [pull_request]
+on: 
+  push:
+    branches:
+      - setup-github-actions-pytest
 env:
   DJANGO_SETTINGS_MODULE: "codalab.settings.local"
   DB_HOST: "postgres"
