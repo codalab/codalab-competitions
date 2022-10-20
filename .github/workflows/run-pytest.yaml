@@ -59,7 +59,7 @@ jobs:
           sudo apt-get install libxml2-dev libxslt-dev python-dev
           sudo apt-get update --allow-releaseinfo-change && sudo apt-get install libmemcached-dev --fix-missing
           python -m pip install --upgrade pip
-          pip install flake8 pytest
+          pip install flake8 pytest pytest-cov pytest-dependency pytest-django
           pip install -r ./codalab/requirements/common.txt
       - name: Lint with flake8
         run: |
@@ -69,5 +69,5 @@ jobs:
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics --show-source
       - name: Run Tests
         run: |
-          py.test
+          pytest --cov=codalab
         working-directory: ./codalab
