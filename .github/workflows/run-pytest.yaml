@@ -5,7 +5,8 @@ on:
     branches:
       - setup-github-actions-pytest
 env:
-  DJANGO_SETTINGS_MODULE: "codalab.settings.local"
+  # DJANGO_SETTINGS_MODULE: "codalab.settings.local"
+  DB_ENGINE: "postgresql"
   DB_HOST: "postgres"
   DB_PORT: "5432"
   DB_NAME: "codalab_website"
@@ -52,8 +53,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
             ${{ runner.os }}-
-      - name: Copy test DJango Configuration
-        run: cp .circleci/circlec_dev_setup.py codalab/codalab/settings/local.py
+      #- name: Copy test DJango Configuration
+      #  run: cp .circleci/circlec_dev_setup.py codalab/codalab/settings/local.py
       - name: Install dependencies
         run: |
           sudo apt-get install libxml2-dev libxslt-dev python-dev
