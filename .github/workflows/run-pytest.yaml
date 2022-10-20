@@ -66,8 +66,7 @@ jobs:
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics --show-source
       - name: Run Tests
         run: |
-          pytest --cov=codalab
-        working-directory: ./codalab
+          pytest --cov=codalab        
         env:          
           DB_ENGINE: "postgresql"
           DB_HOST: 127.0.0.1
