@@ -12,9 +12,9 @@ env:
   DB_NAME: "codalab_website"
   DB_USER: "root"
   DB_PASSWORD: "password"
-  DJANGO_CONFIGURATION: "Test"
+  #DJANGO_CONFIGURATION: "Test"
   CHAHUB_API_URL: "http://localhost/test/"
-  CHAHUB_API_KEY: "some-secret-key"
+  CHAHUB_API_KEY: "some-secret-key"  
 jobs:
   run-tests:
     services:
