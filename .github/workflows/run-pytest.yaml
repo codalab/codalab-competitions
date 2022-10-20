@@ -4,17 +4,6 @@ on:
   push:
     branches:
       - setup-github-actions-pytest
-env:
-  # DJANGO_SETTINGS_MODULE: "codalab.settings.local"
-  DB_ENGINE: "postgresql"
-  DB_HOST: "postgres"
-  DB_PORT: "5432"
-  DB_NAME: "codalab_website"
-  DB_USER: "root"
-  DB_PASSWORD: "password"
-  #DJANGO_CONFIGURATION: "Test"
-  CHAHUB_API_URL: "http://localhost/test/"
-  CHAHUB_API_KEY: "some-secret-key"  
 jobs:
   run-tests:
     services:
@@ -72,3 +61,14 @@ jobs:
         run: |
           pytest --cov=codalab
         working-directory: ./codalab
+        env:
+          # DJANGO_SETTINGS_MODULE: "codalab.settings.local"
+          DB_ENGINE: "postgresql"
+          DB_HOST: 127.0.0.1
+          DB_PORT: "5432"
+          DB_NAME: "codalab_website"
+          DB_USER: "root"
+          DB_PASSWORD: "password"
+          #DJANGO_CONFIGURATION: "Test"
+          CHAHUB_API_URL: "http://localhost/test/"
+          CHAHUB_API_KEY: "some-secret-key"  
