@@ -25,6 +25,11 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+      memcached:
+        image: memcached        
+        ports: 
+          - 11211:11211
+        options: --hostname memcached
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -61,14 +66,14 @@ jobs:
         run: |
           pytest --cov=codalab
         working-directory: ./codalab
-        env:
-          # DJANGO_SETTINGS_MODULE: "codalab.settings.local"
+        env:          
           DB_ENGINE: "postgresql"
           DB_HOST: 127.0.0.1
           DB_PORT: "5432"
           DB_NAME: "codalab_website"
           DB_USER: "root"
-          DB_PASSWORD: "password"
-          #DJANGO_CONFIGURATION: "Test"
+          DB_PASSWORD: "password"          
           CHAHUB_API_URL: "http://localhost/test/"
           CHAHUB_API_KEY: "some-secret-key"  
+          MEMCACHED_PORT: 11211
+          
