@@ -10,9 +10,9 @@ class Test(DevBase):
             'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
         }
     }
-    #DATABASES = {
-    #    'default': {
-    #        'ENGINE': 'django.db.backends.sqlite3',
-    #        'NAME': ':memory:',
-    #    }
-    #}
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': ':memory:',
+        }
+    }
