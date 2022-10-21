@@ -65,7 +65,7 @@ jobs:
       - name: Run Tests
         run: |
           #pytest --cov=./
-          py.test
+          py.test --cov=./
         working-directory: ./codalab
         env:                    
           DB_ENGINE: "postgresql"
