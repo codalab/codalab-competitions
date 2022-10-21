@@ -45,9 +45,7 @@ jobs:
           key: ${{ runner.os }}-pip-${{ hashFiles('common.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
-            ${{ runner.os }}-
-      #- name: Copy test DJango Configuration
-      #  run: cp .github/workflows/test_setup.py codalab/codalab/settings/local.py
+            ${{ runner.os }}-      
       - name: Add required host mappings
         run: |
           echo "127.0.0.1 memcached" | sudo tee --append /etc/hosts
@@ -69,9 +67,7 @@ jobs:
           #pytest --cov=./
           py.test
         working-directory: ./codalab
-        env:          
-          # DJANGO_SETTINGS_MODULE: "codalab.settings.local"
-          # DJANGO_CONFIGURATION: "Test"
+        env:                    
           DB_ENGINE: "postgresql"
           DB_HOST: 127.0.0.1
           DB_PORT: "5432"
