@@ -62,11 +62,7 @@ jobs:
           flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
           # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics --show-source
-      - name: Run Tests
-        run: |
-          #pytest --cov=./
-          py.test --cov=./
-        working-directory: ./codalab
+      - name: Run Tests        
         env:                    
           DB_ENGINE: "postgresql"
           DB_HOST: 127.0.0.1
@@ -76,5 +72,11 @@ jobs:
           DB_PASSWORD: "password"          
           CHAHUB_API_URL: "http://localhost/test/"
           CHAHUB_API_KEY: "some-secret-key"  
-          MEMCACHED_PORT: 11211
+          MEMCACHED_PORT: 11211      
+        working-directory: ./codalab
+        run: |
+          #pytest --cov=./ --cov-report=xml
+          py.test --cov=./ --cov-report=xml        
+      - name: Upload coverage reports to Codecov with GitHub Action
+        uses: codecov/codecov-action@v3
           
