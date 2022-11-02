@@ -1,0 +1,82 @@
+name: Run Pytests
+#on: [pull_request]
+on: 
+  push:
+    branches:
+      - setup-github-actions-pytest
+jobs:
+  run-tests:
+    services:
+      # Label used to access the service container
+      postgres:
+        # Docker Hub image
+        # use the same version as docker-compose.yml
+        image: "postgres:12.6-alpine"
+        # Provide the password for postgres
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_PASSWORD: password
+          POSTGRES_USER: root
+          POSTGRES_DB: codalab_website
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      memcached:
+        image: memcached        
+        ports: 
+          - 11211:11211        
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8.3
+      - name: Cache pip
+        uses: actions/cache@v2
+        with:
+          # This path is specific to Ubuntu
+          path: ~/.cache/pip
+          # Look to see if there is a cache hit for the corresponding requirements file
+          key: ${{ runner.os }}-pip-${{ hashFiles('common.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+            ${{ runner.os }}-      
+      - name: Add required host mappings
+        run: |
+          echo "127.0.0.1 memcached" | sudo tee --append /etc/hosts
+      - name: Install dependencies
+        run: |
+          sudo apt-get install libxml2-dev libxslt-dev python-dev
+          sudo apt-get update --allow-releaseinfo-change && sudo apt-get install libmemcached-dev --fix-missing
+          python -m pip install --upgrade pip
+          pip install flake8 pytest pytest-cov pytest-dependency pytest-django
+          pip install -r ./codalab/requirements/common.txt
+      - name: Lint with flake8
+        run: |
+          # stop the build if there are Python syntax errors or undefined names
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics --show-source
+      - name: Run Tests        
+        env:                    
+          DB_ENGINE: "postgresql"
+          DB_HOST: 127.0.0.1
+          DB_PORT: "5432"
+          DB_NAME: "codalab_website"
+          DB_USER: "root"
+          DB_PASSWORD: "password"          
+          CHAHUB_API_URL: "http://localhost/test/"
+          CHAHUB_API_KEY: "some-secret-key"  
+          MEMCACHED_PORT: 11211      
+        working-directory: ./codalab
+        run: |
+          #pytest --cov=./ --cov-report=xml
+          py.test --cov=./ --cov-report=xml        
+      - name: Upload coverage reports to Codecov with GitHub Action
+        uses: codecov/codecov-action@v3
+          
