@@ -19,7 +19,25 @@
             <v-app>
                 <v-main>
                     <div class="admin-competitions-manager-app-container">
-                        <h3>Competitions</h3>
+                        <div style="display: flex; flex-direction: row; justify-content: flex-end;">
+                            <v-btn icon href="https://github.com/codalab/codalab-competitions/wiki/Dev_Administrator-Procedures#edit-the-upper-bound-limit-of-the-max-submission-size-for-competitions">
+                                <v-icon @click="openWiki"> mdi-help-circle-outline </v-icon>
+                            </v-btn>
+                        </div>
+                        <div style="display: flex; flex-direction: row; align-items: baseline">
+                            <h3>Competitions</h3>
+                            <v-spacer></v-spacer>
+                            <span v-if="defaultUpperBoundLimitLoading"
+                                style="color: rgba(0, 0, 0, 0.6); font-size: 12px; font-weight: bold;"
+                            >
+                                Default upper bound limit: -
+                            </span>
+                            <span v-else
+                                style="color: rgba(0, 0, 0, 0.6); font-size: 12px; font-weight: bold;"
+                            >
+                                Default upper bound limit: {{ defaultUpperBoundLimit * 1000 * 1000 | prettyByte }}
+                            </span>
+                        </div>
                         <v-data-table
                             v-model="competitionsTableSelected"
                             item-key="id"
@@ -46,6 +64,9 @@
                                 >
                                 </v-text-field>
                             </template>
+                            <template v-slot:item.title="{ item }">
+                                <a :href="`/competitions/${item.id}`"> {{ item.title }} </a>
+                            </template>
                             <template v-slot:item.start_date="{ item }">
                                 {{ item.start_date | prettyDate }}
                             </template>
@@ -62,7 +83,7 @@
                                     :return-value.sync="item.upper_bound_max_submission_size"
                                     @save="save({'id': item.id, 'upper_bound_max_submission_size': item.upper_bound_max_submission_size})"
                                 >
-                                    {{ item.upper_bound_max_submission_size*1000*1000 | prettyByte }}
+                                    {{ item.upper_bound_max_submission_size * 1000 * 1000 | prettyByte }}
                                     <template v-slot:input>
                                         <v-text-field
                                             v-model="item.upper_bound_max_submission_size"
@@ -71,6 +92,19 @@
                                         ></v-text-field>
                                     </template>
                                 </v-edit-dialog>
+                            </template>
+                            <template v-slot:item.max_submission_sizes="{ item }">
+                                {{ item.max_submission_sizes.map(size => size * 1000 * 1000) | prettyByteArray | joinCustom(' | ') }}
+                            </template>
+                            <template v-slot:item.sync_button="{ item }">
+                                <v-btn 
+                                    :loading="synchronizing"
+                                    :disabled="synchronizing"
+                                    color="primary"
+                                    @click="synchronize(item)"
+                                >
+                                    Sync
+                                </v-btn>
                             </template>
                         </v-data-table>
                         <div class="admin-competitions-manager-footer-row">
@@ -116,6 +150,8 @@
                 }),
                 data: function () {
                     return {
+                        defaultUpperBoundLimit: 300,
+                        defaultUpperBoundLimitLoading: false,
                         competitionsTableSelected: [],
                         competitionsTableHeaders: [
                             {text: 'ID', value: 'id'},
@@ -123,7 +159,9 @@
                             {text: 'Organizer', value: 'creator'},
                             {text: 'Start date', value: 'start_date'},
                             {text: 'End date', value: 'end_date'},
-                            {text: 'Upper bound of the max sumbission size', value: 'upper_bound_max_submission_size'}
+                            {text: 'Upper bound of the max sumbission size', value: 'upper_bound_max_submission_size'},
+                            {text: 'Current max sumbission size per phase', value: 'max_submission_sizes'},
+                            {text: 'Apply the upper bound limit to all phases', value: 'sync_button', sortable: false}
                         ],
                         competitionsTableItems: [],
                         competitionsTableLoading: false,
@@ -131,11 +169,13 @@
                         competitionsTableSortDesc: true,
                         competitionsTableSearch: '',
                         saving: false,
+                        synchronizing: false,
                         competitionsIdToUpdate: []
                     };
                 },
                 mounted: function () {
                     this.getCompetitions();
+                    this.getDefaultUpperBoundLimit();
                 },
                 methods: {
                     getCompetitions() {
@@ -170,8 +210,6 @@
 
                         // Add them to already existing marked competitions
                         this.competitionsIdToUpdate = [...new Set([...this.competitionsIdToUpdate, ...newCompIdToUpdate])];
-
-                        console.log('this.competitionsIdToUpdate', this.competitionsIdToUpdate);
                     },
                     saveAll() {
                         var competitionsUpdated = [];
@@ -220,6 +258,58 @@
                                 this.saving = false;
                             });
                         }
+                    },
+                    synchronize(competition) {
+                        this.synchronizing = true;
+                        fetch("/api/admin/competition/" + competition.id + "/apply_upper_bound_limit", {
+                            method: 'PATCH',
+                            headers: {
+                                'X-CSRFToken': csrftoken,
+                            }
+                        })
+                        .then(response => {
+                            if(response.ok) {
+                                return response.json();
+                            }
+                            throw new Error('Something went wrong');
+                        })
+                        .then(competition => {
+                            const index = this.competitionsTableItems.findIndex(comp => comp.id == competition.id);
+                            if (index >= 0) {
+                                // Using method splice for Vue reactivity (updating an element is not supported otherwise)
+                                this.competitionsTableItems.splice(index, 1, competition);
+                            } else {
+                                console.log("error: No matching competition to update");
+                            }
+                        })
+                        .catch(error => {
+                            console.log("error while fetching /api/admin/competition/" + competition.id + "/apply_upper_bound_limit", error);
+                        })
+                        .finally(() => {
+                            this.synchronizing = false;
+                        });
+                    },
+                    getDefaultUpperBoundLimit() {
+                        this.defaultUpperBoundLimitLoading = true;
+                        fetch("/api/admin/competitions/default_upper_bound_limit")
+                        .then(response => {
+                            if(response.ok) {
+                                return response.json();
+                            }
+                            throw new Error('Something went wrong');
+                        })
+                        .then(json => {
+                            this.defaultUpperBoundLimit = json;
+                        })
+                        .catch(error => {
+                            console.log("error while fetching /api/admin/competitions/default_upper_bound_limit", error);
+                        })
+                        .finally(() => {
+                            this.defaultUpperBoundLimitLoading = false;
+                        });
+                    },
+                    openWiki() {
+                        console.log('ici');
                     }
                 },
                 filters: {
@@ -235,6 +325,12 @@
                     },
                     prettyByte: function(bytes) {
                         return prettyBytes(bytes);
+                    },
+                    prettyByteArray: function(array) {
+                        return array.map(bytes => prettyBytes(bytes));
+                    },
+                    joinCustom: function(array, separator) {
+                        return array.join(separator);
                     }
                 }
             });
