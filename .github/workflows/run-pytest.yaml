@@ -1,9 +1,10 @@
 name: Run Pytests
-#on: [pull_request]
 on: 
-  push:
+  push: 
     branches:
-      - setup-github-actions-pytest
+      - master
+      - develop
+  pull_request:    
 jobs:
   run-tests:
     services:
