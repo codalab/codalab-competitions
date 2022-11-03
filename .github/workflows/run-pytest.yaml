@@ -56,7 +56,7 @@ jobs:
           sudo apt-get update --allow-releaseinfo-change && sudo apt-get install libmemcached-dev --fix-missing
           python -m pip install --upgrade pip
           pip install flake8 pytest pytest-cov pytest-dependency pytest-django
-          pip install -r ./codalab/requirements/common.txt
+          pip install -r ./codalab/requirements/requirements.txt
       - name: Lint with flake8
         run: |
           # stop the build if there are Python syntax errors or undefined names
