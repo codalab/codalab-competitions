@@ -51,7 +51,7 @@ from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
 from django.views.generic import FormView
 from django.views.generic import View, TemplateView, DetailView, ListView, UpdateView, CreateView, DeleteView
-from extra_views import UpdateWithInlinesView, InlineFormSet, NamedFormsetsMixin, ModelFormSetView
+from extra_views import UpdateWithInlinesView, InlineFormSet, NamedFormsetsMixin
 
 from .tasks import evaluate_submission, re_run_all_submissions_in_phase, create_competition, _make_url_sassy, \
     make_modified_bundle
@@ -181,33 +181,11 @@ class UserSettingsView(LoginRequiredMixin, UpdateView):
         return self.request.user
 
 
-class AdminCompetitionsManager(ModelFormSetView):
-    """Admin page for managing the competitions"""
-    model = Competition
-    template_name = "web/admin_competitions_manager.html"
-    fields = [
-        'id',
-        'title',
-        'creator',
-        'start_date',
-        'end_date',
-        'upper_bound_max_submission_size'
-    ]
-    success_url = '/admin_competitions_manager'
-    factory_kwargs = {'extra': 0}
-
-    def get(self, *args, **kwargs):
-        redirect_url = "index.html"
-        user = self.request.user
-        if user.is_staff and user.is_active:
-            return super(AdminCompetitionsManager, self).get(*args, **kwargs)
-        else:
-            return HttpResponseRedirect(redirect_url)
-
-    def get_context_data(self, **kwargs):
-        context = super(AdminCompetitionsManager, self).get_context_data(**kwargs)
-        context["object_list"] = list(models.Competition.objects.order_by('-start_date'))
-        return context
+@login_required
+def admin_competitions_manager(request):
+    if not request.user.is_staff:
+        return HttpResponse(status=403)
+    return render(request, "web/admin_competitions_manager.html")
 
 
 ############################################################
