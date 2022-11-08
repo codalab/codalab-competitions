@@ -1,5 +1,6 @@
 from apps.api.views import competition_views as views
 from apps.api.views import storage_views as storage_views
+from apps.api.views import admin_views as admin_views
 from django.conf.urls import url
 from rest_framework import routers
 
@@ -40,4 +41,9 @@ urlpatterns += (
     # Storage Analytics
     url(r'^storage/analytics', storage_views.GetExistingStorageAnalytics.as_view(), name="existing_storage_analytics"),
     url(r'^storage/usage-history', storage_views.GetStorageUsageHistory.as_view(), name="storage_usage_history"),
+    # Admin
+    url(r'^admin/competitions/list', admin_views.GetCompetitions.as_view(), name="competitions"),
+    url(r'^admin/competitions/update', admin_views.UpdateCompetitions.as_view(), name="update_competitions"),
+    url(r'^admin/competition/(?P<competition_id>\d+)/apply_upper_bound_limit', admin_views.ApplyUpperBoundLimit.as_view(), name="apply_upper_bound_limit"),
+    url(r'^admin/competitions/default_upper_bound_limit', admin_views.GetDefaultUpperBoundLimit.as_view(), name="get_default_upper_bound_limit")
 )

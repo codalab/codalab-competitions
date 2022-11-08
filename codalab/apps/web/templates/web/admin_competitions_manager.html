@@ -4,154 +4,336 @@
 {% load codalab_tags %}
 
 {% block page_title %}Admin Competitions Manager{% endblock page_title %}
-{% block head_title %}Admin Competitions Manager{% endblock %}
+
+{% block extra_headers %}
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+    <link href="{% static "css/admin_competitions_manager.css" %}" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+{% endblock %}
 
 {% block content %}
-<div class="row pad-top">
-    <div class="col-md-12 competition-list">
-        <form method="post">
-            {% if formset %}
-            <table class="table table-bordered">
-                <tr>
-                    <th><input type="checkbox" id="select-all-checkbox" name="select_all" value="select_all"
-                            onclick="selectAllClicked(this)"></th>
-                    <th>ID</th>
-                    <th>Title</th>
-                    <th>Organizer</th>
-                    <th>Start date</th>
-                    <th>End date</th>
-                    <th>Upper bound of the max submission size (in MB)</th>
-                </tr>
-                {{ formset.management_form }}
-                {% for form in formset %}
-                {% csrf_token %}
-                {% for hidden in form.hidden_fields %}
-                {{ hidden }}
-                {% endfor %}
-                <tr id="tr-{{ form.id.value }}">
-                    <td>
-                        <input type="checkbox" class="competition-checkbox" name="selected_competitions"
-                            value="{{ form.id.value }}" onclick="selectOneClicked(this)">
-                    </td>
-                    <td>{{ form.id.value }}</td>
-                    <td>{{ form.title }}</td>
-                    <td>{{ form.creator }}</td>
-                    <td>{{ form.instance.start_date|date:"M d, Y" }}</td>
-                    <td>
-                        {% if form.instance.end_date %}
-                            {{ form.instance.end_date|date:"M d, Y" }}
-                        {% else %}
-                            No end date
-                        {% endif %}
-                    </td>
-                    <td>{{ form.upper_bound_max_submission_size }}</td>
-                </tr>
-                {% endfor %}
-            </table>
-            <input type="submit" value="Save" class="btn btn-primary" style="float: right;">
-            {% else %}
-            <p><em>There are no competitions.</em></p>
-            {% endif %}
-        </form>
-    </div>
-</div>
+    {% verbatim %}
+        <div id="admin-competitions-manager-app">
+            <v-app>
+                <v-main>
+                    <div class="admin-competitions-manager-app-container">
+                        <div style="display: flex; flex-direction: row; justify-content: flex-end;">
+                            <v-btn icon href="https://github.com/codalab/codalab-competitions/wiki/Dev_Administrator-Procedures#edit-the-upper-bound-limit-of-the-max-submission-size-for-competitions">
+                                <v-icon @click="openWiki"> mdi-help-circle-outline </v-icon>
+                            </v-btn>
+                        </div>
+                        <div style="display: flex; flex-direction: row; align-items: baseline">
+                            <h3>Competitions</h3>
+                            <v-spacer></v-spacer>
+                            <span v-if="defaultUpperBoundLimitLoading"
+                                style="color: rgba(0, 0, 0, 0.6); font-size: 12px; font-weight: bold;"
+                            >
+                                Default upper bound limit: -
+                            </span>
+                            <span v-else
+                                style="color: rgba(0, 0, 0, 0.6); font-size: 12px; font-weight: bold;"
+                            >
+                                Default upper bound limit: {{ defaultUpperBoundLimit * 1000 * 1000 | prettyByte }}
+                            </span>
+                        </div>
+                        <v-data-table
+                            v-model="competitionsTableSelected"
+                            item-key="id"
+                            :headers="competitionsTableHeaders"
+                            :items="competitionsTableItems"
+                            :items-per-page="10"
+                            :loading="competitionsTableLoading"
+                            :sort-by.sync="competitionsTableSortBy"
+                            :sort-desc.sync="competitionsTableSortDesc"
+                            :search="competitionsTableSearch"
+                            loading-text="Loading..."
+                            show-select
+                            class="elevation-1"
+                        >
+                            <template v-slot:top>
+                                <v-text-field
+                                    v-model="competitionsTableSearch"
+                                    label="Search"
+                                    append-icon="mdi-magnify"
+                                    single-line
+                                    hide-details
+                                    clearable
+                                    class="mx-4"
+                                >
+                                </v-text-field>
+                            </template>
+                            <template v-slot:item.title="{ item }">
+                                <a :href="`/competitions/${item.id}`"> {{ item.title }} </a>
+                            </template>
+                            <template v-slot:item.start_date="{ item }">
+                                {{ item.start_date | prettyDate }}
+                            </template>
+                            <template v-slot:item.end_date="{ item }">
+                                <template v-if="item.end_date">
+                                    {{ item.end_date | prettyDate }}
+                                </template>
+                                <template v-else>
+                                    -
+                                </template>
+                            </template>
+                            <template v-slot:item.upper_bound_max_submission_size="{ item }">
+                                <v-edit-dialog
+                                    :return-value.sync="item.upper_bound_max_submission_size"
+                                    @save="save({'id': item.id, 'upper_bound_max_submission_size': item.upper_bound_max_submission_size})"
+                                >
+                                    {{ item.upper_bound_max_submission_size * 1000 * 1000 | prettyByte }}
+                                    <template v-slot:input>
+                                        <v-text-field
+                                            v-model="item.upper_bound_max_submission_size"
+                                            label="Edit"
+                                            single-line
+                                        ></v-text-field>
+                                    </template>
+                                </v-edit-dialog>
+                            </template>
+                            <template v-slot:item.max_submission_sizes="{ item }">
+                                {{ item.max_submission_sizes.map(size => size * 1000 * 1000) | prettyByteArray | joinCustom(' | ') }}
+                            </template>
+                            <template v-slot:item.sync_button="{ item }">
+                                <v-btn 
+                                    :loading="synchronizing"
+                                    :disabled="synchronizing"
+                                    color="primary"
+                                    @click="synchronize(item)"
+                                >
+                                    Sync
+                                </v-btn>
+                            </template>
+                        </v-data-table>
+                        <div class="admin-competitions-manager-footer-row">
+                            <v-btn
+                                :loading="saving"
+                                :disabled="saving || competitionsIdToUpdate.length == 0"
+                                color="primary"
+                                @click="saveAll"
+                            >
+                                Save
+                            </v-btn>
+                        </div>
+                    </div>
+                </v-main>
+            </v-app>
+        </div>
+    {% endverbatim %}
+{% endblock %}
 
-<script type="text/javascript">
-    let selectAllCheckbox;
-    let competitionCheckboxes;
-    let competitionUpperBoundMaxSubmissionSizeInputs;
-    let selectedCompetitions = new Set();
+{% block extra_scripts %}
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.3/moment.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pretty-bytes@^1"></script>
 
-    function selectOneClicked(checkbox) {
-        // Select one competition or unselect it
-        const competitionId = parseInt(checkbox.value);
-        selectCompetition(competitionId, checkbox.checked);
-        updateSelectAllCheckbox();
-    }
+    {% csrf_token %}
+    <script>
+        $(document).ready(function () {
+            const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            new Vue({
+                el: '#admin-competitions-manager-app',
+                vuetify: new Vuetify({
+                    theme: {
+                        themes: {
+                            light: {
+                                primary: '#4b7695',
+                                secondary: '#b0bec5',
+                                accent: '#8c9eff',
+                                error: '#b71c1c',
+                            },
+                        },
+                    },
+                }),
+                data: function () {
+                    return {
+                        defaultUpperBoundLimit: 300,
+                        defaultUpperBoundLimitLoading: false,
+                        competitionsTableSelected: [],
+                        competitionsTableHeaders: [
+                            {text: 'ID', value: 'id'},
+                            {text: 'Title', value: 'title'},
+                            {text: 'Organizer', value: 'creator'},
+                            {text: 'Start date', value: 'start_date'},
+                            {text: 'End date', value: 'end_date'},
+                            {text: 'Upper bound of the max sumbission size', value: 'upper_bound_max_submission_size'},
+                            {text: 'Current max sumbission size per phase', value: 'max_submission_sizes'},
+                            {text: 'Apply the upper bound limit to all phases', value: 'sync_button', sortable: false}
+                        ],
+                        competitionsTableItems: [],
+                        competitionsTableLoading: false,
+                        competitionsTableSortBy: 'total',
+                        competitionsTableSortDesc: true,
+                        competitionsTableSearch: '',
+                        saving: false,
+                        synchronizing: false,
+                        competitionsIdToUpdate: []
+                    };
+                },
+                mounted: function () {
+                    this.getCompetitions();
+                    this.getDefaultUpperBoundLimit();
+                },
+                methods: {
+                    getCompetitions() {
+                        this.competitionsTableLoading = true;
+                        fetch("/api/admin/competitions/list")
+                        .then(response => {
+                            if(response.ok) {
+                                return response.json();
+                            }
+                            throw new Error('Something went wrong');
+                        })
+                        .then(json => {
+                            this.competitionsTableItems = json;
+                        })
+                        .catch(error => {
+                            console.log("error while fetching /api/admin/competitions", error);
+                        })
+                        .finally(() => {
+                            this.competitionsTableLoading = false;
+                        });
+                    },
+                    save(item) {
+                        // Mark the competition as competition to send through the API
+                        var newCompIdToUpdate = [item.id];
 
-    function selectAllClicked(checkbox) {
-        // Select all competitions or unselect all of them
-        for (let i = 0; i < competitionCheckboxes.length; i++) {
-            selectCompetition(parseInt(competitionCheckboxes[i].value), checkbox.checked);
-            competitionCheckboxes[i].indeterminate = false;
-            competitionCheckboxes[i].checked = checkbox.checked;
-        }
-    }
+                        // Propagate the modification to all selected rows and mark them as competitions to send through the API
+                        for (const selectedCompetition of this.competitionsTableSelected) {
+                            var competition = this.competitionsTableItems.find(competition => competition.id == selectedCompetition.id);
+                            competition.upper_bound_max_submission_size = item.upper_bound_max_submission_size;
+                            newCompIdToUpdate.push(selectedCompetition.id);
+                        }
 
-    function selectCompetition(competitionId, selected) {
-        // Update the visual aspect of the selected competition row
-        const rowId = "tr-" + competitionId;
-        const competitionRow = document.querySelector('tr[id="' + rowId + '"]');
-        if (selected) {
-            competitionRow.classList.add("selected");
-            selectedCompetitions.add(competitionId);
-        } else {
-            competitionRow.classList.remove("selected");
-            selectedCompetitions.delete(competitionId);
-        }
-    }
-
-    function updateSelectAllCheckbox() {
-        // Update the visual aspect of the 'select all' checkbox
-        let checkedCount = 0;
-        for (let i = 0; i < competitionCheckboxes.length; i++) {
-            if (competitionCheckboxes[i].checked) {
-                checkedCount++;
-            }
-        }
-        if (checkedCount == 0) {
-            selectAllCheckbox.checked = false;
-            selectAllCheckbox.indeterminate = false;
-        } else if (checkedCount === competitionCheckboxes.length) {
-            selectAllCheckbox.checked = true;
-            selectAllCheckbox.indeterminate = false;
-        } else {
-            selectAllCheckbox.checked = false;
-            selectAllCheckbox.indeterminate = true;
-        }
-    }
-
-    function maxSubmissionSizeChanged(checkbox) {
-        // Update all selected competition max submission size
-        for (let competionId of selectedCompetitions) {
-            const row = document.querySelector('tr[id="tr-' + competionId + '"]');
-            const upperBoundmaxSumbissionSizeInput = row.querySelector('input[id$="upper_bound_max_submission_size"]');
-            upperBoundmaxSumbissionSizeInput.value = checkbox.value;
-        }
-    }
-
-    window.addEventListener('load', function () {
-        selectAllCheckbox = document.querySelector('input[id="select-all-checkbox"]');
-        competitionCheckboxes = document.querySelectorAll('td input[type="checkbox"]');
-        competitionUpperBoundMaxSubmissionSizeInputs = document.querySelectorAll('td input[id$="upper_bound_max_submission_size"]');
-
-        // Init the array of selected competitions
-        for (let i = 0; i < competitionCheckboxes.length; i++) {
-            if (competitionCheckboxes[i].checked) {
-                selectOneClicked(competitionCheckboxes[i]);
-            }
-        }
-
-        // Add onChange event listener to inputs
-        for (let input of competitionUpperBoundMaxSubmissionSizeInputs) {
-            input.addEventListener('change', () => {
-                maxSubmissionSizeChanged(input);
+                        // Add them to already existing marked competitions
+                        this.competitionsIdToUpdate = [...new Set([...this.competitionsIdToUpdate, ...newCompIdToUpdate])];
+                    },
+                    saveAll() {
+                        var competitionsUpdated = [];
+                        for (const id of this.competitionsIdToUpdate) {
+                            const competition = this.competitionsTableItems.find(competition => competition.id == id);
+                            competitionsUpdated.push({
+                                id: id,
+                                upper_bound_max_submission_size: competition.upper_bound_max_submission_size
+                            });
+                        }
+                        if (competitionsUpdated.length > 0) {
+                            const competitionsJson = {
+                                competitions: competitionsUpdated
+                            }
+                            this.saving = true;
+                            fetch("/api/admin/competitions/update", {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRFToken': csrftoken,
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify(competitionsJson)
+                            })
+                            .then(response => {
+                                if(response.ok) {
+                                    return response.json();
+                                }
+                                throw new Error('Something went wrong');
+                            })
+                            .then(json => {
+                                this.competitionsIdToUpdate = [];
+                                for (const competition of json) {
+                                    const index = this.competitionsTableItems.findIndex(comp => comp.id == competition.id);
+                                    if (index >= 0) {
+                                        // Using method splice for Vue reactivity (updating an element is not supported otherwise)
+                                        this.competitionsTableItems.splice(index, 1, competition);
+                                    } else {
+                                        console.log("error: No matching competition to update");
+                                    }
+                                }
+                            })
+                            .catch(error => {
+                                console.log("error while fetching /api/admin/competitions", error);
+                            })
+                            .finally(() => {
+                                this.saving = false;
+                            });
+                        }
+                    },
+                    synchronize(competition) {
+                        this.synchronizing = true;
+                        fetch("/api/admin/competition/" + competition.id + "/apply_upper_bound_limit", {
+                            method: 'PATCH',
+                            headers: {
+                                'X-CSRFToken': csrftoken,
+                            }
+                        })
+                        .then(response => {
+                            if(response.ok) {
+                                return response.json();
+                            }
+                            throw new Error('Something went wrong');
+                        })
+                        .then(competition => {
+                            const index = this.competitionsTableItems.findIndex(comp => comp.id == competition.id);
+                            if (index >= 0) {
+                                // Using method splice for Vue reactivity (updating an element is not supported otherwise)
+                                this.competitionsTableItems.splice(index, 1, competition);
+                            } else {
+                                console.log("error: No matching competition to update");
+                            }
+                        })
+                        .catch(error => {
+                            console.log("error while fetching /api/admin/competition/" + competition.id + "/apply_upper_bound_limit", error);
+                        })
+                        .finally(() => {
+                            this.synchronizing = false;
+                        });
+                    },
+                    getDefaultUpperBoundLimit() {
+                        this.defaultUpperBoundLimitLoading = true;
+                        fetch("/api/admin/competitions/default_upper_bound_limit")
+                        .then(response => {
+                            if(response.ok) {
+                                return response.json();
+                            }
+                            throw new Error('Something went wrong');
+                        })
+                        .then(json => {
+                            this.defaultUpperBoundLimit = json;
+                        })
+                        .catch(error => {
+                            console.log("error while fetching /api/admin/competitions/default_upper_bound_limit", error);
+                        })
+                        .finally(() => {
+                            this.defaultUpperBoundLimitLoading = false;
+                        });
+                    },
+                    openWiki() {
+                        console.log('ici');
+                    }
+                },
+                filters: {
+                    prettyDate: function(date) {
+                        return moment(date).calendar(null, {
+                            sameDay: '[Today at] h:mm a',
+                            nextDay: '[Tomorrow at] h:mm a',
+                            nextWeek: 'dddd [at] h:mm a',
+                            lastDay: '[Yesterday at] h:mm a',
+                            lastWeek: '[Last] dddd [at] h:mm a',
+                            sameElse: 'dddd, MMMM Do YYYY [at] h:mm a'
+                        });
+                    },
+                    prettyByte: function(bytes) {
+                        return prettyBytes(bytes);
+                    },
+                    prettyByteArray: function(array) {
+                        return array.map(bytes => prettyBytes(bytes));
+                    },
+                    joinCustom: function(array, separator) {
+                        return array.join(separator);
+                    }
+                }
             });
-        }
-    });
-</script>
-
-<style>
-    tr:nth-of-type(odd) {
-        background-color: #f7f7f7;
-    }
-
-    tr:nth-of-type(even) {
-        background-color: #ffffff;
-    }
-
-    tr.selected {
-        background-color: #ddeedd;
-    }
-</style>
+        })
+    </script>
 {% endblock %}

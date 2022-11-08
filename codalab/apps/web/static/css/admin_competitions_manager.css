@@ -1,0 +1,15 @@
+.admin-competitions-manager-app-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    background-color: #f7f7f7;
+}
+
+.admin-competitions-manager-footer-row {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    justify-content: flex-end;
+    margin: 24px 0px;
+}
