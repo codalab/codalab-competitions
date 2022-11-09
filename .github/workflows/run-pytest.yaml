@@ -4,6 +4,7 @@ on:
     branches:
       - master
       - develop
+      - add_dummy_testing
   pull_request:    
 jobs:
   run-tests:
