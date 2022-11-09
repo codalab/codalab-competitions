@@ -114,3 +114,7 @@ scripts/stress_testing/report.csv
 # Backups #
 ###########
 backups/
+
+
+# PyTest Coverage reports
+.coverage
