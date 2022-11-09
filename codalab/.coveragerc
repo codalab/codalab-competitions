@@ -1,0 +1,10 @@
+[run]
+omit =
+    # omit test files
+    tests.py test_*.py *_tests.py
+    # omit fabric deployment files
+    /codalabtools/*
+    # omit scripts
+    /scripts/*
+    # omit DJango manage.py file
+    manage.py
