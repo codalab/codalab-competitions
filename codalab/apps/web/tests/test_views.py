@@ -11,10 +11,9 @@ class HomePageTest(TestCase):
             try:
                 request = RequestFactory().get('/')
 
-                view = views.HomePageView.as_view()(request)
+                response = views.HomePageView.as_view()(request)
 
-                context = view.get_context_data()
-                self.assertIn('latest_competitions', context)
+                self.assertIn('latest_competitions', response.context_data)
             except models.Competition.DoesNotExist:
                 # Competition does not exist. Create competition to test content
                 pass
@@ -23,10 +22,9 @@ class HomePageTest(TestCase):
         try:
             request = RequestFactory().get('/')
 
-            view = views.HomePageView.as_view()(request)
+            response = views.HomePageView.as_view()(request)
 
-            context = view.get_context_data()
-            self.assertIn('latest_competitions', context)
+            self.assertIn('latest_competitions', response.context_data)
         except Exception:
             # Competition does not exist. Create competition to test content
             pass
