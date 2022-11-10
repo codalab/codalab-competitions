@@ -130,7 +130,7 @@
                             </li>
                         {% else %}
                             <li>
-                                <a href="{% url 'account_signup' %}?next={{request.path}}" target="_self">Sign Up</a>
+                                <a id="signup_button" href="" target="_self">Sign Up</a>
                             </li>
                             <li>
                                 <a href="{% url 'account_login' %}?next={{request.path}}" target="_self">Sign In</a>
@@ -177,6 +177,13 @@
             </ul>
         </div>
     </footer>
+
+    <script>
+    // Disable signup
+    $("#signup_button").click(function(){
+        alert("Account creation has been disabled. Please sign up to the new server at: https://codalab.lisn.upsaclay.fr/")
+    })
+    </script>
 
     <script src="//ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>
 
