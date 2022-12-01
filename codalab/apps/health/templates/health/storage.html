@@ -26,7 +26,18 @@
                     </div>
                 </div>
                 <div id="general-info" class="storage-block-info">
-                    <h3>Overview</h3>
+                    <div id="general-info-header" class="storage-block-info-header">
+                        <h3>Overview</h3>
+                        <v-spacer></v-spacer>
+                        <v-btn
+                            color="primary"
+                            small
+                            @click="onClickExportOverview"
+                        >
+                            Export
+                            <v-icon right dark>mdi-export-variant</v-icon>
+                        </v-btn>
+                    </div>
                     <div class="section-data">
                         <div>
                             <h4 v-if="snapshotDate">Bucket: <b>{{ storageBucketName }}</b></h4>
@@ -71,7 +82,18 @@
                     </div>
                 </div>
                 <div id="competitions-info" class="storage-block-info">
-                    <h3>Competitions info</h3>
+                    <div id="competitions-info-header" class="storage-block-info-header">
+                        <h3>Competitions info</h3>
+                        <v-spacer></v-spacer>
+                        <v-btn
+                            color="primary"
+                            small
+                            @click="onClickExportCompetitionsInfo"
+                        >
+                            Export
+                            <v-icon right dark>mdi-export-variant</v-icon>
+                        </v-btn>
+                    </div>
                     <div class="section-data">
                         <v-data-table
                             :headers="storageCompetitionTableHeaders"
@@ -116,7 +138,18 @@
                     </div>
                 </div>
                 <div id="users-info" class="storage-block-info">
-                    <h3>Users info</h3>
+                    <div id="users-info-header" class="storage-block-info-header">
+                        <h3>Users info</h3>
+                        <v-spacer></v-spacer>
+                        <v-btn
+                            color="primary"
+                            small
+                            @click="onClickExportUsersInfo"
+                        >
+                            Export
+                            <v-icon right dark>mdi-export-variant</v-icon>
+                        </v-btn>
+                    </div>
                     <div class="section-data">
                         <v-data-table
                             :headers="storageUserTableHeaders"
@@ -171,6 +204,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@^3"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@^1"></script>
     <script src="https://cdn.jsdelivr.net/npm/pretty-bytes@^1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@^2.0.4"></script>
     
     <script>
         $(document).ready(function () {
@@ -807,6 +841,73 @@
                     onChangeStorageUsageHistoryDateRange(newDateRange) {
                         this.getStorageUsageHistory();
                         this.storageUsageHistoryMenu = false;
+                    },
+                    onClickExportOverview() {
+                        var csv = [];
+                        csv.push('"Storage overview information"');
+                        csv.push('"Bucket name","' + this.storageBucketName + '"');
+                        csv.push('"Bucket total usage (Bytes)","' + this.storageTotalUsage + '"');
+                        csv.push('""');
+                        csv.push('"Usage history"');
+                        var usageHistoryTimePoints = '"datetime"';
+                        for (const point of this.overviewLineChart.data.datasets[0].data) {
+                            usageHistoryTimePoints += ',"' + point.x + '"';
+                        }
+                        csv.push(usageHistoryTimePoints);
+                        var usageHistorySizePoints = '"size (Bytes)"';
+                        for (const point of this.overviewLineChart.data.datasets[0].data) {
+                            usageHistorySizePoints += ',"' + point.y + '"';
+                        }
+                        csv.push(usageHistorySizePoints);
+
+                        const blob = new Blob([csv.join('\n')], { type: 'text/csv;charset=utf-8;' });
+                        saveAs(blob, "export_storage_overview.csv");
+                    },
+                    onClickExportCompetitionsInfo() {
+                        var csv = [];
+                        csv.push('"Storage competitions information"');
+                        csv.push('"Bucket name","' + this.storageBucketName + '"');
+                        csv.push('"Bucket total usage (Bytes)","' + this.storageTotalUsage + '"');
+                        csv.push('""');
+                        csv.push('"Competitions information"');
+                        var headers = '';
+                        for (const header of this.storageCompetitionTableHeaders) {
+                            headers += '"' + header.text + '",';
+                        }
+                        csv.push(headers);
+                        for (const competition of this.storageCompetitionTableData) {
+                            var row = '';
+                            for (const header of this.storageCompetitionTableHeaders) {
+                                row += '"' + competition[header.value] + '",';
+                            }
+                            csv.push(row);
+                        }
+
+                        const blob = new Blob([csv.join('\n')], { type: 'text/csv;charset=utf-8;' });
+                        saveAs(blob, "export_storage_competitions.csv");
+                    },
+                    onClickExportUsersInfo() {
+                        var csv = [];
+                        csv.push('"Storage users information"');
+                        csv.push('"Bucket name","' + this.storageBucketName + '"');
+                        csv.push('"Bucket total usage (Bytes)","' + this.storageTotalUsage + '"');
+                        csv.push('""');
+                        csv.push('"Users information"');
+                        var headers = '';
+                        for (const header of this.storageUserTableHeaders) {
+                            headers += '"' + header.text + '",';
+                        }
+                        csv.push(headers);
+                        for (const competition of this.storageUserTableData) {
+                            var row = '';
+                            for (const header of this.storageUserTableHeaders) {
+                                row += '"' + competition[header.value] + '",';
+                            }
+                            csv.push(row);
+                        }
+
+                        const blob = new Blob([csv.join('\n')], { type: 'text/csv;charset=utf-8;' });
+                        saveAs(blob, "export_storage_users.csv");
                     }
                 },
                 computed: {
