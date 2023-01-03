@@ -1,4 +1,4 @@
-Django==1.11.29
+Django==4.1.5
 alembic==0.6.7
 anyjson==0.3.3
 argparse
