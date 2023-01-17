@@ -85,3 +85,6 @@ pytest-env==0.6.2
 lxml==4.1.1
 
 certifi==2020.6.20
+
+# Adding coreapi for rest_framework api documentation
+coreapi
