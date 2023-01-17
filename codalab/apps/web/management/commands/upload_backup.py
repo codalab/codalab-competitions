@@ -10,6 +10,12 @@ from apps.web.utils import _put_blob
 class Command(BaseCommand):
     help = "Takes a database dump file and puts it on remote storage"
 
+    # needing add_arguments method after upgrading Django to 1.8
+    # see https://docs.djangoproject.com/en/1.8/releases/1.8/#extending-management-command-arguments-through-command-option-list
+    def add_arguments(self, parser):
+        parser.add_argument('args', nargs='*')
+
+
     def handle(self, *args, **options):
         if len(args) == 0:
             raise Exception("the relative dump file path is required -- it is stored in /app/backups so you do not "
