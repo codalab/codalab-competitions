@@ -7,6 +7,7 @@ class ContentCategorySerial(serializers.ModelSerializer):
 
     class Meta:
         model = webmodels.ContentCategory
+        fields = '__all__'
 
 class DefaultContentSerial(serializers.ModelSerializer):
     category_codename = serializers.SlugField(source='category.codename')
@@ -14,6 +15,7 @@ class DefaultContentSerial(serializers.ModelSerializer):
     initial_visibility = serializers.SlugField(source='initial_visibility.codename')
     class Meta:
         model = webmodels.DefaultContentItem
+        fields = '__all__'
 
 
 class PageContainerSerial(serializers.ModelSerializer):
@@ -56,6 +58,7 @@ class CompetitionDatasetSerial(serializers.ModelSerializer):
 class CompetitionParticipantSerial(serializers.ModelSerializer):
     class Meta:
         model = webmodels.CompetitionParticipant
+        fields = '__all__'
 
 
 class CompetitionSubmissionSerial(serializers.ModelSerializer):
@@ -167,12 +170,14 @@ class LeaderBoardSerial(serializers.ModelSerializer):
     entries =  CompetitionSubmissionSerial(read_only=True, source='submissions')
     class Meta:
         model = webmodels.PhaseLeaderBoard
+        fields = '__all__'
 
 class CompetitionDataSerial(serializers.ModelSerializer):
     image_url = serializers.URLField(source='image.url', read_only=True)
     phases = serializers.RelatedField(many=True, read_only=True)
     class Meta:
         model = webmodels.Competition
+        fields = '__all__'
 
 
 class PhaseRel(serializers.ModelSerializer):
@@ -252,6 +257,7 @@ class CompetitionFilter(django_filters.FilterSet):
 class ScoreSerial(serializers.ModelSerializer):
     class Meta:
         model = webmodels.SubmissionScore
+        fields = '__all__'
 
 class CompetitionScoresSerial(serializers.ModelSerializer):
     competition_id = serializers.IntegerField(source='phase.competition.pk')
@@ -264,3 +270,4 @@ class CompetitionScoresSerial(serializers.ModelSerializer):
 
     class Meta:
         model = webmodels.CompetitionSubmission
+        fields = '__all__'
