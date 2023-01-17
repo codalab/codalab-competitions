@@ -94,10 +94,11 @@ class FeaturedCompetitionsTests(TestCase):
         assert self.competition_old not in competitions
 
         # Delete new competition, mark submission as newer, old competition should now appear in list
-        self.competition1.delete()
-        self.submission2.submitted_at = now()
-        self.submission2.save()
-        competitions = get_featured_competitions(limit=1)
+        # EDIT: No, the current algorithm filter all competitions older than 1 month, so the featured competition here would be selected at random
+        #self.competition1.delete()
+        #self.submission2.submitted_at = now()
+        #self.submission2.save()
+        #competitions = get_featured_competitions(limit=1)
 
-        assert len(competitions) == 1
-        assert self.competition_old in competitions
+        #assert len(competitions) == 1
+        #assert self.competition_old in competitions

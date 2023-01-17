@@ -73,7 +73,7 @@ def get_featured_competitions(popular_competitions_to_filter=None, limit=5):
             start_date__lte=a_month_from_now
         ).exists()
         if competition.start_date:
-            recently_started = competition.start_date < a_month_ago
+            recently_started = competition.start_date > a_month_ago
         else:
             recently_started = False
         if recently_started or phase_change_within_a_month and competition.pk not in popular_filter_pks:
