@@ -247,7 +247,7 @@ class Competition(ChaHubSaveMixin, models.Model):
         null=True,
         blank=True,
         related_name='competitions',
-        help_text="(don't change this unless you have a reason to, default/empty is fine)",
+        help_text="Change this to use a different set of compute workers. The default queue is provided by the platform administrators.",
         on_delete=models.SET_NULL
     )
     title = models.CharField(max_length=100)
