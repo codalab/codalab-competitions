@@ -9,8 +9,7 @@ more information is better.
 # A brief description of the purpose of the changes contained in this PR.
 ...
 
-
-# Known issues to be addressed in a separate PR
+# Issues this PR resolves
 ...
 
 
@@ -22,14 +21,11 @@ more information is better.
 [link]('#') to any relevant files (or drag and drop into github)
 
 
-# Misc. comments
-...
-
-
 # Checklist
 - [ ] Code review by me 
 - [ ] Hand tested by me 
 - [ ] I'm proud of my work
 - [ ] Code review by reviewer
 - [ ] Hand tested by reviewer
+- [ ] CircleCi tests are passing
 - [ ] Ready to merge
