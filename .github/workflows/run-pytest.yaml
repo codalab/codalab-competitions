@@ -57,6 +57,8 @@ jobs:
           python -m pip install --upgrade pip
           # Patch for anyjson
           pip install "setuptools~=57.5.0"
+          python --version
+          pip freeze
           pip install anyjson
           # End Patch for anyjson
           pip install flake8 pytest pytest-cov pytest-dependency pytest-django
