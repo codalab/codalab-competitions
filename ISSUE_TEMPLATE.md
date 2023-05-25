@@ -9,7 +9,7 @@ If you are competition participant:
 If you are an organizer and have problem hosting your competition:
 ------------------------------------------------------------------
 
-1. If possible, please add `pavao` and `tthomas63` as admins to your competition so they may access it.
+1. If possible, please add `pavao` as admin to your competition so they may access it.
 2. Please post a link to your competition.
 
 
