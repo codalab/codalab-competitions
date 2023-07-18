@@ -934,10 +934,11 @@ class CompetitionResultsDownload(View):
 
     def get(self, request, *args, **kwargs):
         competition = models.Competition.objects.get(pk=self.kwargs['id'])
+        admin_ids = set(competition.admins.all().values_list('id', flat=True))
         any_bool = any([
-            bool(request.user.id is competition.creator.id),
-            bool(request.user.id in competition.admins.all().values_list('id', flat=True)),
-            bool(request.user.id in competition.participants.all().values_list('id', flat=True))]
+            bool(request.user.id == competition.creator.id),
+            bool(request.user.id in admin_ids),
+            bool(competition.published)]
         )
         if not any_bool:
             return HttpResponseForbidden()
