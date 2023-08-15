@@ -59,12 +59,14 @@ http://www.opensource.org/licenses/apache2.0.php
 ## Cite CodaLab Competitions in your research
 
 ```
-@article{codalab_competitions,
-    author = {Adrien Pavao and Isabelle Guyon and Anne-Catherine Letournel and Xavier Baró and 
-              Hugo Escalante and Sergio Escalera and Tyler Thomas and Zhen Xu},
-    title = {CodaLab Competitions: An open source platform to organize scientific challenges},
-    url = {https://hal.inria.fr/hal-03629462v1},
-    year = {2022},
-    journal = {Technical report}
+@article{codalab_competitions_JMLR,
+  author  = {Adrien Pavao and Isabelle Guyon and Anne-Catherine Letournel and Dinh-Tuan Tran and Xavier Baro and Hugo Jair Escalante and Sergio Escalera and Tyler Thomas and Zhen Xu},
+  title   = {CodaLab Competitions: An Open Source Platform to Organize Scientific Challenges},
+  journal = {Journal of Machine Learning Research},
+  year    = {2023},
+  volume  = {24},
+  number  = {198},
+  pages   = {1--6},
+  url     = {http://jmlr.org/papers/v24/21-1436.html}
 }
 ```
