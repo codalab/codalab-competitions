@@ -1,3 +1,3 @@
-FROM rabbitmq:3.6.16-management
+FROM rabbitmq:management
 
 RUN apt-get update && apt-get install -y gettext
