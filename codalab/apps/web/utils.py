@@ -12,6 +12,8 @@ StorageClass = get_storage_class(settings.DEFAULT_FILE_STORAGE)
 if hasattr(settings, 'USE_AWS') and settings.USE_AWS:
     BundleStorage = StorageClass(bucket=settings.AWS_STORAGE_PRIVATE_BUCKET_NAME)
     PublicStorage = StorageClass(bucket=settings.AWS_STORAGE_BUCKET_NAME)
+    PublicStorage.connection.auth_region_name = settings.S3DIRECT_REGION
+    BundleStorage.connection.auth_region_name = settings.S3DIRECT_REGION
 elif hasattr(settings, 'BUNDLE_AZURE_ACCOUNT_NAME') and settings.BUNDLE_AZURE_ACCOUNT_NAME:
     BundleStorage = StorageClass(account_name=settings.BUNDLE_AZURE_ACCOUNT_NAME,
                                  account_key=settings.BUNDLE_AZURE_ACCOUNT_KEY,

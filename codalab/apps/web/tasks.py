@@ -1096,8 +1096,16 @@ def make_modified_bundle(competition_pk, exclude_datasets_flag):
             counter = 0
             logger.info("Attempting to save new object.")
             try:
-                temp_comp_dump.data_file.save(zip_name, temp_comp_data)
+                with open("/tmp/{0}".format(zip_name), "wb") as f:
+                    f.write(zip_buffer.getvalue())
+
+                dump_path = "competition_dump/{0}/{1}".format(competition_pk, zip_name)
+                os.system("/app/codalab/scripts/mc alias set minio https://{0} {1} {2}".format(settings.AWS_S3_HOST, settings.AWS_ACCESS_KEY_ID, settings.AWS_SECRET_ACCESS_KEY))
+                os.system("/app/codalab/scripts/mc cp \"/tmp/{0}\" \"minio/{1}/competition_dump/{2}/\"".format(zip_name, settings.AWS_STORAGE_PRIVATE_BUCKET_NAME, competition_pk))
+                temp_comp_dump.data_file.name = dump_path
+                temp_comp_dump.save()
                 save_success = True
+                os.system("rm \"/tmp/{0}\"".format(zip_name))
             except SoftTimeLimitExceeded:
                 logger.info("Failed to save object, retrying.")
                 counter += 1

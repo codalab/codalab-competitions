@@ -48,11 +48,7 @@ services:
   # Message queue
   # --------------------------------------------------------------------------
   rabbit:
-    build:
-      # Custom Dockerfile for rabbit mostly to make building faster because
-      # of envsubst dependency
-      context: .
-      dockerfile: docker/rabbitmq/Dockerfile
+    image: codalab/codalab-competitions-rabbit:v15
     hostname: rabbit
     command: bash -x /app/docker/run_rabbitmq.sh
     environment:
@@ -115,9 +111,7 @@ services:
   # Django
   # --------------------------------------------------------------------------
   django:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: codalab/codalab-competitions_django:v15
     hostname: django
     ports:
       - ${DJANGO_PORT}:${DJANGO_PORT}
@@ -146,9 +140,7 @@ services:
   # Celery Workers
   # --------------------------------------------------------------------------
   worker_site:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: codalab/codalab-competitions_worker_site:v15
     command: sh /app/docker/run_site.sh
     volumes:
       - ./codalab:/app/codalab
