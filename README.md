@@ -9,6 +9,8 @@ CodaLab is an open-source web-based platform that enables researchers, developer
 
 To see Codalab Competition's in action, visit [codalab.lisn.fr](https://codalab.lisn.fr/).
 
+_[Codabench](https://github.com/codalab/codabench), the next-gen of CodaLab Competitions, is out. [Try it out](https://www.codabench.org/)!_
+
 ## Documentation
 
 - [CodaLab Wiki](https://github.com/codalab/codalab/wiki)
