@@ -1238,9 +1238,13 @@ class CompetitionPhase(models.Model):
             for result in results:
                 for sdef in result['scoredefs']:
                     if sdef.computed:
-                        operation = getattr(models, sdef.computed_score.operation)
+                        try:
+                            operation = getattr(models, sdef.computed_score.operation)
+                            operation_name = operation.name
+                        except:
+                            operation_name = sdef.computed_score.operation
                         weights = sdef.computed_score.weights
-                        if (operation.name == 'Avg'):
+                        if (operation_name == 'Avg'):
                             try:
                                 cnt = len(computed_deps[sdef.id])
                                 if (cnt > 0):
@@ -1259,6 +1263,18 @@ class CompetitionPhase(models.Model):
                                         except KeyError:
                                             pass
 
+                                    values[sdef.id] = computed_values
+                                    ranks[sdef.id] = self.rank_values(submission_ids, computed_values, sort_ascending=sdef.sorting=='asc')
+                            except KeyError:
+                                pass
+                        elif (operation_name == 'MRR'):
+                            try:
+                                cnt = len(computed_deps[sdef.id])
+                                if (cnt > 0):
+                                    computed_values = {}
+                                    for id in submission_ids:
+                                        # Mean reciprocal rank computation
+                                        computed_values[id] = sum([1.0/ranks[d.id][id] for d in computed_deps[sdef.id]]) / float(cnt)
                                     values[sdef.id] = computed_values
                                     ranks[sdef.id] = self.rank_values(submission_ids, computed_values, sort_ascending=sdef.sorting=='asc')
                             except KeyError:
@@ -2398,7 +2414,8 @@ class SubmissionScoreDefGroup(models.Model):
 class SubmissionComputedScore(models.Model):
     scoredef = models.OneToOneField(SubmissionScoreDef, related_name='computed_score', on_delete=models.CASCADE)
     operation = models.CharField(max_length=10, choices=(('Max', 'Max'),
-                                                        ('Avg', 'Average')))
+                                                         ('Avg', 'Average'),
+                                                         ('MRR', 'MRR')))
     weights = models.CharField(max_length=200, null=True, blank=True)
 
 
