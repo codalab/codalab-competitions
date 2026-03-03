@@ -1103,28 +1103,30 @@ def make_modified_bundle(competition_pk, exclude_datasets_flag):
                     if hasattr(phase, data_type):
                         data_field = getattr(phase, data_type)
                         if data_field:
-                            if data_field.file.name not in list(file_cache.keys()):
-                                if exclude_datasets_flag:
-                                    data_field = getattr(phase, data_type + '_organizer_dataset')
-                                    phase_dict[data_type] = str(data_field.key)
-                                    file_name = "{}_{}.zip".format(data_type, phase.phasenumber)
-                                    file_cache[data_field.name] = {
-                                        'name': file_name
-                                    }
+                            file_name_on_storage = getattr(data_field, "name", None)
+                            if file_name_on_storage:
+                                if file_name_on_storage not in file_cache:
+                                    if exclude_datasets_flag:
+                                        data_field = getattr(phase, data_type + '_organizer_dataset')
+                                        phase_dict[data_type] = str(data_field.key)
+                                        file_name = "{}_{}.zip".format(data_type, phase.phasenumber)
+                                        file_cache[data_field.name] = {
+                                            'name': file_name
+                                        }
+                                    else:
+                                        file_name = "{}_{}.zip".format(data_type, phase.phasenumber)
+                                        phase_dict[data_type] = file_name
+                                        file_cache[data_field.file.name] = {
+                                            'name': file_name
+                                        }
+                                        zip_file.writestr(file_name, data_field.read())
                                 else:
-                                    file_name = "{}_{}.zip".format(data_type, phase.phasenumber)
-                                    phase_dict[data_type] = file_name
-                                    file_cache[data_field.file.name] = {
-                                        'name': file_name
-                                    }
-                                    zip_file.writestr(file_name, data_field.read())
-                            else:
-                                if exclude_datasets_flag:
-                                    data_field = getattr(phase, data_type + '_organizer_dataset')
-                                    phase_dict[data_type] = str(data_field.key)
-                                else:
-                                    file_name = file_cache[str(data_field.name)]['name']
-                                    phase_dict[data_type] = file_name
+                                    if exclude_datasets_flag:
+                                        data_field = getattr(phase, data_type + '_organizer_dataset')
+                                        phase_dict[data_type] = str(data_field.key)
+                                    else:
+                                        file_name = file_cache[str(data_field.name)]['name']
+                                        phase_dict[data_type] = file_name
             except ValueError:
                 logger.info("Failed to retrieve the file.")
             datasets = phase.datasets.all()
