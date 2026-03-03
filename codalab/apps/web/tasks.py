@@ -1119,7 +1119,11 @@ def make_modified_bundle(competition_pk, exclude_datasets_flag):
                                         file_cache[data_field.name] = {
                                             'name': file_name
                                         }
-                                        zip_file.writestr(file_name, data_field.read())
+                                        try:
+                                            zip_file.writestr(file_name, data_field.read())
+                                        except Exception as e:
+                                            logger.warning("Missing file in storage: %s (%s)", file_name_on_storage, e)
+                                            continue
                                 else:
                                     if exclude_datasets_flag:
                                         data_field = getattr(phase, data_type + '_organizer_dataset')
