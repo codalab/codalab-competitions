@@ -1116,7 +1116,7 @@ def make_modified_bundle(competition_pk, exclude_datasets_flag):
                                     else:
                                         file_name = "{}_{}.zip".format(data_type, phase.phasenumber)
                                         phase_dict[data_type] = file_name
-                                        file_cache[data_field.file.name] = {
+                                        file_cache[data_field.name] = {
                                             'name': file_name
                                         }
                                         zip_file.writestr(file_name, data_field.read())
