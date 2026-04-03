@@ -83,6 +83,7 @@ class CompetitionCreationSasApi(views.APIView):
         Provides a Blob SAS that a client can use to upload the competition definition bundle.
         Returns a dictionary of the form: { 'url': <shared-access-url>, 'id': <tracking-id> }
         """
+        #return Response("Competition creation is no longer supported.", status=status.HTTP_410_GONE)
         prefix = 'competition/upload/{0}'.format(request.user.id)
         response_data = _generate_blob_sas_url(prefix, '.zip')
         return Response(response_data, status=status.HTTP_201_CREATED)
@@ -103,6 +104,7 @@ class CompetitionCreationApi(views.APIView):
             { 'token': <value> }
         Use the token with CompetitionCreationStatusApi to track the progress of the job.
         """
+        #return Response("Competition creation is no longer supported.", status=status.HTTP_410_GONE)
         blob_name = request.data.get('id', '')
         if len(blob_name) <= 0:
             return Response("Invalid or missing tracking ID.", status=status.HTTP_400_BAD_REQUEST)

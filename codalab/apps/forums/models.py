@@ -37,19 +37,7 @@ class Thread(models.Model):
     class Meta:
         ordering = ('-last_post_date',)
 
-    def save(self, *args, **kwargs):
-        created = False
-        if not self.id:
-            # On first save do these actions
-            self.date_created = datetime.datetime.today()
-            created = True
-
-        # Do the save THEN send email so we have an Id to work with
-        super(Thread, self).save(*args, **kwargs)
-
-        if created:
-            if self.forum.competition.creator.organizer_direct_message_updates:
-                self.notify_user(self.forum.competition.creator)
+    
 
     def get_absolute_url(self):
         return reverse('forum_thread_detail', kwargs={'forum_pk': self.forum.pk, 'thread_pk': self.pk})
@@ -88,7 +76,4 @@ class Post(models.Model):
     posted_by = models.ForeignKey('authenz.ClUser', on_delete=models.CASCADE)
     content = models.TextField()
 
-    def save(self, *args, **kwargs):
-        if not self.id:
-            self.date_created = datetime.datetime.today()
-        return super(Post, self).save(*args, **kwargs)
+    

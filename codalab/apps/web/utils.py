@@ -259,6 +259,7 @@ def get_size_from_summary(bucket_name, key):
     size = None
     # Test if file exists, since it's an observed bug that the object exists but no file is present in the storage
     try:
+        #obj_summary = "1"
         obj_summary = s3.ObjectSummary(bucket_name, key)
         if obj_summary:
             size = obj_summary.size
