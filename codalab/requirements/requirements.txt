@@ -74,7 +74,7 @@ psycopg2==2.8.3
 django-pin-passcode==0.1.9
 
 # Adding test libraries here for simplicity sake
-pytest==5.4.3
+pytest==9.0.3
 pytest-django==3.9.0
 pytest-testmon==1.0.2
 # I haven't found any uses of pytest-watch, but it seems like something that should be leveraged when I looked into it.
